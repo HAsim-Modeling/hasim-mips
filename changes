@@ -1,0 +1,87 @@
+
+----------
+mpellaue    Date: Wed Jun 14 16:27:51 EDT 2006  CSN: CSN-hasim-mips-2
+                  Wed Jun 14 20:27:51 UTC 2006
+
+
+Directory modules/functional/toymips
+ FUNCP_ExecuteAlg.bsv      Locally Added               0 
+ FUNCP_DecodeAlg.bsv       Locally Added               0 
+ toymips_funcp_execute_alg.awb Locally Added               0 
+ toymips_funcp_decode_alg.awb Locally Added               0 
+
+Directory modules/functional/mips
+ FUNCP_FetchAlg.bsv        Locally Added               0 
+ FUNCP_GlobalCommitAlg.bsv Locally Added               0 
+ mips_funcp_localcommit_alg.awb Locally Added               0 
+ FUNCP_MemAlg.bsv          Locally Added               0 
+ mips_funcp_fetch_alg.awb  Locally Added               0 
+ mips_funcp_globalcommit_alg.awb Locally Added               0 
+ FUNCP_LocalCommitAlg.bsv  Locally Added               0 
+ mips_funcp_mem_alg.awb    Locally Added               0 
+
+Directory modules/functional/smips
+ smips_funcp_execute_alg.awb Locally Added               0 
+ smips_funcp_decode_alg.awb Locally Added               0 
+ FUNCP_Execute.bsv         Locally Added               0 
+ FUNCP_Decode.bsv          Locally Added               0 
+
+Directory modules/functional/test-cases/toymips
+ simple-addition/          Locally Added               0 
+
+Directory modules/functional/test-cases/toymips/simple-addition
+ TestCase.bsv              Locally Added               0 
+ toymips_testcase_simple_addition.awb Locally Added               0 
+
+Directory modules/functional/test-cases/toymips
+ stalls/                   Locally Added               0 
+
+Directory modules/functional/test-cases/toymips/stalls
+ TestCase.bsv              Locally Added               0 
+ toymips_testcase_stalls.awb Locally Added               0 
+
+Directory modules/functional/test-cases/toymips
+ simple-subtraction/       Locally Added               0 
+
+Directory modules/functional/test-cases/toymips/simple-subtraction
+ TestCase.bsv              Locally Added               0 
+ toymips_testcase_simple_subtraction.awb Locally Added               0 
+
+Directory modules/functional/test-cases/toymips
+ branch/                   Locally Added               0 
+
+Directory modules/functional/test-cases/toymips/branch
+ TestCase.bsv              Locally Added               0 
+ toymips_testcase_branch.awb Locally Added               0 
+
+Directory modules
+ chip/                     Locally Added               0 
+
+Directory modules/chip
+ mips/                     Locally Added               0 
+
+Directory modules/chip/mips
+ 5stage/                   Locally Added               0 
+
+Directory modules/chip/mips/5stage
+ hasim_5stage_chip.awb     Locally Added               0 
+ Chip.bsv                  Locally Added               0 
+
+Directory modules/chip/mips
+ simple/                   Locally Added               0 
+
+Directory modules/chip/mips/simple
+ hasim_simple_chip.awb     Locally Added               0 
+ Chip.bsv                  Locally Added               0 
+
+Directory modules/isa/toymips
+ ISA.bsv                   Locally Added               0 
+ hasim_toymips_isa.awb     Locally Added               0 
+
+Directory modules/isa/smips
+ hasim_smips_isa.awb       Locally Added               0 
+ ISA.bsv                   Locally Added               0 
+
+Added the files for the initial commit.
+
+Michael
