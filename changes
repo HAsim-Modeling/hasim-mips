@@ -85,3 +85,22 @@ Directory modules/isa/smips
 Added the files for the initial commit.
 
 Michael
+
+----------
+mpellaue    Date: Thu Jun 15 13:38:20 EDT 2006  CSN: CSN-hasim-mips-3
+                  Thu Jun 15 17:38:20 UTC 2006
+
+
+Directory modules/functional/smips
+ FUNCP_Execute.bsv         Locally Modified            2 
+ FUNCP_Decode.bsv          Locally Modified            2 
+
+Directory modules/isa/smips
+ ISA.bsv                   Locally Modified            2 
+
+Directory modules/chip/mips/5stage
+ Chip.bsv                  Locally Modified            2 
+
+Bugfixes for smips model.
+
+Michael

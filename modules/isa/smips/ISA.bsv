@@ -91,6 +91,7 @@ typedef union tagged
   //struct { RName rdst;  CP0Index cop0src;          } MFC0;
   //struct { RName rsrc;  CP0Index cop0dst;          } MTC0; 
 
+  void                                               TERMINATE;
   void                                               ILLEGAL;
 
 }
@@ -299,6 +300,7 @@ typedef union tagged
   //struct { PRName pdst;  CP0Index cop0src;  		PRName opdst; } DMFC0;
   //struct { PRName rsrc;  CP0Index cop0dst;  		PRName opdst; } DMTC0; 
 
+  void                                                                  DTERMINATE;
   void                                                                  DILLEGAL;
 
 }

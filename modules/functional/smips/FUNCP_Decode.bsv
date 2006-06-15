@@ -1115,6 +1115,18 @@ module [Module] mkDecode ();
 
        // -- Illegal ---------------------------------------------------
  
+      tagged TERMINATE: 
+        begin
+          decinst = DTERMINATE;
+		    
+          depinfo = DepInfo 
+	            {
+		      dep_dest: Invalid, 
+		      dep_src1: Invalid, 
+		      dep_src2: Invalid
+		    };
+        end
+
       default: 
         begin
           decinst = DILLEGAL;

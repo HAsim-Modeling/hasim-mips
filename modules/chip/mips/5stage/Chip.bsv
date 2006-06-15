@@ -6,7 +6,16 @@ import FIFO::*;
 import Vector::*;
 
 import HASim::*;
+import Debug::*;
 import ISA::*;
+
+`define TOK_Latency 0
+`define FET_Latency 3
+`define DEC_Latency 1
+`define EXE_Latency 2
+`define MEM_Latency 3
+`define LCO_Latency 0
+`define GCO_Latency 1
 
 module [HASim_Module] mkChip 
     //interface:
@@ -21,7 +30,7 @@ module [HASim_Module] mkChip
   Reg#(Bool) ran <- mkReg(False);
   Reg#(Addr) pc <- mkReg(0);
 
-  FIFO#(Tuple2#(Token, Tick))  tokQ     <- mkFIFO();
+  FIFO#(Tick)                  tokQ     <- mkFIFO();
   FIFO#(Tuple2#(Token, Tick))  tok2fetQ <- mkFIFO();
   FIFO#(Tuple2#(Token, Tick))  fet2decQ <- mkFIFO();
   FIFO#(Tuple2#(Token, Tick))  dec2exeQ <- mkFIFO();
@@ -78,7 +87,7 @@ module [HASim_Module] mkChip
     tokQ.enq(baseTick);
     baseTick <= baseTick + 1;
   
-    link_to_tok.makeReq(17, baseTick);
+    link_to_tok.makeReq(tuple2(17, baseTick));
     
   endrule
   
@@ -90,10 +99,12 @@ module [HASim_Module] mkChip
     
     pc <= pc + 1;
   
-    let tick = tokQ.first() + `TOK_Latency;
+    let old_tick = tokQ.first();
     tokQ.deq();
   
-    tok2fetQ.enq(tuple2(tok, tick);
+    let tick = old_tick + `TOK_Latency;
+  
+    tok2fetQ.enq(tuple2(tok, tick));
   
     link_to_fet.makeReq(tuple3(tok, tick, pc));
   
@@ -105,7 +116,7 @@ module [HASim_Module] mkChip
     
     debug(2, $display("%h: Decoding token %0d", hostCC, tok));
     
-    match {.cur_tok, .old_tick} = tok2fet.first();
+    match {.cur_tok, .old_tick} = tok2fetQ.first();
     tok2fetQ.deq();
     
     let tick = old_tick + `FET_Latency;
@@ -121,9 +132,9 @@ module [HASim_Module] mkChip
 
   rule decode (running);
   
-    match {.tok, .deps} <- link_to_exe.getResp();
+    match {.tok, .deps} <- link_to_dec.getResp();
     
-    debug(2, $display("%h: DEC Responded with token %0d.", curCC, tok));
+    debug(2, $display("%h: DEC Responded with token %0d.", hostCC, tok));
     
     match {.cur_tok, .old_tick} = fet2decQ.first();
     fet2decQ.deq();
@@ -133,19 +144,19 @@ module [HASim_Module] mkChip
     if (tok != cur_tok)
        $display ("%h: DEC ERROR: Mismatched token. Expected: %0d, Received: %0d", hostCC, cur_tok, tok);
 
-    case (deps.dest) matches
+    case (deps.dep_dest) matches
       tagged Valid {.rname, .prname}:
 	debug(2, $display("Destination: (%d, %d)", rname, prname));
       tagged Invalid:
 	debug(2, $display("No destination."));
     endcase
-    case (deps.src1) matches
+    case (deps.dep_src1) matches
       tagged Valid {.rname, .prname}:
         debug(2, $display("Source 1: (%d, %d)", rname, prname));
       tagged Invalid:
         debug(2, $display("No Source 1."));
     endcase
-    case (deps.src2) matches
+    case (deps.dep_src2) matches
       tagged Valid {.rname, .prname}:
         debug(2, $display("Source 2: (%d, %d)", rname, prname));
       tagged Invalid:
@@ -166,6 +177,9 @@ module [HASim_Module] mkChip
     match {.cur_tok, .old_tick} = dec2exeQ.first();
     dec2exeQ.deq();
     
+    if (tok != cur_tok)
+       $display ("%h: EXE ERROR: Mismatched token. Expected: %0d, Received: %0d", hostCC, cur_tok, tok);
+
     let tick = old_tick + `EXE_Latency;
     
     case (res) matches
@@ -202,7 +216,10 @@ module [HASim_Module] mkChip
     match {.cur_tok, .old_tick} = exe2memQ.first();
     exe2memQ.deq();
     
-    tick = old_tick + `MEM_Latency;
+    if (tok != cur_tok)
+       $display ("%h: MEM ERROR: Mismatched token. Expected: %0d, Received: %0d", hostCC, cur_tok, tok);
+
+    let tick = old_tick + `MEM_Latency;
     
     mem2lcoQ.enq(tuple2(tok, tick));
     link_to_lco.makeReq(tuple3(tok, tick, ?));
@@ -218,9 +235,12 @@ module [HASim_Module] mkChip
     match {.cur_tok, .old_tick} = mem2lcoQ.first();
     mem2lcoQ.deq();
     
+    if (tok != cur_tok)
+       $display ("%h: LCO ERROR: Mismatched token. Expected: %0d, Received: %0d", hostCC, cur_tok, tok);
+
     let tick = old_tick + `LCO_Latency;
     
-    lco2gcoQ.enq(tok);
+    lco2gcoQ.enq(tuple2(tok, tick));
     link_to_gco.makeReq(tuple3(tok, tick, ?));
     
   endrule
@@ -233,8 +253,14 @@ module [HASim_Module] mkChip
     
     match {.cur_tok, .old_tick} = lco2gcoQ.first();
     lco2gcoQ.deq();
+
+    if (tok != cur_tok)
+       $display ("%h: GCO ERROR: Mismatched token. Expected: %0d, Received: %0d", hostCC, cur_tok, tok);
+
+    let tick = old_tick + `GCO_Latency;
     
     link_to_gco.makeReq(tuple3(tok, tick, ?));
+    gco2tokQ.enq(tuple2(tok, tick));
     
   endrule
 
@@ -242,7 +268,10 @@ module [HASim_Module] mkChip
   
     match{.tok,.*} <- link_to_gco.getResp();
   
-    debug(2, $display(" %h: finished token %0d", baseTick, tok));
+    match {.cur_tok, .old_tick} = gco2tokQ.first();
+    gco2tokQ.deq();
+    
+    debug(2, $display(" %h: finished token %0d at model cycle %d", hostCC, tok, old_tick));
   
     if((Valid tok) == mstopToken)
       running <= False;

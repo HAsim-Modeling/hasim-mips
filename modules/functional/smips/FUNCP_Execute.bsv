@@ -664,6 +664,15 @@ module [Module] mkSMIPS_Execute#(BypassUnit#(SMIPS_RName, SMIPS_PRName, SMIPS_Va
 
        // -- Illegal ---------------------------------------------------
  
+      tagged TERMINATE: 
+        begin
+	
+	  done = True;
+	  res = RTerminate;
+	  einst = ENop {opdst: ?};
+	  	  
+        end
+	
       default: 
         begin
 	
