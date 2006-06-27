@@ -24,7 +24,7 @@ import ISA::*;
 
 // Also lookup physical register from BypassUnit
 
-module [Module] mkDecode ();
+module [HASim_Module] mkFUNCP_DecodeAlg ();
   
   //Ports
   Connection_Server#(Tuple3#(Token, Tuple2#(Addr, Inst), void), 
@@ -137,42 +137,42 @@ module [Module] mkDecode ();
   endfunction
  
   
-  function RName getDest(Inst i);
+  function Maybe#(RName) getDest(Inst i);
      return case ( i ) matches
 
       // -- Memory Ops ------------------------------------------------      
 
-      tagged LW .it : return Valid it.rdst;
+      tagged LW .it : return Valid it.rdest;
 
       tagged SW .it : return Invalid;
 
       // -- Simple Ops ------------------------------------------------      
 
-      tagged ADDIU .it : return Valid it.rdst;
-      tagged SLTI  .it : return Valid it.rdst;
-      tagged SLTIU .it : return Valid it.rdst;
-      tagged ANDI  .it : return Valid it.rdst;
-      tagged ORI   .it : return Valid it.rdst;
-      tagged XORI  .it : return Valid it.rdst;
+      tagged ADDIU .it : return Valid it.rdest;
+      tagged SLTI  .it : return Valid it.rdest;
+      tagged SLTIU .it : return Valid it.rdest;
+      tagged ANDI  .it : return Valid it.rdest;
+      tagged ORI   .it : return Valid it.rdest;
+      tagged XORI  .it : return Valid it.rdest;
       tagged LUI   .it : return Invalid;
 
-      tagged SLL   .it : return Valid it.rdst;
-      tagged SRL   .it : return Valid it.rdst;
-      tagged SRA   .it : return Valid it.rdst;
-      tagged SLLV  .it : return Valid it.rdst;
-      tagged SRLV  .it : return Valid it.rdst;
-      tagged SRAV  .it : return Valid it.rdst;
-      tagged ADDU  .it : return Valid it.rdst;
-      tagged SUBU  .it : return Valid it.rdst;
-      tagged AND   .it : return Valid it.rdst;
-      tagged OR    .it : return Valid it.rdst;
-      tagged XOR   .it : return Valid it.rdst;
-      tagged NOR   .it : return Valid it.rdst;
-      tagged SLT   .it : return Valid it.rdst;
-      tagged SLTU  .it : return Valid it.rdst;
+      tagged SLL   .it : return Valid it.rdest;
+      tagged SRL   .it : return Valid it.rdest;
+      tagged SRA   .it : return Valid it.rdest;
+      tagged SLLV  .it : return Valid it.rdest;
+      tagged SRLV  .it : return Valid it.rdest;
+      tagged SRAV  .it : return Valid it.rdest;
+      tagged ADDU  .it : return Valid it.rdest;
+      tagged SUBU  .it : return Valid it.rdest;
+      tagged AND   .it : return Valid it.rdest;
+      tagged OR    .it : return Valid it.rdest;
+      tagged XOR   .it : return Valid it.rdest;
+      tagged NOR   .it : return Valid it.rdest;
+      tagged SLT   .it : return Valid it.rdest;
+      tagged SLTU  .it : return Valid it.rdest;
 
       //tagged MTC0  .it : return Invalid;
-      //tagged MFC0  .it : return Valid it.rdst;
+      //tagged MFC0  .it : return Valid it.rdest;
 
       // -- Branches --------------------------------------------------
 
@@ -196,13 +196,13 @@ module [Module] mkDecode ();
 
       tagged JAL   .it : return Invalid;
 
-      tagged JALR  .it : return Valid it.rdst;
+      tagged JALR  .it : return Valid it.rdest;
       default:           return Invalid;
     endcase;
   endfunction
   
   
-  function RName isBranch(Inst i);
+  function Bool isBranch(Inst i);
      return case ( i ) matches
 
       tagged BLEZ  .it : return True;
@@ -271,31 +271,28 @@ module [Module] mkDecode ();
     
     PRName pra <- link_lookup1.getResp();
     PRName prb <- link_lookup2.getResp();
+    match {.prd, .oprd} <- link_mapping.getResp();
     
     //Actually do the decode
     case (inst) matches
       // -- Memory Ops ------------------------------------------------      
       
       //Load Word
-      tagged LW {rbase: .rb, rdst:.rd, offset: .off}: 
+      tagged LW {rbase: .rb, rdest:.rd, offset: .off}: 
 	begin
-	  let prb  = bypass.lookup1(rb);
-
-          let rtup <- bypass.makeMapping(Valid rd, t, False);
-          match {.prd, .oprd} = rtup;
 
           decinst = DLW 
 	            {
-		      opdst:  oprd, 
-		      pbase:  prb, 
-		      pdst:   prd, 
+		      opdest:  oprd, 
+		      pbase:  pra, 
+		      pdest:   prd, 
 		      offset: off
 		    };
 		    
           depinfo = DepInfo 
 	            {
 		      dep_dest: Valid tuple2(rd, prd), 
-		      dep_src1: Valid tuple2(rb, prb), 
+		      dep_src1: Valid tuple2(rb, pra), 
 		      dep_src2: Invalid
 		    };
 
@@ -304,187 +301,154 @@ module [Module] mkDecode ();
       //Store Word
       tagged SW {rbase: .rb, rsrc: .rs, offset: .off}: 
         begin
-	  let prb = bypass.lookup1(rb);
-	  let prs = bypass.lookup2(rs);
-	  
-          let rtup <- bypass.makeMapping(Invalid, t, False);
-          match {.prd, .oprd} = rtup;
-	  
+
           decinst = DSW
 	            {
-		      opdst:  oprd, 
-		      pbase:  prb, 
-		      psrc:   prs, 
+		      opdest:  oprd, 
+		      pbase:  pra, 
+		      psrc:   prb, 
 		      offset: off
 		    };
 		    
           depinfo = DepInfo 
 	            {
 		      dep_dest: Invalid, 
-		      dep_src1: Valid tuple2(rb, prb), 
-		      dep_src2: Valid tuple2(rs, prs)
+		      dep_src1: Valid tuple2(rb, pra), 
+		      dep_src2: Valid tuple2(rs, prb)
 		    };
         end
 
       // -- Simple Ops ------------------------------------------------      
 
       //Add Immediate Signed (Not a Typo)
-      tagged ADDIU {rsrc: .rs, rdst: .rd, imm: .simm}:
+      tagged ADDIU {rsrc: .rs, rdest: .rd, imm: .simm}:
         begin
-	  
-	  let prs  = bypass.lookup1(rs);
-	  
-          let rtup <- bypass.makeMapping(Valid rd, t, False);
-          match {.prd, .oprd} = rtup;
-	  
-	  
+	  	  
           decinst = DADDIU 
 	            {
-		      opdst: oprd, 
-		      pdst:  prd, 
-		      psrc:  prs, 
+		      opdest: oprd, 
+		      pdest:  prd, 
+		      psrc:  pra, 
 		      imm:   simm
 		    };
 		    
           depinfo = DepInfo 
 	            {
 		      dep_dest: Valid tuple2(rd, prd), 
-		      dep_src1: Valid tuple2(rs, prs), 
+		      dep_src1: Valid tuple2(rs, pra), 
 		      dep_src2: Invalid
 		    };
         end
 	
       //Set Less Than Immediate (Signed)
-      tagged SLTI {rsrc: .rs, rdst: .rd, imm: .simm}:
+      tagged SLTI {rsrc: .rs, rdest: .rd, imm: .simm}:
         begin
-	  
-	  let prs = bypass.lookup1(rs);
-	  
-          match {.prd, .oprd} <- bypass.makeMapping(Valid rd, t, False);
 	  
           decinst = DSLTI 
 	            {
-		      opdst: oprd, 
-		      pdst:  prd, 
-		      psrc:  prs, 
+		      opdest: oprd, 
+		      pdest:  prd, 
+		      psrc:  pra, 
 		      imm:   simm
 		    };
 		    
           depinfo = DepInfo 
 	            {
 		      dep_dest: Valid tuple2(rd, prd), 
-		      dep_src1: Valid tuple2(rs, prs), 
+		      dep_src1: Valid tuple2(rs, pra), 
 		      dep_src2: Invalid
 		    };
 	end
 	
       //Set Less Than Immediate Unsigned 
-      tagged SLTIU {rsrc: .rs, rdst: .rd, imm:.simm}:
+      tagged SLTIU {rsrc: .rs, rdest: .rd, imm:.simm}:
         begin
-	  
-	  let prs = bypass.lookup1(rs);
-	  
-          match {.prd, .oprd} <- bypass.makeMapping(Valid rd, t, False);
 	  
           decinst = DSLTIU
 	            {
-		      opdst: oprd, 
-		      pdst:  prd, 
-		      psrc:  prs, 
+		      opdest: oprd, 
+		      pdest:  prd, 
+		      psrc:  pra, 
 		      imm:   simm //Immediate is still sign extended
-		                              //Not a typo: Exec handles it differently
+		                  //Not a typo: Exec handles it differently
 		    };
 		    
           depinfo = DepInfo 
 	            {
 		      dep_dest: Valid tuple2(rd, prd), 
-		      dep_src1: Valid tuple2(rs, prs), 
+		      dep_src1: Valid tuple2(rs, pra), 
 		      dep_src2: Invalid
 		    };
 	end
 	
       //And Immediate
-      tagged ANDI {rsrc: .rs, rdst: .rd, imm:.zimm}:
+      tagged ANDI {rsrc: .rs, rdest: .rd, imm:.zimm}:
         begin
-	  
-	  let prs = bypass.lookup1(rs);
-	  
-          match {.prd, .oprd} <- bypass.makeMapping(Valid rd, t, False);
 	  
           decinst = DANDI 
 	            {
-		      opdst: oprd, 
-		      pdst:  prd, 
-		      psrc:  prs, 
+		      opdest: oprd, 
+		      pdest:  prd, 
+		      psrc:  pra, 
 		      imm:   zimm
 		    };
 		    
           depinfo = DepInfo 
 	            {
 		      dep_dest: Valid tuple2(rd, prd), 
-		      dep_src1: Valid tuple2(rs, prs), 
+		      dep_src1: Valid tuple2(rs, pra), 
 		      dep_src2: Invalid
 		    };
 	end
 	
       //Or Immediate
-      tagged ORI {rsrc: .rs, rdst: .rd, imm:.zimm}:
+      tagged ORI {rsrc: .rs, rdest: .rd, imm:.zimm}:
         begin
-	  
-	  let prs = bypass.lookup1(rs);
-	  
-          match {.prd, .oprd} <- bypass.makeMapping(Valid rd, t, False);
 	  
           decinst = DORI 
 	            {
-		      opdst: oprd, 
-		      pdst:  prd, 
-		      psrc:  prs, 
+		      opdest: oprd, 
+		      pdest:  prd, 
+		      psrc:  pra, 
 		      imm:   zimm
 		    };
 		    
           depinfo = DepInfo 
 	            {
 		      dep_dest: Valid tuple2(rd, prd), 
-		      dep_src1: Valid tuple2(rs, prs), 
+		      dep_src1: Valid tuple2(rs, pra), 
 		      dep_src2: Invalid
 		    };
 	end
 	
       //XOR Immediate
-      tagged XORI {rsrc: .rs, rdst: .rd, imm:.zimm}:
+      tagged XORI {rsrc: .rs, rdest: .rd, imm:.zimm}:
         begin
-	  
-	  let prs = bypass.lookup1(rs);
-	  
-          match {.prd, .oprd} <- bypass.makeMapping(Valid rd, t, False);
 	  
           decinst = DXORI 
 	            {
-		      opdst: oprd, 
-		      pdst:  prd, 
-		      psrc:  prs, 
+		      opdest: oprd, 
+		      pdest:  prd, 
+		      psrc:  pra, 
 		      imm:   zimm
 		    };
 		    
           depinfo = DepInfo 
 	            {
 		      dep_dest: Valid tuple2(rd, prd), 
-		      dep_src1: Valid tuple2(rs, prs), 
+		      dep_src1: Valid tuple2(rs, pra), 
 		      dep_src2: Invalid
 		    };
 	end
 	
       //Load Unsigned Immediate (Really is unsigned)
-      tagged LUI {rdst: .rd, imm:.zimm}:
+      tagged LUI {rdest: .rd, imm:.zimm}:
         begin
-	  	  
-          match {.prd, .oprd} <- bypass.makeMapping(Valid rd, t, False);
 	  
           decinst = DLUI 
 	            {
-		      opdst: oprd, 
-		      pdst:  prd, 
+		      opdest: oprd, 
+		      pdest:  prd, 
 		      imm:   zimm
 		    };
 		    
@@ -497,364 +461,300 @@ module [Module] mkDecode ();
 	end
 	
       //Shift Left Logical (Immediate)
-      tagged SLL {rsrc: .rs, rdst: .rd, shamt:.sha}: 
+      tagged SLL {rsrc: .rs, rdest: .rd, shamt:.sha}: 
         begin
-	  
-	  let prs = bypass.lookup1(rs);
-	  
-          match {.prd, .oprd} <- bypass.makeMapping(Valid rd, t, False);
 	  
           decinst = DSLL 
 	            {
-		      opdst: oprd, 
-		      pdst:  prd, 
-		      psrc:  prs, 
+		      opdest: oprd, 
+		      pdest:  prd, 
+		      psrc:  pra, 
 		      shamt: sha
 		    };
 		    
           depinfo = DepInfo 
 	            {
 		      dep_dest: Valid tuple2(rd, prd), 
-		      dep_src1: Valid tuple2(rs, prs), 
+		      dep_src1: Valid tuple2(rs, pra), 
 		      dep_src2: Invalid
 		    };
 	end
 	
       //Shift Right Logical (Immediate)
-      tagged SRL {rsrc: .rs, rdst: .rd, shamt:.sha}: 
+      tagged SRL {rsrc: .rs, rdest: .rd, shamt:.sha}: 
         begin
 	  
-	  let prs = bypass.lookup1(rs);
-	  
-          match {.prd, .oprd} <- bypass.makeMapping(Valid rd, t, False);
-	 
           decinst = DSRL
 	            {
-		      opdst: oprd, 
-		      pdst:  prd, 
-		      psrc:  prs, 
+		      opdest: oprd, 
+		      pdest:  prd, 
+		      psrc:  pra, 
 		      shamt: sha
 		    };
 		    
           depinfo = DepInfo 
 	            {
 		      dep_dest: Valid tuple2(rd, prd), 
-		      dep_src1: Valid tuple2(rs, prs), 
+		      dep_src1: Valid tuple2(rs, pra), 
 		      dep_src2: Invalid
 		    };
 	end
 	
       //Shift Right Arithmatic (Immediate)
-      tagged SRA {rsrc: .rs, rdst: .rd, shamt:.sha}: 
+      tagged SRA {rsrc: .rs, rdest: .rd, shamt:.sha}: 
         begin
-	  
-	  let prs = bypass.lookup1(rs);
-	  
-          match {.prd, .oprd} <- bypass.makeMapping(Valid rd, t, False);
 	  
           decinst = DSRA
 	            {
-		      opdst: oprd, 
-		      pdst:  prd, 
-		      psrc:  prs, 
+		      opdest: oprd, 
+		      pdest:  prd, 
+		      psrc:  pra, 
 		      shamt: sha
 		    };
 		    
           depinfo = DepInfo 
 	            {
 		      dep_dest: Valid tuple2(rd, prd), 
-		      dep_src1: Valid tuple2(rs, prs), 
+		      dep_src1: Valid tuple2(rs, pra), 
 		      dep_src2: Invalid
 		    };
 	end
 	
       //Shift Left Logical Variable
-      tagged SLLV {rsrc: .rs, rdst: .rd, rshamt:.rsha}: 
+      tagged SLLV {rsrc: .rs, rdest: .rd, rshamt:.rsha}: 
         begin
-	  
-	  let prs   = bypass.lookup1(rs);
-	  let prsha = bypass.lookup2(rsha);
-	  
-          match {.prd, .oprd} <- bypass.makeMapping(Valid rd, t, False);
 	  
           decinst = DSLLV 
 	            {
-		      opdst:  oprd, 
-		      pdst:   prd, 
-		      psrc:   prs, 
-		      pshamt: prsha
+		      opdest:  oprd, 
+		      pdest:   prd, 
+		      psrc:   pra, 
+		      pshamt: prb
 		    };
 		    
           depinfo = DepInfo 
 	            {
 		      dep_dest: Valid tuple2(rd, prd), 
-		      dep_src1: Valid tuple2(rs, prs), 
-		      dep_src2: Valid tuple2(rsha, prsha)
+		      dep_src1: Valid tuple2(rs, pra), 
+		      dep_src2: Valid tuple2(rsha, prb)
 		    };
 	end
 	
       //Shift Right Logical Variable
-      tagged SRLV {rsrc: .rs, rdst: .rd, rshamt:.rsha}: 
+      tagged SRLV {rsrc: .rs, rdest: .rd, rshamt:.rsha}: 
         begin
-	  
-	  let prs   = bypass.lookup1(rs);
-	  let prsha = bypass.lookup2(rsha);
-	  
-          match {.prd, .oprd} <- bypass.makeMapping(Valid rd, t, False);
 	  
           decinst = DSRLV 
 	            {
-		      opdst:  oprd, 
-		      pdst:   prd, 
-		      psrc:   prs, 
-		      pshamt: prsha
+		      opdest:  oprd, 
+		      pdest:   prd, 
+		      psrc:   pra, 
+		      pshamt: prb
 		    };
 		    
           depinfo = DepInfo 
 	            {
 		      dep_dest: Valid tuple2(rd, prd), 
-		      dep_src1: Valid tuple2(rs, prs), 
-		      dep_src2: Valid tuple2(rsha, prsha)
+		      dep_src1: Valid tuple2(rs, pra), 
+		      dep_src2: Valid tuple2(rsha, prb)
 		    };
 	end
 	
       //Shift Right Arithmatic Variable
-      tagged SRAV {rsrc: .rs, rdst: .rd, rshamt:.rsha}: 
+      tagged SRAV {rsrc: .rs, rdest: .rd, rshamt:.rsha}: 
         begin
-	  
-	  let prs   = bypass.lookup1(rs);
-	  let prsha = bypass.lookup2(rsha);
-	  
-          match {.prd, .oprd} <- bypass.makeMapping(Valid rd, t, False);
 	  
           decinst = DSRAV 
 	            {
-		      opdst:  oprd, 
-		      pdst:   prd, 
-		      psrc:   prs, 
-		      pshamt: prsha
+		      opdest:  oprd, 
+		      pdest:   prd, 
+		      psrc:   pra, 
+		      pshamt: prb
 		    };
 		    
           depinfo = DepInfo 
 	            {
 		      dep_dest: Valid tuple2(rd, prd), 
-		      dep_src1: Valid tuple2(rs, prs), 
-		      dep_src2: Valid tuple2(rsha, prsha)
+		      dep_src1: Valid tuple2(rs, pra), 
+		      dep_src2: Valid tuple2(rsha, prb)
 		    };
 	end
 	
       //Add Unsigned
-      tagged ADDU {rsrc1: .rs1, rsrc2: .rs2, rdst: .rd}: 
+      tagged ADDU {rsrc1: .rs1, rsrc2: .rs2, rdest: .rd}: 
         begin
-	  
-	  let prs1 = bypass.lookup1(rs1);
-	  let prs2 = bypass.lookup2(rs2);
-	  
-          match {.prd, .oprd} <- bypass.makeMapping(Valid rd, t, False);
 	  
           decinst = DADDU
 	            {
-		      opdst:  oprd, 
-		      pdst:   prd, 
-		      psrc1:  prs1,
-		      psrc2:  prs2
+		      opdest:  oprd, 
+		      pdest:   prd, 
+		      psrc1:  pra,
+		      psrc2:  prb
 		    };
 		    
           depinfo = DepInfo 
 	            {
 		      dep_dest: Valid tuple2(rd,  prd), 
-		      dep_src1: Valid tuple2(rs1, prs1), 
-		      dep_src2: Valid tuple2(rs2, prs2)
+		      dep_src1: Valid tuple2(rs1, pra), 
+		      dep_src2: Valid tuple2(rs2, prb)
 		    };
 	end
 
       //Subtract Unsigned
-      tagged SUBU {rsrc1: .rs1, rsrc2: .rs2, rdst: .rd}:
+      tagged SUBU {rsrc1: .rs1, rsrc2: .rs2, rdest: .rd}:
         begin
-	  
-	  let prs1 = bypass.lookup1(rs1);
-	  let prs2 = bypass.lookup2(rs2);
-	  
-          match {.prd, .oprd} <- bypass.makeMapping(Valid rd, t, False);
 	  
           decinst = DSUBU 
 	            {
-		      opdst:  oprd, 
-		      pdst:   prd, 
-		      psrc1:  prs1,
-		      psrc2:  prs2
+		      opdest:  oprd, 
+		      pdest:   prd, 
+		      psrc1:  pra,
+		      psrc2:  prb
 		    };
 		    
           depinfo = DepInfo 
 	            {
 		      dep_dest: Valid tuple2(rd,  prd), 
-		      dep_src1: Valid tuple2(rs1, prs1), 
-		      dep_src2: Valid tuple2(rs2, prs2)
+		      dep_src1: Valid tuple2(rs1, pra), 
+		      dep_src2: Valid tuple2(rs2, prb)
 		    };
 	end
 	
       //And
-      tagged AND {rsrc1: .rs1, rsrc2: .rs2, rdst: .rd}:
+      tagged AND {rsrc1: .rs1, rsrc2: .rs2, rdest: .rd}:
         begin
-	  let prs1 = bypass.lookup1(rs1);
-	  let prs2 = bypass.lookup2(rs2);
-	  
-          match {.prd, .oprd} <- bypass.makeMapping(Valid rd, t, False);
-	  
+
           decinst = DAND
 	            {
-		      opdst:  oprd, 
-		      pdst:   prd, 
-		      psrc1:  prs1,
-		      psrc2:  prs2
+		      opdest:  oprd, 
+		      pdest:   prd, 
+		      psrc1:  pra,
+		      psrc2:  prb
 		    };
 		    
           depinfo = DepInfo 
 	            {
 		      dep_dest: Valid tuple2(rd,  prd), 
-		      dep_src1: Valid tuple2(rs1, prs1), 
-		      dep_src2: Valid tuple2(rs2, prs2)
+		      dep_src1: Valid tuple2(rs1, pra), 
+		      dep_src2: Valid tuple2(rs2, prb)
 		    };
 	end
       
       //OR
-      tagged OR {rsrc1: .rs1, rsrc2: .rs2, rdst: .rd}:
+      tagged OR {rsrc1: .rs1, rsrc2: .rs2, rdest: .rd}:
         begin
-	  let prs1 = bypass.lookup1(rs1);
-	  let prs2 = bypass.lookup2(rs2);
-	  
-          match {.prd, .oprd} <- bypass.makeMapping(Valid rd, t, False);
 	  
           decinst = DOR
 	            {
-		      opdst:  oprd, 
-		      pdst:   prd, 
-		      psrc1:  prs1,
-		      psrc2:  prs2
+		      opdest:  oprd, 
+		      pdest:   prd, 
+		      psrc1:  pra,
+		      psrc2:  prb
 		    };
 		    
           depinfo = DepInfo 
 	            {
 		      dep_dest: Valid tuple2(rd,  prd), 
-		      dep_src1: Valid tuple2(rs1, prs1), 
-		      dep_src2: Valid tuple2(rs2, prs2)
+		      dep_src1: Valid tuple2(rs1, pra), 
+		      dep_src2: Valid tuple2(rs2, prb)
 		    };
 	end
 	
       //XOR
-      tagged XOR {rsrc1: .rs1, rsrc2: .rs2, rdst: .rd}:
+      tagged XOR {rsrc1: .rs1, rsrc2: .rs2, rdest: .rd}:
         begin
-	  let prs1 = bypass.lookup1(rs1);
-	  let prs2 = bypass.lookup2(rs2);
-	  
-          match {.prd, .oprd} <- bypass.makeMapping(Valid rd, t, False);
 	  
           decinst = DXOR
 	            {
-		      opdst:  oprd, 
-		      pdst:   prd, 
-		      psrc1:  prs1,
-		      psrc2:  prs2
+		      opdest:  oprd, 
+		      pdest:   prd, 
+		      psrc1:  pra,
+		      psrc2:  prb
 		    };
 		    
           depinfo = DepInfo 
 	            {
 		      dep_dest: Valid tuple2(rd,  prd), 
-		      dep_src1: Valid tuple2(rs1, prs1), 
-		      dep_src2: Valid tuple2(rs2, prs2)
+		      dep_src1: Valid tuple2(rs1, pra), 
+		      dep_src2: Valid tuple2(rs2, prb)
 		    };
 	end
 
       //NOR
-      tagged NOR {rsrc1: .rs1, rsrc2: .rs2, rdst: .rd}:
+      tagged NOR {rsrc1: .rs1, rsrc2: .rs2, rdest: .rd}:
         begin
-	  let prs1 = bypass.lookup1(rs1);
-	  let prs2 = bypass.lookup2(rs2);
-	  
-          match {.prd, .oprd} <- bypass.makeMapping(Valid rd, t, False);
 	  
           decinst = DNOR
 	            {
-		      opdst:  oprd, 
-		      pdst:   prd, 
-		      psrc1:  prs1,
-		      psrc2:  prs2
+		      opdest:  oprd, 
+		      pdest:   prd, 
+		      psrc1:  pra,
+		      psrc2:  prb
 		    };
 		    
           depinfo = DepInfo 
 	            {
 		      dep_dest: Valid tuple2(rd,  prd), 
-		      dep_src1: Valid tuple2(rs1, prs1), 
-		      dep_src2: Valid tuple2(rs2, prs2)
+		      dep_src1: Valid tuple2(rs1, pra), 
+		      dep_src2: Valid tuple2(rs2, prb)
 		    };
 	end
 
       //Set Less Than
-      tagged SLT {rsrc1: .rs1, rsrc2: .rs2, rdst: .rd}: 
+      tagged SLT {rsrc1: .rs1, rsrc2: .rs2, rdest: .rd}: 
         begin
-	  let prs1 = bypass.lookup1(rs1);
-	  let prs2 = bypass.lookup2(rs2);
-	  
-          match {.prd, .oprd} <- bypass.makeMapping(Valid rd, t, False);
 	  
           decinst = DSLT
 	            {
-		      opdst:  oprd, 
-		      pdst:   prd, 
-		      psrc1:  prs1,
-		      psrc2:  prs2
+		      opdest:  oprd, 
+		      pdest:   prd, 
+		      psrc1:  pra,
+		      psrc2:  prb
 		    };
 		    
           depinfo = DepInfo 
 	            {
 		      dep_dest: Valid tuple2(rd,  prd), 
-		      dep_src1: Valid tuple2(rs1, prs1), 
-		      dep_src2: Valid tuple2(rs2, prs2)
+		      dep_src1: Valid tuple2(rs1, pra), 
+		      dep_src2: Valid tuple2(rs2, prb)
 		    };
 	end
       
       //Set Less Than Unsigned
-      tagged SLTU {rsrc1: .rs1, rsrc2: .rs2, rdst: .rd}: 
+      tagged SLTU {rsrc1: .rs1, rsrc2: .rs2, rdest: .rd}: 
         begin
-	  let prs1 = bypass.lookup1(rs1);
-	  let prs2 = bypass.lookup2(rs2);
-	  
-          match {.prd, .oprd} <- bypass.makeMapping(Valid rd, t, False);
 	  
           decinst = DSLTU
 	            {
-		      opdst:  oprd, 
-		      pdst:   prd, 
-		      psrc1:  prs1,
-		      psrc2:  prs2
+		      opdest:  oprd, 
+		      pdest:   prd, 
+		      psrc1:  pra,
+		      psrc2:  prb
 		    };
 		    
           depinfo = DepInfo 
 	            {
 		      dep_dest: Valid tuple2(rd,  prd), 
-		      dep_src1: Valid tuple2(rs1, prs1), 
-		      dep_src2: Valid tuple2(rs2, prs2)
+		      dep_src1: Valid tuple2(rs1, pra), 
+		      dep_src2: Valid tuple2(rs2, prb)
 		    };
 	end
 /*
       //Move To Coprocessor 0
       tagged MTC0 .rs .op: 
         begin
-	  let prs = bypass.lookup1(rs);
-	  
-          match {.prd, .oprd} <- bypass.makeMapping(Invalid, t, False);
-	  
+	 
           decinst = DMTC0
 	            {
-		      opdst:   oprd, 
-		      psrc:    prs,
+		      opdest:   oprd, 
+		      psrc:    pra,
 		      cop0src: op
 		    };
 		    
           depinfo = DepInfo 
 	            {
 		      dep_dest: Invalid, 
-		      dep_src1: Valid tuple2(rs, prs), 
+		      dep_src1: Valid tuple2(rs, pra), 
 		      dep_src2: Invalid
 		    };
 	end
@@ -863,13 +763,11 @@ module [Module] mkDecode ();
       tagged MFC0 .rd .op:
         begin 
 	
-          match {.prd, .oprd} <- bypass.makeMapping(Valid rd, t, False);
-	  
           decinst = DMFC0
 	            {
-		      opdst:   oprd, 
-		      pdst:    prd,
-		      cop0dst: op
+		      opdest:   oprd, 
+		      pdest:    prd,
+		      cop0dest: op
 		    };
 		    
           depinfo = DepInfo 
@@ -887,21 +785,17 @@ module [Module] mkDecode ();
       tagged BLEZ {rsrc: .rs, offset: .off}:
         begin
 	
-	  let prs = bypass.lookup1(rs);
-	  
-          match {.prd, .oprd} <- bypass.makeMapping(Invalid, t, False);
-	  
           decinst = DBLEZ
 	            {
-		      opdst:  oprd, 
-		      psrc:   prs,
+		      opdest:  oprd, 
+		      psrc:   pra,
 		      offset: off
 		    };
 		    
           depinfo = DepInfo 
 	            {
 		      dep_dest: Invalid, 
-		      dep_src1: Valid tuple2(rs, prs), 
+		      dep_src1: Valid tuple2(rs, pra), 
 		      dep_src2: Invalid
 		    };
         end
@@ -910,21 +804,17 @@ module [Module] mkDecode ();
       tagged BGTZ {rsrc: .rs, offset: .off}: 
         begin
 	
-	  let prs = bypass.lookup1(rs);
-	  
-          match {.prd, .oprd} <- bypass.makeMapping(Invalid, t, False);
-	  
           decinst = DBGTZ
 	            {
-		      opdst:  oprd, 
-		      psrc:   prs,
+		      opdest:  oprd, 
+		      psrc:   pra,
 		      offset: off
 		    };
 		    
           depinfo = DepInfo 
 	            {
 		      dep_dest: Invalid, 
-		      dep_src1: Valid tuple2(rs, prs), 
+		      dep_src1: Valid tuple2(rs, pra), 
 		      dep_src2: Invalid
 		    };
         end
@@ -933,21 +823,17 @@ module [Module] mkDecode ();
       tagged BLTZ {rsrc: .rs, offset: .off}: 
         begin
 	
-	  let prs = bypass.lookup1(rs);
-	  
-          match {.prd, .oprd} <- bypass.makeMapping(Invalid, t, False);
-	  
           decinst = DBLTZ
 	            {
-		      opdst:  oprd, 
-		      psrc:   prs,
+		      opdest:  oprd, 
+		      psrc:   pra,
 		      offset: off
 		    };
 		    
           depinfo = DepInfo 
 	            {
 		      dep_dest: Invalid, 
-		      dep_src1: Valid tuple2(rs, prs), 
+		      dep_src1: Valid tuple2(rs, pra), 
 		      dep_src2: Invalid
 		    };
         end
@@ -956,21 +842,17 @@ module [Module] mkDecode ();
       tagged BGEZ {rsrc: .rs, offset: .off}: 
         begin
 	
-	  let prs = bypass.lookup1(rs);
-	  
-          match {.prd, .oprd} <- bypass.makeMapping(Invalid, t, False);
-	  
           decinst = DBGEZ
 	            {
-		      opdst:  oprd, 
-		      psrc:   prs,
+		      opdest:  oprd, 
+		      psrc:   pra,
 		      offset: off
 		    };
 		    
           depinfo = DepInfo 
 	            {
 		      dep_dest: Invalid, 
-		      dep_src1: Valid tuple2(rs, prs), 
+		      dep_src1: Valid tuple2(rs, pra), 
 		      dep_src2: Invalid
 		    };
         end
@@ -979,24 +861,19 @@ module [Module] mkDecode ();
       tagged BEQ {rsrc1: .rs1, rsrc2: .rs2, offset: .off}: 
         begin
 	
-	  let prs1 = bypass.lookup1(rs1);
-	  let prs2 = bypass.lookup1(rs2);
-	  
-          match {.prd, .oprd} <- bypass.makeMapping(Invalid, t, False);
-	  
           decinst = DBEQ
 	            {
-		      opdst:  oprd, 
-		      psrc1:  prs1,
-		      psrc2:  prs2,
+		      opdest:  oprd, 
+		      psrc1:  pra,
+		      psrc2:  prb,
 		      offset: off
 		    };
 		    
           depinfo = DepInfo 
 	            {
 		      dep_dest: Invalid, 
-		      dep_src1: Valid tuple2(rs1, prs1), 
-		      dep_src2: Valid tuple2(rs2, prs2)
+		      dep_src1: Valid tuple2(rs1, pra), 
+		      dep_src2: Valid tuple2(rs2, prb)
 		    };
         end
 
@@ -1004,24 +881,19 @@ module [Module] mkDecode ();
       tagged BNE {rsrc1: .rs1, rsrc2: .rs2, offset: .off}: 
         begin
 	
-	  let prs1 = bypass.lookup1(rs1);
-	  let prs2 = bypass.lookup1(rs2);
-	  
-          match {.prd, .oprd} <- bypass.makeMapping(Invalid, t, False);
-	  
           decinst = DBNE
 	            {
-		      opdst:  oprd, 
-		      psrc1:  prs1,
-		      psrc2:  prs2,
+		      opdest:  oprd, 
+		      psrc1:  pra,
+		      psrc2:  prb,
 		      offset: off
 		    };
 		    
           depinfo = DepInfo 
 	            {
 		      dep_dest: Invalid, 
-		      dep_src1: Valid tuple2(rs1, prs1), 
-		      dep_src2: Valid tuple2(rs2, prs2)
+		      dep_src1: Valid tuple2(rs1, pra), 
+		      dep_src2: Valid tuple2(rs2, prb)
 		    };
         end
       
@@ -1030,12 +902,10 @@ module [Module] mkDecode ();
       //Jump
       tagged J {target: .targ}: 
         begin
-		  
-          match {.prd, .oprd} <- bypass.makeMapping(Invalid, t, False);
-	  
+	
           decinst = DJ
 	            {
-		      opdst:  oprd, 
+		      opdest:  oprd, 
 		      target: targ
 		    };
 		    
@@ -1051,34 +921,27 @@ module [Module] mkDecode ();
       tagged JR {rsrc: .rs}:
         begin
 	
-	  let prs = bypass.lookup1(rs);
-	  
-          match {.prd, .oprd} <- bypass.makeMapping(Invalid, t, False);
-	  
           decinst = DJR
 	            {
-		      opdst:  oprd, 
-		      psrc:   prs
+		      opdest:  oprd, 
+		      psrc:   pra
 		    };
 		    
           depinfo = DepInfo 
 	            {
 		      dep_dest: Invalid, 
-		      dep_src1: Valid tuple2(rs, prs), 
+		      dep_src1: Valid tuple2(rs, pra), 
 		      dep_src2: Invalid
 		    };
         end
       //Jump and Link (into archictectural register 31)
       tagged JAL {target: .targ}: 
         begin
-		 
-	  
-          match {.prd, .oprd} <- bypass.makeMapping(Valid 5'd31, t, False);
-	  
+	
           decinst = DJAL
 	            {
-		      opdst:  oprd,
-		      pdst:   prd, 
+		      opdest:  oprd,
+		      pdest:   prd, 
 		      target: targ
 		    };
 		    
@@ -1091,24 +954,20 @@ module [Module] mkDecode ();
         end
 
       //Jump and Link into Register
-      tagged JALR {rsrc: .rs, rdst: .rd}: 
+      tagged JALR {rsrc: .rs, rdest: .rd}: 
         begin
-	  
-	  let prs = bypass.lookup1(rs);
-	  
-          match {.prd, .oprd} <- bypass.makeMapping(Valid rd, t, False);
 	  
           decinst = DJALR
 	            {
-		      opdst:  oprd,
-		      pdst:   prd,
-		      psrc:   prs
+		      opdest:  oprd,
+		      pdest:   prd,
+		      psrc:   pra
 		    };
 		    
           depinfo = DepInfo 
 	            {
 		      dep_dest: Valid tuple2(rd, prd), 
-		      dep_src1: Valid tuple2(rs, prs), 
+		      dep_src1: Valid tuple2(rs, pra), 
 		      dep_src2: Invalid
 		    };
         end

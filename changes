@@ -104,3 +104,30 @@ Directory modules/chip/mips/5stage
 Bugfixes for smips model.
 
 Michael
+
+----------
+mpellaue    Date: Tue Jun 27 18:20:23 EDT 2006  CSN: CSN-hasim-mips-4
+                  Tue Jun 27 22:20:23 UTC 2006
+
+
+Directory modules/functional/mips
+ FUNCP_GlobalCommitAlg.bsv Locally Modified            3 
+
+Directory modules/functional/smips
+ FUNCP_Execute.bsv         Locally Removed             3 
+ FUNCP_Decode.bsv          Locally Removed             3 
+ FUNCP_ExecuteAlg.bsv      Locally Added               - 
+ FUNCP_DecodeAlg.bsv       Locally Added               - 
+
+Directory modules/chip/mips/5stage
+ Chip.bsv                  Locally Modified            3 
+
+Directory modules/isa/toymips
+ ISA.bsv                   Locally Modified            3 
+
+Directory modules/isa/smips
+ ISA.bsv                   Locally Modified            3 
+
+Updates for bsc 3.8.68. Please use this version of the compiler or later.
+
+Michael

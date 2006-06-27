@@ -42,6 +42,8 @@ module [HASim_Module] mkFUNCP_GlobalCommitAlg ();
     
     link_mem_commit.send(tok);
     
+    debug(2, $display("Retiring Token: %0d.", tok));
+    
     link_gco.makeResp(tuple3(tok, ?, ?));
   
   endrule

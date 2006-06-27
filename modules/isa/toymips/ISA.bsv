@@ -22,6 +22,7 @@ typedef Bit#(5)  RName;
 typedef Bit#(6)  PRName;
 typedef Bit#(32) Value;
 typedef Bit#(4)  SnapshotPtr;
+typedef Bit#(8)  SoftAddr;
 
 //For convenience
 

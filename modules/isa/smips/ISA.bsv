@@ -27,6 +27,7 @@ typedef Bit#(16) ZImm;
 typedef Bit#(5)  ShAmt;
 typedef Bit#(26) Target;
 typedef Bit#(5)  CP0Index;
+typedef Bit#(9)  SoftAddr;
 
 //For convenience
 
@@ -51,36 +52,36 @@ RName r9 = 9;
 typedef union tagged                
 {
 
-  struct { RName rbase; RName rdst;  SImm offset;  } LW;
+  struct { RName rbase; RName rdest;  SImm offset;  } LW;
   struct { RName rbase; RName rsrc;  SImm offset;  } SW; 
 
-  struct { RName rsrc;  RName rdst;  SImm imm;     } ADDIU;
-  struct { RName rsrc;  RName rdst;  SImm imm;     } SLTI;
-  struct { RName rsrc;  RName rdst;  SImm imm;     } SLTIU;
-  struct { RName rsrc;  RName rdst;  ZImm imm;     } ANDI;
-  struct { RName rsrc;  RName rdst;  ZImm imm;     } ORI;
-  struct { RName rsrc;  RName rdst;  ZImm imm;     } XORI;
-  struct {              RName rdst;  ZImm imm;     } LUI;
+  struct { RName rsrc;  RName rdest;  SImm imm;     } ADDIU;
+  struct { RName rsrc;  RName rdest;  SImm imm;     } SLTI;
+  struct { RName rsrc;  RName rdest;  SImm imm;     } SLTIU;
+  struct { RName rsrc;  RName rdest;  ZImm imm;     } ANDI;
+  struct { RName rsrc;  RName rdest;  ZImm imm;     } ORI;
+  struct { RName rsrc;  RName rdest;  ZImm imm;     } XORI;
+  struct {              RName rdest;  ZImm imm;     } LUI;
 
-  struct { RName rsrc;  RName rdst;  ShAmt shamt;  } SLL;
-  struct { RName rsrc;  RName rdst;  ShAmt shamt;  } SRL;
-  struct { RName rsrc;  RName rdst;  ShAmt shamt;  } SRA;
-  struct { RName rsrc;  RName rdst;  RName rshamt; } SLLV;
-  struct { RName rsrc;  RName rdst;  RName rshamt; } SRLV;
-  struct { RName rsrc;  RName rdst;  RName rshamt; } SRAV;
-  struct { RName rsrc1; RName rsrc2; RName rdst;   } ADDU;
-  struct { RName rsrc1; RName rsrc2; RName rdst;   } SUBU;
-  struct { RName rsrc1; RName rsrc2; RName rdst;   } AND;
-  struct { RName rsrc1; RName rsrc2; RName rdst;   } OR;
-  struct { RName rsrc1; RName rsrc2; RName rdst;   } XOR;
-  struct { RName rsrc1; RName rsrc2; RName rdst;   } NOR;
-  struct { RName rsrc1; RName rsrc2; RName rdst;   } SLT;
-  struct { RName rsrc1; RName rsrc2; RName rdst;   } SLTU;
+  struct { RName rsrc;  RName rdest;  ShAmt shamt;  } SLL;
+  struct { RName rsrc;  RName rdest;  ShAmt shamt;  } SRL;
+  struct { RName rsrc;  RName rdest;  ShAmt shamt;  } SRA;
+  struct { RName rsrc;  RName rdest;  RName rshamt; } SLLV;
+  struct { RName rsrc;  RName rdest;  RName rshamt; } SRLV;
+  struct { RName rsrc;  RName rdest;  RName rshamt; } SRAV;
+  struct { RName rsrc1; RName rsrc2; RName rdest;   } ADDU;
+  struct { RName rsrc1; RName rsrc2; RName rdest;   } SUBU;
+  struct { RName rsrc1; RName rsrc2; RName rdest;   } AND;
+  struct { RName rsrc1; RName rsrc2; RName rdest;   } OR;
+  struct { RName rsrc1; RName rsrc2; RName rdest;   } XOR;
+  struct { RName rsrc1; RName rsrc2; RName rdest;   } NOR;
+  struct { RName rsrc1; RName rsrc2; RName rdest;   } SLT;
+  struct { RName rsrc1; RName rsrc2; RName rdest;   } SLTU;
 
   struct { Target target;                          } J;
   struct { Target target;                          } JAL;
   struct { RName rsrc;                             } JR;
-  struct { RName rsrc;  RName rdst;                } JALR;
+  struct { RName rsrc;  RName rdest;                } JALR;
   struct { RName rsrc1; RName rsrc2; SImm offset;  } BEQ;
   struct { RName rsrc1; RName rsrc2; SImm offset;  } BNE;
   struct { RName rsrc;  SImm offset;               } BLEZ;
@@ -88,8 +89,8 @@ typedef union tagged
   struct { RName rsrc;  SImm offset;               } BLTZ;
   struct { RName rsrc;  SImm offset;               } BGEZ;
 
-  //struct { RName rdst;  CP0Index cop0src;          } MFC0;
-  //struct { RName rsrc;  CP0Index cop0dst;          } MTC0; 
+  //struct { RName rdest;  CP0Index cop0src;          } MFC0;
+  //struct { RName rsrc;  CP0Index cop0dest;          } MTC0; 
 
   void                                               TERMINATE;
   void                                               ILLEGAL;
@@ -135,38 +136,38 @@ instance Bits#(Inst,32);
 
     case ( instr ) matches
 
-      tagged LW    .it : return { opLW,    it.rbase, it.rdst,  it.offset };
+      tagged LW    .it : return { opLW,    it.rbase, it.rdest,  it.offset };
       tagged SW    .it : return { opSW,    it.rbase, it.rsrc,  it.offset };
 
-      tagged ADDIU .it : return { opADDIU, it.rsrc,  it.rdst,  it.imm                      }; 
-      tagged SLTI  .it : return { opSLTI,  it.rsrc,  it.rdst,  it.imm                      }; 
-      tagged SLTIU .it : return { opSLTIU, it.rsrc,  it.rdst,  it.imm                      }; 
-      tagged ANDI  .it : return { opANDI,  it.rsrc,  it.rdst,  it.imm                      }; 
-      tagged ORI   .it : return { opORI,   it.rsrc,  it.rdst,  it.imm                      }; 
-      tagged XORI  .it : return { opXORI,  it.rsrc,  it.rdst,  it.imm                      }; 
-      tagged LUI   .it : return { opLUI,   5'b0,     it.rdst,  it.imm                      };
+      tagged ADDIU .it : return { opADDIU, it.rsrc,  it.rdest,  it.imm                      }; 
+      tagged SLTI  .it : return { opSLTI,  it.rsrc,  it.rdest,  it.imm                      }; 
+      tagged SLTIU .it : return { opSLTIU, it.rsrc,  it.rdest,  it.imm                      }; 
+      tagged ANDI  .it : return { opANDI,  it.rsrc,  it.rdest,  it.imm                      }; 
+      tagged ORI   .it : return { opORI,   it.rsrc,  it.rdest,  it.imm                      }; 
+      tagged XORI  .it : return { opXORI,  it.rsrc,  it.rdest,  it.imm                      }; 
+      tagged LUI   .it : return { opLUI,   5'b0,     it.rdest,  it.imm                      };
 
-      tagged SLL   .it : return { opFUNC,  5'b0,     it.rsrc,  it.rdst,   it.shamt, fcSLL  }; 
-      tagged SRL   .it : return { opFUNC,  5'b0,     it.rsrc,  it.rdst,   it.shamt, fcSRL  }; 
-      tagged SRA   .it : return { opFUNC,  5'b0,     it.rsrc,  it.rdst,   it.shamt, fcSRA  }; 
+      tagged SLL   .it : return { opFUNC,  5'b0,     it.rsrc,  it.rdest,   it.shamt, fcSLL  }; 
+      tagged SRL   .it : return { opFUNC,  5'b0,     it.rsrc,  it.rdest,   it.shamt, fcSRL  }; 
+      tagged SRA   .it : return { opFUNC,  5'b0,     it.rsrc,  it.rdest,   it.shamt, fcSRA  }; 
 
-      tagged SLLV  .it : return { opFUNC,  it.rshamt, it.rsrc, it.rdst,   5'b0,     fcSLLV }; 
-      tagged SRLV  .it : return { opFUNC,  it.rshamt, it.rsrc, it.rdst,   5'b0,     fcSRLV }; 
-      tagged SRAV  .it : return { opFUNC,  it.rshamt, it.rsrc, it.rdst,   5'b0,     fcSRAV }; 
+      tagged SLLV  .it : return { opFUNC,  it.rshamt, it.rsrc, it.rdest,   5'b0,     fcSLLV }; 
+      tagged SRLV  .it : return { opFUNC,  it.rshamt, it.rsrc, it.rdest,   5'b0,     fcSRLV }; 
+      tagged SRAV  .it : return { opFUNC,  it.rshamt, it.rsrc, it.rdest,   5'b0,     fcSRAV }; 
 
-      tagged ADDU  .it : return { opFUNC,  it.rsrc1, it.rsrc2, it.rdst,   5'b0,     fcADDU }; 
-      tagged SUBU  .it : return { opFUNC,  it.rsrc1, it.rsrc2, it.rdst,   5'b0,     fcSUBU }; 
-      tagged AND   .it : return { opFUNC,  it.rsrc1, it.rsrc2, it.rdst,   5'b0,     fcAND  }; 
-      tagged OR    .it : return { opFUNC,  it.rsrc1, it.rsrc2, it.rdst,   5'b0,     fcOR   }; 
-      tagged XOR   .it : return { opFUNC,  it.rsrc1, it.rsrc2, it.rdst,   5'b0,     fcXOR  }; 
-      tagged NOR   .it : return { opFUNC,  it.rsrc1, it.rsrc2, it.rdst,   5'b0,     fcNOR  }; 
-      tagged SLT   .it : return { opFUNC,  it.rsrc1, it.rsrc2, it.rdst,   5'b0,     fcSLT  }; 
-      tagged SLTU  .it : return { opFUNC,  it.rsrc1, it.rsrc2, it.rdst,   5'b0,     fcSLTU }; 
+      tagged ADDU  .it : return { opFUNC,  it.rsrc1, it.rsrc2, it.rdest,   5'b0,     fcADDU }; 
+      tagged SUBU  .it : return { opFUNC,  it.rsrc1, it.rsrc2, it.rdest,   5'b0,     fcSUBU }; 
+      tagged AND   .it : return { opFUNC,  it.rsrc1, it.rsrc2, it.rdest,   5'b0,     fcAND  }; 
+      tagged OR    .it : return { opFUNC,  it.rsrc1, it.rsrc2, it.rdest,   5'b0,     fcOR   }; 
+      tagged XOR   .it : return { opFUNC,  it.rsrc1, it.rsrc2, it.rdest,   5'b0,     fcXOR  }; 
+      tagged NOR   .it : return { opFUNC,  it.rsrc1, it.rsrc2, it.rdest,   5'b0,     fcNOR  }; 
+      tagged SLT   .it : return { opFUNC,  it.rsrc1, it.rsrc2, it.rdest,   5'b0,     fcSLT  }; 
+      tagged SLTU  .it : return { opFUNC,  it.rsrc1, it.rsrc2, it.rdest,   5'b0,     fcSLTU }; 
 
       tagged J     .it : return { opJ,     it.target                                       }; 
       tagged JAL   .it : return { opJAL,   it.target                                       }; 
       tagged JR    .it : return { opFUNC,  it.rsrc,  5'b0,     5'b0,      5'b0,     fcJR   };
-      tagged JALR  .it : return { opFUNC,  it.rsrc,  5'b0,     it.rdst,   5'b0,     fcJALR };
+      tagged JALR  .it : return { opFUNC,  it.rsrc,  5'b0,     it.rdest,   5'b0,     fcJALR };
       tagged BEQ   .it : return { opBEQ,   it.rsrc1, it.rsrc2, it.offset                   }; 
       tagged BNE   .it : return { opBNE,   it.rsrc1, it.rsrc2, it.offset                   }; 
       tagged BLEZ  .it : return { opBLEZ,  it.rsrc,  5'b0,     it.offset                   }; 
@@ -174,8 +175,8 @@ instance Bits#(Inst,32);
       tagged BLTZ  .it : return { opRT,    it.rsrc,  rtBLTZ,   it.offset                   }; 
       tagged BGEZ  .it : return { opRT,    it.rsrc,  rtBGEZ,   it.offset                   }; 
 
-      //tagged MFC0  .it : return { opRS,    rsMFC0,   it.rdst,  it.cop0src, 11'b0           }; 
-      //tagged MTC0  .it : return { opRS,    rsMTC0,   it.rsrc,  it.cop0dst, 11'b0           };  
+      //tagged MFC0  .it : return { opRS,    rsMFC0,   it.rdest,  it.cop0src, 11'b0           }; 
+      //tagged MTC0  .it : return { opRS,    rsMTC0,   it.rsrc,  it.cop0dest, 11'b0           };  
 
     endcase
 
@@ -196,15 +197,15 @@ instance Bits#(Inst,32);
 
     case ( opcode )
 
-      opLW        : return LW    { rbase:rs, rdst:rt,  offset:imm  };
+      opLW        : return LW    { rbase:rs, rdest:rt,  offset:imm  };
       opSW        : return SW    { rbase:rs, rsrc:rt,  offset:imm  };
-      opADDIU     : return ADDIU { rsrc:rs,  rdst:rt,  imm:imm     };
-      opSLTI      : return SLTI  { rsrc:rs,  rdst:rt,  imm:imm     };
-      opSLTIU     : return SLTIU { rsrc:rs,  rdst:rt,  imm:imm     };
-      opANDI      : return ANDI  { rsrc:rs,  rdst:rt,  imm:imm     };
-      opORI       : return ORI   { rsrc:rs,  rdst:rt,  imm:imm     };
-      opXORI      : return XORI  { rsrc:rs,  rdst:rt,  imm:imm     };
-      opLUI       : return LUI   {           rdst:rt,  imm:imm     };
+      opADDIU     : return ADDIU { rsrc:rs,  rdest:rt,  imm:imm     };
+      opSLTI      : return SLTI  { rsrc:rs,  rdest:rt,  imm:imm     };
+      opSLTIU     : return SLTIU { rsrc:rs,  rdest:rt,  imm:imm     };
+      opANDI      : return ANDI  { rsrc:rs,  rdest:rt,  imm:imm     };
+      opORI       : return ORI   { rsrc:rs,  rdest:rt,  imm:imm     };
+      opXORI      : return XORI  { rsrc:rs,  rdest:rt,  imm:imm     };
+      opLUI       : return LUI   {           rdest:rt,  imm:imm     };
       opJ         : return J     { target:target                   };
       opJAL       : return JAL   { target:target                   };
       opBEQ       : return BEQ   { rsrc1:rs, rsrc2:rt, offset:imm  };
@@ -214,22 +215,22 @@ instance Bits#(Inst,32);
 
       opFUNC  : 
         case ( funct )
-          fcSLL   : return SLL   { rsrc:rt,  rdst:rd,  shamt:shamt };
-          fcSRL   : return SRL   { rsrc:rt,  rdst:rd,  shamt:shamt };
-          fcSRA   : return SRA   { rsrc:rt,  rdst:rd,  shamt:shamt };
-          fcSLLV  : return SLLV  { rsrc:rt,  rdst:rd,  rshamt:rs   };
-          fcSRLV  : return SRLV  { rsrc:rt,  rdst:rd,  rshamt:rs   };
-          fcSRAV  : return SRAV  { rsrc:rt,  rdst:rd,  rshamt:rs   };
-          fcADDU  : return ADDU  { rsrc1:rs, rsrc2:rt, rdst:rd     };
-          fcSUBU  : return SUBU  { rsrc1:rs, rsrc2:rt, rdst:rd     };
-          fcAND   : return AND   { rsrc1:rs, rsrc2:rt, rdst:rd     };
-          fcOR    : return OR    { rsrc1:rs, rsrc2:rt, rdst:rd     };
-          fcXOR   : return XOR   { rsrc1:rs, rsrc2:rt, rdst:rd     };
-          fcNOR   : return NOR   { rsrc1:rs, rsrc2:rt, rdst:rd     };
-          fcSLT   : return SLT   { rsrc1:rs, rsrc2:rt, rdst:rd     }; 
-          fcSLTU  : return SLTU  { rsrc1:rs, rsrc2:rt, rdst:rd     };
+          fcSLL   : return SLL   { rsrc:rt,  rdest:rd,  shamt:shamt };
+          fcSRL   : return SRL   { rsrc:rt,  rdest:rd,  shamt:shamt };
+          fcSRA   : return SRA   { rsrc:rt,  rdest:rd,  shamt:shamt };
+          fcSLLV  : return SLLV  { rsrc:rt,  rdest:rd,  rshamt:rs   };
+          fcSRLV  : return SRLV  { rsrc:rt,  rdest:rd,  rshamt:rs   };
+          fcSRAV  : return SRAV  { rsrc:rt,  rdest:rd,  rshamt:rs   };
+          fcADDU  : return ADDU  { rsrc1:rs, rsrc2:rt, rdest:rd     };
+          fcSUBU  : return SUBU  { rsrc1:rs, rsrc2:rt, rdest:rd     };
+          fcAND   : return AND   { rsrc1:rs, rsrc2:rt, rdest:rd     };
+          fcOR    : return OR    { rsrc1:rs, rsrc2:rt, rdest:rd     };
+          fcXOR   : return XOR   { rsrc1:rs, rsrc2:rt, rdest:rd     };
+          fcNOR   : return NOR   { rsrc1:rs, rsrc2:rt, rdest:rd     };
+          fcSLT   : return SLT   { rsrc1:rs, rsrc2:rt, rdest:rd     }; 
+          fcSLTU  : return SLTU  { rsrc1:rs, rsrc2:rt, rdest:rd     };
           fcJR    : return JR    { rsrc:rs                         };
-          fcJALR  : return JALR  { rsrc:rs,  rdst:rd               };
+          fcJALR  : return JALR  { rsrc:rs,  rdest:rd               };
           default : return ILLEGAL;
         endcase
 
@@ -242,8 +243,8 @@ instance Bits#(Inst,32);
 
       opRS : 
         case ( rs )
-          //rsMFC0  : return MFC0  { rdst:rt,  cop0src:rd            };
-          //rsMTC0  : return MTC0  { rsrc:rt,  cop0dst:rd            };
+          //rsMFC0  : return MFC0  { rdest:rt,  cop0src:rd            };
+          //rsMTC0  : return MTC0  { rsrc:rt,  cop0dest:rd            };
           default : return ILLEGAL;
         endcase
 
@@ -260,45 +261,45 @@ endinstance
 typedef union tagged                
 {
 
-  struct { PRName pbase; PRName pdst;  SImm offset;	PRName opdst; } DLW;
-  struct { PRName pbase; PRName psrc;  SImm offset;	PRName opdst; } DSW; 
+  struct { PRName pbase; PRName pdest;  SImm offset;	PRName opdest; } DLW;
+  struct { PRName pbase; PRName psrc;  SImm offset;	PRName opdest; } DSW; 
 
-  struct { PRName psrc;  PRName pdst;  SImm imm;	PRName opdst; } DADDIU;
-  struct { PRName psrc;  PRName pdst;  SImm imm;	PRName opdst; } DSLTI;
-  struct { PRName psrc;  PRName pdst;  SImm imm;	PRName opdst; } DSLTIU;
-  struct { PRName psrc;  PRName pdst;  ZImm imm;	PRName opdst; } DANDI;
-  struct { PRName psrc;  PRName pdst;  ZImm imm;	PRName opdst; } DORI;
-  struct { PRName psrc;  PRName pdst;  ZImm imm;	PRName opdst; } DXORI;
-  struct { 		 PRName pdst;  ZImm imm;	PRName opdst; } DLUI;
+  struct { PRName psrc;  PRName pdest;  SImm imm;	PRName opdest; } DADDIU;
+  struct { PRName psrc;  PRName pdest;  SImm imm;	PRName opdest; } DSLTI;
+  struct { PRName psrc;  PRName pdest;  SImm imm;	PRName opdest; } DSLTIU;
+  struct { PRName psrc;  PRName pdest;  ZImm imm;	PRName opdest; } DANDI;
+  struct { PRName psrc;  PRName pdest;  ZImm imm;	PRName opdest; } DORI;
+  struct { PRName psrc;  PRName pdest;  ZImm imm;	PRName opdest; } DXORI;
+  struct { 		 PRName pdest;  ZImm imm;	PRName opdest; } DLUI;
 
-  struct { PRName psrc;  PRName pdst;  ShAmt shamt;	PRName opdst; } DSLL;
-  struct { PRName psrc;  PRName pdst;  ShAmt shamt;	PRName opdst; } DSRL;
-  struct { PRName psrc;  PRName pdst;  ShAmt shamt;	PRName opdst; } DSRA;
-  struct { PRName psrc;  PRName pdst;  PRName pshamt;   PRName opdst; } DSLLV;
-  struct { PRName psrc;  PRName pdst;  PRName pshamt;   PRName opdst; } DSRLV;
-  struct { PRName psrc;  PRName pdst;  PRName pshamt;   PRName opdst; } DSRAV;
-  struct { PRName psrc1; PRName psrc2; PRName pdst;	PRName opdst; } DADDU;
-  struct { PRName psrc1; PRName psrc2; PRName pdst;	PRName opdst; } DSUBU;
-  struct { PRName psrc1; PRName psrc2; PRName pdst;	PRName opdst; } DAND;
-  struct { PRName psrc1; PRName psrc2; PRName pdst;	PRName opdst; } DOR;
-  struct { PRName psrc1; PRName psrc2; PRName pdst;	PRName opdst; } DXOR;
-  struct { PRName psrc1; PRName psrc2; PRName pdst;	PRName opdst; } DNOR;
-  struct { PRName psrc1; PRName psrc2; PRName pdst;	PRName opdst; } DSLT;
-  struct { PRName psrc1; PRName psrc2; PRName pdst;	PRName opdst; } DSLTU;
+  struct { PRName psrc;  PRName pdest;  ShAmt shamt;	PRName opdest; } DSLL;
+  struct { PRName psrc;  PRName pdest;  ShAmt shamt;	PRName opdest; } DSRL;
+  struct { PRName psrc;  PRName pdest;  ShAmt shamt;	PRName opdest; } DSRA;
+  struct { PRName psrc;  PRName pdest;  PRName pshamt;   PRName opdest; } DSLLV;
+  struct { PRName psrc;  PRName pdest;  PRName pshamt;   PRName opdest; } DSRLV;
+  struct { PRName psrc;  PRName pdest;  PRName pshamt;   PRName opdest; } DSRAV;
+  struct { PRName psrc1; PRName psrc2; PRName pdest;	PRName opdest; } DADDU;
+  struct { PRName psrc1; PRName psrc2; PRName pdest;	PRName opdest; } DSUBU;
+  struct { PRName psrc1; PRName psrc2; PRName pdest;	PRName opdest; } DAND;
+  struct { PRName psrc1; PRName psrc2; PRName pdest;	PRName opdest; } DOR;
+  struct { PRName psrc1; PRName psrc2; PRName pdest;	PRName opdest; } DXOR;
+  struct { PRName psrc1; PRName psrc2; PRName pdest;	PRName opdest; } DNOR;
+  struct { PRName psrc1; PRName psrc2; PRName pdest;	PRName opdest; } DSLT;
+  struct { PRName psrc1; PRName psrc2; PRName pdest;	PRName opdest; } DSLTU;
 
-  struct { Target target; 				PRName opdst; } DJ;
-  struct { PRName pdst;  Target target;			PRName opdst; } DJAL;
-  struct { PRName psrc;					PRName opdst; } DJR;
-  struct { PRName psrc;  PRName pdst;			PRName opdst; } DJALR;
-  struct { PRName psrc1; PRName psrc2; SImm offset;	PRName opdst; } DBEQ;
-  struct { PRName psrc1; PRName psrc2; SImm offset;	PRName opdst; } DBNE;
-  struct { PRName psrc;  SImm offset;			PRName opdst; } DBLEZ;
-  struct { PRName psrc;  SImm offset;			PRName opdst; } DBGTZ;
-  struct { PRName psrc;  SImm offset;			PRName opdst; } DBLTZ;
-  struct { PRName psrc;  SImm offset;			PRName opdst; } DBGEZ;
+  struct { Target target; 				PRName opdest; } DJ;
+  struct { PRName pdest;  Target target;			PRName opdest; } DJAL;
+  struct { PRName psrc;					PRName opdest; } DJR;
+  struct { PRName psrc;  PRName pdest;			PRName opdest; } DJALR;
+  struct { PRName psrc1; PRName psrc2; SImm offset;	PRName opdest; } DBEQ;
+  struct { PRName psrc1; PRName psrc2; SImm offset;	PRName opdest; } DBNE;
+  struct { PRName psrc;  SImm offset;			PRName opdest; } DBLEZ;
+  struct { PRName psrc;  SImm offset;			PRName opdest; } DBGTZ;
+  struct { PRName psrc;  SImm offset;			PRName opdest; } DBLTZ;
+  struct { PRName psrc;  SImm offset;			PRName opdest; } DBGEZ;
 
-  //struct { PRName pdst;  CP0Index cop0src;  		PRName opdst; } DMFC0;
-  //struct { PRName rsrc;  CP0Index cop0dst;  		PRName opdst; } DMTC0; 
+  //struct { PRName pdest;  CP0Index cop0src;  		PRName opdest; } DMFC0;
+  //struct { PRName rsrc;  CP0Index cop0dest;  		PRName opdest; } DMTC0; 
 
   void                                                                  DTERMINATE;
   void                                                                  DILLEGAL;
@@ -315,15 +316,16 @@ typedef union tagged
 //Exec-->Mem-->LCom-->GCom
 typedef union tagged 
 {
-  struct { Value val; PRName pdst; PRName opdst; } EWB;
-  //struct { Value val; CP0Index cop0dst; PRName opdst; } ECoProc;
-  struct { Addr addr; PRName pdst; PRName opdst; } ELoad;
-  struct { Addr addr; Value  val;  PRName opdst; } EStore;
-  struct {		    	   PRName opdst; } ENop;
+  struct {PRName pdest; PRName opdest;                          } EWB;
+  //struct { PRName val; CP0Index cop0dest; PRName opdest;        } ECoProc;
+  struct {PRName opdest;					} ENop;
+  struct {PRName idx; SImm offset; PRName pdest; PRName opdest; } ELoad;
+  struct {PRName idx; SImm offset; PRName val;   PRName opdest; } EStore;
+  void                                                            ETerminate;
 }
   ExecedInst
-    deriving 
-            (Eq, Bits);
+     deriving 
+             (Eq, Bits);
 
 
 
