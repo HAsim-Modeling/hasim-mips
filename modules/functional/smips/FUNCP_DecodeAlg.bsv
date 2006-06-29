@@ -977,7 +977,7 @@ module [HASim_Module] mkFUNCP_DecodeAlg ();
       tagged TERMINATE: 
         begin
           decinst = DTERMINATE;
-		    
+
           depinfo = DepInfo 
 	            {
 		      dep_dest: Invalid, 

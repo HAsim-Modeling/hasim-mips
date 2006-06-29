@@ -128,6 +128,8 @@ Bit#(5) rtBGEZ  = 5'b00001;
 Bit#(5) rsMFC0  = 5'b00000;
 Bit#(5) rsMTC0  = 5'b00100;
 
+Bit#(5) rsTERMINATE = 5'b11111;
+
 instance Bits#(Inst,32);
 
   // Pack Function
@@ -176,7 +178,8 @@ instance Bits#(Inst,32);
       tagged BGEZ  .it : return { opRT,    it.rsrc,  rtBGEZ,   it.offset                   }; 
 
       //tagged MFC0  .it : return { opRS,    rsMFC0,   it.rdest,  it.cop0src, 11'b0           }; 
-      //tagged MTC0  .it : return { opRS,    rsMTC0,   it.rsrc,  it.cop0dest, 11'b0           };  
+      //tagged MTC0  .it : return { opRS,    rsMTC0,   it.rsrc,  it.cop0dest, 11'b0           }; 
+      tagged TERMINATE  .it : return { opRS, rsTERMINATE, 21'b0           };  
 
     endcase
 
@@ -245,6 +248,7 @@ instance Bits#(Inst,32);
         case ( rs )
           //rsMFC0  : return MFC0  { rdest:rt,  cop0src:rd            };
           //rsMTC0  : return MTC0  { rsrc:rt,  cop0dest:rd            };
+	  rsTERMINATE : return TERMINATE;
           default : return ILLEGAL;
         endcase
 

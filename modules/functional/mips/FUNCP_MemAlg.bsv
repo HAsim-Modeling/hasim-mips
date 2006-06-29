@@ -160,6 +160,7 @@ module [HASim_Module] mkFUNCP_MemAlg ();
           link_mem.makeResp(tuple3(tok,?,EWB{pdest: prd, opdest: oprd}));
           link_write2.send(tuple2(prd, v));
 	  
+          debug(2, $display("MEM: [%d] LdResp: PR%d <= %0h", tok, prd, v));
 	  
         end
       tagged EStore {opdest: .oprd, val: .*, idx: .*, offset: .*}:

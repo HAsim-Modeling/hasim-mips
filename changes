@@ -131,3 +131,32 @@ Directory modules/isa/smips
 Updates for bsc 3.8.68. Please use this version of the compiler or later.
 
 Michael
+
+----------
+mpellaue    Date: Thu Jun 29 18:03:13 EDT 2006  CSN: CSN-hasim-mips-6
+                  Thu Jun 29 22:03:13 UTC 2006
+
+
+Directory modules/functional/toymips
+ FUNCP_ExecuteAlg.bsv      Locally Modified            5 
+
+Directory modules/functional/mips
+ FUNCP_GlobalCommitAlg.bsv Locally Modified            5 
+ FUNCP_MemAlg.bsv          Locally Modified            5 
+
+Directory modules/functional/smips
+ FUNCP_DecodeAlg.bsv       Locally Modified            5 
+
+Directory modules/chip/mips/5stage
+ Chip.bsv                  Locally Modified            5 
+
+Directory modules/chip/mips/simple
+ Chip.bsv                  Locally Modified            5 
+
+Directory modules/isa/smips
+ ISA.bsv                   Locally Modified            5 
+
+
+Fixed a bug relating to the committing of tokens and termination of the program.
+
+Michael

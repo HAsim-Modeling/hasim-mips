@@ -125,7 +125,7 @@ module [HASim_Module] mkFUNCP_ExecuteAlg ();
            link_exe.makeResp(tuple3(t, RNop, EWB {pdest: prd, opdest: oprd}));
            waitingQ.deq();
 
-	   debug(2, $display("EXE: [%d] DAdd (old PR%d) PR%d <= 0x%h", t, oprd, prd, result));
+	   debug(2, $display("EXE: [%d] DAdd (old PR%d) PR%d <= 0x%h = 0x%h + 0x%h", t, oprd, prd, result, unJust(mva), unJust(mvb)));
 	   
          end
        end
@@ -145,7 +145,7 @@ module [HASim_Module] mkFUNCP_ExecuteAlg ();
            link_exe.makeResp(tuple3(t, RNop, EWB {pdest: prd, opdest: oprd}));
            waitingQ.deq();
 	   
-	   debug(2, $display("EXE: [%d] DAdd (old PR%d) PR%d <= 0x%h", t, oprd, prd, result));
+	   debug(2, $display("EXE: [%d] DSub (old PR%d) PR%d <= 0x%h = 0x%h - 0x%h", t, oprd, prd, result, unJust(mva), unJust(mvb)));
 	   
          end
        end

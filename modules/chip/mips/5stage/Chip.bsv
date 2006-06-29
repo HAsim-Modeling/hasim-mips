@@ -195,7 +195,12 @@ module [HASim_Module] mkChip
       tagged RNop:
         noAction;
       tagged RTerminate:
-	mstopToken <= Valid tok;
+        case (mstopToken) matches
+	  Invalid:
+  	    mstopToken <= Valid tok;
+	  default:
+	    noAction;
+	endcase
     endcase
     
     exe2memQ.enq(tuple2(tok, tick));
@@ -257,8 +262,13 @@ module [HASim_Module] mkChip
         
     debug(1, $display("[%h]: finished token %0d at model cycle %0d", hostCC, tok, old_tick));
   
-    if ((Valid tok) == mstopToken)
-      running <= False;
+    case (mstopToken) matches
+      tagged Valid .t:
+        if (t == tok)
+	  running <= False;
+      default:
+        noAction;
+    endcase
 
   endrule
     
