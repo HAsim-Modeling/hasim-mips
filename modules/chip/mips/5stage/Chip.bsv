@@ -80,7 +80,7 @@ module [HASim_Module] mkChip
 
   rule tokenReq (running);
   
-    debug(2, $display("[%h] Requesting a new token. Began on model CC %0d.", hostCC, baseTick));
+    debug(2, $display("[%d] TOKG Requesting a new token. Began on model CC %0d.", hostCC, baseTick));
   
   
     tokQ.enq(baseTick);
@@ -97,7 +97,7 @@ module [HASim_Module] mkChip
     let old_tick = tokQ.first();
     tokQ.deq();
   
-    debug(2, $display("[%h] Fetching token %0d at address %h", hostCC, old_tick, tok, pc));
+    debug(2, $display("[%d] TOKR/FETG Fetching token %0d at address %h", hostCC, tok, pc));
     
     pc <= pc + 1;
   
@@ -113,7 +113,7 @@ module [HASim_Module] mkChip
   
     match {.tok, .inst} <- link_to_fet.getResp();
     
-    debug(2, $display("[%h] Decoding token %0d", hostCC, tok));
+    debug(2, $display("[%d] FETR/DECG Decoding token %0d", hostCC, tok));
     
     match {.cur_tok, .old_tick} = tok2fetQ.first();
     tok2fetQ.deq();
@@ -133,7 +133,7 @@ module [HASim_Module] mkChip
   
     match {.tok, .deps} <- link_to_dec.getResp();
     
-    debug(2, $display("[%h] DEC Responded with token %0d.", hostCC, tok));
+    debug(2, $display("[%d] DECR/EXEG Decode Responded with token %0d.", hostCC, tok));
     
     match {.cur_tok, .old_tick} = fet2decQ.first();
     fet2decQ.deq();
@@ -145,21 +145,21 @@ module [HASim_Module] mkChip
 
     case (deps.dep_dest) matches
       tagged Valid {.rname, .prname}:
-	debug(2, $display("Destination: (%d, %d)", rname, prname));
+	debug(2, $display("\tDestination: (%d, %d)", rname, prname));
       tagged Invalid:
-	debug(2, $display("No destination."));
+	debug(2, $display("\tNo destination."));
     endcase
     case (deps.dep_src1) matches
       tagged Valid {.rname, .prname}:
-        debug(2, $display("Source 1: (%d, %d)", rname, prname));
+        debug(2, $display("\tSource 1: (%d, %d)", rname, prname));
       tagged Invalid:
-        debug(2, $display("No Source 1."));
+        debug(2, $display("\tNo Source 1."));
     endcase
     case (deps.dep_src2) matches
       tagged Valid {.rname, .prname}:
-        debug(2, $display("Source 2: (%d, %d)", rname, prname));
+        debug(2, $display("\tSource 2: (%d, %d)", rname, prname));
       tagged Invalid:
-        debug(2, $display("No Source 2."));
+        debug(2, $display("\tNo Source 2."));
     endcase  
     
     dec2exeQ.enq(tuple2(tok, tick));
@@ -171,20 +171,20 @@ module [HASim_Module] mkChip
   
     match {.tok, .res} <- link_to_exe.getResp();
    
-    debug(2, $display("[%h] Executing token %0d", hostCC, tok));
+    debug(2, $display("[%d] Executing token %0d", hostCC, tok));
 
     match {.cur_tok, .old_tick} = dec2exeQ.first();
     dec2exeQ.deq();
     
     if (tok != cur_tok)
-       $display ("[%h] EXE ERROR: Mismatched token. Expected: %0d, Received: %0d", hostCC, cur_tok, tok);
+       $display ("[%h] EXER/MEMG ERROR: Mismatched token. Expected: %0d, Received: %0d", hostCC, cur_tok, tok);
 
     let tick = old_tick + `EXE_Latency;
     
     case (res) matches
       tagged RBranchTaken .addr:
 	begin
-	  debug(2, $display("[%h] Branch taken to address %h on Model CC: %0d", hostCC, addr, tick));
+	  debug(2, $display("[%d] Branch taken to address %h on Model CC: %0d", hostCC, addr, tick));
 	  pc <= addr;
 	  
           //XXX kill wrongpath FP tokens here
@@ -212,7 +212,7 @@ module [HASim_Module] mkChip
   
     match {.tok, .*} <- link_to_mem.getResp();
     
-    debug(2, $display("[%h] MEM Responded with token %0d.", hostCC, tok));
+    debug(2, $display("[%d] MEMR/LCOG Memory responded with token %0d.", hostCC, tok));
     
     match {.cur_tok, .old_tick} = exe2memQ.first();
     exe2memQ.deq();
@@ -231,7 +231,7 @@ module [HASim_Module] mkChip
   
     match {.tok, .*} <- link_to_lco.getResp();
     
-    debug(2, $display("[%h] LCO Responded with token %0d.", hostCC, tok));
+    debug(2, $display("[%d] LCOR/GCOG Local commit responded with token %0d.", hostCC, tok));
     
     match {.cur_tok, .old_tick} = mem2lcoQ.first();
     mem2lcoQ.deq();
@@ -250,7 +250,7 @@ module [HASim_Module] mkChip
   
     match {.tok, .*} <- link_to_gco.getResp();
     
-    debug(2, $display("[%h] GCO Responded with token %0d.", hostCC, tok));
+    debug(2, $display("[%d] GCOR Global commit responded with token %0d.", hostCC, tok));
     
     match {.cur_tok, .old_tick} = lco2gcoQ.first();
     lco2gcoQ.deq();
@@ -260,7 +260,7 @@ module [HASim_Module] mkChip
 
     let tick = old_tick + `GCO_Latency;
         
-    debug(1, $display("[%h]: finished token %0d at model cycle %0d", hostCC, tok, old_tick));
+    debug(1, $display("[%d]: finished token %0d at model cycle %0d", hostCC, tok, old_tick));
   
     case (mstopToken) matches
       tagged Valid .t:

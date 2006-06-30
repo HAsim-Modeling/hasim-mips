@@ -25,6 +25,8 @@ import ISA::*;
 
 module [HASim_Module] mkFUNCP_ExecuteAlg ();
 
+  Reg#(Bool) waiting <- mkReg(False);
+
   //Ports
   Connection_Server#(Tuple3#(Token, Tuple2#(Addr, DecodedInst), void),
                      Tuple3#(Token, InstResult, ExecedInst)) 
@@ -141,7 +143,12 @@ module [HASim_Module] mkFUNCP_ExecuteAlg ();
     debug_rule("handleExec");
 
     let tup <- link_exe.getReq();
-    match {.t, {.addr, .dec}, .*} = tup;
+    waitingQ.enq(tup);
+  endrule
+  
+  rule makeReq (!waiting);
+  
+    match {.t, {.addr, .dec}, .*} = waitingQ.first();
 
     PRName va = getSrc1(dec);
     PRName vb = getSrc2(dec);
@@ -150,13 +157,13 @@ module [HASim_Module] mkFUNCP_ExecuteAlg ();
     link_read1.makeReq(va);
     link_read2.makeReq(vb);
 
-    waitingQ.enq(tup);
+    waiting <= True;
 
   endrule
   
   //execute
 
-  rule execute (True);
+  rule execute (waiting);
   
     debug_rule("execute");
 
@@ -396,7 +403,7 @@ module [HASim_Module] mkFUNCP_ExecuteAlg ();
       //Add Unsigned
       tagged DADDU {psrc1: .rs1, psrc2: .rs2, pdest: .rd, opdest: .opd}: 
 	begin
-
+	  
           done  = isJust(mva) && isJust(mvb);
 	  res   = RNop;
 	  wbval = unJust(mva) + unJust(mvb);
@@ -405,6 +412,10 @@ module [HASim_Module] mkFUNCP_ExecuteAlg ();
 		    pdest:  rd,
 		    opdest: opd
 		  };
+		  
+          if (done)
+	    debug(2, $display("EXE [ %d] DADDU PR%d <= %0h = %0h + %0h", t, rd, wbval, unJust(mva), unJust(mvb)));
+	    
 	end
 
       //Subtract Unsigned
@@ -687,8 +698,21 @@ module [HASim_Module] mkFUNCP_ExecuteAlg ();
     if (done)
       begin
 	link_exe.makeResp(tuple3(t, res, einst));
+	
+	case (einst) matches
+	  tagged EWB {pdest: .d, opdest: .*}:
+	    link_write1.send(tuple2(d, wbval));
+	  default:
+	    noAction;
+	endcase
+	
+	  debug(2, $display("EXE done"));
 	waitingQ.deq();
       end
+      else
+	  debug(2, $display("EXE NOT done"));
+      
+    waiting <= False;
 
   endrule
 

@@ -160,3 +160,17 @@ Directory modules/isa/smips
 Fixed a bug relating to the committing of tokens and termination of the program.
 
 Michael
+
+----------
+mpellaue    Date: Fri Jun 30 17:27:23 EDT 2006  CSN: CSN-hasim-mips-7
+                  Fri Jun 30 21:27:23 UTC 2006
+
+
+Directory modules/functional/smips
+ FUNCP_ExecuteAlg.bsv      Locally Modified            5 
+
+Directory modules/chip/mips/5stage
+ Chip.bsv                  Locally Modified            6 
+
+
+Bugfix in the SMIPS Execute, and nicer $displays in the 5-stage Chip.
