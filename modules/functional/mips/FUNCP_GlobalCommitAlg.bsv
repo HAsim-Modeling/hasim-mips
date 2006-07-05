@@ -31,16 +31,23 @@ module [HASim_Module] mkFUNCP_GlobalCommitAlg ();
 
   Connection_Send#(Token) link_mem_commit <- mkConnection_Send("mem_commit");
   
-  Connection_Server#(Tuple3#(Token, ExecedInst, void),
+  Connection_Send#(Token) link_mem_kill <- mkConnection_Send("mem_kill");
+  
+  Connection_Server#(Tuple3#(Token, InstWBInfo, void),
                      Tuple3#(Token, void, void)) 
   //...
   link_gco <- mkConnection_Server("link_gco");
   
   rule handleGCO (True);
   
-    match {.tok, .*, .*} <- link_gco.getReq();
+    match {.tok, .inf, .*} <- link_gco.getReq();
     
-    link_mem_commit.send(tok);
+    case (inf)
+      WStore:
+        link_mem_commit.send(tok);
+      default:
+        noAction;
+    endcase
     
     link_gco.makeResp(tuple3(tok, ?, ?));
   

@@ -265,48 +265,48 @@ endinstance
 typedef union tagged                
 {
 
-  struct { PRName pbase; PRName pdest;  SImm offset;	PRName opdest; } DLW;
-  struct { PRName pbase; PRName psrc;  SImm offset;	PRName opdest; } DSW; 
+  struct { PRName pbase; PRName pdest;  SImm offset;  } DLW;
+  struct { PRName pbase; PRName psrc;  SImm offset;   } DSW; 
 
-  struct { PRName psrc;  PRName pdest;  SImm imm;	PRName opdest; } DADDIU;
-  struct { PRName psrc;  PRName pdest;  SImm imm;	PRName opdest; } DSLTI;
-  struct { PRName psrc;  PRName pdest;  SImm imm;	PRName opdest; } DSLTIU;
-  struct { PRName psrc;  PRName pdest;  ZImm imm;	PRName opdest; } DANDI;
-  struct { PRName psrc;  PRName pdest;  ZImm imm;	PRName opdest; } DORI;
-  struct { PRName psrc;  PRName pdest;  ZImm imm;	PRName opdest; } DXORI;
-  struct { 		 PRName pdest;  ZImm imm;	PRName opdest; } DLUI;
+  struct { PRName psrc;  PRName pdest; SImm imm;      } DADDIU;
+  struct { PRName psrc;  PRName pdest; SImm imm;      } DSLTI;
+  struct { PRName psrc;  PRName pdest; SImm imm;      } DSLTIU;
+  struct { PRName psrc;  PRName pdest; ZImm imm;      } DANDI;
+  struct { PRName psrc;  PRName pdest; ZImm imm;      } DORI;
+  struct { PRName psrc;  PRName pdest; ZImm imm;      } DXORI;
+  struct { 		 PRName pdest; ZImm imm;      } DLUI;
 
-  struct { PRName psrc;  PRName pdest;  ShAmt shamt;	PRName opdest; } DSLL;
-  struct { PRName psrc;  PRName pdest;  ShAmt shamt;	PRName opdest; } DSRL;
-  struct { PRName psrc;  PRName pdest;  ShAmt shamt;	PRName opdest; } DSRA;
-  struct { PRName psrc;  PRName pdest;  PRName pshamt;   PRName opdest; } DSLLV;
-  struct { PRName psrc;  PRName pdest;  PRName pshamt;   PRName opdest; } DSRLV;
-  struct { PRName psrc;  PRName pdest;  PRName pshamt;   PRName opdest; } DSRAV;
-  struct { PRName psrc1; PRName psrc2; PRName pdest;	PRName opdest; } DADDU;
-  struct { PRName psrc1; PRName psrc2; PRName pdest;	PRName opdest; } DSUBU;
-  struct { PRName psrc1; PRName psrc2; PRName pdest;	PRName opdest; } DAND;
-  struct { PRName psrc1; PRName psrc2; PRName pdest;	PRName opdest; } DOR;
-  struct { PRName psrc1; PRName psrc2; PRName pdest;	PRName opdest; } DXOR;
-  struct { PRName psrc1; PRName psrc2; PRName pdest;	PRName opdest; } DNOR;
-  struct { PRName psrc1; PRName psrc2; PRName pdest;	PRName opdest; } DSLT;
-  struct { PRName psrc1; PRName psrc2; PRName pdest;	PRName opdest; } DSLTU;
+  struct { PRName psrc;  PRName pdest; ShAmt shamt;   } DSLL;
+  struct { PRName psrc;  PRName pdest; ShAmt shamt;   } DSRL;
+  struct { PRName psrc;  PRName pdest; ShAmt shamt;   } DSRA;
+  struct { PRName psrc;  PRName pdest; PRName pshamt; } DSLLV;
+  struct { PRName psrc;  PRName pdest; PRName pshamt; } DSRLV;
+  struct { PRName psrc;  PRName pdest; PRName pshamt; } DSRAV;
+  struct { PRName psrc1; PRName psrc2; PRName pdest;  } DADDU;
+  struct { PRName psrc1; PRName psrc2; PRName pdest;  } DSUBU;
+  struct { PRName psrc1; PRName psrc2; PRName pdest;  } DAND;
+  struct { PRName psrc1; PRName psrc2; PRName pdest;  } DOR;
+  struct { PRName psrc1; PRName psrc2; PRName pdest;  } DXOR;
+  struct { PRName psrc1; PRName psrc2; PRName pdest;  } DNOR;
+  struct { PRName psrc1; PRName psrc2; PRName pdest;  } DSLT;
+  struct { PRName psrc1; PRName psrc2; PRName pdest;  } DSLTU;
 
-  struct { Target target; 				PRName opdest; } DJ;
-  struct { PRName pdest;  Target target;			PRName opdest; } DJAL;
-  struct { PRName psrc;					PRName opdest; } DJR;
-  struct { PRName psrc;  PRName pdest;			PRName opdest; } DJALR;
-  struct { PRName psrc1; PRName psrc2; SImm offset;	PRName opdest; } DBEQ;
-  struct { PRName psrc1; PRName psrc2; SImm offset;	PRName opdest; } DBNE;
-  struct { PRName psrc;  SImm offset;			PRName opdest; } DBLEZ;
-  struct { PRName psrc;  SImm offset;			PRName opdest; } DBGTZ;
-  struct { PRName psrc;  SImm offset;			PRName opdest; } DBLTZ;
-  struct { PRName psrc;  SImm offset;			PRName opdest; } DBGEZ;
+  struct { Target target; 			      } DJ;
+  struct { PRName pdest;  Target target;	      } DJAL;
+  struct { PRName psrc;				      } DJR;
+  struct { PRName psrc;  PRName pdest;		      } DJALR;
+  struct { PRName psrc1; PRName psrc2; SImm offset;   } DBEQ;
+  struct { PRName psrc1; PRName psrc2; SImm offset;   } DBNE;
+  struct { PRName psrc;  SImm offset;		      } DBLEZ;
+  struct { PRName psrc;  SImm offset;		      } DBGTZ;
+  struct { PRName psrc;  SImm offset;		      } DBLTZ;
+  struct { PRName psrc;  SImm offset;		      } DBGEZ;
 
-  //struct { PRName pdest;  CP0Index cop0src;  		PRName opdest; } DMFC0;
-  //struct { PRName rsrc;  CP0Index cop0dest;  		PRName opdest; } DMTC0; 
+  //struct { PRName pdest;  CP0Index cop0src;  	      } DMFC0;
+  //struct { PRName rsrc;  CP0Index cop0dest;  	      } DMTC0; 
 
-  void                                                                  DTERMINATE;
-  void                                                                  DILLEGAL;
+  void                                                  DTERMINATE;
+  void                                                  DILLEGAL;
 
 }
   DecodedInst
@@ -317,20 +317,29 @@ typedef union tagged
 
 //Possibly should include branch info if Functional Partition has branch predictor
 
-//Exec-->Mem-->LCom-->GCom
+//Exec-->Mem
 typedef union tagged 
 {
-  struct {PRName pdest; PRName opdest;                          } EWB;
-  //struct { PRName val; CP0Index cop0dest; PRName opdest;        } ECoProc;
-  struct {PRName opdest;					} ENop;
-  struct {PRName idx; SImm offset; PRName pdest; PRName opdest; } ELoad;
-  struct {PRName idx; SImm offset; PRName val;   PRName opdest; } EStore;
-  void                                                            ETerminate;
+  struct {PRName pdest;                      } EWB;
+  //struct { PRName val; CP0Index cop0dest;  } ECoProc;
+  struct {Value addr; PRName pdest;          } ELoad;
+  struct {Value addr; Value val;             } EStore;
+  void                                         ENop;
 }
   ExecedInst
      deriving 
              (Eq, Bits);
 
+//Mem-->LCO-->GCO
+typedef enum
+{
+  WWB,
+  WStore,
+  WNop
+}
+  InstWBInfo
+     deriving 
+             (Eq, Bits);
 
 
 /************* Timing Partition Datatypes *************/

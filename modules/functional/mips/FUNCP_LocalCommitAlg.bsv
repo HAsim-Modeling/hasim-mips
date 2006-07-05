@@ -30,12 +30,12 @@ import ISA::*;
 module [HASim_Module] mkFUNCP_LocalCommitAlg ();
   
    
-  Connection_Server#(Tuple3#(Token, ExecedInst, void),
-                     Tuple3#(Token, void, ExecedInst)) 
+  Connection_Server#(Tuple3#(Token, InstWBInfo, void),
+                     Tuple3#(Token, void, InstWBInfo)) 
   //...
   link_lco <- mkConnection_Server("link_lco");
   
-  Connection_Send#(Tuple2#(Token, PRName)) 
+  Connection_Send#(Token) 
   //...
         link_freePReg <- mkConnection_Send("lco_to_bypass_free");
 
@@ -47,15 +47,7 @@ module [HASim_Module] mkFUNCP_LocalCommitAlg ();
   
     match {.t, .ei, .*} <- link_lco.getReq();
     
-    PRName p = case (ei) matches
-                 tagged ENop    .x: return(x.opdest);
-		 tagged EWB     .x: return(x.opdest);
-		 tagged ELoad   .x: return(x.opdest);
-		 tagged EStore  .x: return(x.opdest);
-                 tagged ETerminate: return(?);
-	       endcase;
-
-    link_freePReg.send(tuple2(t, p));
+    link_freePReg.send(t);
 
     link_lco.makeResp(tuple3(t, ?, ?));
 

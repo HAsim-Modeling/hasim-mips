@@ -74,6 +74,7 @@ module [HASim_Module] mkChip
   //...
   link_to_gco <- mkConnection_Client("fp_gco");
 
+
   rule count (True);
     hostCC <= hostCC + 1;
   endrule

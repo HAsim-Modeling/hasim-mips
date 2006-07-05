@@ -167,7 +167,7 @@ module [HASim_Module] mkFUNCP_ExecuteAlg ();
   
     debug_rule("execute");
 
-    match {.t, {.addr, .dec}, .*} = waitingQ.first();
+    match {.tok, {.addr, .dec}, .*} = waitingQ.first();
 
     //Try to get the values from the Bypass unit
     Maybe#(Value) mva <- link_read1.getResp();
@@ -178,38 +178,39 @@ module [HASim_Module] mkFUNCP_ExecuteAlg ();
     Value wbval = ?;
     Bool done = False;
     Maybe#(Addr) branchResult = Invalid;
+    Action dbg = noAction;
 
     //Actually do the execute
     case (dec) matches
       // -- Memory Ops ------------------------------------------------      
       
       //Load Word
-      tagged DLW {pbase: .rb, pdest: .rd, offset: .off, opdest: .opd}: 
+      tagged DLW {pbase: .rb, pdest: .rd, offset: .off}: 
 	begin
 	
-          done  = True;
+          done  = isJust(mva);
+	  Value ea = unJust(mva) + signExtend(off);
 	  res   = RNop;
+	  dbg = $display("EXE: [%d] LW PR%d <= MEM[0x%h = 0x%h + 0x%h]", tok, rd, ea, unJust(mva), off);
 	  einst = ELoad 
 	          {
-		    idx:     rb,
-		    offset:  off,
-		    pdest:   rd, 
-		    opdest:   opd
+		    addr:  ea,
+		    pdest: rd 
 		  };
 	end
 	
       //Store Word
-      tagged DSW {pbase: .rb, psrc: .rs, offset: .off, opdest: .opd}: 
+      tagged DSW {pbase: .rb, psrc: .rs, offset: .off}: 
 	begin
 	
-          done  = True;
+          done  = isJust(mva) && isJust(mvb);
+	  Value ea = unJust(mva) + signExtend(off);
 	  res   = RNop;
+	  dbg = $display("EXE: [%d] SW MEM[0x%h = 0x%h + 0x%h] <= 0x%h", tok, ea, unJust(mva), off, unJust(mvb));
 	  einst = EStore
 	          {
-		    idx:    rb,
-		    val:    rs,
-		    offset: off,
-		    opdest:  opd
+		    addr: ea,
+		    val:  unJust(mvb)
 		  };
 	end
 
@@ -217,7 +218,7 @@ module [HASim_Module] mkFUNCP_ExecuteAlg ();
 
       //Add Immediate Unsigned 
       //Actually the numbers are sign extended, it just can't overflow
-      tagged DADDIU {psrc: .rs, pdest: .rd, imm:.simm, opdest: .opd}: 
+      tagged DADDIU {psrc: .rs, pdest: .rd, imm:.simm}: 
 	begin
 	
           done  = isJust(mva);
@@ -225,13 +226,12 @@ module [HASim_Module] mkFUNCP_ExecuteAlg ();
 	  wbval = unJust(mva) + signExtend(simm);
 	  einst = EWB
 	          {
-		    pdest:  rd,
-		    opdest: opd
+		    pdest:  rd
 		  };
 	end
 	
       //Set Less Than Immediate (Signed)
-      tagged DSLTI {psrc: .rs, pdest: .rd, imm:.simm, opdest: .opd}: 
+      tagged DSLTI {psrc: .rs, pdest: .rd, imm:.simm}: 
 	begin
 	
           done  = isJust(mva);
@@ -239,13 +239,12 @@ module [HASim_Module] mkFUNCP_ExecuteAlg ();
 	  wbval = zeroExtend(pack(signedLT(unJust(mva), signExtend(simm))));
 	  einst = EWB
 	          {
-		    pdest:  rd,
-		    opdest: opd
+		    pdest:  rd
 		  };
 	end
 	
       //Set Less Than Immediate Unsigned 
-      tagged DSLTIU {psrc: .rs, pdest: .rd, imm:.simm, opdest: .opd}: 
+      tagged DSLTIU {psrc: .rs, pdest: .rd, imm:.simm}: 
 	begin
 	
           done  = isJust(mva);
@@ -253,13 +252,12 @@ module [HASim_Module] mkFUNCP_ExecuteAlg ();
 	  wbval = zeroExtend(pack(unJust(mva) < signExtend(simm)));
 	  einst = EWB
 	          {
-		    pdest:  rd,
-		    opdest: opd
+		    pdest:  rd
 		  };
 	end
 	
       //And Immediate
-      tagged DANDI {psrc: .rs, pdest: .rd, imm:.zimm, opdest: .opd}: 
+      tagged DANDI {psrc: .rs, pdest: .rd, imm:.zimm}: 
 	begin
 	
           done  = isJust(mva);
@@ -267,13 +265,12 @@ module [HASim_Module] mkFUNCP_ExecuteAlg ();
 	  wbval = unJust(mva) & zeroExtend(zimm);
           einst = EWB
                   {
-		    pdest:  rd,
-		    opdest: opd
+		    pdest:  rd
 		  };
 	end
 	
       //Or Immediate
-      tagged DORI {psrc: .rs, pdest: .rd, imm:.zimm, opdest: .opd}: 
+      tagged DORI {psrc: .rs, pdest: .rd, imm:.zimm}: 
 	begin
 	
           done  = isJust(mva);
@@ -281,13 +278,12 @@ module [HASim_Module] mkFUNCP_ExecuteAlg ();
 	  wbval = unJust(mva) | zeroExtend(zimm);
           einst = EWB
                   {
-		    pdest:  rd,
-		    opdest: opd
+		    pdest:  rd
 		  };
 	end
 	
       //XOR Immediate
-      tagged DXORI {psrc: .rs, pdest: .rd, imm:.zimm, opdest: .opd}: 
+      tagged DXORI {psrc: .rs, pdest: .rd, imm:.zimm}: 
 	begin
 	
           done  = isJust(mva);
@@ -295,14 +291,13 @@ module [HASim_Module] mkFUNCP_ExecuteAlg ();
 	  wbval = unJust(mva) ^ zeroExtend(zimm);
           einst = EWB
                   {
-		    pdest:  rd,
-		    opdest: opd
+		    pdest:  rd
 		  };
 	end
 	
 	
       //Load Unsigned Immediate (Really is unsigned)
-      tagged DLUI {pdest: .rd, imm:.zimm, opdest: .opd}: 
+      tagged DLUI {pdest: .rd, imm:.zimm}: 
 	begin
 
           done  = True;
@@ -310,14 +305,13 @@ module [HASim_Module] mkFUNCP_ExecuteAlg ();
 	  wbval = zeroExtend(zimm) << 16;
           einst = EWB
                   {
-		    pdest:  rd,
-		    opdest: opd
+		    pdest:  rd
 		  };
 	end
 	
 	
       //Shift Left Logical (Immediate)
-      tagged DSLL {psrc: .rs, pdest: .rd, shamt:.sha, opdest: .opd}: 
+      tagged DSLL {psrc: .rs, pdest: .rd, shamt:.sha}: 
 	begin
 
           done  = isJust(mva);
@@ -325,13 +319,12 @@ module [HASim_Module] mkFUNCP_ExecuteAlg ();
 	  wbval = unJust(mva) << sha;
           einst = EWB
                   {
-		    pdest:  rd,
-		    opdest: opd
+		    pdest:  rd
 		  };
 	end
 	
       //Shift Right Logical (Immediate)
-      tagged DSRL {psrc: .rs, pdest: .rd, shamt:.sha, opdest: .opd}: 
+      tagged DSRL {psrc: .rs, pdest: .rd, shamt:.sha}: 
 	begin
 
           done  = isJust(mva);
@@ -339,13 +332,12 @@ module [HASim_Module] mkFUNCP_ExecuteAlg ();
 	  wbval = unJust(mva) >> sha;
           einst = EWB
                   {
-		    pdest:  rd,
-		    opdest: opd
+		    pdest:  rd
 		  };
 	end
 	
       //Shift Right Arithmatic (Immediate)
-      tagged DSRA {psrc: .rs, pdest: .rd, shamt:.sha, opdest: .opd}: 
+      tagged DSRA {psrc: .rs, pdest: .rd, shamt:.sha}: 
 	begin
 
           done  = isJust(mva);
@@ -353,13 +345,12 @@ module [HASim_Module] mkFUNCP_ExecuteAlg ();
 	  wbval = signedShiftRight(unJust(mva), sha);
           einst = EWB
                   {
-		    pdest:  rd,
-		    opdest: opd
+		    pdest:  rd
 		  };
 	end
 	
       //Shift Left Logical Variable
-      tagged DSLLV {psrc: .rs, pdest: .rd, pshamt:.rsha, opdest: .opd}: 
+      tagged DSLLV {psrc: .rs, pdest: .rd, pshamt:.rsha}: 
 	begin
 
           done  = isJust(mva) && isJust(mvb);
@@ -367,13 +358,12 @@ module [HASim_Module] mkFUNCP_ExecuteAlg ();
 	  wbval = unJust(mva) << unJust(mvb)[4:0];
           einst = EWB
                   {
-		    pdest:  rd,
-		    opdest: opd
+		    pdest:  rd
 		  };
 	end
 	
       //Shift Right Logical Variable
-      tagged DSRLV {psrc: .rs, pdest: .rd, pshamt:.rsha, opdest: .opd}: 
+      tagged DSRLV {psrc: .rs, pdest: .rd, pshamt:.rsha}: 
 	begin
 
           done  = isJust(mva) && isJust(mvb);
@@ -381,13 +371,12 @@ module [HASim_Module] mkFUNCP_ExecuteAlg ();
 	  wbval = unJust(mva) >> unJust(mvb)[4:0];
           einst = EWB
                   {
-		    pdest:  rd,
-		    opdest: opd
+		    pdest:  rd
 		  };
 	end
 	
       //Shift Right Arithmatic Variable
-      tagged DSRAV {psrc: .rs, pdest: .rd, pshamt:.rsha, opdest: .opd}: 
+      tagged DSRAV {psrc: .rs, pdest: .rd, pshamt:.rsha}: 
 	begin
 
           done  = isJust(mva) && isJust(mvb);
@@ -395,13 +384,12 @@ module [HASim_Module] mkFUNCP_ExecuteAlg ();
 	  wbval = signedShiftRight(unJust(mva), unJust(mvb)[4:0]);
           einst = EWB
                   {
-		    pdest:  rd,
-		    opdest: opd
+		    pdest:  rd
 		  };
 	end
 	
       //Add Unsigned
-      tagged DADDU {psrc1: .rs1, psrc2: .rs2, pdest: .rd, opdest: .opd}: 
+      tagged DADDU {psrc1: .rs1, psrc2: .rs2, pdest: .rd}: 
 	begin
 	  
           done  = isJust(mva) && isJust(mvb);
@@ -409,17 +397,15 @@ module [HASim_Module] mkFUNCP_ExecuteAlg ();
 	  wbval = unJust(mva) + unJust(mvb);
           einst = EWB
                   {
-		    pdest:  rd,
-		    opdest: opd
+		    pdest:  rd
 		  };
 		  
-          if (done)
-	    debug(2, $display("EXE [ %d] DADDU PR%d <= %0h = %0h + %0h", t, rd, wbval, unJust(mva), unJust(mvb)));
+	  dbg = $display("EXE [ %d] DADDU PR%d <= %0h = %0h + %0h", tok, rd, wbval, unJust(mva), unJust(mvb));
 	    
 	end
 
       //Subtract Unsigned
-      tagged DSUBU {psrc1: .rs1, psrc2: .rs2, pdest: .rd, opdest: .opd}: 
+      tagged DSUBU {psrc1: .rs1, psrc2: .rs2, pdest: .rd}: 
 	begin
 
           done  = isJust(mva) && isJust(mvb);
@@ -427,13 +413,12 @@ module [HASim_Module] mkFUNCP_ExecuteAlg ();
 	  wbval = unJust(mva) - unJust(mvb);
           einst = EWB
                   {
-		    pdest:  rd,
-		    opdest: opd
+		    pdest:  rd
 		  };
 	end
 	
       //And
-      tagged DAND {psrc1: .rs1, psrc2: .rs2, pdest: .rd, opdest: .opd}: 
+      tagged DAND {psrc1: .rs1, psrc2: .rs2, pdest: .rd}: 
 	begin
 
           done  = isJust(mva) && isJust(mvb);
@@ -441,13 +426,12 @@ module [HASim_Module] mkFUNCP_ExecuteAlg ();
 	  wbval = unJust(mva) & unJust(mvb);
           einst = EWB
                   {
-		    pdest:  rd,
-		    opdest: opd
+		    pdest:  rd
 		  };
 	end
       
       //OR
-      tagged DOR {psrc1: .rs1, psrc2: .rs2, pdest: .rd, opdest: .opd}: 
+      tagged DOR {psrc1: .rs1, psrc2: .rs2, pdest: .rd}: 
 	begin
 
           done  = isJust(mva) && isJust(mvb);
@@ -455,13 +439,12 @@ module [HASim_Module] mkFUNCP_ExecuteAlg ();
 	  wbval = unJust(mva) | unJust(mvb);
           einst = EWB
                   {
-		    pdest:  rd,
-		    opdest: opd
+		    pdest:  rd
 		  };
 	end
 	
       //XOR
-      tagged DXOR {psrc1: .rs1, psrc2: .rs2, pdest: .rd, opdest: .opd}: 
+      tagged DXOR {psrc1: .rs1, psrc2: .rs2, pdest: .rd}: 
 	begin
 
           done  = isJust(mva) && isJust(mvb);
@@ -469,13 +452,12 @@ module [HASim_Module] mkFUNCP_ExecuteAlg ();
 	  wbval = unJust(mva) ^ unJust(mvb);
           einst = EWB
                   {
-		    pdest:  rd,
-		    opdest: opd
+		    pdest:  rd
 		  };
 	end
 
       //NOR
-      tagged DNOR {psrc1: .rs1, psrc2: .rs2, pdest: .rd, opdest: .opd}: 
+      tagged DNOR {psrc1: .rs1, psrc2: .rs2, pdest: .rd}: 
 	begin
 
           done  = isJust(mva) && isJust(mvb);
@@ -483,13 +465,12 @@ module [HASim_Module] mkFUNCP_ExecuteAlg ();
 	  wbval = ~(unJust(mva) | unJust(mvb));
           einst = EWB
                   {
-		    pdest:  rd,
-		    opdest: opd
+		    pdest:  rd
 		  };
 	end
 
       //Set Less Than
-      tagged DSLT {psrc1: .rs1, psrc2: .rs2, pdest: .rd, opdest: .opd}: 
+      tagged DSLT {psrc1: .rs1, psrc2: .rs2, pdest: .rd}: 
 	begin
 
           done  = isJust(mva) && isJust(mvb);
@@ -497,13 +478,12 @@ module [HASim_Module] mkFUNCP_ExecuteAlg ();
 	  wbval = zeroExtend(pack(signedLT(unJust(mva), unJust(mvb))));
           einst = EWB
                   {
-		    pdest:  rd,
-		    opdest: opd
+		    pdest:  rd
 		  };
 	end
       
       //Set Less Than Unsigned
-      tagged DSLTU {psrc1: .rs1, psrc2: .rs2, pdest: .rd, opdest: .opd}: 
+      tagged DSLTU {psrc1: .rs1, psrc2: .rs2, pdest: .rd}: 
 	begin
 
           done  = isJust(mva) && isJust(mvb);
@@ -511,8 +491,7 @@ module [HASim_Module] mkFUNCP_ExecuteAlg ();
 	  wbval = zeroExtend(pack(unJust(mva) < unJust(mvb)));
           einst = EWB
                   {
-		    pdest:  rd,
-		    opdest: opd
+		    pdest:  rd
 		  };
 	end
 
@@ -520,7 +499,7 @@ module [HASim_Module] mkFUNCP_ExecuteAlg ();
       // -- Branches --------------------------------------------------
       
       //Branch if Less-Than or Equal to Zero
-      tagged DBLEZ {psrc: .rs, offset: .off, opdest: .opd}: 
+      tagged DBLEZ {psrc: .rs, offset: .off}: 
 	begin
 
           Bool taken = signedLE(unJust(mva), 0);
@@ -528,14 +507,12 @@ module [HASim_Module] mkFUNCP_ExecuteAlg ();
 
           done  = isJust(mva);
 	  res   = taken ? (RBranchTaken dest) : RBranchNotTaken;
-	  einst = ENop 
-	          {
-		    opdest: opd
-		  };
+	  einst = ENop;
+
 	end
 
       //Branch if Greater Than Zero
-      tagged DBGTZ {psrc: .rs, offset: .off, opdest: .opd}: 
+      tagged DBGTZ {psrc: .rs, offset: .off}: 
 	begin
 	
           Bool taken = signedGT(unJust(mva), 0);
@@ -543,14 +520,12 @@ module [HASim_Module] mkFUNCP_ExecuteAlg ();
 
           done  = isJust(mva);
 	  res   = taken ? (RBranchTaken dest) : RBranchNotTaken;
-	  einst = ENop 
-	          {
-		    opdest: opd
-		  };
+	  einst = ENop;
+
 	end
 
       //Branch if Less Than Zero
-      tagged DBLTZ {psrc: .rs, offset: .off, opdest: .opd}: 
+      tagged DBLTZ {psrc: .rs, offset: .off}: 
 	begin
 	
           Bool taken = signedLT(unJust(mva), 0);
@@ -558,14 +533,12 @@ module [HASim_Module] mkFUNCP_ExecuteAlg ();
 
           done  = isJust(mva);
 	  res   = taken ? (RBranchTaken dest) : RBranchNotTaken;
-	  einst = ENop 
-	          {
-		    opdest: opd
-		  };
+	  einst = ENop;
+
 	end
 
       //Branch if Greater than or Equal to Zero
-      tagged DBGEZ {psrc: .rs, offset: .off, opdest: .opd}: 
+      tagged DBGEZ {psrc: .rs, offset: .off}: 
 	begin
 
           Bool taken = signedGE(unJust(mva), 0);
@@ -573,14 +546,12 @@ module [HASim_Module] mkFUNCP_ExecuteAlg ();
 
           done  = isJust(mva);
 	  res   = taken ? (RBranchTaken dest) : RBranchNotTaken;
-	  einst = ENop 
-	          {
-		    opdest: opd
-		  };
+	  einst = ENop;
+
 	end
 
       //Branch if Equal
-      tagged DBEQ {psrc1: .rs1, psrc2: .rs2, offset: .off, opdest: .opd}: 
+      tagged DBEQ {psrc1: .rs1, psrc2: .rs2, offset: .off}: 
 	begin
 
           Bool taken = unJust(mva) == unJust(mvb);
@@ -588,14 +559,12 @@ module [HASim_Module] mkFUNCP_ExecuteAlg ();
 
           done  = isJust(mva) && isJust(mvb);
 	  res   = taken ? (RBranchTaken dest) : RBranchNotTaken;
-	  einst = ENop 
-	          {
-		    opdest: opd
-		  };
+	  einst = ENop;
+
 	end
 
       //Branch if Not Equal
-      tagged DBNE {psrc1: .rs1, psrc2: .rs2, offset: .off, opdest: .opd}: 
+      tagged DBNE {psrc1: .rs1, psrc2: .rs2, offset: .off}: 
 	begin
 
           Bool taken = unJust(mva) != unJust(mvb);
@@ -603,44 +572,38 @@ module [HASim_Module] mkFUNCP_ExecuteAlg ();
 
           done  = isJust(mva) && isJust(mvb);
 	  res   = taken ? (RBranchTaken dest) : RBranchNotTaken;
-	  einst = ENop 
-	          {
-		    opdest: opd
-		  };
+	  einst = ENop;
+
 	end
       
       // -- Jumps -----------------------------------------------------
 
       //Jump
-      tagged DJ {target: .targ, opdest: .opd}: 
+      tagged DJ {target: .targ}: 
 	begin
 
 	  Addr dest  = {addr[31:28], targ, 2'b0};
 
           done  = True;
 	  res   = RBranchTaken dest;
-	  einst = ENop 
-	          {
-		    opdest: opd
-		  };
+	  einst = ENop;
+
 	end
       
       //Jump Register
-      tagged DJR {psrc: .rs, opdest: .opd}: 
+      tagged DJR {psrc: .rs}: 
 	begin
 
           Addr dest = unJust(mva);
 
           done  = isJust(mva);
 	  res   = RBranchTaken dest;
-	  einst = ENop 
-	          {
-		    opdest: opd
-		  };
+	  einst = ENop;
+
 	end
 
       //Jump and Link (into archictectural register 31)
-      tagged DJAL {target: .targ, pdest: .rd, opdest: .opd}: 
+      tagged DJAL {target: .targ, pdest: .rd}: 
 	begin
 
 	  Addr dest  = {addr[31:28], targ, 2'b0};
@@ -650,14 +613,13 @@ module [HASim_Module] mkFUNCP_ExecuteAlg ();
 	  wbval = addr;
           einst = EWB
                   {
-		    pdest:  rd,
-		    opdest: opd
+		    pdest:  rd
 		  };
 	end
 
 
       //Jump and Link into Register
-      tagged DJALR {psrc: .rs, pdest: .rd, opdest: .opd}: 
+      tagged DJALR {psrc: .rs, pdest: .rd}: 
 	begin
 	  
 	  Addr dest  = unJust(mva);
@@ -667,8 +629,7 @@ module [HASim_Module] mkFUNCP_ExecuteAlg ();
 	  wbval = addr;
           einst = EWB
                   {
-		    pdest:  rd,
-		    opdest: opd
+		    pdest:  rd
 		  };
 	end
 
@@ -679,7 +640,7 @@ module [HASim_Module] mkFUNCP_ExecuteAlg ();
 	
 	  done = True;
 	  res = RTerminate;
-	  einst = ENop {opdest: ?};
+	  einst = ENop;
 	  	  
         end
 	
@@ -688,7 +649,7 @@ module [HASim_Module] mkFUNCP_ExecuteAlg ();
 	
 	  done = True;
 	  res = RNop;
-	  einst = ENop {opdest: ?};
+	  einst = ENop;
 	  
 	  $display("ERROR: EXECUTING ILLEGAL INSTRUCTION");
 	  
@@ -697,20 +658,20 @@ module [HASim_Module] mkFUNCP_ExecuteAlg ();
       
     if (done)
       begin
-	link_exe.makeResp(tuple3(t, res, einst));
+	link_exe.makeResp(tuple3(tok, res, einst));
 	
 	case (einst) matches
-	  tagged EWB {pdest: .d, opdest: .*}:
+	  tagged EWB {pdest: .d}:
 	    link_write1.send(tuple2(d, wbval));
 	  default:
 	    noAction;
 	endcase
 	
-	  debug(2, $display("EXE done"));
+	  debug(2, dbg);
 	waitingQ.deq();
       end
       else
-	  debug(2, $display("EXE NOT done"));
+	  debug(2, $display("EXE stall"));
       
     waiting <= False;
 

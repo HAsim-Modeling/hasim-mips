@@ -174,3 +174,28 @@ Directory modules/chip/mips/5stage
 
 
 Bugfix in the SMIPS Execute, and nicer $displays in the 5-stage Chip.
+
+----------
+mpellaue    Date: Wed Jul  5 18:15:50 EDT 2006  CSN: CSN-hasim-mips-8
+                  Wed Jul  5 22:15:50 UTC 2006
+
+
+Directory modules/functional/mips
+ FUNCP_GlobalCommitAlg.bsv Locally Modified            7 
+ FUNCP_MemAlg.bsv          Locally Modified            7 
+ FUNCP_LocalCommitAlg.bsv  Locally Modified            7 
+
+Directory modules/functional/smips
+ FUNCP_ExecuteAlg.bsv      Locally Modified            7 
+ FUNCP_DecodeAlg.bsv       Locally Modified            7 
+
+Directory modules/chip/mips/5stage
+ Chip.bsv                  Locally Modified            7 
+
+Directory modules/isa/smips
+ ISA.bsv                   Locally Modified            7 
+
+
+Redid some datatypes so that the token tables are smaller. Also the BypassUnit only requires two read ports.
+
+Michael

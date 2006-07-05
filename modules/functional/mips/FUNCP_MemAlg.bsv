@@ -31,7 +31,7 @@ module [HASim_Module] mkFUNCP_MemAlg ();
   
   //Links
   Connection_Server#(Tuple3#(Token, ExecedInst, void),
-                     Tuple3#(Token, void, ExecedInst)) 
+                     Tuple3#(Token, void, InstWBInfo)) 
   //...
   link_mem <- mkConnection_Server("link_mem");
 	  
@@ -39,100 +39,69 @@ module [HASim_Module] mkFUNCP_MemAlg ();
   //...
   link_to_dmem <- mkConnection_Client("mem_dmem");
 
-  
-  Connection_Client#(PRName, Maybe#(Value)) 
-  //...
-        link_read3 <- mkConnection_Client("mem_to_bypass_read3");
-
-  Connection_Client#(PRName, Maybe#(Value)) 
-  //...
-        link_read4 <- mkConnection_Client("mem_to_bypass_read4");
-
   Connection_Send#(Tuple2#(PRName, Value)) 
   //...
         link_write2 <- mkConnection_Send("mem_to_bypass_write2");
 
   FIFO#(Tuple2#(Token, ExecedInst)) 
   //...
-  lookupQ <- mkFIFO();
-
-  FIFO#(Tuple2#(Token, ExecedInst)) 
-  //...
   waitingQ <- mkFIFO();
   //doLookup
 
-  rule doLookup (True);
-       
-    debug_rule("doLookup");
-  
-    match {.t, .i, .*} <- link_mem.getReq();
-
-    PRName va = ?;
-    PRName vb = ?;
-
-    //Get the address info. XXX why doesn't this happen in exe?
-    case (i) matches
-      tagged ELoad {idx: .idx, offset: .o, pdest: .prd, opdest: .oprd}:
-        va = idx;
-      tagged EStore{opdest: .oprd, val: .v, idx: .idx, offset: .o}:
-        begin
-          va = idx;
-          vb = v;
-        end
-    endcase
-
-    link_read3.makeReq(va);
-    link_read4.makeReq(vb);
-      
-    lookupQ.enq(tuple2(t, i));
-  endrule
-  
   //doReq
   
   rule doReq (True);
     
     debug_rule("doReq");
     
-    let mva <- link_read3.getResp();
-    let mvb <- link_read4.getResp();
-
-    match {.t, .i} = lookupQ.first();
-    lookupQ.deq();
+    match {.t, .i, .*} <- link_mem.getReq();
     
     case (i) matches
-      tagged ELoad {idx: .idx, offset: .o, pdest: .prd, opdest: .oprd}:
+      tagged ELoad {addr: .a, pdest: .prd}:
       begin
+      
         debug_case("i", "ELoad");
        
-        if (isJust(mva))
-        begin
-	  debug_then("isJust(mva)");
+        link_to_dmem.makeReq(Ld {addr: a, token: t});
 	  
-	  Addr a = truncate(unJust(mva)) + zeroExtend(o);
-          link_to_dmem.makeReq(Ld {addr: a, token: t});
-	  
-          debug(2, $display("MEM: [%d] Load Request: 0x%h", t, a));
-        end
+        debug(2, $display("MEM: [%d] Load Request: 0x%h", t, a));
+	
+        waitingQ.enq(tuple2(t, i));
       end
-      tagged EStore{opdest: .oprd, val: .v, idx: .idx, offset: .o}:
+      tagged EStore{val: .v, addr: .a}:
       begin
+      
         debug_case("i", "EStore");
 	
-        let addr = unJust(mva) + zeroExtend(o);
-	
-        if (isJust(mva) && isJust(mvb))
-        begin
-	  debug_then("(isJust(mva) && isJust(mvb))");
-          link_to_dmem.makeReq(St {val: unJust(mvb), addr: truncate(addr), token: t});
+        link_to_dmem.makeReq(St {val: v, addr: a, token: t});
 	  
-          debug(2, $display("MEM: [%d] Store Request: 0x%h := %d", t, addr, unJust(mvb)));
-        end
+        debug(2, $display("MEM: [%d] Store Request: 0x%h := %d", t, a, v));
+	
+	
+        waitingQ.enq(tuple2(t, i));
       end
-      default: // push
-        debug_case_default("i");
+      tagged EWB {pdest: .pd}:
+      begin
+
+	debug_case_default("i");
+
+        link_mem.makeResp(tuple3(t, ?, WWB));
+
+        debug(2, $display("MEM: [%d] Passing through Nop", t));
+	
+      end
+      tagged ENop:
+      begin
+
+	debug_case_default("i");
+
+        link_mem.makeResp(tuple3(t, ?, WNop));
+
+        debug(2, $display("MEM: [%d] Passing through Nop", t));
+	
+      end
     endcase
     
-    waitingQ.enq(tuple2(t, i));
   endrule
 
   //getResp
@@ -144,7 +113,7 @@ module [HASim_Module] mkFUNCP_MemAlg ();
     match {.tok, .i} = waitingQ.first();
     
     case (i) matches
-      tagged ELoad {idx: .idx, offset: .o, pdest: .prd, opdest: .oprd}:
+      tagged ELoad {pdest: .prd, addr: .*}:
         begin
 	
 	  debug_case("i", "ELoad");
@@ -157,20 +126,20 @@ module [HASim_Module] mkFUNCP_MemAlg ();
                     endcase;
 		    
           waitingQ.deq();
-          link_mem.makeResp(tuple3(tok,?,EWB{pdest: prd, opdest: oprd}));
+          link_mem.makeResp(tuple3(tok,?, WWB));
           link_write2.send(tuple2(prd, v));
 	  
           debug(2, $display("MEM: [%d] LdResp: PR%d <= %0h", tok, prd, v));
 	  
         end
-      tagged EStore {opdest: .oprd, val: .*, idx: .*, offset: .*}:
+      tagged EStore {val: .*, addr: .*}:
         begin
 	
 	  debug_case("i", "EStore");
 	  
           let resp <- link_to_dmem.getResp();
           waitingQ.deq();
-          link_mem.makeResp(tuple3(tok, ?, ENop {opdest: oprd}));
+          link_mem.makeResp(tuple3(tok, ?, WStore));
 	  
           debug(2, $display("MEM: [%d] StResp", tok));
         end
@@ -180,9 +149,9 @@ module [HASim_Module] mkFUNCP_MemAlg ();
 	  debug_case_default("i");
 	  
           waitingQ.deq();
-          link_mem.makeResp(tuple3(tok, ?, i));
+          link_mem.makeResp(tuple3(tok, ?, WNop));
 	  
-          debug(2, $display("MEM: [%d] Non-Memory op", tok));
+          $display("MEM: [%d] ERROR NON-MEMORY OP IN QUEUE", tok);
         end
     endcase
   endrule

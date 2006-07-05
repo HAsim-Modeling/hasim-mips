@@ -33,7 +33,7 @@ module [HASim_Module] mkFUNCP_DecodeAlg ();
   link_dec <- mkConnection_Server("link_dec");
 
   Connection_Client#(Tuple3#(Maybe#(RName), Token, Bool), 
-                     Tuple2#(PRName, PRName))
+                     PRName)
   //...
   link_mapping <- mkConnection_Client("dec_to_bypass_mapping");
   
@@ -271,7 +271,7 @@ module [HASim_Module] mkFUNCP_DecodeAlg ();
     
     PRName pra <- link_lookup1.getResp();
     PRName prb <- link_lookup2.getResp();
-    match {.prd, .oprd} <- link_mapping.getResp();
+    PRName prd <- link_mapping.getResp();
     
     //Actually do the decode
     case (inst) matches
@@ -283,7 +283,6 @@ module [HASim_Module] mkFUNCP_DecodeAlg ();
 
           decinst = DLW 
 	            {
-		      opdest:  oprd, 
 		      pbase:  pra, 
 		      pdest:   prd, 
 		      offset: off
@@ -304,7 +303,6 @@ module [HASim_Module] mkFUNCP_DecodeAlg ();
 
           decinst = DSW
 	            {
-		      opdest:  oprd, 
 		      pbase:  pra, 
 		      psrc:   prb, 
 		      offset: off
@@ -326,7 +324,6 @@ module [HASim_Module] mkFUNCP_DecodeAlg ();
 	  	  
           decinst = DADDIU 
 	            {
-		      opdest: oprd, 
 		      pdest:  prd, 
 		      psrc:  pra, 
 		      imm:   simm
@@ -346,7 +343,6 @@ module [HASim_Module] mkFUNCP_DecodeAlg ();
 	  
           decinst = DSLTI 
 	            {
-		      opdest: oprd, 
 		      pdest:  prd, 
 		      psrc:  pra, 
 		      imm:   simm
@@ -366,7 +362,6 @@ module [HASim_Module] mkFUNCP_DecodeAlg ();
 	  
           decinst = DSLTIU
 	            {
-		      opdest: oprd, 
 		      pdest:  prd, 
 		      psrc:  pra, 
 		      imm:   simm //Immediate is still sign extended
@@ -387,7 +382,6 @@ module [HASim_Module] mkFUNCP_DecodeAlg ();
 	  
           decinst = DANDI 
 	            {
-		      opdest: oprd, 
 		      pdest:  prd, 
 		      psrc:  pra, 
 		      imm:   zimm
@@ -407,7 +401,6 @@ module [HASim_Module] mkFUNCP_DecodeAlg ();
 	  
           decinst = DORI 
 	            {
-		      opdest: oprd, 
 		      pdest:  prd, 
 		      psrc:  pra, 
 		      imm:   zimm
@@ -427,7 +420,6 @@ module [HASim_Module] mkFUNCP_DecodeAlg ();
 	  
           decinst = DXORI 
 	            {
-		      opdest: oprd, 
 		      pdest:  prd, 
 		      psrc:  pra, 
 		      imm:   zimm
@@ -447,7 +439,6 @@ module [HASim_Module] mkFUNCP_DecodeAlg ();
 	  
           decinst = DLUI 
 	            {
-		      opdest: oprd, 
 		      pdest:  prd, 
 		      imm:   zimm
 		    };
@@ -466,7 +457,6 @@ module [HASim_Module] mkFUNCP_DecodeAlg ();
 	  
           decinst = DSLL 
 	            {
-		      opdest: oprd, 
 		      pdest:  prd, 
 		      psrc:  pra, 
 		      shamt: sha
@@ -486,7 +476,6 @@ module [HASim_Module] mkFUNCP_DecodeAlg ();
 	  
           decinst = DSRL
 	            {
-		      opdest: oprd, 
 		      pdest:  prd, 
 		      psrc:  pra, 
 		      shamt: sha
@@ -506,7 +495,6 @@ module [HASim_Module] mkFUNCP_DecodeAlg ();
 	  
           decinst = DSRA
 	            {
-		      opdest: oprd, 
 		      pdest:  prd, 
 		      psrc:  pra, 
 		      shamt: sha
@@ -526,7 +514,6 @@ module [HASim_Module] mkFUNCP_DecodeAlg ();
 	  
           decinst = DSLLV 
 	            {
-		      opdest:  oprd, 
 		      pdest:   prd, 
 		      psrc:   pra, 
 		      pshamt: prb
@@ -546,7 +533,6 @@ module [HASim_Module] mkFUNCP_DecodeAlg ();
 	  
           decinst = DSRLV 
 	            {
-		      opdest:  oprd, 
 		      pdest:   prd, 
 		      psrc:   pra, 
 		      pshamt: prb
@@ -566,7 +552,6 @@ module [HASim_Module] mkFUNCP_DecodeAlg ();
 	  
           decinst = DSRAV 
 	            {
-		      opdest:  oprd, 
 		      pdest:   prd, 
 		      psrc:   pra, 
 		      pshamt: prb
@@ -586,7 +571,6 @@ module [HASim_Module] mkFUNCP_DecodeAlg ();
 	  
           decinst = DADDU
 	            {
-		      opdest:  oprd, 
 		      pdest:   prd, 
 		      psrc1:  pra,
 		      psrc2:  prb
@@ -606,7 +590,6 @@ module [HASim_Module] mkFUNCP_DecodeAlg ();
 	  
           decinst = DSUBU 
 	            {
-		      opdest:  oprd, 
 		      pdest:   prd, 
 		      psrc1:  pra,
 		      psrc2:  prb
@@ -626,7 +609,6 @@ module [HASim_Module] mkFUNCP_DecodeAlg ();
 
           decinst = DAND
 	            {
-		      opdest:  oprd, 
 		      pdest:   prd, 
 		      psrc1:  pra,
 		      psrc2:  prb
@@ -646,7 +628,6 @@ module [HASim_Module] mkFUNCP_DecodeAlg ();
 	  
           decinst = DOR
 	            {
-		      opdest:  oprd, 
 		      pdest:   prd, 
 		      psrc1:  pra,
 		      psrc2:  prb
@@ -666,7 +647,6 @@ module [HASim_Module] mkFUNCP_DecodeAlg ();
 	  
           decinst = DXOR
 	            {
-		      opdest:  oprd, 
 		      pdest:   prd, 
 		      psrc1:  pra,
 		      psrc2:  prb
@@ -686,7 +666,6 @@ module [HASim_Module] mkFUNCP_DecodeAlg ();
 	  
           decinst = DNOR
 	            {
-		      opdest:  oprd, 
 		      pdest:   prd, 
 		      psrc1:  pra,
 		      psrc2:  prb
@@ -706,7 +685,6 @@ module [HASim_Module] mkFUNCP_DecodeAlg ();
 	  
           decinst = DSLT
 	            {
-		      opdest:  oprd, 
 		      pdest:   prd, 
 		      psrc1:  pra,
 		      psrc2:  prb
@@ -726,7 +704,6 @@ module [HASim_Module] mkFUNCP_DecodeAlg ();
 	  
           decinst = DSLTU
 	            {
-		      opdest:  oprd, 
 		      pdest:   prd, 
 		      psrc1:  pra,
 		      psrc2:  prb
@@ -746,7 +723,6 @@ module [HASim_Module] mkFUNCP_DecodeAlg ();
 	 
           decinst = DMTC0
 	            {
-		      opdest:   oprd, 
 		      psrc:    pra,
 		      cop0src: op
 		    };
@@ -765,7 +741,6 @@ module [HASim_Module] mkFUNCP_DecodeAlg ();
 	
           decinst = DMFC0
 	            {
-		      opdest:   oprd, 
 		      pdest:    prd,
 		      cop0dest: op
 		    };
@@ -787,7 +762,6 @@ module [HASim_Module] mkFUNCP_DecodeAlg ();
 	
           decinst = DBLEZ
 	            {
-		      opdest:  oprd, 
 		      psrc:   pra,
 		      offset: off
 		    };
@@ -806,7 +780,6 @@ module [HASim_Module] mkFUNCP_DecodeAlg ();
 	
           decinst = DBGTZ
 	            {
-		      opdest:  oprd, 
 		      psrc:   pra,
 		      offset: off
 		    };
@@ -825,7 +798,6 @@ module [HASim_Module] mkFUNCP_DecodeAlg ();
 	
           decinst = DBLTZ
 	            {
-		      opdest:  oprd, 
 		      psrc:   pra,
 		      offset: off
 		    };
@@ -844,7 +816,6 @@ module [HASim_Module] mkFUNCP_DecodeAlg ();
 	
           decinst = DBGEZ
 	            {
-		      opdest:  oprd, 
 		      psrc:   pra,
 		      offset: off
 		    };
@@ -863,7 +834,6 @@ module [HASim_Module] mkFUNCP_DecodeAlg ();
 	
           decinst = DBEQ
 	            {
-		      opdest:  oprd, 
 		      psrc1:  pra,
 		      psrc2:  prb,
 		      offset: off
@@ -883,7 +853,6 @@ module [HASim_Module] mkFUNCP_DecodeAlg ();
 	
           decinst = DBNE
 	            {
-		      opdest:  oprd, 
 		      psrc1:  pra,
 		      psrc2:  prb,
 		      offset: off
@@ -905,7 +874,6 @@ module [HASim_Module] mkFUNCP_DecodeAlg ();
 	
           decinst = DJ
 	            {
-		      opdest:  oprd, 
 		      target: targ
 		    };
 		    
@@ -923,7 +891,6 @@ module [HASim_Module] mkFUNCP_DecodeAlg ();
 	
           decinst = DJR
 	            {
-		      opdest:  oprd, 
 		      psrc:   pra
 		    };
 		    
@@ -940,7 +907,6 @@ module [HASim_Module] mkFUNCP_DecodeAlg ();
 	
           decinst = DJAL
 	            {
-		      opdest:  oprd,
 		      pdest:   prd, 
 		      target: targ
 		    };
@@ -959,7 +925,6 @@ module [HASim_Module] mkFUNCP_DecodeAlg ();
 	  
           decinst = DJALR
 	            {
-		      opdest:  oprd,
 		      pdest:   prd,
 		      psrc:   pra
 		    };
