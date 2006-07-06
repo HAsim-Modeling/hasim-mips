@@ -219,3 +219,29 @@ Directory modules/isa/toymips
 Bugfixes in toymips.
 
 Michael
+
+----------
+mpellaue    Date: Thu Jul  6 18:33:25 EDT 2006  CSN: CSN-hasim-mips-10
+                  Thu Jul  6 22:33:25 UTC 2006
+
+
+Directory modules/functional/test-cases/toymips/branch
+ TestCase.bsv              Locally Modified            9 
+
+Directory modules/functional/test-cases/smips/simple-addition
+ smips_testcase_simple_addition.awb Locally Modified            7 
+
+Directory modules/functional/test-cases/smips
+ branch/                   Locally Added               0 
+
+Directory modules/functional/test-cases/smips/branch
+ TestCase.bsv              Locally Added               0 
+ smips_testcase_branch.awb Locally Added               0 
+
+Directory modules/chip/mips/simple
+ Chip.bsv                  Locally Modified            7 
+
+
+Miscellaneous changes to the Simple Chip, fixed toymips branch testcase, and a new testcase for SMIPs.
+
+Michael

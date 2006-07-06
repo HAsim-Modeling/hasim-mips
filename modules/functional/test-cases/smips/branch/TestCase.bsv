@@ -15,19 +15,17 @@ import ISA::*;
 
 function TestCase testBranch (Integer x, Integer y);
 
-  Inst prog[12] = 
+  Inst prog[10] = 
     { 
-      ILoadImm {dest: r1, imm: fromInteger(x)}, //      Set x
-      ILoadImm {dest: r2, imm: fromInteger(y)}, //      Set y
-      ILoadImm {dest: r7, imm: 10},             //      Set End
-      ILoadImm {dest: r8, imm: 6},              //      Set Loop
-      ILoadImm {dest: r9, imm: 1},              //      Set 1	    
-      ILoadImm {dest: r3, imm: 0},              //      Set res = 0 
-      IAdd     {dest: r3, src1: r3, src2: r1},  //Loop: res := res + x
-      ISub     {dest: r2, src1: r2, src2: r9},  //      y := y - 1
-      IBz      {cond: r2, addr: r7},            //	if y = 0 GOTO End
-      IBz      {cond: r0, addr: r8},            //	GOTO Loop
-      IStore   {src: r3, idx: r0, offset: 0},   // End: Store res
+      LUI {rdest: r1, imm: fromInteger(x)},     //	Set x
+      LUI {rdest: r2, imm: fromInteger(y)},     //	Set y
+      LUI {rdest: r9, imm: 1},                  //	Set 1	    
+      LUI {rdest: r3, imm: 0},                  //	Set res = 0 
+      ADDU {rdest: r3, rsrc1: r3, rsrc2: r1},   //Loop: res := res + x
+      SUBU {rdest: r2, rsrc1: r2, rsrc2: r9},   //      y := y - 1
+      BEQ  {rsrc1: r2, rsrc2: r0, offset: 2},   //	if y = 0 GOTO End
+      J    {target: 4},                         //	GOTO Loop
+      SW   {rsrc: r3, rbase: r0, offset: 0},    // End: Store res
       ITerminate                                //      finish
     };
 
