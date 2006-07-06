@@ -3,7 +3,7 @@ import HASim::*;
 import TestCase_Base::*;
 
 //Model-specific imports
-import Isa::*;
+import ISA::*;
 
 //This file provides the following HASim-required names:
 //     Name:             Type:
@@ -15,10 +15,12 @@ import Isa::*;
 
 function TestCase testBranch (Integer x, Integer y);
 
-  Inst prog[22] = 
+  Inst prog[24] = 
     { 
       ILoadImm {dest: r1, imm: fromInteger(x)}, //      Set x
-      ILoadImm {dest: r2, imm: fromInteger(y)}, //      Set y	    
+      ILoadImm {dest: r2, imm: fromInteger(y)}, //      Set y
+      ILoadImm {dest: 22, imm: 22},             //      Set End
+      ILoadImm {dest: 18, imm: 18},             //      Set Loop
       ILoadImm {dest: r9, imm: 1},              //      Set 1	    
       ILoadImm {dest: r3, imm: 0},              //      Set res = 0 
       IStore   {src: r1, idx: r0, offset: 1},   //      Store 1 r1
@@ -35,8 +37,8 @@ function TestCase testBranch (Integer x, Integer y);
       ILoad    {dest: r3, idx: r0, offset: 3},  //	Load r3 3
       IAdd     {dest: r3, src1: r3, src2: r1},  //Loop: res := res + x
       ISub     {dest: r2, src1: r2, src2: r9},  //      y := y - 1
-      IBz      {cond: r2, addr: 20},            //	if y = 0 GOTO End
-      IBz      {cond: r0, addr: 4},             //	GOTO Loop
+      IBz      {cond: r2, addr: 22},            //	if y = 0 GOTO End
+      IBz      {cond: r0, addr: 18},            //	GOTO Loop
       IStore   {src: r3, idx: r0, offset: 0},   //      Store res
       ITerminate                                //End:  finish(res)
     };
@@ -54,4 +56,4 @@ function TestCase testBranch (Integer x, Integer y);
 endfunction
 
 //Eventually these should be parameters
-TestCase test_case = testBranch(17, 12));
+TestCase test_case = testBranch(17, 12);

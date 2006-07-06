@@ -17,7 +17,7 @@ import RegFile::*;
 
 typedef Bit#(8)  Token;
 typedef Bit#(32) Tick;
-typedef Bit#(8)  Addr;
+typedef Bit#(32) Addr;
 typedef Bit#(5)  RName;
 typedef Bit#(6)  PRName;
 typedef Bit#(32) Value;
@@ -64,13 +64,13 @@ typedef union tagged
 //Decode-->Exec               
 typedef union tagged 
 {
-  struct {PRName pdest;  PRName opdest; PRName op1;     PRName op2;     } DAdd;
-  struct {PRName pdest;  PRName opdest; PRName op1;     PRName op2;     } DSub;
-  struct {PRName opdest; PRName cond;	PRName addr;	   	        } DBz;     
-  struct {PRName pdest;  PRName opdest; PRName idx;     Bit#(6) offset; } DLoad;
-  struct {PRName pdest;  PRName opdest; Bit#(12) value;		        } DLoadImm;
-  struct {PRName value;  PRName opdest; PRName idx;     Bit#(6) offset; } DStore;
-  void                                                                    DTerminate;
+  struct {PRName pdest; PRName op1;	PRName op2;     } DAdd;
+  struct {PRName pdest; PRName op1;	PRName op2;     } DSub;
+  struct {PRName cond;	PRName addr;	   	        } DBz;     
+  struct {PRName pdest; PRName idx;     Bit#(6) offset; } DLoad;
+  struct {PRName pdest; Bit#(12) value;		        } DLoadImm;
+  struct {PRName value; PRName idx;     Bit#(6) offset; } DStore;
+  void                                                    DTerminate;
 }
   DecodedInst 
     deriving 
@@ -80,16 +80,26 @@ typedef union tagged
 
 //Possibly should include branch info if Functional Partition has branch predictor
 
-//Exec-->Mem-->LCom-->GCom
+//Exec-->Mem
 typedef union tagged 
 {
-  struct {PRName pdest; PRName opdest;                             } EWB;
-  struct {PRName opdest;					   } ENop;
-  struct {PRName idx; Bit#(6) offset; PRName pdest; PRName opdest; } ELoad;
-  struct {PRName idx; Bit#(6) offset; PRName val;   PRName opdest; } EStore;
-  void                                                               ETerminate;
+  struct {PRName pdest;                      } EWB;
+  struct {Value addr; PRName pdest;          } ELoad;
+  struct {Value addr; Value val;             } EStore;
+  void                                         ENop;
 }
   ExecedInst
+     deriving 
+             (Eq, Bits);
+
+//Mem-->LCO-->GCO
+typedef enum
+{
+  WWB,
+  WStore,
+  WNop
+}
+  InstWBInfo
      deriving 
              (Eq, Bits);
 

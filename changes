@@ -199,3 +199,23 @@ Directory modules/isa/smips
 Redid some datatypes so that the token tables are smaller. Also the BypassUnit only requires two read ports.
 
 Michael
+
+----------
+mpellaue    Date: Thu Jul  6 13:51:56 EDT 2006  CSN: CSN-hasim-mips-9
+                  Thu Jul  6 17:51:56 UTC 2006
+
+
+Directory modules/functional/test-cases/toymips/branch
+ TestCase.bsv              Locally Modified            7 
+
+Directory modules/functional/toymips
+ FUNCP_ExecuteAlg.bsv      Locally Modified            7 
+ FUNCP_DecodeAlg.bsv       Locally Modified            7 
+
+Directory modules/isa/toymips
+ ISA.bsv                   Locally Modified            7 
+
+
+Bugfixes in toymips.
+
+Michael

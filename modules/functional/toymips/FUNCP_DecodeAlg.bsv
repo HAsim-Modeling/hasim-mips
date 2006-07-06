@@ -32,12 +32,12 @@ module [HASim_Module] mkFUNCP_DecodeAlg ();
   Connection_Server#(Tuple3#(Token, Tuple2#(Addr, Inst), void), 
                      Tuple3#(Token, DepInfo, Tuple2#(Addr, DecodedInst))) 
   //...
-  link_dec <- mkConnection_Server("link_dec");
+        link_dec <- mkConnection_Server("link_dec");
 
   Connection_Client#(Tuple3#(Maybe#(RName), Token, Bool), 
-                     Tuple2#(PRName, PRName))
+                     PRName)
   //...
-  link_mapping <- mkConnection_Client("dec_to_bypass_mapping");
+        link_mapping <- mkConnection_Client("dec_to_bypass_mapping");
   
   Connection_Client#(RName, PRName) 
   //...
@@ -107,7 +107,7 @@ module [HASim_Module] mkFUNCP_DecodeAlg ();
     PRName prb <- link_lookup2.getResp();
     
     
-    match {.prd, .oprd} <- link_mapping.getResp();
+    let prd <- link_mapping.getResp();
     
     //Actually do the decode
     case (inst) matches
@@ -115,7 +115,7 @@ module [HASim_Module] mkFUNCP_DecodeAlg ();
         begin
 	  debug_case("inst", "IAdd");
 
-          decinst = DAdd {pdest: prd, opdest: oprd, op1: pra, op2: prb};
+          decinst = DAdd {pdest: prd, op1: pra, op2: prb};
           depinfo = DepInfo {dep_dest: Just(tuple2(rd, prd)), dep_src1: Just(tuple2(ra, pra)), dep_src2: Just(tuple2(rb,prb))};
 	  
           debug(2, $display("DEC: [%d]: IAdd R%d := R%d + R%d", t, rd, ra, rb));
@@ -124,7 +124,7 @@ module [HASim_Module] mkFUNCP_DecodeAlg ();
         begin
 	  debug_case("inst", "ISub");
 	  
-          decinst = DSub {pdest: prd, opdest: oprd, op1: pra, op2: prb};
+          decinst = DSub {pdest: prd, op1: pra, op2: prb};
           depinfo = DepInfo {dep_dest: Just(tuple2(rd, prd)), dep_src1: Just(tuple2(ra, pra)), dep_src2: Just(tuple2(rb,prb))};
 
           debug(2, $display("DEC: [%d]: ISub R%d := R%d - R%d", t, rd, ra, rb));
@@ -133,7 +133,7 @@ module [HASim_Module] mkFUNCP_DecodeAlg ();
         begin
 	  debug_case("inst", "IBz");
 	  
-          decinst = DBz {opdest: oprd, cond: pra, addr: prb};
+          decinst = DBz {cond: pra, addr: prb};
           depinfo = DepInfo {dep_dest: Nothing, dep_src1: Just(tuple2(c,pra)), dep_src2: Just(tuple2(addr,prb))};
 
           debug(2, $display("DEC: [%d]: IBz (R%d == 0)? pc := (R%d)", t, c, addr));
@@ -142,7 +142,7 @@ module [HASim_Module] mkFUNCP_DecodeAlg ();
         begin
 	  debug_case("inst", "ILoad");
 	  
-          decinst = DLoad {pdest: prd, opdest: oprd, idx: pra, offset: zeroExtend(off)};
+          decinst = DLoad {pdest: prd, idx: pra, offset: zeroExtend(off)};
           depinfo = DepInfo {dep_dest: Just(tuple2(rd,prd)), dep_src1: Just(tuple2(ri,pra)), dep_src2: Nothing};
 
           debug(2, $display("DEC: [%d]: ILoad R%d := (R%d + %h)", t, rd, ri, off));
@@ -151,7 +151,7 @@ module [HASim_Module] mkFUNCP_DecodeAlg ();
         begin
 	  debug_case("inst", "ILoadImm");
 	  
-          decinst = DLoadImm {pdest: prd, opdest: oprd, value: signExtend(i)};
+          decinst = DLoadImm {pdest: prd, value: signExtend(i)};
           depinfo = DepInfo {dep_dest: Just(tuple2(rd,prd)), dep_src1: Nothing, dep_src2: Nothing};
 
           debug(2, $display("DEC: [%d]: ILoadImm R%d := %d", t, rd, i));
@@ -160,7 +160,7 @@ module [HASim_Module] mkFUNCP_DecodeAlg ();
         begin
 	  debug_case("inst", "IStore");
 	  
-          decinst = DStore{value: pra, opdest: oprd, idx: prb, offset: zeroExtend(off)};
+          decinst = DStore{value: pra, idx: prb, offset: zeroExtend(off)};
           depinfo = DepInfo {dep_dest: Nothing, dep_src1: Just(tuple2(ri,prb)), dep_src2: Just(tuple2(rsrc,pra))};
 	  
           debug(2, $display("DEC: [%d]: IStore (R%d + %h) := R%d", t, ri, off, rsrc));

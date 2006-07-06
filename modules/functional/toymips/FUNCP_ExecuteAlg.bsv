@@ -67,21 +67,30 @@ module [HASim_Module] mkFUNCP_ExecuteAlg ();
 
     //Get the registers which hold the values
     case (dec) matches
-      tagged DAdd {pdest: .prd, opdest: .oprd, op1: .ra, op2: .rb}:
+      tagged DAdd {pdest: .prd, op1: .ra, op2: .rb}:
         begin
           va = ra;
           vb = rb;
         end
-      tagged DSub {pdest: .prd, opdest: .oprd, op1: .ra, op2: .rb}:
+      tagged DSub {pdest: .prd, op1: .ra, op2: .rb}:
         begin
           va = ra;
           vb = rb;
         end       
-      tagged DBz {opdest: .oprd, cond: .c, addr: .a}:
+      tagged DBz {cond: .c, addr: .a}:
         begin
           va = c;
           vb = a;
         end
+      tagged DLoad {pdest: .prd, idx: .idx, offset: .o}:
+        begin
+	  va = idx;
+	end
+      tagged DStore {value: .v, idx: .idx, offset: .o}:
+        begin
+	  va = idx;
+	  vb = v;
+	end
     endcase
 
     //Try to get the values from the Bypass unit
@@ -109,7 +118,7 @@ module [HASim_Module] mkFUNCP_ExecuteAlg ();
 
      //Actually do the execute
      case (dec) matches
-       tagged DAdd {pdest: .prd, opdest: .oprd, op1: .ra, op2: .rb}:
+       tagged DAdd {pdest: .prd, op1: .ra, op2: .rb}:
        begin
        
 	 debug_case("dec", "DAdd");
@@ -122,14 +131,14 @@ module [HASim_Module] mkFUNCP_ExecuteAlg ();
 	   let result = unJust(mva) + unJust(mvb);
 	   
            link_write1.send(tuple2(prd, result));
-           link_exe.makeResp(tuple3(t, RNop, EWB {pdest: prd, opdest: oprd}));
+           link_exe.makeResp(tuple3(t, RNop, EWB {pdest: prd}));
            waitingQ.deq();
 
-	   debug(2, $display("EXE: [%d] DAdd (old PR%d) PR%d <= 0x%h = 0x%h + 0x%h", t, oprd, prd, result, unJust(mva), unJust(mvb)));
+	   debug(2, $display("EXE: [%d] DAdd PR%d <= 0x%h = 0x%h + 0x%h", t, prd, result, unJust(mva), unJust(mvb)));
 	   
          end
        end
-       tagged DSub {pdest: .prd, opdest: .oprd, op1: .ra, op2: .rb}:
+       tagged DSub {pdest: .prd, op1: .ra, op2: .rb}:
        begin
        
 	 debug_case("dec", "DSub");
@@ -142,14 +151,14 @@ module [HASim_Module] mkFUNCP_ExecuteAlg ();
 	   let result = unJust(mva) - unJust(mvb);
 	   
            link_write1.send(tuple2(prd, result));
-           link_exe.makeResp(tuple3(t, RNop, EWB {pdest: prd, opdest: oprd}));
+           link_exe.makeResp(tuple3(t, RNop, EWB {pdest: prd}));
            waitingQ.deq();
 	   
-	   debug(2, $display("EXE: [%d] DSub (old PR%d) PR%d <= 0x%h = 0x%h - 0x%h", t, oprd, prd, result, unJust(mva), unJust(mvb)));
+	   debug(2, $display("EXE: [%d] DSub PR%d <= 0x%h = 0x%h - 0x%h", t, prd, result, unJust(mva), unJust(mvb)));
 	   
          end
        end
-       tagged DBz {opdest: .oprd, cond: .c, addr: .a}:
+       tagged DBz {cond: .c, addr: .a}:
        begin
        
 	 debug_case("dec", "DBz");
@@ -165,10 +174,10 @@ module [HASim_Module] mkFUNCP_ExecuteAlg ();
 	     
 	       debug_then("cval != 0");
 	       
-	       link_exe.makeResp(tuple3(t, RBranchNotTaken, ENop {opdest: oprd}));
+	       link_exe.makeResp(tuple3(t, RBranchNotTaken, ENop));
 	       waitingQ.deq();
 
-	       debug(2, $display("EXE: [%d] DBz Not Taken (cval == %d) (old PR%d)", t, cval, oprd));
+	       debug(2, $display("EXE: [%d] DBz Not Taken (cval == %0d)", t, cval));
 	       
 	     end
 	     else   // condition must be zero
@@ -182,8 +191,10 @@ module [HASim_Module] mkFUNCP_ExecuteAlg ();
 		 
 		   debug_case("mvb", "Valid");
 		   
-                   link_exe.makeResp(tuple3(t, RBranchTaken truncate(dest), ENop{opdest: oprd}));
+                   link_exe.makeResp(tuple3(t, RBranchTaken dest, ENop));
                    waitingQ.deq();
+		   
+	           debug(2, $display("EXE: [%d] DBz TAKEN (cval == %0d) to 0x%h", t, cval, dest));
         	 end
 		 default:
 		   debug_case_default("mvb");
@@ -195,43 +206,51 @@ module [HASim_Module] mkFUNCP_ExecuteAlg ();
 	     debug_case_default("mva");
 	 endcase
        end
-       tagged DLoad {pdest: .prd, opdest: .oprd, idx: .idx, offset: .o}: // XXX do offset calc here?
+       tagged DLoad {pdest: .prd, idx: .idx, offset: .o}:
        begin
          
 	 debug_case("dec", "DLoad");
 	 
-         link_exe.makeResp(tuple3(t, RNop, ELoad {idx: idx, offset: o, pdest:prd, opdest: oprd}));
-         waitingQ.deq();
+         if (isJust(mva))
+         begin
+	   let ea = unJust(mva) + signExtend(idx);
+           link_exe.makeResp(tuple3(t, RNop, ELoad {pdest:prd, addr: ea}));
+           waitingQ.deq();
 	 
-	 debug(2, $display("EXE: [%d] DLoad (old PR%d) PR%d := (PR%d + 0x%h)", t, oprd, prd, idx, o));
+	   debug(2, $display("EXE: [%d] DLoad PR%d := (PR%d + 0x%h)", t, prd, idx, o));
+	   
+	 end
        end
-       tagged DLoadImm {pdest: .prd, opdest: .oprd, value: .val}:
+       tagged DLoadImm {pdest: .prd, value: .val}:
        begin
 
 	 debug_case("dec", "DLoadImm");
 
          link_write1.send(tuple2(prd, signExtend(val)));
-         link_exe.makeResp(tuple3(t, RNop, EWB {pdest: prd, opdest: oprd}));
+         link_exe.makeResp(tuple3(t, RNop, EWB {pdest: prd}));
          waitingQ.deq();
 	 
-	 debug(2, $display("EXE: [%d] DLoadImm (old PR%d) PR%d := 0x%h", t, oprd, prd, val));
+	 debug(2, $display("EXE: [%d] DLoadImm PR%d := 0x%h", t, prd, val));
        end
-       tagged DStore {value: .v, opdest: .oprd, idx: .idx, offset: .o}:// XXX do offset calc here?
+       tagged DStore {value: .v, idx: .idx, offset: .o}:
        begin
 
 	 debug_case("dec", "DLoadImm");
 
-         link_exe.makeResp(tuple3(t, RNop, EStore {idx: idx, offset: o, val: v, opdest: oprd}));
-         waitingQ.deq();
-	 
-	 debug(2, $display("EXE: [%d] DStore (old PR%d) (PR%d + 0x%h) := PR%d", t, oprd, idx, o, v));
+         if (isJust(mva) && isJust(mvb))
+         begin
+	   let ea = unJust(mva) + signExtend(idx);
+           link_exe.makeResp(tuple3(t, RNop, EStore {val: unJust(mvb), addr: ea}));
+           waitingQ.deq(); 
+	   debug(2, $display("EXE: [%d] DStore (PR%d + 0x%h) := PR%d", t, idx, o, v));
+	 end
        end
        tagged DTerminate:
        begin
 
 	 debug_case("dec", "DTerminate");
 	 
-         link_exe.makeResp(tuple3(t, RTerminate, ETerminate));
+         link_exe.makeResp(tuple3(t, RTerminate, ENop));
          waitingQ.deq();
 
 	 debug(2, $display("EXE: [%d] DTerminate", t)); 
