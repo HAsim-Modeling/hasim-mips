@@ -17,6 +17,8 @@ import ISA::*;
 `define LCO_Latency 0
 `define GCO_Latency 1
 
+typedef Bit#(1) Epoch;
+
 module [HASim_Module] mkChip 
     //interface:
                 (TModule#(Command, Response));
@@ -29,11 +31,16 @@ module [HASim_Module] mkChip
   Reg#(Bool) running <- mkReg(False);
   Reg#(Bool) ran <- mkReg(False);
   Reg#(Addr) pc <- mkReg(0);
+  
+  //for killing
+  Reg#(Epoch) epoch <- mkReg(0);
+  Reg#(Bool) killing <- mkReg(False);
+  Reg#(Token) kill_tok <- mkRegU();
 
   FIFO#(Tick)                  tokQ     <- mkFIFO();
-  FIFO#(Tuple2#(Token, Tick))  tok2fetQ <- mkFIFO();
-  FIFO#(Tuple2#(Token, Tick))  fet2decQ <- mkFIFO();
-  FIFO#(Tuple2#(Token, Tick))  dec2exeQ <- mkFIFO();
+  FIFO#(Tuple3#(Token, Epoch, Tick))  tok2fetQ <- mkFIFO();
+  FIFO#(Tuple3#(Token, Epoch, Tick))  fet2decQ <- mkFIFO();
+  FIFO#(Tuple3#(Token, Epoch, Tick))  dec2exeQ <- mkFIFO();
   FIFO#(Tuple2#(Token, Tick))  exe2memQ <- mkFIFO();
   FIFO#(Tuple2#(Token, Tick))  mem2lcoQ <- mkFIFO();
   FIFO#(Tuple2#(Token, Tick))  lco2gcoQ <- mkFIFO();
@@ -74,6 +81,39 @@ module [HASim_Module] mkChip
   //...
   link_to_gco <- mkConnection_Client("fp_gco");
 
+  //For killing
+  
+  Connection_Send#(Token) 
+  //...
+        link_rewindToToken <- mkConnection_Send("lco_to_bypass_rewind");
+
+  Connection_Send#(Token) 
+  //...
+        link_tok_kill <- mkConnection_Send("tok_kill");
+
+  Connection_Send#(Token) 
+  //...
+        link_fet_kill <- mkConnection_Send("fet_kill");
+	
+  Connection_Send#(Token) 
+  //...
+        link_dec_kill <- mkConnection_Send("dec_kill");
+
+  Connection_Send#(Token) 
+  //...
+        link_exe_kill <- mkConnection_Send("exe_kill");
+
+  Connection_Send#(Token) 
+  //...
+        link_mem_kill <- mkConnection_Send("mem_kill");
+	
+  Connection_Send#(Token) 
+  //...
+        link_lco_kill <- mkConnection_Send("lco_kill");
+
+  Connection_Send#(Token) 
+  //...
+        link_gco_kill <- mkConnection_Send("gco_kill");
 
   rule count (True);
     hostCC <= hostCC + 1;
@@ -104,7 +144,7 @@ module [HASim_Module] mkChip
   
     let tick = old_tick + `TOK_Latency;
   
-    tok2fetQ.enq(tuple2(tok, tick));
+    tok2fetQ.enq(tuple3(tok, epoch, tick));
   
     link_to_fet.makeReq(tuple3(tok, tick, pc));
   
@@ -116,18 +156,19 @@ module [HASim_Module] mkChip
     
     debug(2, $display("[%d] FETR/DECG Decoding token %0d", hostCC, tok));
     
-    match {.cur_tok, .old_tick} = tok2fetQ.first();
+    match {.cur_tok, .ep, .old_tick} = tok2fetQ.first();
+
     tok2fetQ.deq();
-    
+
     let tick = old_tick + `FET_Latency;
-    
+
     if (tok != cur_tok)
        $display ("[%h] FET ERROR: Mismatched token. Expected: %0d, Received: %0d", hostCC, cur_tok, tok);
 
-    fet2decQ.enq(tuple2(tok, tick));
-       
+    fet2decQ.enq(tuple3(tok, ep, tick));
+
     link_to_dec.makeReq(tuple3(tok, tick, ?));
-    
+
   endrule
 
   rule decode (running);
@@ -136,7 +177,7 @@ module [HASim_Module] mkChip
     
     debug(2, $display("[%d] DECR/EXEG Decode Responded with token %0d.", hostCC, tok));
     
-    match {.cur_tok, .old_tick} = fet2decQ.first();
+    match {.cur_tok, .ep, .old_tick} = fet2decQ.first();
     fet2decQ.deq();
     
     let tick = old_tick + `DEC_Latency;
@@ -163,7 +204,7 @@ module [HASim_Module] mkChip
         debug(2, $display("\tNo Source 2."));
     endcase  
     
-    dec2exeQ.enq(tuple2(tok, tick));
+    dec2exeQ.enq(tuple3(tok, ep, tick));
     link_to_exe.makeReq(tuple3(tok, tick, ?));
 
   endrule
@@ -171,41 +212,63 @@ module [HASim_Module] mkChip
   rule execute (running);
   
     match {.tok, .res} <- link_to_exe.getResp();
+    Bool new_killing = killing;
    
     debug(2, $display("[%d] Executing token %0d", hostCC, tok));
 
-    match {.cur_tok, .old_tick} = dec2exeQ.first();
+    match {.cur_tok, .ep, .old_tick} = dec2exeQ.first();
     dec2exeQ.deq();
     
     if (tok != cur_tok)
        $display ("[%h] EXER/MEMG ERROR: Mismatched token. Expected: %0d, Received: %0d", hostCC, cur_tok, tok);
 
-    let tick = old_tick + `EXE_Latency;
+    if ((killing) && (ep != epoch)) //kill it
+    begin
+      debug(2, $display("[%d] Rolling back wrong-path token %0d", hostCC, tok));
+      link_mem_kill.send(tok);
+    end
+    else //continue to execute it
+    begin
     
-    case (res) matches
-      tagged RBranchTaken .addr:
-	begin
-	  debug(2, $display("[%d] Branch taken to address %h on Model CC: %0d", hostCC, addr, tick));
-	  pc <= addr;
-	  
-          //XXX kill wrongpath FP tokens here
-	  
-	end
-      tagged RBranchNotTaken:
-        noAction;
-      tagged RNop:
-        noAction;
-      tagged RTerminate:
-        case (mstopToken) matches
-	  Invalid:
-  	    mstopToken <= Valid tok;
-	  default:
-	    noAction;
-	endcase
-    endcase
+      if (killing) //stop killing
+      begin
+	debug(2, $display("[%d] Returning to right-path on token %0d", hostCC, tok));
+	new_killing = False;
+	link_rewindToToken.send(kill_tok);
+	link_tok_kill.send(kill_tok);
+      end
     
-    exe2memQ.enq(tuple2(tok, tick));
-    link_to_mem.makeReq(tuple3(tok, tick, ?));
+      let tick = old_tick + `EXE_Latency;
+
+      case (res) matches
+	tagged RBranchTaken .addr:
+	  begin
+	    debug(2, $display("[%d] Branch taken to address %h on Model CC: %0d", hostCC, addr, tick));
+	    pc <= addr;
+
+            //kill wrongpath FP tokens
+	    epoch <= epoch + 1;
+	    new_killing = True;
+	    kill_tok <= tok;
+
+	  end
+	tagged RBranchNotTaken:
+          noAction;
+	tagged RNop:
+          noAction;
+	tagged RTerminate:
+          case (mstopToken) matches
+	    Invalid:
+  	      mstopToken <= Valid tok;
+	    default:
+	      noAction;
+	  endcase
+      endcase
+
+      killing <= new_killing;
+      exe2memQ.enq(tuple2(tok, tick));
+      link_to_mem.makeReq(tuple3(tok, tick, ?));
+    end
     
   endrule
 

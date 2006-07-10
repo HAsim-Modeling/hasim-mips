@@ -17,16 +17,16 @@ function TestCase testBranch (Integer x, Integer y);
 
   Inst prog[10] = 
     { 
-      LUI {rdest: r1, imm: fromInteger(x)},     //	Set x
-      LUI {rdest: r2, imm: fromInteger(y)},     //	Set y
-      LUI {rdest: r9, imm: 1},                  //	Set 1	    
-      LUI {rdest: r3, imm: 0},                  //	Set res = 0 
+      ADDIU {rdest: r1, rsrc: r0, imm: fromInteger(x)},     //	Set x
+      ADDIU {rdest: r2, rsrc: r0, imm: fromInteger(y)},     //	Set y
+      ADDIU {rdest: r9, rsrc: r0, imm: 1},                  //	Set 1	    
+      ADDIU {rdest: r3, rsrc: r0, imm: 0},                  //	Set res = 0 
       ADDU {rdest: r3, rsrc1: r3, rsrc2: r1},   //Loop: res := res + x
       SUBU {rdest: r2, rsrc1: r2, rsrc2: r9},   //      y := y - 1
       BEQ  {rsrc1: r2, rsrc2: r0, offset: 2},   //	if y = 0 GOTO End
       J    {target: 4},                         //	GOTO Loop
       SW   {rsrc: r3, rbase: r0, offset: 0},    // End: Store res
-      ITerminate                                //      finish
+      TERMINATE                                 //      finish
     };
 
   Value dmem_i[1] = {0};

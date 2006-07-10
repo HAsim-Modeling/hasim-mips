@@ -263,11 +263,12 @@ module [HASim_Module] mkFUNCP_DecodeAlg ();
       
     debug_rule("handleResponse");
     
-    match {.t, .a, .inst} = waitingQ.first();
+    match {.tok, .a, .inst} = waitingQ.first();
     waitingQ.deq();
     
     DepInfo depinfo = ?;
     DecodedInst decinst = ?;
+    Action dbg = noAction;
     
     PRName pra <- link_lookup1.getResp();
     PRName prb <- link_lookup2.getResp();
@@ -287,7 +288,8 @@ module [HASim_Module] mkFUNCP_DecodeAlg ();
 		      pdest:   prd, 
 		      offset: off
 		    };
-		    
+          dbg = $display("DEC [%d] LW dest:(R%0d/PR%0d) base: (R%0d/PR%0d) offset: 0x%h", tok, rd, prd, rb, pra, off);
+
           depinfo = DepInfo 
 	            {
 		      dep_dest: Valid tuple2(rd, prd), 
@@ -308,6 +310,8 @@ module [HASim_Module] mkFUNCP_DecodeAlg ();
 		      offset: off
 		    };
 		    
+          dbg = $display("DEC [%d] SW src:(R%0d/PR%0d) base: (R%0d/PR%0d) offset: 0x%h", tok, rs, prb, rb, pra, off);
+	  
           depinfo = DepInfo 
 	            {
 		      dep_dest: Invalid, 
@@ -328,6 +332,8 @@ module [HASim_Module] mkFUNCP_DecodeAlg ();
 		      psrc:  pra, 
 		      imm:   simm
 		    };
+
+          dbg = $display("DEC [%d] ADDIU dest:(R%0d/PR%0d) src1: (R%0d/PR%0d) imm: 0x%h", tok, rd, prd, rs, pra, simm);
 		    
           depinfo = DepInfo 
 	            {
@@ -348,6 +354,8 @@ module [HASim_Module] mkFUNCP_DecodeAlg ();
 		      imm:   simm
 		    };
 		    
+          dbg = $display("DEC [%d] SLTI dest:(R%0d/PR%0d) src: (R%0d/PR%0d) imm: 0x%h", tok, rd, prd, rs, pra, simm);
+
           depinfo = DepInfo 
 	            {
 		      dep_dest: Valid tuple2(rd, prd), 
@@ -368,6 +376,8 @@ module [HASim_Module] mkFUNCP_DecodeAlg ();
 		                  //Not a typo: Exec handles it differently
 		    };
 		    
+          dbg = $display("DEC [%d] SLTIU dest:(R%0d/PR%0d) src: (R%0d/PR%0d) imm: 0x%h", tok, rd, prd, rs, pra, simm);
+
           depinfo = DepInfo 
 	            {
 		      dep_dest: Valid tuple2(rd, prd), 
@@ -386,7 +396,9 @@ module [HASim_Module] mkFUNCP_DecodeAlg ();
 		      psrc:  pra, 
 		      imm:   zimm
 		    };
-		    
+		
+          dbg = $display("DEC [%d] ANDI dest:(R%0d/PR%0d) src: (R%0d/PR%0d) imm: 0x%h", tok, rd, prd, rs, pra, zimm);
+    
           depinfo = DepInfo 
 	            {
 		      dep_dest: Valid tuple2(rd, prd), 
@@ -406,6 +418,8 @@ module [HASim_Module] mkFUNCP_DecodeAlg ();
 		      imm:   zimm
 		    };
 		    
+          dbg = $display("DEC [%d] ORI dest:(R%0d/PR%0d) src: (R%0d/PR%0d) imm: 0x%h", tok, rd, prd, rs, pra, zimm);
+
           depinfo = DepInfo 
 	            {
 		      dep_dest: Valid tuple2(rd, prd), 
@@ -425,6 +439,8 @@ module [HASim_Module] mkFUNCP_DecodeAlg ();
 		      imm:   zimm
 		    };
 		    
+          dbg = $display("DEC [%d] XORI dest:(R%0d/PR%0d) src: (R%0d/PR%0d) imm: 0x%h", tok, rd, prd, rs, pra, zimm);
+
           depinfo = DepInfo 
 	            {
 		      dep_dest: Valid tuple2(rd, prd), 
@@ -443,6 +459,8 @@ module [HASim_Module] mkFUNCP_DecodeAlg ();
 		      imm:   zimm
 		    };
 		    
+          dbg = $display("DEC [%d] LUI dest:(R%0d/PR%0d) imm: 0x%h", tok, rd, prd, zimm);
+
           depinfo = DepInfo 
 	            {
 		      dep_dest: Valid tuple2(rd, prd), 
@@ -462,6 +480,8 @@ module [HASim_Module] mkFUNCP_DecodeAlg ();
 		      shamt: sha
 		    };
 		    
+          dbg = $display("DEC [%d] SLL dest:(R%0d/PR%0d) src: (R%0d/PR%0d) sha: 0x%h", tok, rd, prd, rs, pra, sha);
+
           depinfo = DepInfo 
 	            {
 		      dep_dest: Valid tuple2(rd, prd), 
@@ -481,6 +501,8 @@ module [HASim_Module] mkFUNCP_DecodeAlg ();
 		      shamt: sha
 		    };
 		    
+          dbg = $display("DEC [%d] SRL dest:(R%0d/PR%0d) src: (R%0d/PR%0d) sha: 0x%h", tok, rd, prd, rs, pra, sha);
+
           depinfo = DepInfo 
 	            {
 		      dep_dest: Valid tuple2(rd, prd), 
@@ -500,6 +522,8 @@ module [HASim_Module] mkFUNCP_DecodeAlg ();
 		      shamt: sha
 		    };
 		    
+          dbg = $display("DEC [%d] SRA dest:(R%0d/PR%0d) src: (R%0d/PR%0d) sha: 0x%h", tok, rd, prd, rs, pra, sha);
+
           depinfo = DepInfo 
 	            {
 		      dep_dest: Valid tuple2(rd, prd), 
@@ -519,6 +543,8 @@ module [HASim_Module] mkFUNCP_DecodeAlg ();
 		      pshamt: prb
 		    };
 		    
+          dbg = $display("DEC [%d] SLLV dest:(R%0d/PR%0d) src: (R%0d/PR%0d) rsha: (R%0d/PR%0d)", tok, rd, prd, rs, pra, rsha, prb);
+
           depinfo = DepInfo 
 	            {
 		      dep_dest: Valid tuple2(rd, prd), 
@@ -538,6 +564,8 @@ module [HASim_Module] mkFUNCP_DecodeAlg ();
 		      pshamt: prb
 		    };
 		    
+          dbg = $display("DEC [%d] SRLV dest:(R%0d/PR%0d) src: (R%0d/PR%0d) rsha: (R%0d/PR%0d)", tok, rd, prd, rs, pra, rsha, prb);
+
           depinfo = DepInfo 
 	            {
 		      dep_dest: Valid tuple2(rd, prd), 
@@ -557,6 +585,8 @@ module [HASim_Module] mkFUNCP_DecodeAlg ();
 		      pshamt: prb
 		    };
 		    
+          dbg = $display("DEC [%d] SRAV dest:(R%0d/PR%0d) src: (R%0d/PR%0d) rsha: (R%0d/PR%0d)", tok, rd, prd, rs, pra, rsha, prb);
+
           depinfo = DepInfo 
 	            {
 		      dep_dest: Valid tuple2(rd, prd), 
@@ -576,6 +606,8 @@ module [HASim_Module] mkFUNCP_DecodeAlg ();
 		      psrc2:  prb
 		    };
 		    
+          dbg = $display("DEC [%d] ADDU dest:(R%0d/PR%0d) src1: (R%0d/PR%0d) src2: (R%0d/PR%0d)", tok, rd, prd, rs1, pra, rs2, prb);
+
           depinfo = DepInfo 
 	            {
 		      dep_dest: Valid tuple2(rd,  prd), 
@@ -595,6 +627,8 @@ module [HASim_Module] mkFUNCP_DecodeAlg ();
 		      psrc2:  prb
 		    };
 		    
+          dbg = $display("DEC [%d] SUBU dest:(R%0d/PR%0d) src1: (R%0d/PR%0d) src2: (R%0d/PR%0d)", tok, rd, prd, rs1, pra, rs2, prb);
+
           depinfo = DepInfo 
 	            {
 		      dep_dest: Valid tuple2(rd,  prd), 
@@ -614,6 +648,8 @@ module [HASim_Module] mkFUNCP_DecodeAlg ();
 		      psrc2:  prb
 		    };
 		    
+          dbg = $display("DEC [%d] AND dest:(R%0d/PR%0d) src1: (R%0d/PR%0d) src2: (R%0d/PR%0d)", tok, rd, prd, rs1, pra, rs2, prb);
+
           depinfo = DepInfo 
 	            {
 		      dep_dest: Valid tuple2(rd,  prd), 
@@ -633,6 +669,8 @@ module [HASim_Module] mkFUNCP_DecodeAlg ();
 		      psrc2:  prb
 		    };
 		    
+          dbg = $display("DEC [%d] OR dest:(R%0d/PR%0d) src1: (R%0d/PR%0d) src2: (R%0d/PR%0d)", tok, rd, prd, rs1, pra, rs2, prb);
+
           depinfo = DepInfo 
 	            {
 		      dep_dest: Valid tuple2(rd,  prd), 
@@ -652,6 +690,8 @@ module [HASim_Module] mkFUNCP_DecodeAlg ();
 		      psrc2:  prb
 		    };
 		    
+          dbg = $display("DEC [%d] XOR dest:(R%0d/PR%0d) src1: (R%0d/PR%0d) src2: (R%0d/PR%0d)", tok, rd, prd, rs1, pra, rs2, prb);
+
           depinfo = DepInfo 
 	            {
 		      dep_dest: Valid tuple2(rd,  prd), 
@@ -671,6 +711,8 @@ module [HASim_Module] mkFUNCP_DecodeAlg ();
 		      psrc2:  prb
 		    };
 		    
+          dbg = $display("DEC [%d] NOR dest:(R%0d/PR%0d) src1: (R%0d/PR%0d) src2: (R%0d/PR%0d)", tok, rd, prd, rs1, pra, rs2, prb);
+
           depinfo = DepInfo 
 	            {
 		      dep_dest: Valid tuple2(rd,  prd), 
@@ -690,6 +732,7 @@ module [HASim_Module] mkFUNCP_DecodeAlg ();
 		      psrc2:  prb
 		    };
 		    
+          dbg = $display("DEC [%d] SLT dest:(R%0d/PR%0d) src1: (R%0d/PR%0d) src2: (R%0d/PR%0d)", tok, rd, prd, rs1, pra, rs2, prb);
           depinfo = DepInfo 
 	            {
 		      dep_dest: Valid tuple2(rd,  prd), 
@@ -709,6 +752,7 @@ module [HASim_Module] mkFUNCP_DecodeAlg ();
 		      psrc2:  prb
 		    };
 		    
+          dbg = $display("DEC [%d] SLTU dest:(R%0d/PR%0d) src1: (R%0d/PR%0d) src2: (R%0d/PR%0d)", tok, rd, prd, rs1, pra, rs2, prb);
           depinfo = DepInfo 
 	            {
 		      dep_dest: Valid tuple2(rd,  prd), 
@@ -766,6 +810,8 @@ module [HASim_Module] mkFUNCP_DecodeAlg ();
 		      offset: off
 		    };
 		    
+          dbg = $display("DEC [%d] BLEZ src: (R%0d/PR%0d) off: 0x%h", tok, rs, pra, off);
+
           depinfo = DepInfo 
 	            {
 		      dep_dest: Invalid, 
@@ -784,6 +830,8 @@ module [HASim_Module] mkFUNCP_DecodeAlg ();
 		      offset: off
 		    };
 		    
+          dbg = $display("DEC [%d] BGTZ src: (R%0d/PR%0d) off: 0x%h", tok, rs, pra, off);
+
           depinfo = DepInfo 
 	            {
 		      dep_dest: Invalid, 
@@ -802,6 +850,8 @@ module [HASim_Module] mkFUNCP_DecodeAlg ();
 		      offset: off
 		    };
 		    
+          dbg = $display("DEC [%d] BLTZ src: (R%0d/PR%0d) off: 0x%h", tok, rs, pra, off);
+
           depinfo = DepInfo 
 	            {
 		      dep_dest: Invalid, 
@@ -820,6 +870,8 @@ module [HASim_Module] mkFUNCP_DecodeAlg ();
 		      offset: off
 		    };
 		    
+          dbg = $display("DEC [%d] BGEZ src: (R%0d/PR%0d) off: 0x%h", tok, rs, pra, off);
+
           depinfo = DepInfo 
 	            {
 		      dep_dest: Invalid, 
@@ -839,6 +891,8 @@ module [HASim_Module] mkFUNCP_DecodeAlg ();
 		      offset: off
 		    };
 		    
+          dbg = $display("DEC [%d] BEQ src1: (R%0d/PR%0d) src2: (R%0d/PR%0d) off: 0x%h", tok, rs1, pra, rs2, prb, off);
+
           depinfo = DepInfo 
 	            {
 		      dep_dest: Invalid, 
@@ -857,6 +911,8 @@ module [HASim_Module] mkFUNCP_DecodeAlg ();
 		      psrc2:  prb,
 		      offset: off
 		    };
+		    
+          dbg = $display("DEC [%d] BNE src1: (R%0d/PR%0d) src2: (R%0d/PR%0d) off: 0x%h", tok, rs1, pra, rs2, prb, off);
 		    
           depinfo = DepInfo 
 	            {
@@ -877,6 +933,8 @@ module [HASim_Module] mkFUNCP_DecodeAlg ();
 		      target: targ
 		    };
 		    
+          dbg = $display("DEC [%d] J target: 0x%h", tok, targ);
+
           depinfo = DepInfo 
 	            {
 		      dep_dest: Invalid, 
@@ -893,7 +951,9 @@ module [HASim_Module] mkFUNCP_DecodeAlg ();
 	            {
 		      psrc:   pra
 		    };
-		    
+		    		    
+          dbg = $display("DEC [%d] JR src: (R%0d/PR%0d) ", tok, rs, pra);
+
           depinfo = DepInfo 
 	            {
 		      dep_dest: Invalid, 
@@ -910,7 +970,9 @@ module [HASim_Module] mkFUNCP_DecodeAlg ();
 		      pdest:   prd, 
 		      target: targ
 		    };
-		    
+		 		    
+          dbg = $display("DEC [%d] JAL dest: (R31/PR%0d) target: 0x%h", tok, prd, targ);
+    
           depinfo = DepInfo 
 	            {
 		      dep_dest: Valid tuple2(5'd31, prd), 
@@ -929,6 +991,8 @@ module [HASim_Module] mkFUNCP_DecodeAlg ();
 		      psrc:   pra
 		    };
 		    
+          dbg = $display("DEC [%d] JALR dest: (R%0d/PR%0d) src: (R%0d/PR%0d)", tok, rd, prd, rs, pra);
+
           depinfo = DepInfo 
 	            {
 		      dep_dest: Valid tuple2(rd, prd), 
@@ -942,6 +1006,8 @@ module [HASim_Module] mkFUNCP_DecodeAlg ();
       tagged TERMINATE: 
         begin
           decinst = DTERMINATE;
+   
+          dbg = $display("DEC [%d] TERMINATE", tok);
 
           depinfo = DepInfo 
 	            {
@@ -955,6 +1021,8 @@ module [HASim_Module] mkFUNCP_DecodeAlg ();
         begin
           decinst = DILLEGAL;
 		    
+          dbg = $display("DEC [%d] ILLEGAL", tok);
+	  
           depinfo = DepInfo 
 	            {
 		      dep_dest: Invalid, 
@@ -964,10 +1032,9 @@ module [HASim_Module] mkFUNCP_DecodeAlg ();
         end
 
     endcase
-
-    debug(2, $display("DEC: Physical Sources: (PR%d, PR%d)", pra, prb));
     
-    link_dec.makeResp(tuple3(t, depinfo, tuple2(a, decinst)));
+    debug(2, dbg);
+    link_dec.makeResp(tuple3(tok, depinfo, tuple2(a, decinst)));
     
   endrule
   

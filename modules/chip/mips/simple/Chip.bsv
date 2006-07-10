@@ -108,9 +108,39 @@ module [HASim_Module] mkChip
   //...
   link_to_gco <- mkConnection_Client("fp_gco");
 
-  //Connection_Send#(Token) 
+  //For killing. UNUSED
+  
+  Connection_Send#(Token) 
   //...
-  //link_to_killToken <- mkConnection_Send("fp_killToken");
+        link_rewindToToken <- mkConnection_Send("lco_to_bypass_rewind");
+
+  Connection_Send#(Token) 
+  //...
+        link_tok_kill <- mkConnection_Send("tok_kill");
+
+  Connection_Send#(Token) 
+  //...
+        link_fet_kill <- mkConnection_Send("fet_kill");
+	
+  Connection_Send#(Token) 
+  //...
+        link_dec_kill <- mkConnection_Send("dec_kill");
+
+  Connection_Send#(Token) 
+  //...
+        link_exe_kill <- mkConnection_Send("exe_kill");
+
+  Connection_Send#(Token) 
+  //...
+        link_mem_kill <- mkConnection_Send("mem_kill");
+	
+  Connection_Send#(Token) 
+  //...
+        link_lco_kill <- mkConnection_Send("lco_kill");
+
+  Connection_Send#(Token) 
+  //...
+        link_gco_kill <- mkConnection_Send("gco_kill");
 
   
   //********* Rules *********//

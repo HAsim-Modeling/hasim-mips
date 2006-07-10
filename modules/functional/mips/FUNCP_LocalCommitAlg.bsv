@@ -39,10 +39,6 @@ module [HASim_Module] mkFUNCP_LocalCommitAlg ();
   //...
         link_freePReg <- mkConnection_Send("lco_to_bypass_free");
 
-  Connection_Send#(Token) 
-  //...
-        link_rewindToToken <- mkConnection_Send("lco_to_bypass_rewind");
-
   rule handleLCO (True);
   
     match {.t, .ei, .*} <- link_lco.getReq();

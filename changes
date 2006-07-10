@@ -245,3 +245,30 @@ Directory modules/chip/mips/simple
 Miscellaneous changes to the Simple Chip, fixed toymips branch testcase, and a new testcase for SMIPs.
 
 Michael
+
+----------
+mpellaue    Date: Mon Jul 10 18:02:48 EDT 2006  CSN: CSN-hasim-mips-11
+                  Mon Jul 10 22:02:48 UTC 2006
+
+
+Directory modules/functional/mips
+ FUNCP_LocalCommitAlg.bsv  Locally Modified            8 
+
+Directory modules/functional/smips
+ FUNCP_ExecuteAlg.bsv      Locally Modified            8 
+ FUNCP_DecodeAlg.bsv       Locally Modified            8 
+
+Directory modules/functional/test-cases/smips/branch
+ TestCase.bsv              Locally Modified           10 
+
+Directory modules/chip/mips/5stage
+ Chip.bsv                  Locally Modified            8 
+
+Directory modules/chip/mips/simple
+ Chip.bsv                  Locally Modified           10 
+
+Directory modules/isa/smips
+ ISA.bsv                   Locally Modified            8 
+
+
+Changes to SMIPS and beginning of epoch changes.
