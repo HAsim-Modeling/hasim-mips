@@ -272,3 +272,22 @@ Directory modules/isa/smips
 
 
 Changes to SMIPS and beginning of epoch changes.
+
+----------
+mpellaue    Date: Wed Jul 12 13:22:52 EDT 2006  CSN: CSN-hasim-mips-13
+                  Wed Jul 12 17:22:52 UTC 2006
+
+
+Directory modules/functional/test-cases/smips/branch
+ smips_testcase_branch.awb Locally Modified           12 
+
+Directory modules/chip/mips/5stage
+ Chip.bsv                  Locally Modified           12 
+
+Directory modules/chip/mips/simple
+ Chip.bsv                  Locally Modified           12 
+
+Directory modules/isa/toymips
+ ISA.bsv                   Locally Modified           12 
+
+ToyMIPS/simple now plays nicely with the epochs.

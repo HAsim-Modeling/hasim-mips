@@ -58,7 +58,7 @@ module [HASim_Module] mkChip
   Reg#(Stage) stage <- mkReg(TOK);
   
   //Current token (response from TOK stage)
-  Reg#(Token) cur_tok <- mkReg(0);
+  Reg#(Token) cur_tok <- mkRegU();
   
   //Current instruction (response from FET stage)
   Reg#(Inst)  cur_inst <- mkRegU();
@@ -179,7 +179,7 @@ module [HASim_Module] mkChip
 	    
 	    //Get the response
 	    let tok <- link_to_tok.getResp();
-	    debug(2, $display("[%d] TOK Responded with token %0d.", hostCC, tok));
+	    debug(2, $display("[%d] TOK Responded with token %0d.", hostCC, tok.index));
 	    
 	    cur_tok <= tok;
 	    
@@ -196,7 +196,7 @@ module [HASim_Module] mkChip
 	    debug_then("!madeReq");
 	    
 	    //Fetch next instruction
-	    debug(2, $display("[%d] Fetching token %0d at address %h.", hostCC, cur_tok, pc));
+	    debug(2, $display("[%d] Fetching token %0d at address %h.", hostCC, cur_tok.index, pc));
             link_to_fet.makeReq(tuple3(cur_tok, baseTick, pc));
 	    
 	    madeReq <= True;
@@ -223,7 +223,7 @@ module [HASim_Module] mkChip
 	    debug_then("!madeReq");
 	    
 	    //Decode current inst
-	    debug(2, $display("[%d] Decoding token %0d.", hostCC, cur_tok));
+	    debug(2, $display("[%d] Decoding token %0d.", hostCC, cur_tok.index));
             link_to_dec.makeReq(tuple3(cur_tok, baseTick, ?));
 	    
 	    madeReq <= True;
@@ -270,7 +270,7 @@ module [HASim_Module] mkChip
 	  begin
 	    debug_then("!madeReq");
 	    //Execute instruction
-	    debug(2, $display("[%d] Executing token %0d", hostCC, cur_tok));
+	    debug(2, $display("[%d] Executing token %0d", hostCC, cur_tok.index));
             link_to_exe.makeReq(tuple3(cur_tok, baseTick, ?));
 	    madeReq <= True;
 	  end
@@ -319,7 +319,7 @@ module [HASim_Module] mkChip
 	    debug_then("!madeReq");
 	    
 	    //Request memory ops
-	    debug(2, $display("[%d] Memory ops for token %0d", hostCC, cur_tok));
+	    debug(2, $display("[%d] Memory ops for token %0d", hostCC, cur_tok.index));
             link_to_mem.makeReq(tuple3(cur_tok, baseTick, ?));
 	    
 	    madeReq <= True;
@@ -346,7 +346,7 @@ module [HASim_Module] mkChip
 	    debug_then("!madeReq");
 	    
 	    //Request memory ops
-	    debug(2, $display("[%d] Locally committing token %0d.", hostCC, cur_tok));
+	    debug(2, $display("[%d] Locally committing token %0d.", hostCC, cur_tok.index));
             link_to_lco.makeReq(tuple3(cur_tok, baseTick, ?));
 	    
 	    madeReq <= True;
@@ -374,7 +374,7 @@ module [HASim_Module] mkChip
 	    debug_then("!madeReq");
 	    
 	    //Request memory ops
-	    debug(2, $display("[%d] Globally committing token %0d", hostCC, cur_tok));
+	    debug(2, $display("[%d] Globally committing token %0d", hostCC, cur_tok.index));
             link_to_gco.makeReq(tuple3(cur_tok, baseTick, ?));
 	    
 	    madeReq <= True;
@@ -389,7 +389,7 @@ module [HASim_Module] mkChip
 	    
 	    if (tok != cur_tok) $display ("GCO ERROR: Token Mismatch. Expected: %0d Received: %0d", cur_tok, tok);
 	    
-	    debug(1, $display("Committed token %0d on model cycle %h.", cur_tok, baseTick));
+	    debug(1, $display("Committed token %0d on model cycle %h.", cur_tok.index, baseTick));
 	    
 	    stage <= TOK;
 	    madeReq <= False;

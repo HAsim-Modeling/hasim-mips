@@ -7,13 +7,13 @@
 #/*
 # %AWB_START
 #
-# %name Hasim toymips testcase branch
-# %desc Hasim toymips testcase branch
+# %name Hasim smips testcase branch
+# %desc Hasim smips testcase branch
 # %provides hasim_testcase
 #
 # %requires hasim_testcase_base
 #
-# %attributes toymips hasim
+# %attributes smips hasim
 #
 # %public TestCase.bsv
 #
