@@ -134,19 +134,21 @@ module [HASim_Module] mkChip
   rule tokenGen (running);
   
     let tok <- link_to_tok.getResp();
+    let inf = TokInfo {epoch: epoch, ctxt: ?};
+    let tok2 = Token {index: tok.index, info: inf};
     
     let old_tick = tokQ.first();
     tokQ.deq();
   
-    debug(2, $display("[%d] TOKR/FETG Fetching token %0d at address %h", hostCC, tok, pc));
+    debug(2, $display("[%d] TOKR/FETG Fetching token %0d at address %h", hostCC, tok2, pc));
     
     pc <= pc + 1;
   
     let tick = old_tick + `TOK_Latency;
   
-    tok2fetQ.enq(tuple3(tok, epoch, tick));
+    tok2fetQ.enq(tuple3(tok2, epoch, tick));
   
-    link_to_fet.makeReq(tuple3(tok, tick, pc));
+    link_to_fet.makeReq(tuple3(tok2, tick, pc));
   
   endrule
 
