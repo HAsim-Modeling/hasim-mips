@@ -31,8 +31,6 @@ module [HASim_Module] mkFUNCP_GlobalCommitAlg ();
 
   Connection_Send#(Token) link_mem_commit <- mkConnection_Send("mem_commit");
   
-  Connection_Send#(Token) link_mem_kill <- mkConnection_Send("mem_kill");
-  
   Connection_Server#(Tuple3#(Token, InstWBInfo, void),
                      Tuple3#(Token, void, void)) 
   //...

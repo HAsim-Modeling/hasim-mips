@@ -116,6 +116,10 @@ module [HASim_Module] mkChip
 
   Connection_Send#(Token) 
   //...
+        link_memstate_kill <- mkConnection_Send("memstate_kill");
+
+  Connection_Send#(Token) 
+  //...
         link_tok_kill <- mkConnection_Send("tok_kill");
 
   Connection_Send#(Token) 

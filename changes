@@ -291,3 +291,25 @@ Directory modules/isa/toymips
  ISA.bsv                   Locally Modified           12 
 
 ToyMIPS/simple now plays nicely with the epochs.
+
+----------
+mpellaue    Date: Wed Jul 12 16:50:18 EDT 2006  CSN: CSN-hasim-mips-14
+                  Wed Jul 12 20:50:18 UTC 2006
+
+
+Directory modules/functional/mips
+ FUNCP_GlobalCommitAlg.bsv Locally Modified           12 
+ FUNCP_MemAlg.bsv          Locally Modified           12 
+
+Directory modules/functional/smips
+ FUNCP_ExecuteAlg.bsv      Locally Modified           12 
+ FUNCP_DecodeAlg.bsv       Locally Modified           12 
+
+Directory modules/chip/mips/5stage
+ Chip.bsv                  Locally Modified           13 
+
+Directory modules/chip/mips/simple
+ Chip.bsv                  Locally Modified           13 
+
+
+SMIPs 5-stage now specualtes past branches correctly

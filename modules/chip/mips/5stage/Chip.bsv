@@ -89,6 +89,10 @@ module [HASim_Module] mkChip
 
   Connection_Send#(Token) 
   //...
+        link_memstate_kill <- mkConnection_Send("memstate_kill");
+
+  Connection_Send#(Token) 
+  //...
         link_tok_kill <- mkConnection_Send("tok_kill");
 
   Connection_Send#(Token) 
@@ -157,10 +161,26 @@ module [HASim_Module] mkChip
     match {.tok, .inst} <- link_to_fet.getResp();
     
     debug(2, $display("[%d] FETR/DECG Decoding token %0d", hostCC, tok.index));
+    Bool new_killing = killing;
     
     match {.cur_tok, .old_tick} = tok2fetQ.first();
-
     tok2fetQ.deq();
+
+    if ((killing) && (tok.info.epoch != epoch)) //kill it
+    begin
+      debug(2, $display("[%d] FETR Rolling back wrong-path token %0d", hostCC, tok.index));
+      link_dec_kill.send(tok);
+    end
+    else //continue to execute it
+    begin
+    
+      if (killing) //stop killing
+      begin
+	debug(2, $display("[%d] FETR Returning to right-path on token %0d", hostCC, tok.index));
+	new_killing = False;
+	link_rewindToToken.send(kill_tok);
+	link_tok_kill.send(kill_tok);
+      end
 
     let tick = old_tick + `FET_Latency;
 
@@ -170,6 +190,9 @@ module [HASim_Module] mkChip
     fet2decQ.enq(tuple2(tok, tick));
 
     link_to_dec.makeReq(tuple3(tok, tick, ?));
+    killing <= new_killing;
+
+    end
 
   endrule
 
@@ -181,6 +204,16 @@ module [HASim_Module] mkChip
     
     match {.cur_tok, .old_tick} = fet2decQ.first();
     fet2decQ.deq();
+    
+    Bool new_killing = killing;
+
+    if ((killing) && (tok.info.epoch != epoch)) //kill it
+    begin
+      debug(2, $display("[%d] DECR Rolling back wrong-path token %0d", hostCC, tok.index));
+      link_exe_kill.send(tok);
+    end
+    else //continue to execute it
+    begin
     
     let tick = old_tick + `DEC_Latency;
     
@@ -206,9 +239,10 @@ module [HASim_Module] mkChip
         debug(2, $display("\tNo Source 2."));
     endcase  
     
+    killing <= new_killing;
     dec2exeQ.enq(tuple2(tok, tick));
     link_to_exe.makeReq(tuple3(tok, tick, ?));
-
+    end
   endrule
 
   rule execute (running);
@@ -226,19 +260,11 @@ module [HASim_Module] mkChip
 
     if ((killing) && (tok.info.epoch != epoch)) //kill it
     begin
-      debug(2, $display("[%d] Rolling back wrong-path token %0d", hostCC, tok.index));
+      debug(2, $display("[%d] EXER Rolling back wrong-path token %0d", hostCC, tok.index));
       link_mem_kill.send(tok);
     end
     else //continue to execute it
     begin
-    
-      if (killing) //stop killing
-      begin
-	debug(2, $display("[%d] Returning to right-path on token %0d", hostCC, tok.index));
-	new_killing = False;
-	link_rewindToToken.send(kill_tok);
-	link_tok_kill.send(kill_tok);
-      end
     
       let tick = old_tick + `EXE_Latency;
 
