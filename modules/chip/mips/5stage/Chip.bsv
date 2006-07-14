@@ -119,6 +119,17 @@ module [HASim_Module] mkChip
   //...
         link_gco_kill <- mkConnection_Send("gco_kill");
 
+  //Events
+
+  EventRecorder#(Token) 
+  //...
+        event_dec <- mkEventRecorder("dec");
+
+  EventRecorder#(Token) 
+  //...
+        event_exe <- mkEventRecorder("exec");
+
+
   rule count (True);
     hostCC <= hostCC + 1;
   endrule
@@ -242,6 +253,7 @@ module [HASim_Module] mkChip
     killing <= new_killing;
     dec2exeQ.enq(tuple2(tok, tick));
     link_to_exe.makeReq(tuple3(tok, tick, ?));
+    event_dec.recordEvent(tick, tok);
     end
   endrule
 
@@ -296,6 +308,7 @@ module [HASim_Module] mkChip
       killing <= new_killing;
       exe2memQ.enq(tuple2(tok, tick));
       link_to_mem.makeReq(tuple3(tok, tick, ?));
+      event_exe.recordEvent(tick, tok);
     end
     
   endrule
