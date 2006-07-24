@@ -121,11 +121,11 @@ module [HASim_Module] mkChip
 
   //Events
 
-  EventRecorder#(Token) 
+  EventRecorder#(Bit#(32)) 
   //...
         event_dec <- mkEventRecorder("dec");
 
-  EventRecorder#(Token) 
+  EventRecorder#(Bit#(32)) 
   //...
         event_exe <- mkEventRecorder("exec");
 
@@ -253,7 +253,7 @@ module [HASim_Module] mkChip
     killing <= new_killing;
     dec2exeQ.enq(tuple2(tok, tick));
     link_to_exe.makeReq(tuple3(tok, tick, ?));
-    event_dec.recordEvent(tick, tok);
+    //event_dec.recordEvent(tick, zeroExtend(tok.index));
     end
   endrule
 
@@ -308,7 +308,7 @@ module [HASim_Module] mkChip
       killing <= new_killing;
       exe2memQ.enq(tuple2(tok, tick));
       link_to_mem.makeReq(tuple3(tok, tick, ?));
-      event_exe.recordEvent(tick, tok);
+      //event_exe.recordEvent(tick, zeroExtend(tok.index));
     end
     
   endrule

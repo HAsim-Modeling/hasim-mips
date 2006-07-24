@@ -213,7 +213,7 @@ module [HASim_Module] mkFUNCP_ExecuteAlg ();
 	 
          if (isJust(mva))
          begin
-	   let ea = unJust(mva) + signExtend(idx);
+	   let ea = unJust(mva) + signExtend(o);
            link_exe.makeResp(tuple3(t, RNop, ELoad {pdest:prd, addr: ea}));
            waitingQ.deq();
 	 
@@ -235,11 +235,11 @@ module [HASim_Module] mkFUNCP_ExecuteAlg ();
        tagged DStore {value: .v, idx: .idx, offset: .o}:
        begin
 
-	 debug_case("dec", "DLoadImm");
+	 debug_case("dec", "DStore");
 
          if (isJust(mva) && isJust(mvb))
          begin
-	   let ea = unJust(mva) + signExtend(idx);
+	   let ea = unJust(mva) + signExtend(o);
            link_exe.makeResp(tuple3(t, RNop, EStore {val: unJust(mvb), addr: ea}));
            waitingQ.deq(); 
 	   debug(2, $display("EXE: [%d] DStore (PR%d + 0x%h) := PR%d", t, idx, o, v));
