@@ -324,3 +324,17 @@ Directory modules/chip/mips/5stage
 
 
 Some test Events added to 5stage pipeline
+
+----------
+mpellaue    Date: Tue Jul 25 17:45:24 EDT 2006  CSN: CSN-hasim-mips-17
+                  Tue Jul 25 21:45:24 UTC 2006
+
+
+Directory modules/chip/mips/5stage
+ Chip.bsv                  Locally Modified           16 
+
+Directory modules/chip/mips/simple
+ Chip.bsv                  Locally Modified           16 
+
+
+Chips now use Events to record model activity.

@@ -3,6 +3,7 @@ import GetPut::*;
 import ClientServer::*;
 import RegFile::*;
 import FIFO::*;
+import Events::*;
 import Vector::*;
 
 //HASim library imports
@@ -145,7 +146,12 @@ module [HASim_Module] mkChip
   Connection_Send#(Token) 
   //...
         link_gco_kill <- mkConnection_Send("gco_kill");
-
+  
+  //Events
+  
+  EventRecorder
+  //...
+        event_com <- mkEventRecorder("com");
   
   //********* Rules *********//
 
@@ -394,6 +400,7 @@ module [HASim_Module] mkChip
 	    if (tok != cur_tok) $display ("GCO ERROR: Token Mismatch. Expected: %0d Received: %0d", cur_tok, tok);
 	    
 	    debug(1, $display("Committed token %0d on model cycle %h.", cur_tok.index, baseTick));
+	    event_com.recordEvent(baseTick, zeroExtend(cur_tok.index));
 	    
 	    stage <= TOK;
 	    madeReq <= False;

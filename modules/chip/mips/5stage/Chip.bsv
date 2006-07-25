@@ -4,16 +4,23 @@ import ClientServer::*;
 import RegFile::*;
 import FIFO::*;
 import Vector::*;
+import LFSR::*;
 
 import HASim::*;
 import Debug::*;
+import Events::*;
 import ISA::*;
 
+//XXX chances are < 127
 `define TOK_Latency 0
-`define FET_Latency 3
+`define FET_Hit_Latency 1
+`define FET_Miss_Latency 1
+`define FET_Hit_Chance 64
 `define DEC_Latency 1
-`define EXE_Latency 2
-`define MEM_Latency 3
+`define EXE_Latency 1
+`define MEM_Hit_Latency 1
+`define MEM_Miss_Latency 1
+`define MEM_Hit_Chance 64
 `define LCO_Latency 0
 `define GCO_Latency 1
 
@@ -36,6 +43,10 @@ module [HASim_Module] mkChip
   Reg#(Epoch) epoch <- mkReg(0);
   Reg#(Bool) killing <- mkReg(False);
   Reg#(Token) kill_tok <- mkRegU();
+
+  //Pseudo-randomness
+  LFSR#(Bit#(7)) fet_rand <- mkFeedLFSR(7'b1001110);
+  LFSR#(Bit#(7)) mem_rand <- mkFeedLFSR(7'b0110101);
 
   FIFO#(Tick)                  tokQ     <- mkFIFO();
   FIFO#(Tuple2#(Token, Tick))  tok2fetQ <- mkFIFO();
@@ -121,13 +132,25 @@ module [HASim_Module] mkChip
 
   //Events
 
-  EventRecorder#(Bit#(32)) 
+  EventRecorder 
+  //...
+        event_fet <- mkEventRecorder("fet");
+
+  EventRecorder 
   //...
         event_dec <- mkEventRecorder("dec");
 
-  EventRecorder#(Bit#(32)) 
+  EventRecorder 
   //...
-        event_exe <- mkEventRecorder("exec");
+        event_exe <- mkEventRecorder("exe");
+
+  EventRecorder 
+  //...
+        event_mem <- mkEventRecorder("mem");
+
+  EventRecorder 
+  //...
+        event_com <- mkEventRecorder("com");
 
 
   rule count (True);
@@ -192,8 +215,11 @@ module [HASim_Module] mkChip
 	link_rewindToToken.send(kill_tok);
 	link_tok_kill.send(kill_tok);
       end
-
-    let tick = old_tick + `FET_Latency;
+  
+    let fet_lat = (fet_rand.value < `FET_Hit_Chance) ? `FET_Hit_Latency : `FET_Miss_Latency;
+    fet_rand.next();
+    
+    let tick = old_tick + fet_lat;
 
     if (tok != cur_tok)
        $display ("[%h] FET ERROR: Mismatched token. Expected: %0d, Received: %0d", hostCC, cur_tok, tok);
@@ -202,6 +228,7 @@ module [HASim_Module] mkChip
 
     link_to_dec.makeReq(tuple3(tok, tick, ?));
     killing <= new_killing;
+    event_fet.recordEvent(tick, zeroExtend(tok.index));
 
     end
 
@@ -253,7 +280,7 @@ module [HASim_Module] mkChip
     killing <= new_killing;
     dec2exeQ.enq(tuple2(tok, tick));
     link_to_exe.makeReq(tuple3(tok, tick, ?));
-    //event_dec.recordEvent(tick, zeroExtend(tok.index));
+    event_dec.recordEvent(tick, zeroExtend(tok.index));
     end
   endrule
 
@@ -308,7 +335,7 @@ module [HASim_Module] mkChip
       killing <= new_killing;
       exe2memQ.enq(tuple2(tok, tick));
       link_to_mem.makeReq(tuple3(tok, tick, ?));
-      //event_exe.recordEvent(tick, zeroExtend(tok.index));
+      event_exe.recordEvent(tick, zeroExtend(tok.index));
     end
     
   endrule
@@ -325,10 +352,14 @@ module [HASim_Module] mkChip
     if (tok != cur_tok)
        $display ("[%h] MEM ERROR: Mismatched token. Expected: %0d, Received: %0d", hostCC, cur_tok, tok);
 
-    let tick = old_tick + `MEM_Latency;
+    let mem_lat = (mem_rand.value < `MEM_Hit_Chance) ? `MEM_Hit_Latency : `MEM_Miss_Latency;
+    mem_rand.next();
+    
+    let tick = old_tick + mem_lat;
     
     mem2lcoQ.enq(tuple2(tok, tick));
     link_to_lco.makeReq(tuple3(tok, tick, ?));
+    event_mem.recordEvent(tick, zeroExtend(tok.index));
     
   endrule
 
@@ -374,6 +405,8 @@ module [HASim_Module] mkChip
       default:
         noAction;
     endcase
+    
+    event_com.recordEvent(tick, zeroExtend(tok.index));
 
   endrule
     
