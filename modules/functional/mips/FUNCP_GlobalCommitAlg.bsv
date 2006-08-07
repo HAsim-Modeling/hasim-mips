@@ -34,7 +34,7 @@ module [HASim_Module] mkFUNCP_GlobalCommitAlg ();
   Connection_Server#(Tuple3#(Token, InstWBInfo, void),
                      Tuple3#(Token, void, void)) 
   //...
-  link_gco <- mkConnection_Server("link_gco");
+  link_gco <- mkConnection_Server("fp_gco_stage");
   
   rule handleGCO (True);
   

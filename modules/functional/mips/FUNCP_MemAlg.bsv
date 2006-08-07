@@ -33,7 +33,7 @@ module [HASim_Module] mkFUNCP_MemAlg ();
   Connection_Server#(Tuple3#(Token, ExecedInst, void),
                      Tuple3#(Token, void, InstWBInfo)) 
   //...
-  link_mem <- mkConnection_Server("link_mem");
+  link_mem <- mkConnection_Server("fp_mem_stage");
 	  
   Connection_Client#(MemReq, MemResp) 
   //...

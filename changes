@@ -338,3 +338,32 @@ Directory modules/chip/mips/simple
 
 
 Chips now use Events to record model activity.
+
+----------
+mpellaue    Date: Mon Aug  7 17:55:46 EDT 2006  CSN: CSN-hasim-mips-18
+                  Mon Aug  7 21:55:46 UTC 2006
+
+
+Directory modules/functional/mips
+ FUNCP_FetchAlg.bsv        Locally Modified           17 
+ FUNCP_GlobalCommitAlg.bsv Locally Modified           17 
+ FUNCP_MemAlg.bsv          Locally Modified           17 
+ FUNCP_LocalCommitAlg.bsv  Locally Modified           17 
+
+Directory modules/functional/smips
+ FUNCP_ExecuteAlg.bsv      Locally Modified           17 
+ FUNCP_DecodeAlg.bsv       Locally Modified           17 
+
+Directory modules/chip/mips/simple
+ Chip.bsv                  Locally Modified           17 
+
+Directory modules/chip/mips
+ 5stage-ports/             Locally Added               0 
+
+Directory modules/chip/mips/5stage-ports
+ CommandCenter.bsv         Locally Added               0 
+ hasim_5stage_ports_chip.awb Locally Added               0 
+ Chip.bsv                  Locally Added               0 
+
+
+First attempt at a version of 5stage with Ports. Currently deadlocks, also some connections need to be renamed.

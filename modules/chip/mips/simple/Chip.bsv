@@ -3,12 +3,14 @@ import GetPut::*;
 import ClientServer::*;
 import RegFile::*;
 import FIFO::*;
-import Events::*;
 import Vector::*;
 
 //HASim library imports
 import HASim::*;
 import Debug::*;
+import Events::*;
+import Ports::*;
+
 
 //Model-specific imports
 import ISA::*;

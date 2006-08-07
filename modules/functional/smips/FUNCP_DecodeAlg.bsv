@@ -30,7 +30,7 @@ module [HASim_Module] mkFUNCP_DecodeAlg ();
   Connection_Server#(Tuple3#(Token, Tuple2#(Addr, Inst), void), 
                      Tuple3#(Token, DepInfo, Tuple2#(Addr, DecodedInst))) 
   //...
-  link_dec <- mkConnection_Server("link_dec");
+  link_dec <- mkConnection_Server("fp_dec_stage");
 
   Connection_Client#(Tuple3#(Maybe#(RName), Token, Bool), 
                      PRName)

@@ -31,7 +31,7 @@ module [HASim_Module] mkFUNCP_ExecuteAlg ();
   Connection_Server#(Tuple3#(Token, Tuple2#(Addr, DecodedInst), void),
                      Tuple3#(Token, InstResult, ExecedInst)) 
   //...
-  link_exe <- mkConnection_Server("link_exe");
+  link_exe <- mkConnection_Server("fp_exe_stage");
   
   Connection_Client#(PRName, Maybe#(Value)) 
   //...

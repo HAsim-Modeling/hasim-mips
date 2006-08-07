@@ -33,7 +33,7 @@ module [HASim_Module] mkFUNCP_FetchAlg ();
   Connection_Server#(Tuple3#(Token, void, Addr), 
                      Tuple3#(Token, Inst, Tuple2#(Addr, Inst)))
   //... 
-  link_fet <- mkConnection_Server("link_fet");
+  link_fet <- mkConnection_Server("fp_fet_stage");
 	 
   Connection_Client#(Addr, Inst) 
   //...

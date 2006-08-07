@@ -33,7 +33,7 @@ module [HASim_Module] mkFUNCP_LocalCommitAlg ();
   Connection_Server#(Tuple3#(Token, InstWBInfo, void),
                      Tuple3#(Token, void, InstWBInfo)) 
   //...
-  link_lco <- mkConnection_Server("link_lco");
+  link_lco <- mkConnection_Server("fp_lco_stage");
   
   Connection_Send#(Token) 
   //...
@@ -41,11 +41,11 @@ module [HASim_Module] mkFUNCP_LocalCommitAlg ();
 
   rule handleLCO (True);
   
-    match {.t, .ei, .*} <- link_lco.getReq();
+    match {.t, .wbinf, .*} <- link_lco.getReq();
     
     link_freePReg.send(t);
 
-    link_lco.makeResp(tuple3(t, ?, ?));
+    link_lco.makeResp(tuple3(t, ?, wbinf));
 
   endrule
   
