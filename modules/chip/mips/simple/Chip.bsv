@@ -22,7 +22,6 @@ import ISA::*;
 `define PARTITION_NAME "Timing"
 
 
-
 //************************* Simple Timing Partition ***********************//
 //                                                    `                    //
 // This is about the simplest timing partition you can conceive of. It     //
