@@ -38,6 +38,8 @@ module [HASim_Module] mkFUNCP_GlobalCommitAlg ();
   
   rule handleGCO (True);
   
+    debug_rule("handleGCO");
+    
     match {.tok, .inf, .*} <- link_gco.getReq();
     
     case (inf)

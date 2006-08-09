@@ -34,6 +34,7 @@ module [HASim_Module] mk5stage_FET#(CommandCenter cc)
   Reg#(Token)       kill_tok <- mkRegU();
   Reg#(Token)      stall_tok <- mkRegU;
   Reg#(Bit#(16)) stall_count <- mkReg(0);
+  Reg#(Bit#(16)) numtokens <- mkReg(0);
   
   //Pseudo-randomness
   LFSR#(Bit#(7)) lfsr <- mkFeedLFSR(7'b1001110);
@@ -60,8 +61,10 @@ module [HASim_Module] mk5stage_FET#(CommandCenter cc)
   //Outgoing Ports
   Port_Send#(Token) port_to_dec <- mkPort_Send("fet_to_dec");
 
-  rule tokenReq (cc.running);
-  
+  rule tokenReq (cc.running && numtokens < 5);
+    
+    numtokens <= numtokens + 1;
+    
     fp_tok_req.send(17); //17 is arbitrarily-chosen bug workaround
     
   endrule
@@ -76,6 +79,7 @@ module [HASim_Module] mk5stage_FET#(CommandCenter cc)
         
     pc <= pc + 1;
   
+    $display("REQ:FET");
     fp_fet_req.send(tuple2(tok2, pc));
   
   endrule
@@ -105,6 +109,7 @@ module [HASim_Module] mk5stage_FET#(CommandCenter cc)
       if (isHit)
       begin
 	port_to_dec.send(Valid tok);
+	numtokens <= numtokens - 1;
 	//event_fet.recordEvent(Valid zeroExtend(tok.index));
       end
       else
@@ -127,6 +132,7 @@ module [HASim_Module] mk5stage_FET#(CommandCenter cc)
     if (stall_count == 1)
     begin
       port_to_dec.send(Valid stall_tok);
+      numtokens <= numtokens - 1;
       //event_fet.recordEvent(Valid zeroExtend(stall_tok.index));
     end
     else
@@ -275,6 +281,7 @@ module [HASim_Module] mk5stage_DEC#(CommandCenter cc)
       end
       tagged Valid .tok:
       begin
+        $display("REQ:DEC");
         fp_dec_req.send(tuple2(tok, ?));
       end
     endcase
@@ -292,7 +299,7 @@ module [HASim_Module] mk5stage_DEC#(CommandCenter cc)
       port_to_exe.send(Invalid);
       //event_dec.recordEvent(Invalid);
       shiftStalls(Invalid);
-      stall_count <= 2'd2;
+      stall_tok <= tok;
       stall_deps <= deps;
     end
     else
@@ -301,7 +308,9 @@ module [HASim_Module] mk5stage_DEC#(CommandCenter cc)
       //event_dec.recordEvent(Valid zeroExtend(tok.index));
       shiftStalls(Valid deps);
     end
-
+    
+    stall_count <= new_stall;
+    
   endrule
 
   rule decode_stall (cc.running && stall_count > 0);
@@ -361,7 +370,10 @@ module [HASim_Module] mk5stage_EXE#(CommandCenter cc)
 	//event_exe.recordEvent(Invalid);
       end
       tagged Valid .tok:
+      begin
+        $display("REQ:EXE");
         fp_exe_req.send(tuple2(tok, ?));
+      end
     endcase
   
   endrule
@@ -441,6 +453,7 @@ module [HASim_Module] mk5stage_MEM#(CommandCenter cc)
       end
       tagged Valid .tok:
       begin
+        $display("REQ:MEM");
         fp_mem_req.send(tuple2(tok, ?));
       end
     endcase
@@ -523,6 +536,7 @@ module [HASim_Module] mk5stage_WB#(CommandCenter cc)
       end
       tagged Valid .tok:
       begin
+        $display("REQ:LCO");
         fp_lco_req.send(tuple2(tok, ?));
       end
     endcase
@@ -532,6 +546,7 @@ module [HASim_Module] mk5stage_WB#(CommandCenter cc)
   rule gcoReq (cc.running);
   
     match {.tok, .*} <- fp_lco_resp.receive();
+    $display("REQ:GCO");
     fp_gco_req.send(tuple2(tok, ?));
   endrule
   
