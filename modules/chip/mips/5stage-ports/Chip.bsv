@@ -69,6 +69,7 @@ module [HASim_Module] mk5stage_FET#(CommandCenter cc)
     
   endrule
 
+  (* descending_urgency = "fetch_kill, fetchReq" *)
 
   rule fetchReq (cc.running);
   
@@ -339,7 +340,6 @@ module [HASim_Module] mk5stage_EXE#(CommandCenter cc)
                 ();
   
   //Local State
-  Reg#(Bool) killing <- mkReg(False);
   Reg#(Epoch)  epoch <- mkReg(0);
 
   //Connections to FP
@@ -392,10 +392,15 @@ module [HASim_Module] mk5stage_EXE#(CommandCenter cc)
       case (res) matches
 	tagged RBranchTaken .addr:
 	  begin
+	    $display("Branch taken!");
+	    epoch <= epoch + 1;
 	    port_to_ic.send(Valid tuple2(tok, addr));
 	  end
 	tagged RBranchNotTaken:
-          noAction;
+	  begin
+            noAction;
+	    $display("Branch not taken!");
+	  end
 	tagged RNop:
           noAction;
 	tagged RTerminate:

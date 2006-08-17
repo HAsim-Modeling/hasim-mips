@@ -26,7 +26,6 @@ module mkCommandCenter (CommandCenter);
   
   method Action stop();
     
-    $finish(0);
     r <= False;
     
   endmethod

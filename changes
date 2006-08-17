@@ -367,3 +367,20 @@ Directory modules/chip/mips/5stage-ports
 
 
 First attempt at a version of 5stage with Ports. Currently deadlocks, also some connections need to be renamed.
+
+----------
+mpellaue    Date: Thu Aug 17 17:47:31 EDT 2006  CSN: CSN-hasim-mips-23
+                  Thu Aug 17 21:47:31 UTC 2006
+
+
+Directory modules/chip/mips/5stage
+ Chip.bsv                  Locally Modified           22 
+
+Directory modules/chip/mips/5stage-ports
+ CommandCenter.bsv         Locally Modified           22 
+ Chip.bsv                  Locally Modified           22 
+
+
+Resolved the deadlock error. Renamed some connections.
+
+Michael
