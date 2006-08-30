@@ -10,15 +10,16 @@ import HASim::*;
 import Events::*;
 import ISA::*;
 import Ports::*;
+import Stats::*;
 import CommandCenter::*;
 
 
 //XXX chances are out of 127
-`define FET_Miss_Penalty 1
+`define FET_Miss_Penalty 10
 `define FET_Hit_Chance 64
-`define DEC_Is_Bypassed False
+`define DEC_Is_Bypassed True
 `define MEM_Hit_Chance 64
-`define MEM_Miss_Penalty 1
+`define MEM_Miss_Penalty 10
 
 typedef Bit#(1) Epoch;
 
@@ -53,8 +54,11 @@ module [HASim_Module] mk5stage_FET#(CommandCenter cc)
   Connection_Send#(Token)     fp_rewindToToken <- mkConnection_Send("fp_rewindToToken");
     
   //Events
-  //EventRecorder event_fet <- mkEventRecorder("Fetch");
+  EventRecorder event_fet <- mkEventRecorder("Fetch");
   
+  //Stats
+  Stat stat_fet <- mkStatCounter("Fetch");
+    
   //Incoming Ports
   Port_Receive#(Tuple2#(Token, Addr)) port_from_ic <- mkPort_Receive("fet_setPC", 1);
 
@@ -93,6 +97,9 @@ module [HASim_Module] mk5stage_FET#(CommandCenter cc)
     if (tok.info.epoch != epoch) //kill it and don't fetch it
     begin
       fp_dec_kill.send(tok);
+      port_to_dec.send(Invalid);
+      event_fet.recordEvent(Invalid);
+      numtokens <= numtokens - 1;
     end
     else //continue to fetch it
     begin
@@ -111,12 +118,13 @@ module [HASim_Module] mk5stage_FET#(CommandCenter cc)
       begin
 	port_to_dec.send(Valid tok);
 	numtokens <= numtokens - 1;
-	//event_fet.recordEvent(Valid zeroExtend(tok.index));
+	event_fet.recordEvent(Valid zeroExtend(tok.index));
+	stat_fet.incr();
       end
       else
       begin
         port_to_dec.send(Invalid);
-	//event_fet.recordEvent(Invalid);
+	event_fet.recordEvent(Invalid);
 	
 	stall_count <= `FET_Miss_Penalty;
 	stall_tok <= tok;
@@ -134,12 +142,13 @@ module [HASim_Module] mk5stage_FET#(CommandCenter cc)
     begin
       port_to_dec.send(Valid stall_tok);
       numtokens <= numtokens - 1;
-      //event_fet.recordEvent(Valid zeroExtend(stall_tok.index));
+      event_fet.recordEvent(Valid zeroExtend(stall_tok.index));
+      stat_fet.incr();
     end
     else
     begin
       port_to_dec.send(Invalid);
-      //event_fet.recordEvent(Invalid);
+      event_fet.recordEvent(Invalid);
     end
     
   endrule
@@ -186,7 +195,7 @@ module [HASim_Module] mk5stage_DEC#(CommandCenter cc)
   Connection_Send#(Token)     fp_exe_kill <- mkConnection_Send("fp_exe_kill");
   
   //Events
-  //EventRecorder event_dec <- mkEventRecorder("Decode");
+  EventRecorder event_dec <- mkEventRecorder("Decode");
   
   //Incoming Ports
   Port_Receive#(Token) port_from_fet <- mkPort_Receive("fet_to_dec", 1);
@@ -277,7 +286,7 @@ module [HASim_Module] mk5stage_DEC#(CommandCenter cc)
       tagged Invalid: //Pass-through
       begin
         port_to_exe.send(Invalid);
-	//event_dec.recordEvent(Invalid);
+	event_dec.recordEvent(Invalid);
 	shiftStalls(Invalid);
       end
       tagged Valid .tok:
@@ -298,7 +307,7 @@ module [HASim_Module] mk5stage_DEC#(CommandCenter cc)
     if (new_stall != 0) //We're stalling
     begin
       port_to_exe.send(Invalid);
-      //event_dec.recordEvent(Invalid);
+      event_dec.recordEvent(Invalid);
       shiftStalls(Invalid);
       stall_tok <= tok;
       stall_deps <= deps;
@@ -306,7 +315,7 @@ module [HASim_Module] mk5stage_DEC#(CommandCenter cc)
     else
     begin
       port_to_exe.send(Valid tok);
-      //event_dec.recordEvent(Valid zeroExtend(tok.index));
+      event_dec.recordEvent(Valid zeroExtend(tok.index));
       shiftStalls(Valid deps);
     end
     
@@ -321,13 +330,13 @@ module [HASim_Module] mk5stage_DEC#(CommandCenter cc)
     if (stall_count == 1)
     begin
       port_to_exe.send(Valid stall_tok);
-      //event_dec.recordEvent(Valid zeroExtend(stall_tok.index));
+      event_dec.recordEvent(Valid zeroExtend(stall_tok.index));
       shiftStalls(Valid stall_deps);
     end
     else
     begin
       port_to_exe.send(Invalid);
-      //event_dec.recordEvent(Invalid);
+      event_dec.recordEvent(Invalid);
       shiftStalls(Invalid);
     end
     
@@ -350,7 +359,7 @@ module [HASim_Module] mk5stage_EXE#(CommandCenter cc)
   Connection_Send#(Token)     fp_mem_kill <- mkConnection_Send("fp_mem_kill");
   
   //Events
-  //EventRecorder event_exe <- mkEventRecorder("Execute");
+  EventRecorder event_exe <- mkEventRecorder("Execute");
   
   //Incoming Ports
   Port_Receive#(Token) port_from_dec <- mkPort_Receive("dec_to_exe", 1);
@@ -367,7 +376,7 @@ module [HASim_Module] mk5stage_EXE#(CommandCenter cc)
       tagged Invalid:
       begin
         port_to_mem.send(Invalid);
-	//event_exe.recordEvent(Invalid);
+	event_exe.recordEvent(Invalid);
       end
       tagged Valid .tok:
       begin
@@ -385,6 +394,8 @@ module [HASim_Module] mk5stage_EXE#(CommandCenter cc)
     if (tok.info.epoch != epoch) //kill it
     begin
       fp_mem_kill.send(tok);
+      event_exe.recordEvent(Invalid);
+      port_to_mem.send(Invalid);
     end
     else //continue to execute it
     begin
@@ -404,16 +415,19 @@ module [HASim_Module] mk5stage_EXE#(CommandCenter cc)
 	tagged RNop:
           noAction;
 	tagged RTerminate:
+	begin
+	  $display("Setting Termination!");
           case (cc.getStopToken) matches
 	    Invalid:
   	      cc.setStopToken(tok);
 	    default:
 	      noAction;
 	  endcase
+	end
       endcase
 
       port_to_mem.send(Valid tok);
-      //event_exe.recordEvent(Valid zeroExtend(tok.index));
+      event_exe.recordEvent(Valid zeroExtend(tok.index));
       
     end
     
@@ -438,7 +452,7 @@ module [HASim_Module] mk5stage_MEM#(CommandCenter cc)
   Connection_Receive#(Tuple2#(Token, void))  fp_mem_resp <- mkConnection_Receive("fp_mem_resp");
 
   //Events
-  //EventRecorder event_mem <- mkEventRecorder("MemOps");
+  EventRecorder event_mem <- mkEventRecorder("MemOps");
   
   //Incoming Ports
   Port_Receive#(Token) port_from_exe <- mkPort_Receive("exe_to_mem", 1);
@@ -454,7 +468,7 @@ module [HASim_Module] mk5stage_MEM#(CommandCenter cc)
       tagged Invalid:
       begin
         port_to_wb.send(Invalid);
-	//event_mem.recordEvent(Invalid);
+        event_mem.recordEvent(Invalid);
       end
       tagged Valid .tok:
       begin
@@ -475,12 +489,12 @@ module [HASim_Module] mk5stage_MEM#(CommandCenter cc)
     if (isHit)
     begin
       port_to_wb.send(Valid tok);
-      //event_mem.recordEvent(Valid zeroExtend(tok.index));
+      event_mem.recordEvent(Valid zeroExtend(tok.index));
     end
     else
     begin
       port_to_wb.send(Invalid);
-      //event_mem.recordEvent(Invalid);
+      event_mem.recordEvent(Invalid);
       stall_count <= `MEM_Miss_Penalty;
       stall_tok <= tok;
     end
@@ -494,12 +508,12 @@ module [HASim_Module] mk5stage_MEM#(CommandCenter cc)
     if (stall_count == 1)
     begin
       port_to_wb.send(Valid stall_tok);
-      //event_mem.recordEvent(Valid zeroExtend(stall_tok.index));
+      event_mem.recordEvent(Valid zeroExtend(stall_tok.index));
     end
     else
     begin
       port_to_wb.send(Invalid);
-      //event_mem.recordEvent(Invalid);
+      event_mem.recordEvent(Invalid);
     end
   
   endrule
@@ -525,7 +539,7 @@ module [HASim_Module] mk5stage_WB#(CommandCenter cc)
   Connection_Send#(Token) link_memstate_kill <- mkConnection_Send("fp_memstate_kill");
 
   //Events
-  //EventRecorder event_wb <- mkEventRecorder("Writeback");
+  EventRecorder event_wb <- mkEventRecorder("Writeback");
   
   //Incoming Ports
   Port_Receive#(Token) port_from_mem <- mkPort_Receive("mem_to_wb", 1);
@@ -537,7 +551,7 @@ module [HASim_Module] mk5stage_WB#(CommandCenter cc)
     case (mtok) matches
       tagged Invalid:
       begin
-	//event_wb.recordEvent(Invalid);
+	event_wb.recordEvent(Invalid);
       end
       tagged Valid .tok:
       begin
@@ -558,7 +572,7 @@ module [HASim_Module] mk5stage_WB#(CommandCenter cc)
   rule gcoResp (cc.running);
   
     match {.tok, .*}  <- fp_gco_resp.receive();
-    //event_wb.recordEvent(Valid zeroExtend(tok.index));
+    event_wb.recordEvent(Valid zeroExtend(tok.index));
   
     case (cc.getStopToken) matches
       tagged Valid .t:

@@ -78,36 +78,36 @@ module [HASim_Module] mkChip
   
   //********* Ports *********//
   
-  Connection_Client#(Tuple2#(Bit#(8), Tick), Token)
+  Connection_Client#(Bit#(8), Token)
   //...
   link_to_tok <- mkConnection_Client("fp_tok");
   
-  Connection_Client#(Tuple3#(Token, Tick, Addr),
+  Connection_Client#(Tuple2#(Token, Addr),
                      Tuple2#(Token, Inst))
   //...
   link_to_fet <- mkConnection_Client("fp_fet");
   
-  Connection_Client#(Tuple3#(Token, Tick, void),
+  Connection_Client#(Tuple2#(Token, void),
                      Tuple2#(Token, DepInfo))
   //...
   link_to_dec <- mkConnection_Client("fp_dec");
   
-  Connection_Client#(Tuple3#(Token, Tick, void),
+  Connection_Client#(Tuple2#(Token, void),
                      Tuple2#(Token, InstResult))
   //...
   link_to_exe <- mkConnection_Client("fp_exe");
   
-  Connection_Client#(Tuple3#(Token, Tick, void),
+  Connection_Client#(Tuple2#(Token, void),
                      Tuple2#(Token, void))
   //...
   link_to_mem <- mkConnection_Client("fp_mem");
   
-  Connection_Client#(Tuple3#(Token, Tick, void),
+  Connection_Client#(Tuple2#(Token, void),
                      Tuple2#(Token, void))
   //...
   link_to_lco <- mkConnection_Client("fp_lco");
   
-  Connection_Client#(Tuple3#(Token, Tick, void),
+  Connection_Client#(Tuple2#(Token, void),
                      Tuple2#(Token, void))
   //...
   link_to_gco <- mkConnection_Client("fp_gco");
@@ -116,39 +116,39 @@ module [HASim_Module] mkChip
   
   Connection_Send#(Token) 
   //...
-        link_rewindToToken <- mkConnection_Send("lco_to_bypass_rewind");
+        link_rewindToToken <- mkConnection_Send("fp_rewindToToken");
 
   Connection_Send#(Token) 
   //...
-        link_memstate_kill <- mkConnection_Send("memstate_kill");
+        link_memstate_kill <- mkConnection_Send("fp_memstate_kill");
 
   Connection_Send#(Token) 
   //...
-        link_tok_kill <- mkConnection_Send("tok_kill");
+        link_tok_kill <- mkConnection_Send("fp_tok_kill");
 
   Connection_Send#(Token) 
   //...
-        link_fet_kill <- mkConnection_Send("fet_kill");
+        link_fet_kill <- mkConnection_Send("fp_fet_kill");
 	
   Connection_Send#(Token) 
   //...
-        link_dec_kill <- mkConnection_Send("dec_kill");
+        link_dec_kill <- mkConnection_Send("fp_dec_kill");
 
   Connection_Send#(Token) 
   //...
-        link_exe_kill <- mkConnection_Send("exe_kill");
+        link_exe_kill <- mkConnection_Send("fp_exe_kill");
 
   Connection_Send#(Token) 
   //...
-        link_mem_kill <- mkConnection_Send("mem_kill");
+        link_mem_kill <- mkConnection_Send("fp_mem_kill");
 	
   Connection_Send#(Token) 
   //...
-        link_lco_kill <- mkConnection_Send("lco_kill");
+        link_lco_kill <- mkConnection_Send("fp_lco_kill");
 
   Connection_Send#(Token) 
   //...
-        link_gco_kill <- mkConnection_Send("gco_kill");
+        link_gco_kill <- mkConnection_Send("fp_gco_kill");
   
   //Events
   
@@ -181,7 +181,7 @@ module [HASim_Module] mkChip
 	    
 	    //Request a token
 	    debug(2, $display("[%d] Requesting a new token on model cycle %d.", hostCC, baseTick));
-	    link_to_tok.makeReq(tuple2(17, baseTick));
+	    link_to_tok.makeReq(17);
 	    
 	    madeReq <= True;
 	    
@@ -210,7 +210,7 @@ module [HASim_Module] mkChip
 	    
 	    //Fetch next instruction
 	    debug(2, $display("[%d] Fetching token %0d at address %h.", hostCC, cur_tok.index, pc));
-            link_to_fet.makeReq(tuple3(cur_tok, baseTick, pc));
+            link_to_fet.makeReq(tuple2(cur_tok, pc));
 	    
 	    madeReq <= True;
 	  end
@@ -237,7 +237,7 @@ module [HASim_Module] mkChip
 	    
 	    //Decode current inst
 	    debug(2, $display("[%d] Decoding token %0d.", hostCC, cur_tok.index));
-            link_to_dec.makeReq(tuple3(cur_tok, baseTick, ?));
+            link_to_dec.makeReq(tuple2(cur_tok, ?));
 	    
 	    madeReq <= True;
 	  end
@@ -284,7 +284,7 @@ module [HASim_Module] mkChip
 	    debug_then("!madeReq");
 	    //Execute instruction
 	    debug(2, $display("[%d] Executing token %0d", hostCC, cur_tok.index));
-            link_to_exe.makeReq(tuple3(cur_tok, baseTick, ?));
+            link_to_exe.makeReq(tuple2(cur_tok, ?));
 	    madeReq <= True;
 	  end
 	else
@@ -333,7 +333,7 @@ module [HASim_Module] mkChip
 	    
 	    //Request memory ops
 	    debug(2, $display("[%d] Memory ops for token %0d", hostCC, cur_tok.index));
-            link_to_mem.makeReq(tuple3(cur_tok, baseTick, ?));
+            link_to_mem.makeReq(tuple2(cur_tok, ?));
 	    
 	    madeReq <= True;
 	  end
@@ -360,7 +360,7 @@ module [HASim_Module] mkChip
 	    
 	    //Request memory ops
 	    debug(2, $display("[%d] Locally committing token %0d.", hostCC, cur_tok.index));
-            link_to_lco.makeReq(tuple3(cur_tok, baseTick, ?));
+            link_to_lco.makeReq(tuple2(cur_tok, ?));
 	    
 	    madeReq <= True;
 	  end
@@ -388,7 +388,7 @@ module [HASim_Module] mkChip
 	    
 	    //Request memory ops
 	    debug(2, $display("[%d] Globally committing token %0d", hostCC, cur_tok.index));
-            link_to_gco.makeReq(tuple3(cur_tok, baseTick, ?));
+            link_to_gco.makeReq(tuple2(cur_tok, ?));
 	    
 	    madeReq <= True;
 	  end
@@ -403,7 +403,7 @@ module [HASim_Module] mkChip
 	    if (tok != cur_tok) $display ("GCO ERROR: Token Mismatch. Expected: %0d Received: %0d", cur_tok, tok);
 	    
 	    debug(1, $display("Committed token %0d on model cycle %h.", cur_tok.index, baseTick));
-	    event_com.recordEvent(baseTick, zeroExtend(cur_tok.index));
+	    event_com.recordEvent(Valid zeroExtend(cur_tok.index));
 	    
 	    stage <= TOK;
 	    madeReq <= False;

@@ -384,3 +384,22 @@ Directory modules/chip/mips/5stage-ports
 Resolved the deadlock error. Renamed some connections.
 
 Michael
+
+----------
+mpellaue    Date: Wed Aug 30 15:40:02 EDT 2006  CSN: CSN-hasim-mips-24
+                  Wed Aug 30 19:40:02 UTC 2006
+
+
+Directory modules/chip/mips/5stage
+ Chip.bsv                  Locally Modified           23 
+
+Directory modules/chip/mips/simple
+ Chip.bsv                  Locally Modified           23 
+
+Directory modules/chip/mips/5stage-ports
+ Chip.bsv                  Locally Modified           23 
+
+
+Chips updated to test out Stats, Events.
+
+Michael

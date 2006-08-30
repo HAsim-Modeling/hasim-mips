@@ -15,7 +15,7 @@ import ISA::*;
 `define TOK_Latency 0
 `define FET_Hit_Latency 1
 `define FET_Miss_Latency 10
-`define FET_Hit_Chance 13
+`define FET_Hit_Chance 64
 `define DEC_Latency 1
 `define EXE_Latency 1
 `define MEM_Hit_Latency 1
