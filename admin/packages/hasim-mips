@@ -7,3 +7,4 @@ CSN=CSN-hasim-mips-25
 Version=1
 Tag=HEAD
 Name=hasim-mips
+Dependencies=hasim/HEAD 

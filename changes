@@ -433,3 +433,14 @@ Directory modules/isa/smips
 
 Updates to build smips model using proper imports, i.e., import <asim-metatype>::*
 and with synthesis boundaries
+
+----------
+jsemer      Date: Wed Sep 20 18:22:12 EDT 2006  CSN: CSN-hasim-mips-25
+                  Wed Sep 20 22:22:12 UTC 2006
+
+
+Directory admin/packages
+ hasim-mips                Locally Modified           25 
+
+
+Added dependency on package hasim/HEAD
