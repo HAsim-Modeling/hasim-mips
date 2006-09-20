@@ -5,12 +5,14 @@ import RegFile::*;
 import FIFO::*;
 import Vector::*;
 
-import HASim::*;
-import FUNCP_Base::*;
-import FUNCP_MemState::*;
-import Debug::*;
+import hasim_base::*;
+import hasim_fpgalib::*;
+import hasim_common::*;
 
-import ISA::*;
+import hasim_funcp_base::*;
+import hasim_isa::*;
+
+import hasim_funcp_memstate_ifc::*;
 
 
 `ifdef PARTITION_NAME

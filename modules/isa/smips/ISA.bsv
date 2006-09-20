@@ -13,6 +13,11 @@ import GetPut::*;
 import ClientServer::*;
 import RegFile::*;
 
+import hasim_base::*;
+import hasim_fpgalib::*;
+import hasim_common::*;
+
+
 /************* Basic Datatypes *************/
 
 typedef Bit#(32) Tick;

@@ -403,3 +403,33 @@ Directory modules/chip/mips/5stage-ports
 Chips updated to test out Stats, Events.
 
 Michael
+
+----------
+jsemer      Date: Wed Sep 20 18:15:31 EDT 2006  CSN: CSN-hasim-mips-25
+                  Wed Sep 20 22:15:31 UTC 2006
+
+
+Directory modules/functional/mips
+ FUNCP_FetchAlg.bsv        Locally Modified           24 
+ FUNCP_GlobalCommitAlg.bsv Locally Modified           24 
+ FUNCP_MemAlg.bsv          Locally Modified           24 
+ FUNCP_LocalCommitAlg.bsv  Locally Modified           24 
+
+Directory modules/functional/smips
+ FUNCP_ExecuteAlg.bsv      Locally Modified           24 
+ FUNCP_DecodeAlg.bsv       Locally Modified           24 
+
+Directory modules/functional/test-cases/smips/branch
+ TestCase.bsv              Locally Modified           24 
+
+Directory modules/chip/mips/5stage-ports
+ CommandCenter.bsv         Locally Modified           24 
+ Chip.bsv                  Locally Modified           24 
+
+Directory modules/isa/smips
+ hasim_smips_isa.awb       Locally Modified           24 
+ ISA.bsv                   Locally Modified           24 
+
+
+Updates to build smips model using proper imports, i.e., import <asim-metatype>::*
+and with synthesis boundaries

@@ -1,9 +1,12 @@
 //HASim library imports
-import HASim::*;
-import TestCase_Base::*;
 
-//Model-specific imports
-import ISA::*;
+import hasim_base::*;
+import hasim_fpgalib::*;
+import hasim_common::*;
+
+import hasim_isa::*;
+
+import hasim_testcase_base::*;
 
 //This file provides the following HASim-required names:
 //     Name:             Type:

@@ -6,11 +6,12 @@ import FIFO::*;
 import Vector::*;
 import LFSR::*;
 
-import HASim::*;
-import Events::*;
-import ISA::*;
-import Ports::*;
-import Stats::*;
+import hasim_base::*;
+import hasim_fpgalib::*;
+import hasim_common::*;
+
+import hasim_isa::*;
+
 import CommandCenter::*;
 
 
