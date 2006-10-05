@@ -18,7 +18,7 @@ import hasim_testcase_base::*;
 
 function TestCase testBranch (Integer x, Integer y);
 
-  Inst prog[10] = 
+  Inst prog[34] = 
     { 
       ADDIU {rdest: r1, rsrc: r0, imm: fromInteger(x)},     //	Set x
       ADDIU {rdest: r2, rsrc: r0, imm: fromInteger(y)},     //	Set y
@@ -29,7 +29,31 @@ function TestCase testBranch (Integer x, Integer y);
       BEQ  {rsrc1: r2, rsrc2: r0, offset: 2},   //	if y = 0 GOTO End
       J    {target: 4},                         //	GOTO Loop
       SW   {rsrc: r3, rbase: r0, offset: 0},    // End: Store res
-      TERMINATE                                 //      finish
+      TERMINATE,                                 //      finish
+      TERMINATE,
+      TERMINATE,
+      TERMINATE,
+      TERMINATE,
+      TERMINATE,
+      TERMINATE,
+      TERMINATE,
+      TERMINATE,
+      TERMINATE,
+      TERMINATE,
+      TERMINATE,
+      TERMINATE,
+      TERMINATE,
+      TERMINATE,
+      TERMINATE,
+      TERMINATE,
+      TERMINATE,
+      TERMINATE,
+      TERMINATE,
+      TERMINATE,
+      TERMINATE,
+      TERMINATE,
+      TERMINATE,
+      TERMINATE
     };
 
   Value dmem_i[1] = {0};
