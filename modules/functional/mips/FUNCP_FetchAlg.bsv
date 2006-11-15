@@ -32,11 +32,11 @@ module [HASim_Module] mkFUNCP_FetchAlg ();
   //Ports
   
   Connection_Server#(Tuple3#(Token, void, Addr), 
-                     Tuple3#(Token, Inst, Tuple2#(Addr, Inst)))
+                     Tuple3#(Token, PackedInst, Tuple2#(Addr, PackedInst)))
   //... 
   link_fet <- mkConnection_Server("fp_fet_stage");
 	 
-  Connection_Client#(Addr, Inst) 
+  Connection_Client#(Addr, PackedInst) 
   //...
   link_to_imem <- mkConnection_Client("mem_imem");
   

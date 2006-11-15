@@ -28,7 +28,7 @@ import hasim_isa::*;
 module [HASim_Module] mkFUNCP_DecodeAlg ();
   
   //Ports
-  Connection_Server#(Tuple3#(Token, Tuple2#(Addr, Inst), void), 
+  Connection_Server#(Tuple3#(Token, Tuple2#(Addr, PackedInst), void), 
                      Tuple3#(Token, DepInfo, Tuple2#(Addr, DecodedInst))) 
   //...
   link_dec <- mkConnection_Server("fp_dec_stage");
@@ -46,7 +46,7 @@ module [HASim_Module] mkFUNCP_DecodeAlg ();
   //...
         link_lookup2 <- mkConnection_Client("dec_to_bypass_lookup2");
 
-  FIFO#(Tuple3#(Token, Addr, Inst)) 
+  FIFO#(Tuple3#(Token, Addr, PackedInst)) 
   //...
   waitingQ <- mkFIFO();
   
@@ -235,12 +235,13 @@ module [HASim_Module] mkFUNCP_DecodeAlg ();
   
     debug_rule("handleDecode");
     
-    Tuple3#(Token, Tuple2#(Addr, Inst), void) 
+    Tuple3#(Token, Tuple2#(Addr, PackedInst), void) 
     //...
     tup <- link_dec.getReq();
     
-    match {.t, {.a, .inst}, .*} = tup;
+    match {.t, {.a, .pinst}, .*} = tup;
     
+    Inst inst = unpack(pinst);
     //Get the architectural dest/sources
     RName ara = getOp1(inst);
     RName arb = getOp2(inst);

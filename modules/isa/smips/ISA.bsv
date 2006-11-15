@@ -101,7 +101,7 @@ typedef union tagged
 
 }
   Inst
-    deriving (Eq);
+    deriving (Eq, Bits);
 
 Bit#(6) opFUNC  = 6'b000000;  Bit#(6) fcSLL   = 6'b000000;
 Bit#(6) opRT    = 6'b000001;  Bit#(6) fcSRL   = 6'b000010;
@@ -134,135 +134,131 @@ Bit#(5) rsMTC0  = 5'b00100;
 
 Bit#(5) rsTERMINATE = 5'b11111;
 
-instance Bits#(Inst,32);
+  // Inst to Bit#(32) Function
 
-  // Pack Function
+function Bit#(32) instToBits(Inst instr);
 
-  function Bit#(32) pack( Inst instr );
+  case (instr) matches
 
-    case ( instr ) matches
+    tagged LW    .it : return { opLW,    it.rbase, it.rdest,  it.offset };
+    tagged SW    .it : return { opSW,    it.rbase, it.rsrc,  it.offset };
 
-      tagged LW    .it : return { opLW,    it.rbase, it.rdest,  it.offset };
-      tagged SW    .it : return { opSW,    it.rbase, it.rsrc,  it.offset };
+    tagged ADDIU .it : return { opADDIU, it.rsrc,  it.rdest,  it.imm                      }; 
+    tagged SLTI  .it : return { opSLTI,  it.rsrc,  it.rdest,  it.imm                      }; 
+    tagged SLTIU .it : return { opSLTIU, it.rsrc,  it.rdest,  it.imm                      }; 
+    tagged ANDI  .it : return { opANDI,  it.rsrc,  it.rdest,  it.imm                      }; 
+    tagged ORI   .it : return { opORI,   it.rsrc,  it.rdest,  it.imm                      }; 
+    tagged XORI  .it : return { opXORI,  it.rsrc,  it.rdest,  it.imm                      }; 
+    tagged LUI   .it : return { opLUI,   5'b0,     it.rdest,  it.imm                      };
 
-      tagged ADDIU .it : return { opADDIU, it.rsrc,  it.rdest,  it.imm                      }; 
-      tagged SLTI  .it : return { opSLTI,  it.rsrc,  it.rdest,  it.imm                      }; 
-      tagged SLTIU .it : return { opSLTIU, it.rsrc,  it.rdest,  it.imm                      }; 
-      tagged ANDI  .it : return { opANDI,  it.rsrc,  it.rdest,  it.imm                      }; 
-      tagged ORI   .it : return { opORI,   it.rsrc,  it.rdest,  it.imm                      }; 
-      tagged XORI  .it : return { opXORI,  it.rsrc,  it.rdest,  it.imm                      }; 
-      tagged LUI   .it : return { opLUI,   5'b0,     it.rdest,  it.imm                      };
+    tagged SLL   .it : return { opFUNC,  5'b0,     it.rsrc,  it.rdest,   it.shamt, fcSLL  }; 
+    tagged SRL   .it : return { opFUNC,  5'b0,     it.rsrc,  it.rdest,   it.shamt, fcSRL  }; 
+    tagged SRA   .it : return { opFUNC,  5'b0,     it.rsrc,  it.rdest,   it.shamt, fcSRA  }; 
 
-      tagged SLL   .it : return { opFUNC,  5'b0,     it.rsrc,  it.rdest,   it.shamt, fcSLL  }; 
-      tagged SRL   .it : return { opFUNC,  5'b0,     it.rsrc,  it.rdest,   it.shamt, fcSRL  }; 
-      tagged SRA   .it : return { opFUNC,  5'b0,     it.rsrc,  it.rdest,   it.shamt, fcSRA  }; 
+    tagged SLLV  .it : return { opFUNC,  it.rshamt, it.rsrc, it.rdest,   5'b0,     fcSLLV }; 
+    tagged SRLV  .it : return { opFUNC,  it.rshamt, it.rsrc, it.rdest,   5'b0,     fcSRLV }; 
+    tagged SRAV  .it : return { opFUNC,  it.rshamt, it.rsrc, it.rdest,   5'b0,     fcSRAV }; 
 
-      tagged SLLV  .it : return { opFUNC,  it.rshamt, it.rsrc, it.rdest,   5'b0,     fcSLLV }; 
-      tagged SRLV  .it : return { opFUNC,  it.rshamt, it.rsrc, it.rdest,   5'b0,     fcSRLV }; 
-      tagged SRAV  .it : return { opFUNC,  it.rshamt, it.rsrc, it.rdest,   5'b0,     fcSRAV }; 
+    tagged ADDU  .it : return { opFUNC,  it.rsrc1, it.rsrc2, it.rdest,   5'b0,     fcADDU }; 
+    tagged SUBU  .it : return { opFUNC,  it.rsrc1, it.rsrc2, it.rdest,   5'b0,     fcSUBU }; 
+    tagged AND   .it : return { opFUNC,  it.rsrc1, it.rsrc2, it.rdest,   5'b0,     fcAND  }; 
+    tagged OR    .it : return { opFUNC,  it.rsrc1, it.rsrc2, it.rdest,   5'b0,     fcOR   }; 
+    tagged XOR   .it : return { opFUNC,  it.rsrc1, it.rsrc2, it.rdest,   5'b0,     fcXOR  }; 
+    tagged NOR   .it : return { opFUNC,  it.rsrc1, it.rsrc2, it.rdest,   5'b0,     fcNOR  }; 
+    tagged SLT   .it : return { opFUNC,  it.rsrc1, it.rsrc2, it.rdest,   5'b0,     fcSLT  }; 
+    tagged SLTU  .it : return { opFUNC,  it.rsrc1, it.rsrc2, it.rdest,   5'b0,     fcSLTU }; 
 
-      tagged ADDU  .it : return { opFUNC,  it.rsrc1, it.rsrc2, it.rdest,   5'b0,     fcADDU }; 
-      tagged SUBU  .it : return { opFUNC,  it.rsrc1, it.rsrc2, it.rdest,   5'b0,     fcSUBU }; 
-      tagged AND   .it : return { opFUNC,  it.rsrc1, it.rsrc2, it.rdest,   5'b0,     fcAND  }; 
-      tagged OR    .it : return { opFUNC,  it.rsrc1, it.rsrc2, it.rdest,   5'b0,     fcOR   }; 
-      tagged XOR   .it : return { opFUNC,  it.rsrc1, it.rsrc2, it.rdest,   5'b0,     fcXOR  }; 
-      tagged NOR   .it : return { opFUNC,  it.rsrc1, it.rsrc2, it.rdest,   5'b0,     fcNOR  }; 
-      tagged SLT   .it : return { opFUNC,  it.rsrc1, it.rsrc2, it.rdest,   5'b0,     fcSLT  }; 
-      tagged SLTU  .it : return { opFUNC,  it.rsrc1, it.rsrc2, it.rdest,   5'b0,     fcSLTU }; 
+    tagged J     .it : return { opJ,     it.target                                       }; 
+    tagged JAL   .it : return { opJAL,   it.target                                       }; 
+    tagged JR    .it : return { opFUNC,  it.rsrc,  5'b0,     5'b0,      5'b0,     fcJR   };
+    tagged JALR  .it : return { opFUNC,  it.rsrc,  5'b0,     it.rdest,   5'b0,     fcJALR };
+    tagged BEQ   .it : return { opBEQ,   it.rsrc1, it.rsrc2, it.offset                   }; 
+    tagged BNE   .it : return { opBNE,   it.rsrc1, it.rsrc2, it.offset                   }; 
+    tagged BLEZ  .it : return { opBLEZ,  it.rsrc,  5'b0,     it.offset                   }; 
+    tagged BGTZ  .it : return { opBGTZ,  it.rsrc,  5'b0,     it.offset                   }; 
+    tagged BLTZ  .it : return { opRT,    it.rsrc,  rtBLTZ,   it.offset                   }; 
+    tagged BGEZ  .it : return { opRT,    it.rsrc,  rtBGEZ,   it.offset                   }; 
 
-      tagged J     .it : return { opJ,     it.target                                       }; 
-      tagged JAL   .it : return { opJAL,   it.target                                       }; 
-      tagged JR    .it : return { opFUNC,  it.rsrc,  5'b0,     5'b0,      5'b0,     fcJR   };
-      tagged JALR  .it : return { opFUNC,  it.rsrc,  5'b0,     it.rdest,   5'b0,     fcJALR };
-      tagged BEQ   .it : return { opBEQ,   it.rsrc1, it.rsrc2, it.offset                   }; 
-      tagged BNE   .it : return { opBNE,   it.rsrc1, it.rsrc2, it.offset                   }; 
-      tagged BLEZ  .it : return { opBLEZ,  it.rsrc,  5'b0,     it.offset                   }; 
-      tagged BGTZ  .it : return { opBGTZ,  it.rsrc,  5'b0,     it.offset                   }; 
-      tagged BLTZ  .it : return { opRT,    it.rsrc,  rtBLTZ,   it.offset                   }; 
-      tagged BGEZ  .it : return { opRT,    it.rsrc,  rtBGEZ,   it.offset                   }; 
+    //tagged MFC0  .it : return { opRS,    rsMFC0,   it.rdest,  it.cop0src, 11'b0           }; 
+    //tagged MTC0  .it : return { opRS,    rsMTC0,   it.rsrc,  it.cop0dest, 11'b0           }; 
+    tagged TERMINATE  .it : return { opRS, rsTERMINATE, 21'b0           };  
 
-      //tagged MFC0  .it : return { opRS,    rsMFC0,   it.rdest,  it.cop0src, 11'b0           }; 
-      //tagged MTC0  .it : return { opRS,    rsMTC0,   it.rsrc,  it.cop0dest, 11'b0           }; 
-      tagged TERMINATE  .it : return { opRS, rsTERMINATE, 21'b0           };  
+  endcase
 
-    endcase
+endfunction
 
-  endfunction
+  // Bit#(32) to Inst Function
 
-  // Unpack Function
+function Inst bitsToInst( Bit#(32) instrBits );
 
-  function Inst unpack( Bit#(32) instrBits );
+  let opcode = instrBits[ 31 : 26 ];
+  let rs     = instrBits[ 25 : 21 ];
+  let rt     = instrBits[ 20 : 16 ];
+  let rd     = instrBits[ 15 : 11 ];
+  let shamt  = instrBits[ 10 :  6 ];
+  let funct  = instrBits[  5 :  0 ];
+  let imm    = instrBits[ 15 :  0 ];
+  let target = instrBits[ 25 :  0 ];
 
-    let opcode = instrBits[ 31 : 26 ];
-    let rs     = instrBits[ 25 : 21 ];
-    let rt     = instrBits[ 20 : 16 ];
-    let rd     = instrBits[ 15 : 11 ];
-    let shamt  = instrBits[ 10 :  6 ];
-    let funct  = instrBits[  5 :  0 ];
-    let imm    = instrBits[ 15 :  0 ];
-    let target = instrBits[ 25 :  0 ];
+  case (opcode)
 
-    case ( opcode )
+    opLW        : return LW    { rbase:rs, rdest:rt,  offset:imm  };
+    opSW        : return SW    { rbase:rs, rsrc:rt,  offset:imm  };
+    opADDIU     : return ADDIU { rsrc:rs,  rdest:rt,  imm:imm     };
+    opSLTI      : return SLTI  { rsrc:rs,  rdest:rt,  imm:imm     };
+    opSLTIU     : return SLTIU { rsrc:rs,  rdest:rt,  imm:imm     };
+    opANDI      : return ANDI  { rsrc:rs,  rdest:rt,  imm:imm     };
+    opORI       : return ORI   { rsrc:rs,  rdest:rt,  imm:imm     };
+    opXORI      : return XORI  { rsrc:rs,  rdest:rt,  imm:imm     };
+    opLUI       : return LUI   {           rdest:rt,  imm:imm     };
+    opJ         : return J     { target:target                   };
+    opJAL       : return JAL   { target:target                   };
+    opBEQ       : return BEQ   { rsrc1:rs, rsrc2:rt, offset:imm  };
+    opBNE       : return BNE   { rsrc1:rs, rsrc2:rt, offset:imm  };
+    opBLEZ      : return BLEZ  { rsrc:rs,  offset:imm            };
+    opBGTZ      : return BGTZ  { rsrc:rs,  offset:imm            };
 
-      opLW        : return LW    { rbase:rs, rdest:rt,  offset:imm  };
-      opSW        : return SW    { rbase:rs, rsrc:rt,  offset:imm  };
-      opADDIU     : return ADDIU { rsrc:rs,  rdest:rt,  imm:imm     };
-      opSLTI      : return SLTI  { rsrc:rs,  rdest:rt,  imm:imm     };
-      opSLTIU     : return SLTIU { rsrc:rs,  rdest:rt,  imm:imm     };
-      opANDI      : return ANDI  { rsrc:rs,  rdest:rt,  imm:imm     };
-      opORI       : return ORI   { rsrc:rs,  rdest:rt,  imm:imm     };
-      opXORI      : return XORI  { rsrc:rs,  rdest:rt,  imm:imm     };
-      opLUI       : return LUI   {           rdest:rt,  imm:imm     };
-      opJ         : return J     { target:target                   };
-      opJAL       : return JAL   { target:target                   };
-      opBEQ       : return BEQ   { rsrc1:rs, rsrc2:rt, offset:imm  };
-      opBNE       : return BNE   { rsrc1:rs, rsrc2:rt, offset:imm  };
-      opBLEZ      : return BLEZ  { rsrc:rs,  offset:imm            };
-      opBGTZ      : return BGTZ  { rsrc:rs,  offset:imm            };
+    opFUNC  : 
+      case (funct)
+        fcSLL   : return SLL   { rsrc:rt,  rdest:rd,  shamt:shamt };
+        fcSRL   : return SRL   { rsrc:rt,  rdest:rd,  shamt:shamt };
+        fcSRA   : return SRA   { rsrc:rt,  rdest:rd,  shamt:shamt };
+        fcSLLV  : return SLLV  { rsrc:rt,  rdest:rd,  rshamt:rs   };
+        fcSRLV  : return SRLV  { rsrc:rt,  rdest:rd,  rshamt:rs   };
+        fcSRAV  : return SRAV  { rsrc:rt,  rdest:rd,  rshamt:rs   };
+        fcADDU  : return ADDU  { rsrc1:rs, rsrc2:rt, rdest:rd     };
+        fcSUBU  : return SUBU  { rsrc1:rs, rsrc2:rt, rdest:rd     };
+        fcAND   : return AND   { rsrc1:rs, rsrc2:rt, rdest:rd     };
+        fcOR    : return OR    { rsrc1:rs, rsrc2:rt, rdest:rd     };
+        fcXOR   : return XOR   { rsrc1:rs, rsrc2:rt, rdest:rd     };
+        fcNOR   : return NOR   { rsrc1:rs, rsrc2:rt, rdest:rd     };
+        fcSLT   : return SLT   { rsrc1:rs, rsrc2:rt, rdest:rd     }; 
+        fcSLTU  : return SLTU  { rsrc1:rs, rsrc2:rt, rdest:rd     };
+        fcJR    : return JR    { rsrc:rs                         };
+        fcJALR  : return JALR  { rsrc:rs,  rdest:rd               };
+        default : return ILLEGAL;
+      endcase
 
-      opFUNC  : 
-        case ( funct )
-          fcSLL   : return SLL   { rsrc:rt,  rdest:rd,  shamt:shamt };
-          fcSRL   : return SRL   { rsrc:rt,  rdest:rd,  shamt:shamt };
-          fcSRA   : return SRA   { rsrc:rt,  rdest:rd,  shamt:shamt };
-          fcSLLV  : return SLLV  { rsrc:rt,  rdest:rd,  rshamt:rs   };
-          fcSRLV  : return SRLV  { rsrc:rt,  rdest:rd,  rshamt:rs   };
-          fcSRAV  : return SRAV  { rsrc:rt,  rdest:rd,  rshamt:rs   };
-          fcADDU  : return ADDU  { rsrc1:rs, rsrc2:rt, rdest:rd     };
-          fcSUBU  : return SUBU  { rsrc1:rs, rsrc2:rt, rdest:rd     };
-          fcAND   : return AND   { rsrc1:rs, rsrc2:rt, rdest:rd     };
-          fcOR    : return OR    { rsrc1:rs, rsrc2:rt, rdest:rd     };
-          fcXOR   : return XOR   { rsrc1:rs, rsrc2:rt, rdest:rd     };
-          fcNOR   : return NOR   { rsrc1:rs, rsrc2:rt, rdest:rd     };
-          fcSLT   : return SLT   { rsrc1:rs, rsrc2:rt, rdest:rd     }; 
-          fcSLTU  : return SLTU  { rsrc1:rs, rsrc2:rt, rdest:rd     };
-          fcJR    : return JR    { rsrc:rs                         };
-          fcJALR  : return JALR  { rsrc:rs,  rdest:rd               };
-          default : return ILLEGAL;
-        endcase
+    opRT : 
+      case (rt)
+        rtBLTZ  : return BLTZ  { rsrc:rs,  offset:imm            };
+        rtBGEZ  : return BGEZ  { rsrc:rs,  offset:imm            };
+        default : return ILLEGAL;
+      endcase
 
-      opRT : 
-        case ( rt )
-          rtBLTZ  : return BLTZ  { rsrc:rs,  offset:imm            };
-          rtBGEZ  : return BGEZ  { rsrc:rs,  offset:imm            };
-          default : return ILLEGAL;
-        endcase
+    opRS : 
+      case (rs)
+        //rsMFC0  : return MFC0  { rdest:rt,  cop0src:rd            };
+        //rsMTC0  : return MTC0  { rsrc:rt,  cop0dest:rd            };
+	rsTERMINATE : return TERMINATE;
+        default : return ILLEGAL;
+      endcase
 
-      opRS : 
-        case ( rs )
-          //rsMFC0  : return MFC0  { rdest:rt,  cop0src:rd            };
-          //rsMTC0  : return MTC0  { rsrc:rt,  cop0dest:rd            };
-	  rsTERMINATE : return TERMINATE;
-          default : return ILLEGAL;
-        endcase
+    default : return ILLEGAL;
 
-      default : return ILLEGAL;
-      
-    endcase
+  endcase
 
-  endfunction
-
-endinstance
+endfunction
 
 
 //Decoded Instruction
