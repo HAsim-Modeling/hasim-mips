@@ -444,3 +444,25 @@ Directory admin/packages
 
 
 Added dependency on package hasim/HEAD
+
+----------
+pellauer    Date: Thu Nov 16 14:50:13 EST 2006  CSN: CSN-hasim-mips-30
+                  Thu Nov 16 19:50:13 UTC 2006
+
+
+Directory modules/functional/mips
+ FUNCP_FetchAlg.bsv        Locally Modified           29 
+
+Directory modules/functional/smips
+ FUNCP_DecodeAlg.bsv       Locally Modified           29 
+
+Directory modules/chip/mips/5stage-ports
+ Chip.bsv                  Locally Modified           29 
+
+Directory modules/isa/smips
+ ISA.bsv                   Locally Modified           29 
+
+
+Fixed bugs from the previous checkin.
+
+Michael

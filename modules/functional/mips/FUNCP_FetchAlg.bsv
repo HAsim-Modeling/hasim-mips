@@ -64,7 +64,7 @@ module [HASim_Module] mkFUNCP_FetchAlg ();
   
     debug_rule("getMemResp");
     
-    Inst resp <- link_to_imem.getResp();
+    PackedInst resp <- link_to_imem.getResp();
     
     match {.tok, .addr} = waitingQ.first();
     waitingQ.deq();

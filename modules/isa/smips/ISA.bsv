@@ -22,6 +22,7 @@ import hasim_common::*;
 
 typedef Bit#(32) Tick;
 typedef Bit#(32) Addr;
+typedef Bit#(32) PackedInst;
 typedef Bit#(5)  RName;
 typedef Bit#(6)  PRName;
 typedef Bit#(32) Value;

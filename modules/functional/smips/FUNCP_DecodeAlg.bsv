@@ -241,7 +241,7 @@ module [HASim_Module] mkFUNCP_DecodeAlg ();
     
     match {.t, {.a, .pinst}, .*} = tup;
     
-    Inst inst = unpack(pinst);
+    Inst inst = bitsToInst(pinst);
     //Get the architectural dest/sources
     RName ara = getOp1(inst);
     RName arb = getOp2(inst);
@@ -254,7 +254,7 @@ module [HASim_Module] mkFUNCP_DecodeAlg ();
     
     link_mapping.makeReq(tuple3(mrd, t, rewind));
     
-    waitingQ.enq(tuple3(t, a, inst));
+    waitingQ.enq(tuple3(t, a, pinst));
         
   endrule
   //handleDecode
@@ -265,7 +265,8 @@ module [HASim_Module] mkFUNCP_DecodeAlg ();
       
     debug_rule("handleResponse");
     
-    match {.tok, .a, .inst} = waitingQ.first();
+    match {.tok, .a, .pinst} = waitingQ.first();
+    Inst inst = bitsToInst(pinst);
     waitingQ.deq();
     
     DepInfo depinfo = ?;
