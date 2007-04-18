@@ -1,0 +1,20 @@
+#/********************************************************************
+# *
+# * Awb module specification
+# *
+# *******************************************************************/
+
+#/*
+# %AWB_START
+#
+# %name SMIPS R10K-like simple issue unit
+# %desc SMIPS R10K-like simple issue unit
+# %provides hasim_issue
+#
+# %attributes sk10k mips hasim
+#
+# %public s10k_issue_simple.bsv
+#
+# %AWB_END
+# */
+
