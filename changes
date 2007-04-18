@@ -548,3 +548,26 @@ Directory modules/memory
 Initial commit of SMIPS R10K like core and
 magic memory
 
+
+----------
+jsemer      Date: Wed Apr 18 17:40:57 EDT 2007  CSN: CSN-hasim-mips-32
+                  Wed Apr 18 21:40:57 UTC 2007
+
+
+Directory config/pm/hasim-mips
+ smips-5stage/             Locally Added               0 
+
+Directory config/pm/hasim-mips/smips-5stage
+ hasim_smips_5stage.apm    Locally Added               0 
+ hasim_smips_5stage_ports.apm Locally Added               0 
+
+Directory config/pm/hasim-mips
+ toymips/                  Locally Added               0 
+
+Directory config/pm/hasim-mips/toymips
+ hasim_toymips_simple.apm  Locally Added               0 
+
+Moved smips and toymips models from hasim repository to
+hasim-mips repository.
+
+Joel
