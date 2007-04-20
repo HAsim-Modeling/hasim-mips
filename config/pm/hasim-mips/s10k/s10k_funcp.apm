@@ -1,0 +1,96 @@
+
+[Hasim simple controller]
+Packagehint=hasim
+File=modules/controller/simple/hasim_simple_controller.awb
+
+[Global]
+SaveParameters=0
+Description=SMIPS R10K Core w/ functional partition submodel
+File=s10k_funcp
+Version=2.0
+Name=SMIPS R10K Core
+Type=HAsim
+
+[Hasim - Hardware (fpga) based system/Requires]
+hasim_funcp=Hasim functional partition
+hasim_chip=Uniprocessor chip
+hasim_isa=Hasim - SMIPS ISA
+
+[Hasim base library]
+Packagehint=hasim
+File=modules/common/hasim_common.awb
+
+[Model]
+DefaultAttributes=s10k smips hasim
+model=HAsim Model Foundation
+
+[Hasim - Hardware (fpga) based system]
+Packagehint=hasim
+File=modules/system/single_chip_system/hasim_system.awb
+
+[HAsim Model Foundation]
+Packagehint=hasim
+File=modules/model/hasim_model.awb
+
+[Hasim functional partition]
+Packagehint=hasim-mips
+File=config/pm/hasim-mips/submodels/funcp/smips-funcp-fpga.apm
+
+[HAsim Model Foundation/Requires]
+hasim_system=Hasim - Hardware (fpga) based system
+hasim_controller=Hasim simple controller
+hasim_common=Hasim base library
+
+[Hasim - SMIPS ISA]
+Packagehint=hasim-mips
+File=modules/isa/smips/hasim_smips_isa.awb
+
+[Hasim FPGA library XUP board]
+Packagehint=hasim
+File=modules/common/fpgalib/xup/hasim_fpgalib_xup.awb
+
+[Hasim base library/Requires]
+hasim_fpgalib=Hasim FPGA library XUP board
+hasim_base=Hasim base module
+
+[Hasim base module]
+File=modules/common/base/hasim_base.awb
+Packagehint=hasim
+
+[Uniprocessor chip/Requires]
+hasim_memory=magic memory
+hasim_cpu=SMIPS R10K-like cpu
+
+[Uniprocessor chip]
+File=modules/chip/mips/uniprocessor/uniprocessor.awb
+Packagehint=hasim-mips
+
+[SMIPS R10K-like simple execute unit]
+File=modules/cpu/mips/s10k/execute/s10k_simple/s10k_execute_simple.awb
+Packagehint=hasim-mips
+
+[SMIPS R10K-like simple decode unit]
+File=modules/cpu/mips/s10k/decode/s10k_simple/s10k_decode_simple.awb
+Packagehint=hasim-mips
+
+[SMIPS R10K-like cpu]
+File=modules/cpu/mips/s10k/s10k_cpu.awb
+Packagehint=hasim-mips
+
+[SMIPS R10K-like cpu/Requires]
+hasim_decode=SMIPS R10K-like simple decode unit
+hasim_execute=SMIPS R10K-like simple execute unit
+hasim_issue=SMIPS R10K-like simple issue unit
+hasim_fetch=SMIPS R10K-like simple fetch unit
+
+[SMIPS R10K-like simple fetch unit]
+File=modules/cpu/mips/s10k/fetch/s10k_simple/s10k_fetch_simple.awb
+Packagehint=hasim-mips
+
+[SMIPS R10K-like simple issue unit]
+File=modules/cpu/mips/s10k/issue/s10k_simple/s10k_issue_simple.awb
+Packagehint=hasim-mips
+
+[magic memory]
+File=modules/memory/magic_memory.awb
+Packagehint=hasim-mips
