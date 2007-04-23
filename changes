@@ -596,3 +596,20 @@ Added a submodel for the functional partition and added a 5stage
 and s10k model that uses the submodel.
 
 Joel
+
+----------
+vmurali     Date: Mon Apr 23 09:56:02 EDT 2007  CSN: CSN-hasim-mips-34
+                  Mon Apr 23 13:56:02 UTC 2007
+
+
+Directory modules/cpu/mips/s10k/decode/s10k_simple
+ s10k_decode_simple.bsv    Locally Modified           33 
+
+Directory modules/cpu/mips/s10k/fetch/s10k_simple
+ s10k_fetch_simple.bsv     Locally Modified           33 
+
+Simple Fetch unit. Not compatible with current decode, 
+but almost compatible with the commented portion of decode. 
+Has 2 receive ports from decode saying branch-predict and numOfInsts, 
+1 receive port from execute saying mispredict and finally 
+1 send port to decode to send the instructions

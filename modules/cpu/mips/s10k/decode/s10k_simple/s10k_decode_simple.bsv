@@ -1,13 +1,106 @@
-
 import hasim_base::*;
 import hasim_fpgalib::*;
 import hasim_common::*;
-
 import hasim_isa::*;
+
+import FIFOF::*;
 
 interface Decode;
     method Bool done();
 endinterface
+
+typedef 4 NumInst;
+typedef Bit#(TLog#(TAdd#(NumInst,1))) Count;
+Addr pcStart = 0;
+
+typedef Bit#(TLog#(TAdd#(TMul#(2,NumInst),1))) InstBufferCount;
+
+typedef enum {FetchInst, DecodeInst, Finish} State deriving (Bits, Eq);
+
+/*
+module [HASim_Module] mkDecode(Decode);
+    Connection_Receive#(Tuple2#(Token, PackedInst)) fpFetchResp <- mkConnection_Receive("fp_fet_resp");
+
+    Connection_Send#(Tuple2#(Token, void))          fpDecodeReq <- mkConnection_Send("fp_dec_req");
+    Connection_Receive#(Tuple2#(Token, DepInfo))   fpDecodeResp <- mkConnection_Receive("fp_dec_resp");
+
+    Port_Receive#(Tuple2#(Token, Addr))           tokenAddrPort <- mkPort_Receive("fetchToDecode_TokenAddr", valueOf(NumInst));
+    Port_Receive#(Tuple2#(Token, void))        mispredictedPort <- mkPort_Receive("execToDecode_Mispredicted", 1);
+    Port_Send#(Count)                             decodeNumPort <- mkPort_Send("decodeToFetch_DecodeNum");
+    Port_Send#(Addr)                         predictedTakenPort <- mkPort_Send("decodeToFetch_PredictedTaken");
+
+    Reg#(State)                                           state <- mkReg(ReplyToFetch);
+
+    Reg#(Count)                                      fetchCount <- mkReg(?);
+    Reg#(Count)                                     decodeCount <- mkReg(valueOf(NumInst));
+    Reg#(Maybe#(Addr))                              predictedPC <- mkReg(tagged Invalid);
+    Reg#(LogFreeListSize)                         freeListCount <- mkReg(valueOf(FreeListSize));
+    Reg#(LogActiveListSize)                     activeListCount <- mkReg(valueOf(ActiveListSize));
+    Reg#(LogIntQSize)                                 intQCount <- mkReg(valueOf(IntQSize));
+    Reg#(LogAddrQSize)                               addrQCount <- mkReg(valueOf(AddrQSize));
+
+    FIFOF#(Tuple2#(Token, Addr))                     instBuffer <- mkSizedFIFOF(2*valueOf(NumInst));
+    Reg#(Bool)                                   killInstBuffer <- mkReg(False);
+    Reg#(Bool)                               nextKillInstBuffer <- mkReg(?);
+
+    rule replyToFetch(state == Finish);
+        decodeNumPort.send(tagged Valid decodeCount);
+        predictedTakenPort.send(predictedPC);
+        fetchCount <= 0;
+        state      <= FetchInst;
+    endrule
+
+    rule fetchInst(state == FetchInst && fetchCount < valueOf(NumInst));
+        fetchCountLeft <= fetchCountLeft + 1;
+        tokenAddr      <- tokenAddrPort.receive();
+        mispredicted   <- mispredictedPort.receive();
+        if(isValid(tokenAddr))
+        begin
+            fpDecodeReq.send(tpl_1(validValue(tokenAddr)), ?);
+            instBuffer.enq(validValue(tokenAddr));
+        end
+        if(fetchCount == valueOf(NumInst) - 1)
+            state <= DecodeInst;
+
+        //Set it in later stages if this is not valid
+        decodeCount <= valueOf(NumInst);
+        predictedPC <= tagged Invalid;
+        nextKillInstBuffer <= False;
+    endrule
+
+    rule decodeInstKillInst(state == DecodeInst && killInstBuffer && instBuffer.notEmpty());
+        let fetchResp  <- fpFetchResp.receive();
+        let decodeResp <- fpDecodeResp.receive();
+        instBuffer.deq();
+        killFetchDecode(token);
+    endrule
+
+    rule decodeInstKillInstFinish(state == DecodeInst && killInstBuffer && !instBuffer.notEmpty());
+        killInstBuffer <= nextKillInstBuffer;
+        state <= Finish;
+    endrule
+
+    rule decodeInstNormal(state == DecodeInst && !killInstBuffer);
+        match{.token, .inst}      <- fpFetchResp.receive();
+        match{.tokenInst, .addr}   = instBuffer.first();
+        match{.tokenDecode, .dep} <- fpDecodeResp.receive();
+        instBuffer.deq();
+
+        decodeCount <= decodeCount + 1;
+
+        if(isJump(inst) || (isBranch(inst) && isPredictedTaken(addr)))
+        begin
+            nextKillInstBuffer <= True;
+            killInstBuffer     <= True;
+            predictedPC        <= getPredictedPC(inst, addr);
+        end
+
+        if(decodeCount == valueOf(NumInst)-1)
+            state <= Finish;
+    endrule
+
+endmodule
+*/
 
 module [HASim_Module] mkDecode
     //interface:
@@ -26,6 +119,7 @@ module [HASim_Module] mkDecode
     
   Connection_Send#(Token) link_memstate_kill <- mkConnection_Send("fp_memstate_kill");
 
+  Connection_Send#(Token)     fpTokenKill <- mkConnection_Send("fp_tok_kill");
   Connection_Send#(Token)     fp_fet_kill <- mkConnection_Send("fp_fet_kill");
   Connection_Send#(Token)     fp_dec_kill <- mkConnection_Send("fp_dec_kill");
   Connection_Send#(Token)     fp_exe_kill <- mkConnection_Send("fp_exe_kill");
