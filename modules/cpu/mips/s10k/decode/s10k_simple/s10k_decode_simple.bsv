@@ -17,7 +17,6 @@ typedef Bit#(TLog#(TAdd#(TMul#(2,NumInst),1))) InstBufferCount;
 
 typedef enum {FetchInst, DecodeInst, Finish} State deriving (Bits, Eq);
 
-/*
 module [HASim_Module] mkDecode(Decode);
     Connection_Receive#(Tuple2#(Token, PackedInst)) fpFetchResp <- mkConnection_Receive("fp_fet_resp");
 
@@ -29,19 +28,30 @@ module [HASim_Module] mkDecode(Decode);
     Port_Send#(Count)                             decodeNumPort <- mkPort_Send("decodeToFetch_DecodeNum");
     Port_Send#(Addr)                         predictedTakenPort <- mkPort_Send("decodeToFetch_PredictedTaken");
 
-    Reg#(State)                                           state <- mkReg(ReplyToFetch);
+    Reg#(State)                                           state <- mkReg(Finish);
 
     Reg#(Count)                                      fetchCount <- mkReg(?);
-    Reg#(Count)                                     decodeCount <- mkReg(valueOf(NumInst));
+    Reg#(Count)                                     decodeCount <- mkReg(fromInteger(valueOf(NumInst)));
     Reg#(Maybe#(Addr))                              predictedPC <- mkReg(tagged Invalid);
-    Reg#(LogFreeListSize)                         freeListCount <- mkReg(valueOf(FreeListSize));
-    Reg#(LogActiveListSize)                     activeListCount <- mkReg(valueOf(ActiveListSize));
-    Reg#(LogIntQSize)                                 intQCount <- mkReg(valueOf(IntQSize));
-    Reg#(LogAddrQSize)                               addrQCount <- mkReg(valueOf(AddrQSize));
+    //Reg#(LogFreeListSize)                         freeListCount <- mkReg(valueOf(FreeListSize));
+    //Reg#(LogActiveListSize)                     activeListCount <- mkReg(valueOf(ActiveListSize));
+    //Reg#(LogIntQSize)                                 intQCount <- mkReg(valueOf(IntQSize));
+    //Reg#(LogAddrQSize)                               addrQCount <- mkReg(valueOf(AddrQSize));
 
-    FIFOF#(Tuple2#(Token, Addr))                     instBuffer <- mkSizedFIFOF(2*valueOf(NumInst));
+    FIFOF#(Tuple2#(Token, Addr))                     instBuffer <- mkSizedFIFOF(2*fromInteger(valueOf(NumInst)));
     Reg#(Bool)                                   killInstBuffer <- mkReg(False);
     Reg#(Bool)                               nextKillInstBuffer <- mkReg(?);
+
+    function Action killFetchDecode(Token tok);
+    action
+        noAction;
+    endaction
+    endfunction
+
+    function isJump(Inst inst) = True;
+    function isBranch(Inst inst) = True;
+    function isPredictedTaken(Addr addr) = True;
+    function getPredictedPC(Inst inst, Addr addr) = tagged Invalid;
 
     rule replyToFetch(state == Finish);
         decodeNumPort.send(tagged Valid decodeCount);
@@ -50,26 +60,26 @@ module [HASim_Module] mkDecode(Decode);
         state      <= FetchInst;
     endrule
 
-    rule fetchInst(state == FetchInst && fetchCount < valueOf(NumInst));
-        fetchCountLeft <= fetchCountLeft + 1;
-        tokenAddr      <- tokenAddrPort.receive();
-        mispredicted   <- mispredictedPort.receive();
+    rule fetchInst(state == FetchInst && fetchCount < fromInteger(valueOf(NumInst)));
+        fetchCount       <= fetchCount + 1;
+        let tokenAddr    <- tokenAddrPort.receive();
+        let mispredicted <- mispredictedPort.receive();
         if(isValid(tokenAddr))
         begin
-            fpDecodeReq.send(tpl_1(validValue(tokenAddr)), ?);
+            fpDecodeReq.send(tuple2(tpl_1(validValue(tokenAddr)), ?));
             instBuffer.enq(validValue(tokenAddr));
         end
-        if(fetchCount == valueOf(NumInst) - 1)
+        if(fetchCount == fromInteger(valueOf(NumInst)) - 1)
             state <= DecodeInst;
 
         //Set it in later stages if this is not valid
-        decodeCount <= valueOf(NumInst);
+        decodeCount <= fromInteger(valueOf(NumInst));
         predictedPC <= tagged Invalid;
         nextKillInstBuffer <= False;
     endrule
 
     rule decodeInstKillInst(state == DecodeInst && killInstBuffer && instBuffer.notEmpty());
-        let fetchResp  <- fpFetchResp.receive();
+        match {.token, .inst}  <- fpFetchResp.receive();
         let decodeResp <- fpDecodeResp.receive();
         instBuffer.deq();
         killFetchDecode(token);
@@ -95,13 +105,13 @@ module [HASim_Module] mkDecode(Decode);
             predictedPC        <= getPredictedPC(inst, addr);
         end
 
-        if(decodeCount == valueOf(NumInst)-1)
+        if(decodeCount == fromInteger(valueOf(NumInst))-1)
             state <= Finish;
     endrule
 
 endmodule
-*/
 
+/*
 module [HASim_Module] mkDecode
     //interface:
                 (Decode);
@@ -152,3 +162,4 @@ module [HASim_Module] mkDecode
     endmethod
 
 endmodule
+*/

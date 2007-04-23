@@ -613,3 +613,13 @@ but almost compatible with the commented portion of decode.
 Has 2 receive ports from decode saying branch-predict and numOfInsts, 
 1 receive port from execute saying mispredict and finally 
 1 send port to decode to send the instructions
+
+----------
+vmurali     Date: Mon Apr 23 10:21:28 EDT 2007  CSN: CSN-hasim-mips-35
+                  Mon Apr 23 14:21:28 UTC 2007
+
+
+Directory modules/cpu/mips/s10k/decode/s10k_simple
+ s10k_decode_simple.bsv    Locally Modified           34 
+
+Interface of decode unit with Fetch unit complete. The ROB, and issue/exec interface left.
