@@ -4,6 +4,7 @@ import hasim_common::*;
 import hasim_isa::*;
 
 import FIFOF::*;
+import Vector::*;
 
 typedef 4 NumInst;
 typedef Bit#(TLog#(TAdd#(NumInst,1))) Count;
@@ -17,16 +18,17 @@ module [HASim_Module] mkFetch();
 
     Connection_Send#(Tuple2#(Token, Addr)) fpFetchReq  <- mkConnection_Send("fp_fet_req");
 
-    Port_Send#(Tuple2#(Token, Addr))     tokenAddrPort <- mkPort_Send("fetchToDecode_TokenAddr");
-
     Port_Receive#(Count)                 decodeNumPort <- mkPort_Receive("decodeToFetch_DecodeNum", 1);
     Port_Receive#(Addr)             predictedTakenPort <- mkPort_Receive("decodeToFetch_PredictedTaken", 1);
     Port_Receive#(Addr)                 mispredictPort <- mkPort_Receive("executeToFetch_Mispredict", 1);
 
+    function sendFunctionM(Integer i) = mkPort_Send(strConcat("fetchToDecode_TokenAddr", fromInteger(i)));
+    Vector#(NumInst, Port_Send#(Tuple2#(Token, Addr))) tokenAddrPort <- genWithM(sendFunctionM);
+
     Reg#(Addr)                                      pc <- mkReg(pcStart);
     Reg#(Count)                                  count <- mkReg(0);
     Reg#(Bit#(32))                             latency <- mkReg(?); //Actual model latency * 4
-    Reg#(Count)                              remaining <- mkReg(0);
+    Reg#(Count)                           instPosition <- mkReg(fromInteger(valueOf(NumInst))); //This triggers only start rule
 
     //Returns model latency * 4
     function Bit#(32) getHostLatency();
@@ -40,7 +42,7 @@ module [HASim_Module] mkFetch();
         endcase
     endfunction
 
-    rule start(count == 0 && remaining == 0);
+    rule start(count == 0 && instPosition == fromInteger(valueOf(NumInst)));
         let predictedTaken <- predictedTakenPort.receive();
         let     mispredict <- mispredictPort.receive();
         let      decodeNum <- decodeNumPort.receive();
@@ -55,9 +57,9 @@ module [HASim_Module] mkFetch();
 
         pc           <= newPC;
 
-        let newCount = getCacheBoundary(newPC, decodeNum);
+        let newCount  = getCacheBoundary(newPC, decodeNum);
         count        <= newCount;
-        remaining    <= fromInteger(valueOf(NumInst)) - newCount;
+        instPosition <= 0;
 
         latency      <= getHostLatency();
 
@@ -68,13 +70,16 @@ module [HASim_Module] mkFetch();
 
     rule missWait(latency != 0 && count != 0);
         latency <= latency - 1;
+        for(Integer i = 0; i < valueOf(NumInst); i=i+1)
+            tokenAddrPort[i].send(tagged Invalid);
     endrule
 
     function Action doFetch();
     action
         let token <- fpTokenResp.receive();
         fpFetchReq.send(tuple2(token, pc));
-        tokenAddrPort.send(tagged Valid tuple2(token, pc));
+        tokenAddrPort[instPosition].send(tagged Valid tuple2(token, pc));
+        instPosition <= instPosition + 1;
         count <= count - 1;
         pc <= pc + 4;
     endaction
@@ -87,15 +92,15 @@ module [HASim_Module] mkFetch();
 
     rule finishInsts(latency == 0 && count == 1);
         doFetch();
-        if(remaining == 0)
-            $display("Fetch done");
     endrule
 
-    rule finishOverall(latency == 0 && count == 0 && remaining != 0);
-        tokenAddrPort.send(tagged Invalid);
-        remaining <= remaining - 1;
-        if(remaining == 1)
-            $display("Fetch done");
+    rule finishOverall(latency == 0 && count == 0 && instPosition != fromInteger(valueOf(NumInst)));
+        instPosition <= instPosition + 1;
+        tokenAddrPort[instPosition].send(tagged Invalid);
+    endrule
+
+    rule displayDone(instPosition == fromInteger(valueOf(NumInst)) - 1);
+        $display("Fetch done");
     endrule
 
 endmodule

@@ -4,6 +4,7 @@ import hasim_common::*;
 import hasim_isa::*;
 
 import FIFOF::*;
+import Vector::*;
 
 interface Decode;
     method Bool done();
@@ -23,10 +24,12 @@ module [HASim_Module] mkDecode(Decode);
     Connection_Send#(Tuple2#(Token, void))          fpDecodeReq <- mkConnection_Send("fp_dec_req");
     Connection_Receive#(Tuple2#(Token, DepInfo))   fpDecodeResp <- mkConnection_Receive("fp_dec_resp");
 
-    Port_Receive#(Tuple2#(Token, Addr))           tokenAddrPort <- mkPort_Receive("fetchToDecode_TokenAddr", valueOf(NumInst));
     Port_Receive#(Tuple2#(Token, void))        mispredictedPort <- mkPort_Receive("execToDecode_Mispredicted", 1);
     Port_Send#(Count)                             decodeNumPort <- mkPort_Send("decodeToFetch_DecodeNum");
     Port_Send#(Addr)                         predictedTakenPort <- mkPort_Send("decodeToFetch_PredictedTaken");
+
+    function receiveFunctionM(Integer i) = mkPort_Receive(strConcat("fetchToDecode_TokenAddr", fromInteger(i)), 1);
+    Vector#(NumInst, Port_Receive#(Tuple2#(Token, Addr))) tokenAddrPort <- genWithM(receiveFunctionM);
 
     Reg#(State)                                           state <- mkReg(Finish);
 
@@ -62,7 +65,7 @@ module [HASim_Module] mkDecode(Decode);
 
     rule fetchInst(state == FetchInst && fetchCount < fromInteger(valueOf(NumInst)));
         fetchCount       <= fetchCount + 1;
-        let tokenAddr    <- tokenAddrPort.receive();
+        let tokenAddr    <- tokenAddrPort[fetchCount].receive();
         let mispredicted <- mispredictedPort.receive();
         if(isValid(tokenAddr))
         begin
