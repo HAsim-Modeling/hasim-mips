@@ -638,3 +638,15 @@ Directory modules/cpu/mips/s10k/fetch/s10k_simple
 Changed the ports from taking inputs 
 serially to 4 parallel ports, but they are still
 filled serially
+
+----------
+jsemer      Date: Mon Apr 30 11:40:23 EDT 2007  CSN: CSN-hasim-mips-37
+                  Mon Apr 30 15:40:23 UTC 2007
+
+
+Directory config/pm/hasim-mips/submodels/funcp
+ smips-funcp-fpga.apm      Locally Modified           36 
+
+Fixed name of submodel.
+
+Joel

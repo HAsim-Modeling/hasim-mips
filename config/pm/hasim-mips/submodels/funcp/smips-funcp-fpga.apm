@@ -23,13 +23,12 @@ hasim_funcp_globalcommit_alg=Hasim mips funcp global commit algorithm
 hasim_funcp_decode_alg=Hasim smips funcp decode algorithm
 hasim_funcp_execute_alg=Hasim smips funcp execute algorithm
 
-
 [Global]
 SaveParameters=0
-Description=SMIPS R10K Core
+Description=SMIPS Functional Partition
 File=smips-funcp-fpga
 Version=2.0
-Name=SMIPS R10K Core
+Name=SMIPS Functional Partition
 Type=HAsim
 
 [Hasim functional partition/Requires]
@@ -42,7 +41,6 @@ hasim_funcp_regstate=Hasim functional partition regstate
 hasim_funcp_pipeline=Hasim functional partition pipeline
 hasim_funcp_memstate_ifc=Hasim functional partition memstate interface
 
-
 [Hasim functional partition checker]
 Packagehint=hasim
 File=modules/functional/common/hasim_funcp_checker.awb
@@ -51,9 +49,8 @@ File=modules/functional/common/hasim_funcp_checker.awb
 Packagehint=hasim
 File=modules/functional/common/hasim_funcp_pipeline.awb
 
-
 [Model]
-DefaultAttributes=s10k smips hasim
+DefaultAttributes=smips hasim
 model=Hasim functional partition
 
 [Hasim mips funcp global commit algorithm]
@@ -68,8 +65,6 @@ File=modules/functional/mips/mips_funcp_mem_alg.awb
 Packagehint=hasim-mips
 File=modules/functional/mips/mips_funcp_fetch_alg.awb
 
-
-
 [Hasim functional partition base]
 Packagehint=hasim
 File=modules/functional/common/hasim_funcp_base.awb
@@ -77,7 +72,6 @@ File=modules/functional/common/hasim_funcp_base.awb
 [Hasim functional partition]
 Packagehint=hasim
 File=modules/functional/common/hasim_funcp.awb
-
 
 [Hasim mips funcp local commit algorithm]
 Packagehint=hasim-mips
@@ -98,7 +92,6 @@ File=modules/functional/smips/smips_funcp_decode_alg.awb
 Packagehint=hasim-mips
 File=modules/functional/smips/smips_funcp_execute_alg.awb
 
-
 [Hasim smips testcase branch/Requires]
 hasim_testcase_base=Hasim test case base
 
@@ -106,18 +99,7 @@ hasim_testcase_base=Hasim test case base
 Packagehint=hasim-mips
 File=modules/functional/test-cases/smips/branch/smips_testcase_branch.awb
 
-
-
-
 [Hasim functional partition memstate interface]
 File=modules/functional/common/hasim_funcp_memstate_ifc.awb
 Packagehint=hasim
-
-
-
-
-
-
-
-
 
