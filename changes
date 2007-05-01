@@ -650,3 +650,20 @@ Directory config/pm/hasim-mips/submodels/funcp
 Fixed name of submodel.
 
 Joel
+
+----------
+vmurali     Date: Mon Apr 30 22:38:30 EDT 2007  CSN: CSN-hasim-mips-38
+                  Tue May  1 02:38:30 UTC 2007
+
+
+Directory modules/cpu/mips/s10k/decode/s10k_simple
+ s10k_decode_simple.bsv    Locally Modified           37 
+
+Directory modules/cpu/mips/s10k/fetch/s10k_simple
+ s10k_fetch_simple.bsv     Locally Modified           37 
+
+Decode unit updates. The unit more or less does everything, so
+it should rather be called dispatch unit I suppose. Currently,
+it writes rob entries. I am planning to merge issue queue with
+rob - it might be a better idea, as we dont have to worry about
+back pressure from issue queues.

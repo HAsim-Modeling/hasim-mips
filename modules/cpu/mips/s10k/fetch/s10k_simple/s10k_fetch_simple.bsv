@@ -48,20 +48,30 @@ module [HASim_Module] mkFetch();
         let      decodeNum <- decodeNumPort.receive();
 
         Addr newPC = ?;
+        Bit#(32) newLatency = ?;
         if(isValid(mispredict))
+        begin
+            newLatency = 0;
             newPC = validValue(mispredict);
+        end
         else if(isValid(predictedTaken))
+        begin
+            newLatency = getHostLatency();
             newPC = validValue(predictedTaken);
+        end
         else
+        begin
+            newLatency = getHostLatency();
             newPC = pc;
+        end
 
         pc           <= newPC;
+        latency      <= newLatency;
 
         let newCount  = getCacheBoundary(newPC, decodeNum);
         count        <= newCount;
         instPosition <= 0;
 
-        latency      <= getHostLatency();
 
         if(newCount != 0)
             fpTokenReq.send(17);
