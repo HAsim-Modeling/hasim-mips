@@ -667,3 +667,35 @@ it should rather be called dispatch unit I suppose. Currently,
 it writes rob entries. I am planning to merge issue queue with
 rob - it might be a better idea, as we dont have to worry about
 back pressure from issue queues.
+
+----------
+pellauer    Date: Fri May  4 17:17:57 EDT 2007  CSN: CSN-hasim-mips-41
+                  Fri May  4 21:17:57 UTC 2007
+
+
+Directory tools
+ scripts/                  Locally Added               0 
+
+Directory tools/scripts
+ smips/                    Locally Added               0 
+
+Directory tools/scripts/smips
+ setup-all-tests-smips     Locally Added               0 
+ setup-bmark               Locally Added               0 
+ Makefile.bmarks           Locally Added               0 
+ setup-test                Locally Added               0 
+ Makefile.tests            Locally Added               0 
+
+Directory .
+ tools/                    Locally Added               0 
+
+Directory config/bm
+ smips/                    Locally Added               0 
+
+Directory config/bm/smips
+ 6_375.cfx                 Locally Added               0 
+
+
+This is the first step towards getting hasim to run the smips cross-compiler.
+
+Michael

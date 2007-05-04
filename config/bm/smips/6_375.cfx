@@ -1,0 +1,86 @@
+: # -*-Perl-*-
+eval 'exec perl -w "$0" ${1+"$@"}'
+   if 0;
+
+use Asim;
+use strict;
+
+##
+## Generate cfg files for 6.375 tests and benchmarks.
+##
+
+my $gcfg = Asim::GenCFG->new();
+
+my @tests = ("smipsv1_simple",
+	      "smipsv1_addiu",
+	      "smipsv1_bne",
+	      "smipsv1_lw",
+	      "smipsv1_sw",
+	      "smipsv2_addiu",
+	      "smipsv2_addu",
+	      "smipsv2_andi",
+	      "smipsv2_and",
+	      "smipsv2_beq",
+	      "smipsv2_bgez",
+	      "smipsv2_bgtz",
+	      "smipsv2_blez",
+	      "smipsv2_bltz",
+	      "smipsv2_bne",
+	      "smipsv2_jalr",
+	      "smipsv2_jal",
+	      "smipsv2_jr",
+	      "smipsv2_j",
+	      "smipsv2_lui",
+	      "smipsv2_lw",
+	      "smipsv2_nor",
+	      "smipsv2_ori",
+	      "smipsv2_or",
+	      "smipsv2_simple",
+	      "smipsv2_sll",
+	      "smipsv2_sllv",
+	      "smipsv2_slti",
+	      "smipsv2_sltiu",
+	      "smipsv2_slt",
+	      "smipsv2_sltu",
+	      "smipsv2_sra",
+	      "smipsv2_srav",
+	      "smipsv2_srl",
+	      "smipsv2_srlv",
+	      "smipsv2_subu",
+	      "smipsv2_sw",
+	      "smipsv2_xori",
+	      "smipsv2_xor");
+
+my @bmarks = ("median",
+              "multiply",
+	      "towers",
+	      "qsort",
+	      "vvadd");
+	      
+foreach my $test (@tests) {
+        $gcfg->add(name => $test,
+                  tree => [ "tests" ],
+                  setup => "tools/scripts/smips/setup-test $test",
+		  feeder => "vcs",
+                  ccount => 800000,
+                  );
+   }
+     
+foreach my $bmark (@bmarks) {
+        $gcfg->add(name => $bmark,
+                  tree => [ "benchmarks" ],
+                  setup => "tools/scripts/smips/setup-bmark $bmark",
+		  feeder => "vcs",
+                  ccount => 800000,
+                  );
+   }
+
+# Run all tests
+# $gcfg->add(name => "all",
+#           tree => [ ],
+#           setup => "tools/scripts/6.375/setup-all-tests-smips",
+# 	  feeder => "vcs",
+ #         ccount => 800000,
+#           );
+
+$gcfg->action(@ARGV);
