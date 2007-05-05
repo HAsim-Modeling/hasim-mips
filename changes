@@ -1,0 +1,669 @@
+
+----------
+mpellaue    Date: Wed Jun 14 16:27:51 EDT 2006  CSN: CSN-hasim-mips-2
+                  Wed Jun 14 20:27:51 UTC 2006
+
+
+Directory modules/functional/toymips
+ FUNCP_ExecuteAlg.bsv      Locally Added               0 
+ FUNCP_DecodeAlg.bsv       Locally Added               0 
+ toymips_funcp_execute_alg.awb Locally Added               0 
+ toymips_funcp_decode_alg.awb Locally Added               0 
+
+Directory modules/functional/mips
+ FUNCP_FetchAlg.bsv        Locally Added               0 
+ FUNCP_GlobalCommitAlg.bsv Locally Added               0 
+ mips_funcp_localcommit_alg.awb Locally Added               0 
+ FUNCP_MemAlg.bsv          Locally Added               0 
+ mips_funcp_fetch_alg.awb  Locally Added               0 
+ mips_funcp_globalcommit_alg.awb Locally Added               0 
+ FUNCP_LocalCommitAlg.bsv  Locally Added               0 
+ mips_funcp_mem_alg.awb    Locally Added               0 
+
+Directory modules/functional/smips
+ smips_funcp_execute_alg.awb Locally Added               0 
+ smips_funcp_decode_alg.awb Locally Added               0 
+ FUNCP_Execute.bsv         Locally Added               0 
+ FUNCP_Decode.bsv          Locally Added               0 
+
+Directory modules/functional/test-cases/toymips
+ simple-addition/          Locally Added               0 
+
+Directory modules/functional/test-cases/toymips/simple-addition
+ TestCase.bsv              Locally Added               0 
+ toymips_testcase_simple_addition.awb Locally Added               0 
+
+Directory modules/functional/test-cases/toymips
+ stalls/                   Locally Added               0 
+
+Directory modules/functional/test-cases/toymips/stalls
+ TestCase.bsv              Locally Added               0 
+ toymips_testcase_stalls.awb Locally Added               0 
+
+Directory modules/functional/test-cases/toymips
+ simple-subtraction/       Locally Added               0 
+
+Directory modules/functional/test-cases/toymips/simple-subtraction
+ TestCase.bsv              Locally Added               0 
+ toymips_testcase_simple_subtraction.awb Locally Added               0 
+
+Directory modules/functional/test-cases/toymips
+ branch/                   Locally Added               0 
+
+Directory modules/functional/test-cases/toymips/branch
+ TestCase.bsv              Locally Added               0 
+ toymips_testcase_branch.awb Locally Added               0 
+
+Directory modules
+ chip/                     Locally Added               0 
+
+Directory modules/chip
+ mips/                     Locally Added               0 
+
+Directory modules/chip/mips
+ 5stage/                   Locally Added               0 
+
+Directory modules/chip/mips/5stage
+ hasim_5stage_chip.awb     Locally Added               0 
+ Chip.bsv                  Locally Added               0 
+
+Directory modules/chip/mips
+ simple/                   Locally Added               0 
+
+Directory modules/chip/mips/simple
+ hasim_simple_chip.awb     Locally Added               0 
+ Chip.bsv                  Locally Added               0 
+
+Directory modules/isa/toymips
+ ISA.bsv                   Locally Added               0 
+ hasim_toymips_isa.awb     Locally Added               0 
+
+Directory modules/isa/smips
+ hasim_smips_isa.awb       Locally Added               0 
+ ISA.bsv                   Locally Added               0 
+
+Added the files for the initial commit.
+
+Michael
+
+----------
+mpellaue    Date: Thu Jun 15 13:38:20 EDT 2006  CSN: CSN-hasim-mips-3
+                  Thu Jun 15 17:38:20 UTC 2006
+
+
+Directory modules/functional/smips
+ FUNCP_Execute.bsv         Locally Modified            2 
+ FUNCP_Decode.bsv          Locally Modified            2 
+
+Directory modules/isa/smips
+ ISA.bsv                   Locally Modified            2 
+
+Directory modules/chip/mips/5stage
+ Chip.bsv                  Locally Modified            2 
+
+Bugfixes for smips model.
+
+Michael
+
+----------
+mpellaue    Date: Tue Jun 27 18:20:23 EDT 2006  CSN: CSN-hasim-mips-4
+                  Tue Jun 27 22:20:23 UTC 2006
+
+
+Directory modules/functional/mips
+ FUNCP_GlobalCommitAlg.bsv Locally Modified            3 
+
+Directory modules/functional/smips
+ FUNCP_Execute.bsv         Locally Removed             3 
+ FUNCP_Decode.bsv          Locally Removed             3 
+ FUNCP_ExecuteAlg.bsv      Locally Added               - 
+ FUNCP_DecodeAlg.bsv       Locally Added               - 
+
+Directory modules/chip/mips/5stage
+ Chip.bsv                  Locally Modified            3 
+
+Directory modules/isa/toymips
+ ISA.bsv                   Locally Modified            3 
+
+Directory modules/isa/smips
+ ISA.bsv                   Locally Modified            3 
+
+Updates for bsc 3.8.68. Please use this version of the compiler or later.
+
+Michael
+
+----------
+mpellaue    Date: Thu Jun 29 18:03:13 EDT 2006  CSN: CSN-hasim-mips-6
+                  Thu Jun 29 22:03:13 UTC 2006
+
+
+Directory modules/functional/toymips
+ FUNCP_ExecuteAlg.bsv      Locally Modified            5 
+
+Directory modules/functional/mips
+ FUNCP_GlobalCommitAlg.bsv Locally Modified            5 
+ FUNCP_MemAlg.bsv          Locally Modified            5 
+
+Directory modules/functional/smips
+ FUNCP_DecodeAlg.bsv       Locally Modified            5 
+
+Directory modules/chip/mips/5stage
+ Chip.bsv                  Locally Modified            5 
+
+Directory modules/chip/mips/simple
+ Chip.bsv                  Locally Modified            5 
+
+Directory modules/isa/smips
+ ISA.bsv                   Locally Modified            5 
+
+
+Fixed a bug relating to the committing of tokens and termination of the program.
+
+Michael
+
+----------
+mpellaue    Date: Fri Jun 30 17:27:23 EDT 2006  CSN: CSN-hasim-mips-7
+                  Fri Jun 30 21:27:23 UTC 2006
+
+
+Directory modules/functional/smips
+ FUNCP_ExecuteAlg.bsv      Locally Modified            5 
+
+Directory modules/chip/mips/5stage
+ Chip.bsv                  Locally Modified            6 
+
+
+Bugfix in the SMIPS Execute, and nicer $displays in the 5-stage Chip.
+
+----------
+mpellaue    Date: Wed Jul  5 18:15:50 EDT 2006  CSN: CSN-hasim-mips-8
+                  Wed Jul  5 22:15:50 UTC 2006
+
+
+Directory modules/functional/mips
+ FUNCP_GlobalCommitAlg.bsv Locally Modified            7 
+ FUNCP_MemAlg.bsv          Locally Modified            7 
+ FUNCP_LocalCommitAlg.bsv  Locally Modified            7 
+
+Directory modules/functional/smips
+ FUNCP_ExecuteAlg.bsv      Locally Modified            7 
+ FUNCP_DecodeAlg.bsv       Locally Modified            7 
+
+Directory modules/chip/mips/5stage
+ Chip.bsv                  Locally Modified            7 
+
+Directory modules/isa/smips
+ ISA.bsv                   Locally Modified            7 
+
+
+Redid some datatypes so that the token tables are smaller. Also the BypassUnit only requires two read ports.
+
+Michael
+
+----------
+mpellaue    Date: Thu Jul  6 13:51:56 EDT 2006  CSN: CSN-hasim-mips-9
+                  Thu Jul  6 17:51:56 UTC 2006
+
+
+Directory modules/functional/test-cases/toymips/branch
+ TestCase.bsv              Locally Modified            7 
+
+Directory modules/functional/toymips
+ FUNCP_ExecuteAlg.bsv      Locally Modified            7 
+ FUNCP_DecodeAlg.bsv       Locally Modified            7 
+
+Directory modules/isa/toymips
+ ISA.bsv                   Locally Modified            7 
+
+
+Bugfixes in toymips.
+
+Michael
+
+----------
+mpellaue    Date: Thu Jul  6 18:33:25 EDT 2006  CSN: CSN-hasim-mips-10
+                  Thu Jul  6 22:33:25 UTC 2006
+
+
+Directory modules/functional/test-cases/toymips/branch
+ TestCase.bsv              Locally Modified            9 
+
+Directory modules/functional/test-cases/smips/simple-addition
+ smips_testcase_simple_addition.awb Locally Modified            7 
+
+Directory modules/functional/test-cases/smips
+ branch/                   Locally Added               0 
+
+Directory modules/functional/test-cases/smips/branch
+ TestCase.bsv              Locally Added               0 
+ smips_testcase_branch.awb Locally Added               0 
+
+Directory modules/chip/mips/simple
+ Chip.bsv                  Locally Modified            7 
+
+
+Miscellaneous changes to the Simple Chip, fixed toymips branch testcase, and a new testcase for SMIPs.
+
+Michael
+
+----------
+mpellaue    Date: Mon Jul 10 18:02:48 EDT 2006  CSN: CSN-hasim-mips-11
+                  Mon Jul 10 22:02:48 UTC 2006
+
+
+Directory modules/functional/mips
+ FUNCP_LocalCommitAlg.bsv  Locally Modified            8 
+
+Directory modules/functional/smips
+ FUNCP_ExecuteAlg.bsv      Locally Modified            8 
+ FUNCP_DecodeAlg.bsv       Locally Modified            8 
+
+Directory modules/functional/test-cases/smips/branch
+ TestCase.bsv              Locally Modified           10 
+
+Directory modules/chip/mips/5stage
+ Chip.bsv                  Locally Modified            8 
+
+Directory modules/chip/mips/simple
+ Chip.bsv                  Locally Modified           10 
+
+Directory modules/isa/smips
+ ISA.bsv                   Locally Modified            8 
+
+
+Changes to SMIPS and beginning of epoch changes.
+
+----------
+mpellaue    Date: Wed Jul 12 13:22:52 EDT 2006  CSN: CSN-hasim-mips-13
+                  Wed Jul 12 17:22:52 UTC 2006
+
+
+Directory modules/functional/test-cases/smips/branch
+ smips_testcase_branch.awb Locally Modified           12 
+
+Directory modules/chip/mips/5stage
+ Chip.bsv                  Locally Modified           12 
+
+Directory modules/chip/mips/simple
+ Chip.bsv                  Locally Modified           12 
+
+Directory modules/isa/toymips
+ ISA.bsv                   Locally Modified           12 
+
+ToyMIPS/simple now plays nicely with the epochs.
+
+----------
+mpellaue    Date: Wed Jul 12 16:50:18 EDT 2006  CSN: CSN-hasim-mips-14
+                  Wed Jul 12 20:50:18 UTC 2006
+
+
+Directory modules/functional/mips
+ FUNCP_GlobalCommitAlg.bsv Locally Modified           12 
+ FUNCP_MemAlg.bsv          Locally Modified           12 
+
+Directory modules/functional/smips
+ FUNCP_ExecuteAlg.bsv      Locally Modified           12 
+ FUNCP_DecodeAlg.bsv       Locally Modified           12 
+
+Directory modules/chip/mips/5stage
+ Chip.bsv                  Locally Modified           13 
+
+Directory modules/chip/mips/simple
+ Chip.bsv                  Locally Modified           13 
+
+
+SMIPs 5-stage now specualtes past branches correctly
+
+----------
+mpellaue    Date: Fri Jul 14 15:02:29 EDT 2006  CSN: CSN-hasim-mips-15
+                  Fri Jul 14 19:02:29 UTC 2006
+
+
+Directory modules/chip/mips/5stage
+ Chip.bsv                  Locally Modified           14 
+
+
+Some test Events added to 5stage pipeline
+
+----------
+mpellaue    Date: Tue Jul 25 17:45:24 EDT 2006  CSN: CSN-hasim-mips-17
+                  Tue Jul 25 21:45:24 UTC 2006
+
+
+Directory modules/chip/mips/5stage
+ Chip.bsv                  Locally Modified           16 
+
+Directory modules/chip/mips/simple
+ Chip.bsv                  Locally Modified           16 
+
+
+Chips now use Events to record model activity.
+
+----------
+mpellaue    Date: Mon Aug  7 17:55:46 EDT 2006  CSN: CSN-hasim-mips-18
+                  Mon Aug  7 21:55:46 UTC 2006
+
+
+Directory modules/functional/mips
+ FUNCP_FetchAlg.bsv        Locally Modified           17 
+ FUNCP_GlobalCommitAlg.bsv Locally Modified           17 
+ FUNCP_MemAlg.bsv          Locally Modified           17 
+ FUNCP_LocalCommitAlg.bsv  Locally Modified           17 
+
+Directory modules/functional/smips
+ FUNCP_ExecuteAlg.bsv      Locally Modified           17 
+ FUNCP_DecodeAlg.bsv       Locally Modified           17 
+
+Directory modules/chip/mips/simple
+ Chip.bsv                  Locally Modified           17 
+
+Directory modules/chip/mips
+ 5stage-ports/             Locally Added               0 
+
+Directory modules/chip/mips/5stage-ports
+ CommandCenter.bsv         Locally Added               0 
+ hasim_5stage_ports_chip.awb Locally Added               0 
+ Chip.bsv                  Locally Added               0 
+
+
+First attempt at a version of 5stage with Ports. Currently deadlocks, also some connections need to be renamed.
+
+----------
+mpellaue    Date: Thu Aug 17 17:47:31 EDT 2006  CSN: CSN-hasim-mips-23
+                  Thu Aug 17 21:47:31 UTC 2006
+
+
+Directory modules/chip/mips/5stage
+ Chip.bsv                  Locally Modified           22 
+
+Directory modules/chip/mips/5stage-ports
+ CommandCenter.bsv         Locally Modified           22 
+ Chip.bsv                  Locally Modified           22 
+
+
+Resolved the deadlock error. Renamed some connections.
+
+Michael
+
+----------
+mpellaue    Date: Wed Aug 30 15:40:02 EDT 2006  CSN: CSN-hasim-mips-24
+                  Wed Aug 30 19:40:02 UTC 2006
+
+
+Directory modules/chip/mips/5stage
+ Chip.bsv                  Locally Modified           23 
+
+Directory modules/chip/mips/simple
+ Chip.bsv                  Locally Modified           23 
+
+Directory modules/chip/mips/5stage-ports
+ Chip.bsv                  Locally Modified           23 
+
+
+Chips updated to test out Stats, Events.
+
+Michael
+
+----------
+jsemer      Date: Wed Sep 20 18:15:31 EDT 2006  CSN: CSN-hasim-mips-25
+                  Wed Sep 20 22:15:31 UTC 2006
+
+
+Directory modules/functional/mips
+ FUNCP_FetchAlg.bsv        Locally Modified           24 
+ FUNCP_GlobalCommitAlg.bsv Locally Modified           24 
+ FUNCP_MemAlg.bsv          Locally Modified           24 
+ FUNCP_LocalCommitAlg.bsv  Locally Modified           24 
+
+Directory modules/functional/smips
+ FUNCP_ExecuteAlg.bsv      Locally Modified           24 
+ FUNCP_DecodeAlg.bsv       Locally Modified           24 
+
+Directory modules/functional/test-cases/smips/branch
+ TestCase.bsv              Locally Modified           24 
+
+Directory modules/chip/mips/5stage-ports
+ CommandCenter.bsv         Locally Modified           24 
+ Chip.bsv                  Locally Modified           24 
+
+Directory modules/isa/smips
+ hasim_smips_isa.awb       Locally Modified           24 
+ ISA.bsv                   Locally Modified           24 
+
+
+Updates to build smips model using proper imports, i.e., import <asim-metatype>::*
+and with synthesis boundaries
+
+----------
+jsemer      Date: Wed Sep 20 18:22:12 EDT 2006  CSN: CSN-hasim-mips-25
+                  Wed Sep 20 22:22:12 UTC 2006
+
+
+Directory admin/packages
+ hasim-mips                Locally Modified           25 
+
+
+Added dependency on package hasim/HEAD
+
+----------
+pellauer    Date: Thu Nov 16 14:50:13 EST 2006  CSN: CSN-hasim-mips-30
+                  Thu Nov 16 19:50:13 UTC 2006
+
+
+Directory modules/functional/mips
+ FUNCP_FetchAlg.bsv        Locally Modified           29 
+
+Directory modules/functional/smips
+ FUNCP_DecodeAlg.bsv       Locally Modified           29 
+
+Directory modules/chip/mips/5stage-ports
+ Chip.bsv                  Locally Modified           29 
+
+Directory modules/isa/smips
+ ISA.bsv                   Locally Modified           29 
+
+
+Fixed bugs from the previous checkin.
+
+Michael
+
+----------
+vmurali     Date: Wed Apr 18 16:51:18 EDT 2007  CSN: CSN-hasim-mips-31
+                  Wed Apr 18 20:51:18 UTC 2007
+
+
+Directory config/pm/hasim-mips
+ s10k/                     Locally Added               0 
+
+Directory config/pm/hasim-mips/s10k
+ s10k.apm                  Locally Added               0 
+
+Directory modules/chip/mips
+ uniprocessor/             Locally Added               0 
+
+Directory modules/chip/mips/uniprocessor
+ uniprocessor.awb          Locally Added               0 
+ uniprocessor.bsv          Locally Added               0 
+
+Directory modules
+ cpu/                      Locally Added               0 
+
+Directory modules/cpu
+ mips/                     Locally Added               0 
+
+Directory modules/cpu/mips
+ s10k/                     Locally Added               0 
+
+Directory modules/cpu/mips/s10k
+ execute/                  Locally Added               0 
+
+Directory modules/cpu/mips/s10k/execute
+ s10k_simple/              Locally Added               0 
+
+Directory modules/cpu/mips/s10k/execute/s10k_simple
+ s10k_execute_simple.awb   Locally Added               0 
+ s10k_execute_simple.bsv   Locally Added               0 
+
+Directory modules/cpu/mips/s10k
+ decode/                   Locally Added               0 
+
+Directory modules/cpu/mips/s10k/decode
+ s10k_simple/              Locally Added               0 
+
+Directory modules/cpu/mips/s10k/decode/s10k_simple
+ s10k_decode_simple.awb    Locally Added               0 
+ s10k_decode_simple.bsv    Locally Added               0 
+
+Directory modules/cpu/mips/s10k
+ issue/                    Locally Added               0 
+
+Directory modules/cpu/mips/s10k/issue
+ s10k_simple/              Locally Added               0 
+
+Directory modules/cpu/mips/s10k/issue/s10k_simple
+ s10k_issue_simple.awb     Locally Added               0 
+ s10k_issue_simple.bsv     Locally Added               0 
+
+Directory modules/cpu/mips/s10k
+ fetch/                    Locally Added               0 
+
+Directory modules/cpu/mips/s10k/fetch
+ s10k_simple/              Locally Added               0 
+
+Directory modules/cpu/mips/s10k/fetch/s10k_simple
+ s10k_fetch_simple.awb     Locally Added               0 
+ s10k_fetch_simple.bsv     Locally Added               0 
+
+Directory modules/cpu/mips/s10k
+ s10k_cpu.awb              Locally Added               0 
+ s10k_cpu.bsv              Locally Added               0 
+
+Directory modules
+ memory/                   Locally Added               0 
+
+Directory modules/memory
+ magic_memory.awb          Locally Added               0 
+ magic_memory.bsv          Locally Added               0 
+
+Initial commit of SMIPS R10K like core and
+magic memory
+
+
+----------
+jsemer      Date: Wed Apr 18 17:40:57 EDT 2007  CSN: CSN-hasim-mips-32
+                  Wed Apr 18 21:40:57 UTC 2007
+
+
+Directory config/pm/hasim-mips
+ smips-5stage/             Locally Added               0 
+
+Directory config/pm/hasim-mips/smips-5stage
+ hasim_smips_5stage.apm    Locally Added               0 
+ hasim_smips_5stage_ports.apm Locally Added               0 
+
+Directory config/pm/hasim-mips
+ toymips/                  Locally Added               0 
+
+Directory config/pm/hasim-mips/toymips
+ hasim_toymips_simple.apm  Locally Added               0 
+
+Moved smips and toymips models from hasim repository to
+hasim-mips repository.
+
+Joel
+
+----------
+jsemer      Date: Fri Apr 20 14:01:53 EDT 2007  CSN: CSN-hasim-mips-33
+                  Fri Apr 20 18:01:53 UTC 2007
+
+
+Directory config/pm/hasim-mips/submodels
+ funcp/                    Locally Added               0 
+
+Directory config/pm/hasim-mips/submodels/funcp
+ smips-funcp-fpga.apm      Locally Added               0 
+
+Directory config/pm/hasim-mips
+ submodels/                Locally Added               0 
+
+Directory config/pm/hasim-mips/s10k
+ s10k_funcp.apm            Locally Added               0 
+
+Directory config/pm/hasim-mips/smips-5stage
+ hasim_smips_5stage_ports_funcp.apm Locally Added               0 
+
+Added a submodel for the functional partition and added a 5stage
+and s10k model that uses the submodel.
+
+Joel
+
+----------
+vmurali     Date: Mon Apr 23 09:56:02 EDT 2007  CSN: CSN-hasim-mips-34
+                  Mon Apr 23 13:56:02 UTC 2007
+
+
+Directory modules/cpu/mips/s10k/decode/s10k_simple
+ s10k_decode_simple.bsv    Locally Modified           33 
+
+Directory modules/cpu/mips/s10k/fetch/s10k_simple
+ s10k_fetch_simple.bsv     Locally Modified           33 
+
+Simple Fetch unit. Not compatible with current decode, 
+but almost compatible with the commented portion of decode. 
+Has 2 receive ports from decode saying branch-predict and numOfInsts, 
+1 receive port from execute saying mispredict and finally 
+1 send port to decode to send the instructions
+
+----------
+vmurali     Date: Mon Apr 23 10:21:28 EDT 2007  CSN: CSN-hasim-mips-35
+                  Mon Apr 23 14:21:28 UTC 2007
+
+
+Directory modules/cpu/mips/s10k/decode/s10k_simple
+ s10k_decode_simple.bsv    Locally Modified           34 
+
+Interface of decode unit with Fetch unit complete. The ROB, and issue/exec interface left.
+
+----------
+vmurali     Date: Tue Apr 24 13:57:58 EDT 2007  CSN: CSN-hasim-mips-36
+                  Tue Apr 24 17:57:58 UTC 2007
+
+
+Directory modules/cpu/mips/s10k/decode/s10k_simple
+ s10k_decode_simple.bsv    Locally Modified           35 
+
+Directory modules/cpu/mips/s10k/fetch/s10k_simple
+ s10k_fetch_simple.bsv     Locally Modified           35 
+
+Changed the ports from taking inputs 
+serially to 4 parallel ports, but they are still
+filled serially
+
+----------
+jsemer      Date: Mon Apr 30 11:40:23 EDT 2007  CSN: CSN-hasim-mips-37
+                  Mon Apr 30 15:40:23 UTC 2007
+
+
+Directory config/pm/hasim-mips/submodels/funcp
+ smips-funcp-fpga.apm      Locally Modified           36 
+
+Fixed name of submodel.
+
+Joel
+
+----------
+vmurali     Date: Mon Apr 30 22:38:30 EDT 2007  CSN: CSN-hasim-mips-38
+                  Tue May  1 02:38:30 UTC 2007
+
+
+Directory modules/cpu/mips/s10k/decode/s10k_simple
+ s10k_decode_simple.bsv    Locally Modified           37 
+
+Directory modules/cpu/mips/s10k/fetch/s10k_simple
+ s10k_fetch_simple.bsv     Locally Modified           37 
+
+Decode unit updates. The unit more or less does everything, so
+it should rather be called dispatch unit I suppose. Currently,
+it writes rob entries. I am planning to merge issue queue with
+rob - it might be a better idea, as we dont have to worry about
+back pressure from issue queues.

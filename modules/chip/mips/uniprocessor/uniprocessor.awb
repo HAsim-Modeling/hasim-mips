@@ -1,0 +1,22 @@
+#/********************************************************************
+# *
+# * Awb module specification
+# *
+# *******************************************************************/
+
+#/*
+# %AWB_START
+#
+# %name Uniprocessor chip
+# %desc Uniprocessor chip
+# %provides hasim_chip
+#
+# %attributes mips hasim
+#
+# %requires hasim_cpu hasim_memory
+#
+# %public uniprocessor.bsv
+#
+# %AWB_END
+# */
+
