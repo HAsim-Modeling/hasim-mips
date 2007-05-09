@@ -736,3 +736,23 @@ Modifications to work with the new Functional Partition. Also some bugfixes.
 The next checkin will bring all the models back in line to the new organization.
 
 Michael P.
+
+----------
+pellauer    Date: Wed May  9 15:21:03 EDT 2007  CSN: CSN-hasim-mips-45
+                  Wed May  9 19:21:03 UTC 2007
+
+
+Directory config/pm/hasim-mips/smips-5stage
+ hasim_smips_5stage.apm    Locally Modified           43 
+ hasim_smips_5stage_ports_funcp.apm Locally Modified           43 
+ hasim_smips_5stage_ports.apm Locally Modified           43 
+
+Directory config/pm/hasim-mips/s10k
+ s10k_funcp.apm            Locally Modified           43 
+ s10k.apm                  Locally Modified           43 
+
+
+MIPS Models have been updated to reflect the new structure.
+
+Michael P.
+
