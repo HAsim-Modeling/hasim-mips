@@ -100,15 +100,15 @@ module [HASim_Module] mk5stage_FET#(CommandCenter cc)
       
         if (stall_count == 0)
 	  begin
-            port_to_dec.send(Valid stall_tok);
-            //event_fet.recordEvent(Valid zeroExtend(stall_tok.index));
+            port_to_dec.send(tagged Valid stall_tok);
+            //event_fet.recordEvent(tagged Valid zeroExtend(stall_tok.index));
             //stat_fet.incr();
 	    stalling <= False;
 	  end
 	else
 	  begin
-            port_to_dec.send(Invalid);
-            //event_fet.recordEvent(Invalid);
+            port_to_dec.send(tagged Invalid);
+            //event_fet.recordEvent(tagged Invalid);
             stall_count <= stall_count - 1;
 	  end
       end
@@ -142,15 +142,15 @@ module [HASim_Module] mk5stage_FET#(CommandCenter cc)
      if (isHit)
      begin
      
-       port_to_dec.send(Valid tok);
-       //event_fet.recordEvent(Valid zeroExtend(tok.index));
+       port_to_dec.send(tagged Valid tok);
+       //event_fet.recordEvent(tagged Valid zeroExtend(tok.index));
        //stat_fet.incr();
 
      end
      else
      begin
-       port_to_dec.send(Invalid);
-       //event_fet.recordEvent(Invalid);
+       port_to_dec.send(tagged Invalid);
+       //event_fet.recordEvent(tagged Invalid);
        stall_count <= `FET_Miss_Penalty;
        stall_tok   <= tok;
        stalling    <= True;
@@ -174,9 +174,9 @@ module [HASim_Module] mk5stage_DEC#(CommandCenter cc)
   Reg#(Bool)      in_flight   <- mkReg(False);
   
   //Scoreboard
-  Reg#(Maybe#(DepInfo)) exe_stall_info <- mkReg(Invalid);
-  Reg#(Maybe#(DepInfo)) mem_stall_info <- mkReg(Invalid);
-  Reg#(Maybe#(DepInfo))  wb_stall_info <- mkReg(Invalid);
+  Reg#(Maybe#(DepInfo)) exe_stall_info <- mkReg(tagged Invalid);
+  Reg#(Maybe#(DepInfo)) mem_stall_info <- mkReg(tagged Invalid);
+  Reg#(Maybe#(DepInfo))  wb_stall_info <- mkReg(tagged Invalid);
 
   //Connections to FP
   Connection_Send#(Tuple2#(Token, void))        fp_dec_req  <- mkConnection_Send("fp_dec_req");
@@ -273,9 +273,9 @@ module [HASim_Module] mk5stage_DEC#(CommandCenter cc)
     case (mtok) matches
       tagged Invalid: //Pass-through
       begin
-        port_to_exe.send(Invalid);
-	//event_dec.recordEvent(Invalid);
-	shiftStalls(Invalid);
+        port_to_exe.send(tagged Invalid);
+	//event_dec.recordEvent(tagged Invalid);
+	shiftStalls(tagged Invalid);
       end
       tagged Valid .tok:
       begin
@@ -295,17 +295,17 @@ module [HASim_Module] mk5stage_DEC#(CommandCenter cc)
 
     if (new_stall != 0) //We're stalling
     begin
-      port_to_exe.send(Invalid);
-      //event_dec.recordEvent(Invalid);
-      shiftStalls(Invalid);
+      port_to_exe.send(tagged Invalid);
+      //event_dec.recordEvent(tagged Invalid);
+      shiftStalls(tagged Invalid);
       stall_tok <= tok;
       stall_deps <= deps;
     end
     else
     begin
-      port_to_exe.send(Valid tok);
-      //event_dec.recordEvent(Valid zeroExtend(tok.index));
-      shiftStalls(Valid deps);
+      port_to_exe.send(tagged Valid tok);
+      //event_dec.recordEvent(tagged Valid zeroExtend(tok.index));
+      shiftStalls(tagged Valid deps);
       in_flight <= False;
     end
     
@@ -316,9 +316,9 @@ module [HASim_Module] mk5stage_DEC#(CommandCenter cc)
   rule decode_stall (cc.running && stall_count > 0 && in_flight);
   
     stall_count <= stall_count - 1;
-    port_to_exe.send(Invalid);
-    //event_dec.recordEvent(Invalid);
-    shiftStalls(Invalid);
+    port_to_exe.send(tagged Invalid);
+    //event_dec.recordEvent(tagged Invalid);
+    shiftStalls(tagged Invalid);
 
   endrule
 
@@ -358,18 +358,18 @@ module [HASim_Module] mk5stage_EXE#(CommandCenter cc)
     case (mtok) matches
       tagged Invalid:
       begin
-        port_to_mem.send(Invalid);
-	//event_exe.recordEvent(Invalid);
-	port_to_ic.send(Invalid);
+        port_to_mem.send(tagged Invalid);
+	//event_exe.recordEvent(tagged Invalid);
+	port_to_ic.send(tagged Invalid);
       end
       tagged Valid .tok:
       begin
 	if (tok.info.epoch != epoch) //kill it
 	begin
 	  fp_exe_kill.send(tok);
-          //event_exe.recordEvent(Invalid);
-          port_to_mem.send(Invalid);
-	  port_to_ic.send(Invalid);
+          //event_exe.recordEvent(tagged Invalid);
+          port_to_mem.send(tagged Invalid);
+	  port_to_ic.send(tagged Invalid);
 	end
 	else //continue to execute it
 	begin
@@ -392,22 +392,22 @@ module [HASim_Module] mk5stage_EXE#(CommandCenter cc)
 	  $display("Branch taken!");
 	  epoch <= epoch + 1;
 	  fp_rewindToToken.send(tok);
-	  port_to_ic.send(Valid tuple2(tok, addr));
+	  port_to_ic.send(tagged Valid tuple2(tok, addr));
 	end
       tagged RBranchNotTaken:
 	begin
-	  port_to_ic.send(Invalid);
+	  port_to_ic.send(tagged Invalid);
 	  $display("Branch not taken!");
 	end
       tagged RNop:
-	port_to_ic.send(Invalid);
+	port_to_ic.send(tagged Invalid);
       tagged RTerminate .pf:
       begin
-	port_to_ic.send(Invalid);
+	port_to_ic.send(tagged Invalid);
 	$display("Setting Termination!");
 	cc.setPassFail(pf);
         case (cc.getStopToken) matches
-	  Invalid:
+	  tagged Invalid:
   	    cc.setStopToken(tok);
 	  default:
 	    noAction;
@@ -415,8 +415,8 @@ module [HASim_Module] mk5stage_EXE#(CommandCenter cc)
       end
     endcase
 
-    port_to_mem.send(Valid tok);
-    //event_exe.recordEvent(Valid zeroExtend(tok.index));
+    port_to_mem.send(tagged Valid tok);
+    //event_exe.recordEvent(tagged Valid zeroExtend(tok.index));
     in_flight <= False;
     
   endrule
@@ -469,13 +469,13 @@ module [HASim_Module] mk5stage_MEM#(CommandCenter cc)
       begin
 	if (stall_count == 0)
 	  begin
-            port_to_wb.send(Valid stall_tok);
+            port_to_wb.send(tagged Valid stall_tok);
 	    stalling <= False;
 	  end
 	else
 	  begin
 	    stall_count <= stall_count - 1;
-	    port_to_wb.send(Invalid);
+	    port_to_wb.send(tagged Invalid);
 	  end
       end
     else
@@ -484,8 +484,8 @@ module [HASim_Module] mk5stage_MEM#(CommandCenter cc)
 	case (mtok) matches
 	  tagged Invalid:
 	  begin
-            port_to_wb.send(Invalid);
-            //event_mem.recordEvent(Invalid);
+            port_to_wb.send(tagged Invalid);
+            //event_mem.recordEvent(tagged Invalid);
 	  end
 	  tagged Valid .tok:
 	  begin
@@ -509,14 +509,14 @@ module [HASim_Module] mk5stage_MEM#(CommandCenter cc)
     if (isHit)
       begin
 
-	port_to_wb.send(Valid tok);
-	//event_mem.recordEvent(Valid zeroExtend(tok.index));
+	port_to_wb.send(tagged Valid tok);
+	//event_mem.recordEvent(tagged Valid zeroExtend(tok.index));
 
       end
     else
       begin
-	port_to_wb.send(Invalid);
-	//event_mem.recordEvent(Invalid);
+	port_to_wb.send(tagged Invalid);
+	//event_mem.recordEvent(tagged Invalid);
 	stall_count <= `MEM_Miss_Penalty;
 	stall_tok   <= tok;
 	stalling    <= True;
@@ -562,7 +562,7 @@ module [HASim_Module] mk5stage_WB#(CommandCenter cc)
       tagged Invalid:
       begin
         noAction;
-	//event_wb.recordEvent(Invalid);
+	//event_wb.recordEvent(tagged Invalid);
       end
       tagged Valid .tok:
       begin
@@ -634,7 +634,7 @@ module [HASim_Module] mkChip
 
   rule finishup (ran && !cc.running);
   
-    link_controller.makeResp(RESP_DoneRunning cc.getPassFail());
+    link_controller.makeResp(tagged RESP_DoneRunning cc.getPassFail());
     ran <= False;
     
   endrule

@@ -756,3 +756,23 @@ MIPS Models have been updated to reflect the new structure.
 
 Michael P.
 
+
+----------
+pellauer    Date: Wed May  9 17:34:58 EDT 2007  CSN: CSN-hasim-mips-46
+                  Wed May  9 21:34:58 UTC 2007
+
+
+Directory modules/functional/smips
+ FUNCP_ExecuteAlg.bsv      Locally Modified           45 
+ FUNCP_DecodeAlg.bsv       Locally Modified           45 
+
+Directory modules/chip/mips/5stage-ports
+ CommandCenter.bsv         Locally Modified           45 
+ Chip.bsv                  Locally Modified           45 
+
+
+It seems MIT was using a Bluespec syntax that was undocumented and is no longer
+supported by the compiler. These constructs have been changed in a way that is
+both forwards- and backwards-compatible.
+
+Michael P.

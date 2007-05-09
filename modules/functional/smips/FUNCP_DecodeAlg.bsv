@@ -143,62 +143,62 @@ module [HASim_Module] mkFUNCP_DecodeAlg ();
 
       // -- Memory Ops ------------------------------------------------      
 
-      tagged LW .it : return Valid it.rdest;
+      tagged LW .it : return tagged Valid it.rdest;
 
-      tagged SW .it : return Invalid;
+      tagged SW .it : return tagged Invalid;
 
       // -- Simple Ops ------------------------------------------------      
 
-      tagged ADDIU .it : return Valid it.rdest;
-      tagged SLTI  .it : return Valid it.rdest;
-      tagged SLTIU .it : return Valid it.rdest;
-      tagged ANDI  .it : return Valid it.rdest;
-      tagged ORI   .it : return Valid it.rdest;
-      tagged XORI  .it : return Valid it.rdest;
-      tagged LUI   .it : return Invalid;
+      tagged ADDIU .it : return tagged Valid it.rdest;
+      tagged SLTI  .it : return tagged Valid it.rdest;
+      tagged SLTIU .it : return tagged Valid it.rdest;
+      tagged ANDI  .it : return tagged Valid it.rdest;
+      tagged ORI   .it : return tagged Valid it.rdest;
+      tagged XORI  .it : return tagged Valid it.rdest;
+      tagged LUI   .it : return tagged Invalid;
 
-      tagged SLL   .it : return Valid it.rdest;
-      tagged SRL   .it : return Valid it.rdest;
-      tagged SRA   .it : return Valid it.rdest;
-      tagged SLLV  .it : return Valid it.rdest;
-      tagged SRLV  .it : return Valid it.rdest;
-      tagged SRAV  .it : return Valid it.rdest;
-      tagged ADDU  .it : return Valid it.rdest;
-      tagged SUBU  .it : return Valid it.rdest;
-      tagged AND   .it : return Valid it.rdest;
-      tagged OR    .it : return Valid it.rdest;
-      tagged XOR   .it : return Valid it.rdest;
-      tagged NOR   .it : return Valid it.rdest;
-      tagged SLT   .it : return Valid it.rdest;
-      tagged SLTU  .it : return Valid it.rdest;
+      tagged SLL   .it : return tagged Valid it.rdest;
+      tagged SRL   .it : return tagged Valid it.rdest;
+      tagged SRA   .it : return tagged Valid it.rdest;
+      tagged SLLV  .it : return tagged Valid it.rdest;
+      tagged SRLV  .it : return tagged Valid it.rdest;
+      tagged SRAV  .it : return tagged Valid it.rdest;
+      tagged ADDU  .it : return tagged Valid it.rdest;
+      tagged SUBU  .it : return tagged Valid it.rdest;
+      tagged AND   .it : return tagged Valid it.rdest;
+      tagged OR    .it : return tagged Valid it.rdest;
+      tagged XOR   .it : return tagged Valid it.rdest;
+      tagged NOR   .it : return tagged Valid it.rdest;
+      tagged SLT   .it : return tagged Valid it.rdest;
+      tagged SLTU  .it : return tagged Valid it.rdest;
 
-      tagged MTC0  .it : return Invalid;
-      tagged MFC0  .it : return Valid it.rdest;
+      tagged MTC0  .it : return tagged Invalid;
+      tagged MFC0  .it : return tagged Valid it.rdest;
 
       // -- Branches --------------------------------------------------
 
-      tagged BLEZ  .it : return Invalid;
+      tagged BLEZ  .it : return tagged Invalid;
 
-      tagged BGTZ  .it : return Invalid;
+      tagged BGTZ  .it : return tagged Invalid;
 
-      tagged BLTZ  .it : return Invalid;
+      tagged BLTZ  .it : return tagged Invalid;
 
-      tagged BGEZ  .it : return Invalid;
+      tagged BGEZ  .it : return tagged Invalid;
 
-      tagged BEQ   .it : return Invalid;
+      tagged BEQ   .it : return tagged Invalid;
 
-      tagged BNE   .it : return Invalid;
+      tagged BNE   .it : return tagged Invalid;
       
       // -- Jumps -----------------------------------------------------
       
-      tagged J     .it : return Invalid;
+      tagged J     .it : return tagged Invalid;
       
-      tagged JR    .it : return Invalid;
+      tagged JR    .it : return tagged Invalid;
 
-      tagged JAL   .it : return Invalid;
+      tagged JAL   .it : return tagged Invalid;
 
-      tagged JALR  .it : return Valid it.rdest;
-      default:           return Invalid;
+      tagged JALR  .it : return tagged Valid it.rdest;
+      default:           return tagged Invalid;
     endcase;
   endfunction
   
@@ -295,9 +295,9 @@ module [HASim_Module] mkFUNCP_DecodeAlg ();
 
           depinfo = DepInfo 
 	            {
-		      dep_dest: Valid tuple2(rd, prd), 
-		      dep_src1: Valid tuple2(rb, pra), 
-		      dep_src2: Invalid
+		      dep_dest: tagged Valid tuple2(rd, prd), 
+		      dep_src1: tagged Valid tuple2(rb, pra), 
+		      dep_src2: tagged Invalid
 		    };
 
 	end
@@ -317,9 +317,9 @@ module [HASim_Module] mkFUNCP_DecodeAlg ();
 	  
           depinfo = DepInfo 
 	            {
-		      dep_dest: Invalid, 
-		      dep_src1: Valid tuple2(rb, pra), 
-		      dep_src2: Valid tuple2(rs, prb)
+		      dep_dest: tagged Invalid, 
+		      dep_src1: tagged Valid tuple2(rb, pra), 
+		      dep_src2: tagged Valid tuple2(rs, prb)
 		    };
         end
 
@@ -340,9 +340,9 @@ module [HASim_Module] mkFUNCP_DecodeAlg ();
 		    
           depinfo = DepInfo 
 	            {
-		      dep_dest: Valid tuple2(rd, prd), 
-		      dep_src1: Valid tuple2(rs, pra), 
-		      dep_src2: Invalid
+		      dep_dest: tagged Valid tuple2(rd, prd), 
+		      dep_src1: tagged Valid tuple2(rs, pra), 
+		      dep_src2: tagged Invalid
 		    };
         end
 	
@@ -361,9 +361,9 @@ module [HASim_Module] mkFUNCP_DecodeAlg ();
 
           depinfo = DepInfo 
 	            {
-		      dep_dest: Valid tuple2(rd, prd), 
-		      dep_src1: Valid tuple2(rs, pra), 
-		      dep_src2: Invalid
+		      dep_dest: tagged Valid tuple2(rd, prd), 
+		      dep_src1: tagged Valid tuple2(rs, pra), 
+		      dep_src2: tagged Invalid
 		    };
 	end
 	
@@ -383,9 +383,9 @@ module [HASim_Module] mkFUNCP_DecodeAlg ();
 
           depinfo = DepInfo 
 	            {
-		      dep_dest: Valid tuple2(rd, prd), 
-		      dep_src1: Valid tuple2(rs, pra), 
-		      dep_src2: Invalid
+		      dep_dest: tagged Valid tuple2(rd, prd), 
+		      dep_src1: tagged Valid tuple2(rs, pra), 
+		      dep_src2: tagged Invalid
 		    };
 	end
 	
@@ -404,9 +404,9 @@ module [HASim_Module] mkFUNCP_DecodeAlg ();
     
           depinfo = DepInfo 
 	            {
-		      dep_dest: Valid tuple2(rd, prd), 
-		      dep_src1: Valid tuple2(rs, pra), 
-		      dep_src2: Invalid
+		      dep_dest: tagged Valid tuple2(rd, prd), 
+		      dep_src1: tagged Valid tuple2(rs, pra), 
+		      dep_src2: tagged Invalid
 		    };
 	end
 	
@@ -425,9 +425,9 @@ module [HASim_Module] mkFUNCP_DecodeAlg ();
 
           depinfo = DepInfo 
 	            {
-		      dep_dest: Valid tuple2(rd, prd), 
-		      dep_src1: Valid tuple2(rs, pra), 
-		      dep_src2: Invalid
+		      dep_dest: tagged Valid tuple2(rd, prd), 
+		      dep_src1: tagged Valid tuple2(rs, pra), 
+		      dep_src2: tagged Invalid
 		    };
 	end
 	
@@ -446,9 +446,9 @@ module [HASim_Module] mkFUNCP_DecodeAlg ();
 
           depinfo = DepInfo 
 	            {
-		      dep_dest: Valid tuple2(rd, prd), 
-		      dep_src1: Valid tuple2(rs, pra), 
-		      dep_src2: Invalid
+		      dep_dest: tagged Valid tuple2(rd, prd), 
+		      dep_src1: tagged Valid tuple2(rs, pra), 
+		      dep_src2: tagged Invalid
 		    };
 	end
 	
@@ -466,9 +466,9 @@ module [HASim_Module] mkFUNCP_DecodeAlg ();
 
           depinfo = DepInfo 
 	            {
-		      dep_dest: Valid tuple2(rd, prd), 
-		      dep_src1: Invalid,
-		      dep_src2: Invalid
+		      dep_dest: tagged Valid tuple2(rd, prd), 
+		      dep_src1: tagged Invalid,
+		      dep_src2: tagged Invalid
 		    };
 	end
 	
@@ -487,9 +487,9 @@ module [HASim_Module] mkFUNCP_DecodeAlg ();
 
           depinfo = DepInfo 
 	            {
-		      dep_dest: Valid tuple2(rd, prd), 
-		      dep_src1: Valid tuple2(rs, pra), 
-		      dep_src2: Invalid
+		      dep_dest: tagged Valid tuple2(rd, prd), 
+		      dep_src1: tagged Valid tuple2(rs, pra), 
+		      dep_src2: tagged Invalid
 		    };
 	end
 	
@@ -508,9 +508,9 @@ module [HASim_Module] mkFUNCP_DecodeAlg ();
 
           depinfo = DepInfo 
 	            {
-		      dep_dest: Valid tuple2(rd, prd), 
-		      dep_src1: Valid tuple2(rs, pra), 
-		      dep_src2: Invalid
+		      dep_dest: tagged Valid tuple2(rd, prd), 
+		      dep_src1: tagged Valid tuple2(rs, pra), 
+		      dep_src2: tagged Invalid
 		    };
 	end
 	
@@ -529,9 +529,9 @@ module [HASim_Module] mkFUNCP_DecodeAlg ();
 
           depinfo = DepInfo 
 	            {
-		      dep_dest: Valid tuple2(rd, prd), 
-		      dep_src1: Valid tuple2(rs, pra), 
-		      dep_src2: Invalid
+		      dep_dest: tagged Valid tuple2(rd, prd), 
+		      dep_src1: tagged Valid tuple2(rs, pra), 
+		      dep_src2: tagged Invalid
 		    };
 	end
 	
@@ -550,9 +550,9 @@ module [HASim_Module] mkFUNCP_DecodeAlg ();
 
           depinfo = DepInfo 
 	            {
-		      dep_dest: Valid tuple2(rd, prd), 
-		      dep_src1: Valid tuple2(rs, pra), 
-		      dep_src2: Valid tuple2(rsha, prb)
+		      dep_dest: tagged Valid tuple2(rd, prd), 
+		      dep_src1: tagged Valid tuple2(rs, pra), 
+		      dep_src2: tagged Valid tuple2(rsha, prb)
 		    };
 	end
 	
@@ -571,9 +571,9 @@ module [HASim_Module] mkFUNCP_DecodeAlg ();
 
           depinfo = DepInfo 
 	            {
-		      dep_dest: Valid tuple2(rd, prd), 
-		      dep_src1: Valid tuple2(rs, pra), 
-		      dep_src2: Valid tuple2(rsha, prb)
+		      dep_dest: tagged Valid tuple2(rd, prd), 
+		      dep_src1: tagged Valid tuple2(rs, pra), 
+		      dep_src2: tagged Valid tuple2(rsha, prb)
 		    };
 	end
 	
@@ -592,9 +592,9 @@ module [HASim_Module] mkFUNCP_DecodeAlg ();
 
           depinfo = DepInfo 
 	            {
-		      dep_dest: Valid tuple2(rd, prd), 
-		      dep_src1: Valid tuple2(rs, pra), 
-		      dep_src2: Valid tuple2(rsha, prb)
+		      dep_dest: tagged Valid tuple2(rd, prd), 
+		      dep_src1: tagged Valid tuple2(rs, pra), 
+		      dep_src2: tagged Valid tuple2(rsha, prb)
 		    };
 	end
 	
@@ -613,9 +613,9 @@ module [HASim_Module] mkFUNCP_DecodeAlg ();
 
           depinfo = DepInfo 
 	            {
-		      dep_dest: Valid tuple2(rd,  prd), 
-		      dep_src1: Valid tuple2(rs1, pra), 
-		      dep_src2: Valid tuple2(rs2, prb)
+		      dep_dest: tagged Valid tuple2(rd,  prd), 
+		      dep_src1: tagged Valid tuple2(rs1, pra), 
+		      dep_src2: tagged Valid tuple2(rs2, prb)
 		    };
 	end
 
@@ -634,9 +634,9 @@ module [HASim_Module] mkFUNCP_DecodeAlg ();
 
           depinfo = DepInfo 
 	            {
-		      dep_dest: Valid tuple2(rd,  prd), 
-		      dep_src1: Valid tuple2(rs1, pra), 
-		      dep_src2: Valid tuple2(rs2, prb)
+		      dep_dest: tagged Valid tuple2(rd,  prd), 
+		      dep_src1: tagged Valid tuple2(rs1, pra), 
+		      dep_src2: tagged Valid tuple2(rs2, prb)
 		    };
 	end
 	
@@ -655,9 +655,9 @@ module [HASim_Module] mkFUNCP_DecodeAlg ();
 
           depinfo = DepInfo 
 	            {
-		      dep_dest: Valid tuple2(rd,  prd), 
-		      dep_src1: Valid tuple2(rs1, pra), 
-		      dep_src2: Valid tuple2(rs2, prb)
+		      dep_dest: tagged Valid tuple2(rd,  prd), 
+		      dep_src1: tagged Valid tuple2(rs1, pra), 
+		      dep_src2: tagged Valid tuple2(rs2, prb)
 		    };
 	end
       
@@ -676,9 +676,9 @@ module [HASim_Module] mkFUNCP_DecodeAlg ();
 
           depinfo = DepInfo 
 	            {
-		      dep_dest: Valid tuple2(rd,  prd), 
-		      dep_src1: Valid tuple2(rs1, pra), 
-		      dep_src2: Valid tuple2(rs2, prb)
+		      dep_dest: tagged Valid tuple2(rd,  prd), 
+		      dep_src1: tagged Valid tuple2(rs1, pra), 
+		      dep_src2: tagged Valid tuple2(rs2, prb)
 		    };
 	end
 	
@@ -697,9 +697,9 @@ module [HASim_Module] mkFUNCP_DecodeAlg ();
 
           depinfo = DepInfo 
 	            {
-		      dep_dest: Valid tuple2(rd,  prd), 
-		      dep_src1: Valid tuple2(rs1, pra), 
-		      dep_src2: Valid tuple2(rs2, prb)
+		      dep_dest: tagged Valid tuple2(rd,  prd), 
+		      dep_src1: tagged Valid tuple2(rs1, pra), 
+		      dep_src2: tagged Valid tuple2(rs2, prb)
 		    };
 	end
 
@@ -718,9 +718,9 @@ module [HASim_Module] mkFUNCP_DecodeAlg ();
 
           depinfo = DepInfo 
 	            {
-		      dep_dest: Valid tuple2(rd,  prd), 
-		      dep_src1: Valid tuple2(rs1, pra), 
-		      dep_src2: Valid tuple2(rs2, prb)
+		      dep_dest: tagged Valid tuple2(rd,  prd), 
+		      dep_src1: tagged Valid tuple2(rs1, pra), 
+		      dep_src2: tagged Valid tuple2(rs2, prb)
 		    };
 	end
 
@@ -738,9 +738,9 @@ module [HASim_Module] mkFUNCP_DecodeAlg ();
           dbg = $display("DEC: [%d] SLT dest:(R%0d/PR%0d) src1: (R%0d/PR%0d) src2: (R%0d/PR%0d)", tok.index, rd, prd, rs1, pra, rs2, prb);
           depinfo = DepInfo 
 	            {
-		      dep_dest: Valid tuple2(rd,  prd), 
-		      dep_src1: Valid tuple2(rs1, pra), 
-		      dep_src2: Valid tuple2(rs2, prb)
+		      dep_dest: tagged Valid tuple2(rd,  prd), 
+		      dep_src1: tagged Valid tuple2(rs1, pra), 
+		      dep_src2: tagged Valid tuple2(rs2, prb)
 		    };
 	end
       
@@ -758,9 +758,9 @@ module [HASim_Module] mkFUNCP_DecodeAlg ();
           dbg = $display("DEC: [%d] SLTU dest:(R%0d/PR%0d) src1: (R%0d/PR%0d) src2: (R%0d/PR%0d)", tok.index, rd, prd, rs1, pra, rs2, prb);
           depinfo = DepInfo 
 	            {
-		      dep_dest: Valid tuple2(rd,  prd), 
-		      dep_src1: Valid tuple2(rs1, pra), 
-		      dep_src2: Valid tuple2(rs2, prb)
+		      dep_dest: tagged Valid tuple2(rd,  prd), 
+		      dep_src1: tagged Valid tuple2(rs1, pra), 
+		      dep_src2: tagged Valid tuple2(rs2, prb)
 		    };
 	end
 
@@ -777,9 +777,9 @@ module [HASim_Module] mkFUNCP_DecodeAlg ();
           dbg = $display("DEC: [%d] MTC0 src: (R%0d/PR%0d) cop0dest: %0d", tok.index, rs, pra, op);
           depinfo = DepInfo 
 	            {
-		      dep_dest: Invalid, 
-		      dep_src1: Valid tuple2(rs, pra), 
-		      dep_src2: Invalid
+		      dep_dest: tagged Invalid, 
+		      dep_src1: tagged Valid tuple2(rs, pra), 
+		      dep_src2: tagged Invalid
 		    };
 	end
       
@@ -796,9 +796,9 @@ module [HASim_Module] mkFUNCP_DecodeAlg ();
           dbg = $display("DEC: [%d] MFC0 dest: (R%0d/PR%0d) cop0src: %0d", tok.index, rd, prd, op);
           depinfo = DepInfo 
 	            {
-		      dep_dest: Valid tuple2(rd, prd), 
-		      dep_src1: Invalid, 
-		      dep_src2: Invalid
+		      dep_dest: tagged Valid tuple2(rd, prd), 
+		      dep_src1: tagged Invalid, 
+		      dep_src2: tagged Invalid
 		    };
 	end
 
@@ -819,9 +819,9 @@ module [HASim_Module] mkFUNCP_DecodeAlg ();
 
           depinfo = DepInfo 
 	            {
-		      dep_dest: Invalid, 
-		      dep_src1: Valid tuple2(rs, pra), 
-		      dep_src2: Invalid
+		      dep_dest: tagged Invalid, 
+		      dep_src1: tagged Valid tuple2(rs, pra), 
+		      dep_src2: tagged Invalid
 		    };
         end
 
@@ -839,9 +839,9 @@ module [HASim_Module] mkFUNCP_DecodeAlg ();
 
           depinfo = DepInfo 
 	            {
-		      dep_dest: Invalid, 
-		      dep_src1: Valid tuple2(rs, pra), 
-		      dep_src2: Invalid
+		      dep_dest: tagged Invalid, 
+		      dep_src1: tagged Valid tuple2(rs, pra), 
+		      dep_src2: tagged Invalid
 		    };
         end
 
@@ -859,9 +859,9 @@ module [HASim_Module] mkFUNCP_DecodeAlg ();
 
           depinfo = DepInfo 
 	            {
-		      dep_dest: Invalid, 
-		      dep_src1: Valid tuple2(rs, pra), 
-		      dep_src2: Invalid
+		      dep_dest: tagged Invalid, 
+		      dep_src1: tagged Valid tuple2(rs, pra), 
+		      dep_src2: tagged Invalid
 		    };
         end
 
@@ -879,9 +879,9 @@ module [HASim_Module] mkFUNCP_DecodeAlg ();
 
           depinfo = DepInfo 
 	            {
-		      dep_dest: Invalid, 
-		      dep_src1: Valid tuple2(rs, pra), 
-		      dep_src2: Invalid
+		      dep_dest: tagged Invalid, 
+		      dep_src1: tagged Valid tuple2(rs, pra), 
+		      dep_src2: tagged Invalid
 		    };
         end
 
@@ -900,9 +900,9 @@ module [HASim_Module] mkFUNCP_DecodeAlg ();
 
           depinfo = DepInfo 
 	            {
-		      dep_dest: Invalid, 
-		      dep_src1: Valid tuple2(rs1, pra), 
-		      dep_src2: Valid tuple2(rs2, prb)
+		      dep_dest: tagged Invalid, 
+		      dep_src1: tagged Valid tuple2(rs1, pra), 
+		      dep_src2: tagged Valid tuple2(rs2, prb)
 		    };
         end
 
@@ -921,9 +921,9 @@ module [HASim_Module] mkFUNCP_DecodeAlg ();
 		    
           depinfo = DepInfo 
 	            {
-		      dep_dest: Invalid, 
-		      dep_src1: Valid tuple2(rs1, pra), 
-		      dep_src2: Valid tuple2(rs2, prb)
+		      dep_dest: tagged Invalid, 
+		      dep_src1: tagged Valid tuple2(rs1, pra), 
+		      dep_src2: tagged Valid tuple2(rs2, prb)
 		    };
         end
       
@@ -942,9 +942,9 @@ module [HASim_Module] mkFUNCP_DecodeAlg ();
 
           depinfo = DepInfo 
 	            {
-		      dep_dest: Invalid, 
-		      dep_src1: Invalid, 
-		      dep_src2: Invalid
+		      dep_dest: tagged Invalid, 
+		      dep_src1: tagged Invalid, 
+		      dep_src2: tagged Invalid
 		    };
         end
       
@@ -961,9 +961,9 @@ module [HASim_Module] mkFUNCP_DecodeAlg ();
 
           depinfo = DepInfo 
 	            {
-		      dep_dest: Invalid, 
-		      dep_src1: Valid tuple2(rs, pra), 
-		      dep_src2: Invalid
+		      dep_dest: tagged Invalid, 
+		      dep_src1: tagged Valid tuple2(rs, pra), 
+		      dep_src2: tagged Invalid
 		    };
         end
       //Jump and Link (into archictectural register 31)
@@ -980,9 +980,9 @@ module [HASim_Module] mkFUNCP_DecodeAlg ();
     
           depinfo = DepInfo 
 	            {
-		      dep_dest: Valid tuple2(5'd31, prd), 
-		      dep_src1: Invalid, 
-		      dep_src2: Invalid
+		      dep_dest: tagged Valid tuple2(5'd31, prd), 
+		      dep_src1: tagged Invalid, 
+		      dep_src2: tagged Invalid
 		    };
         end
 
@@ -1000,9 +1000,9 @@ module [HASim_Module] mkFUNCP_DecodeAlg ();
 
           depinfo = DepInfo 
 	            {
-		      dep_dest: Valid tuple2(rd, prd), 
-		      dep_src1: Valid tuple2(rs, pra), 
-		      dep_src2: Invalid
+		      dep_dest: tagged Valid tuple2(rd, prd), 
+		      dep_src1: tagged Valid tuple2(rs, pra), 
+		      dep_src2: tagged Invalid
 		    };
         end
 
@@ -1016,9 +1016,9 @@ module [HASim_Module] mkFUNCP_DecodeAlg ();
 
           depinfo = DepInfo 
 	            {
-		      dep_dest: Invalid, 
-		      dep_src1: Invalid, 
-		      dep_src2: Invalid
+		      dep_dest: tagged Invalid, 
+		      dep_src1: tagged Invalid, 
+		      dep_src2: tagged Invalid
 		    };
         end
 
@@ -1030,9 +1030,9 @@ module [HASim_Module] mkFUNCP_DecodeAlg ();
 	  
           depinfo = DepInfo 
 	            {
-		      dep_dest: Invalid, 
-		      dep_src1: Invalid, 
-		      dep_src2: Invalid
+		      dep_dest: tagged Invalid, 
+		      dep_src1: tagged Invalid, 
+		      dep_src2: tagged Invalid
 		    };
         end
 

@@ -20,7 +20,7 @@ module mkCommandCenter (CommandCenter);
 
   Reg#(Bool) r <- mkReg(False);
   Reg#(Bool) passed <- mkReg(False);
-  Reg#(Maybe#(Token)) mStopToken <- mkReg(Invalid);
+  Reg#(Maybe#(Token)) mStopToken <- mkReg(tagged Invalid);
   
   method Action start();
     
@@ -38,7 +38,7 @@ module mkCommandCenter (CommandCenter);
   
   method Action setStopToken(Token t);
   
-    mStopToken <= Valid t;
+    mStopToken <= tagged Valid t;
     
   endmethod
   
