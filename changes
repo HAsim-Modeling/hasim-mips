@@ -667,3 +667,20 @@ it should rather be called dispatch unit I suppose. Currently,
 it writes rob entries. I am planning to merge issue queue with
 rob - it might be a better idea, as we dont have to worry about
 back pressure from issue queues.
+
+----------
+vmurali     Date: Wed May  9 14:20:34 EDT 2007  CSN: CSN-hasim-mips-43
+                  Wed May  9 18:20:34 UTC 2007
+
+
+Directory modules/cpu/mips/s10k/execute/s10k_simple
+ s10k_execute_simple.bsv   Locally Modified           42 
+
+Directory modules/cpu/mips/s10k/decode/s10k_simple
+ s10k_decode_simple.bsv    Locally Modified           42 
+
+Directory modules/cpu/mips/s10k/fetch/s10k_simple
+ s10k_fetch_simple.bsv     Locally Modified           42 
+
+Restructured the decode unit to behave exactly like a real processor.
+

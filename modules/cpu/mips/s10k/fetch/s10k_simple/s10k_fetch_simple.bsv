@@ -22,8 +22,8 @@ module [HASim_Module] mkFetch();
     Port_Receive#(Addr)             predictedTakenPort <- mkPort_Receive("decodeToFetch_PredictedTaken", 1);
     Port_Receive#(Addr)                 mispredictPort <- mkPort_Receive("executeToFetch_Mispredict", 1);
 
-    function sendFunctionM(Integer i) = mkPort_Send(strConcat("fetchToDecode_TokenAddr", fromInteger(i)));
-    Vector#(NumInst, Port_Send#(Tuple2#(Token, Addr))) tokenAddrPort <- genWithM(sendFunctionM);
+    function sendFunctionM(String str, Integer i) = mkPort_Send(strConcat(fromInteger(i)));
+    Vector#(NumInst, Port_Send#(Tuple2#(Token, Addr))) tokenAddrPort <- genWithM(sendFunctionM("fetchToDecode_TokenAddr"));
 
     Reg#(Addr)                                      pc <- mkReg(pcStart);
     Reg#(Count)                                  count <- mkReg(0);
