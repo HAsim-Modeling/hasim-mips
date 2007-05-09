@@ -776,3 +776,20 @@ supported by the compiler. These constructs have been changed in a way that is
 both forwards- and backwards-compatible.
 
 Michael P.
+
+----------
+vmurali     Date: Wed May  9 17:41:43 EDT 2007  CSN: CSN-hasim-mips-47
+                  Wed May  9 21:41:43 UTC 2007
+
+
+Directory modules/cpu/mips/s10k/execute/s10k_simple
+ s10k_execute_simple.bsv   Locally Modified           46 
+
+Directory modules/cpu/mips/s10k/decode/s10k_simple
+ s10k_decode_simple.bsv    Locally Modified           46 
+
+Directory modules/cpu/mips/s10k/fetch/s10k_simple
+ s10k_fetch_simple.bsv     Locally Modified           46 
+
+Merging the branch changes into the main trunk for s10k
+
