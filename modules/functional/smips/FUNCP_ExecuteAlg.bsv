@@ -86,8 +86,8 @@ module [HASim_Module] mkFUNCP_ExecuteAlg ();
       tagged DSLT   .it : return it.psrc1;
       tagged DSLTU  .it : return it.psrc1;
 
-      //tagged DMTC0  .it : return it.psrc;
-      //tagged DMFC0  .it : return ?;
+      tagged DMTC0  .it : return it.psrc;
+      tagged DMFC0  .it : return ?;
 
       // -- Branches --------------------------------------------------
 
@@ -143,8 +143,13 @@ module [HASim_Module] mkFUNCP_ExecuteAlg ();
   
     debug_rule("handleExec");
 
-    let tup <- link_exe.getReq();
-    waitingQ.enq(tup);
+    match {.tok, {.addr, .dec}, .*} <- link_exe.getReq();
+    
+    //Might as well add 4 to PC now.
+    Addr   addr_plus_4 = addr + 4;
+
+    waitingQ.enq(tuple3(tok, tuple2(addr_plus_4, dec), ?));
+    
   endrule
   
   rule makeReq (!waiting);
@@ -168,7 +173,7 @@ module [HASim_Module] mkFUNCP_ExecuteAlg ();
   
     debug_rule("execute");
 
-    match {.tok, {.addr, .dec}, .*} = waitingQ.first();
+    match {.tok, {.addr_plus_4, .dec}, .*} = waitingQ.first();
 
     //Try to get the values from the Bypass unit
     Maybe#(Value) mva <- link_read1.getResp();
@@ -407,7 +412,7 @@ module [HASim_Module] mkFUNCP_ExecuteAlg ();
           done  = isJust(mva) && isJust(mvb);
 	  res   = RNop;
 	  wbval = unJust(mva) + unJust(mvb);
-	  dbg = $display("EXE [ %d] DADDU PR%d <= %0h = %0h + %0h", tok.index, rd, wbval, unJust(mva), unJust(mvb));
+	  dbg = $display("EXE: [%d] DADDU PR%d <= %0h = %0h + %0h", tok.index, rd, wbval, unJust(mva), unJust(mvb));
           einst = EWB
                   {
 		    pdest:  rd
@@ -423,7 +428,7 @@ module [HASim_Module] mkFUNCP_ExecuteAlg ();
           done  = isJust(mva) && isJust(mvb);
 	  res   = RNop;
 	  wbval = unJust(mva) - unJust(mvb);
-	  dbg = $display("EXE [ %d] DSUBU PR%d <= %0h = %0h - %0h", tok.index, rd, wbval, unJust(mva), unJust(mvb));
+	  dbg = $display("EXE: [%d] DSUBU PR%d <= %0h = %0h - %0h", tok.index, rd, wbval, unJust(mva), unJust(mvb));
           einst = EWB
                   {
 		    pdest:  rd
@@ -437,7 +442,7 @@ module [HASim_Module] mkFUNCP_ExecuteAlg ();
           done  = isJust(mva) && isJust(mvb);
 	  res   = RNop;
 	  wbval = unJust(mva) & unJust(mvb);
-	  dbg = $display("EXE [ %d] DAND PR%d <= %0h = %0h & %0h", tok.index, rd, wbval, unJust(mva), unJust(mvb));
+	  dbg = $display("EXE: [%d] DAND PR%d <= %0h = %0h & %0h", tok.index, rd, wbval, unJust(mva), unJust(mvb));
           einst = EWB
                   {
 		    pdest:  rd
@@ -451,7 +456,7 @@ module [HASim_Module] mkFUNCP_ExecuteAlg ();
           done  = isJust(mva) && isJust(mvb);
 	  res   = RNop;
 	  wbval = unJust(mva) | unJust(mvb);
-	  dbg = $display("EXE [ %d] DOR PR%d <= %0h = %0h | %0h", tok.index, rd, wbval, unJust(mva), unJust(mvb));
+	  dbg = $display("EXE: [%d] DOR PR%d <= %0h = %0h | %0h", tok.index, rd, wbval, unJust(mva), unJust(mvb));
           einst = EWB
                   {
 		    pdest:  rd
@@ -465,7 +470,7 @@ module [HASim_Module] mkFUNCP_ExecuteAlg ();
           done  = isJust(mva) && isJust(mvb);
 	  res   = RNop;
 	  wbval = unJust(mva) ^ unJust(mvb);
-	  dbg = $display("EXE [ %d] DXOR PR%d <= %0h = %0h ^ %0h", tok.index, rd, wbval, unJust(mva), unJust(mvb));
+	  dbg = $display("EXE: [%d] DXOR PR%d <= %0h = %0h ^ %0h", tok.index, rd, wbval, unJust(mva), unJust(mvb));
           einst = EWB
                   {
 		    pdest:  rd
@@ -479,7 +484,7 @@ module [HASim_Module] mkFUNCP_ExecuteAlg ();
           done  = isJust(mva) && isJust(mvb);
 	  res   = RNop;
 	  wbval = ~(unJust(mva) | unJust(mvb));
-	  dbg = $display("EXE [ %d] DNOR PR%d <= %0h = %0h nor %0h", tok.index, rd, wbval, unJust(mva), unJust(mvb));
+	  dbg = $display("EXE: [%d] DNOR PR%d <= %0h = %0h nor %0h", tok.index, rd, wbval, unJust(mva), unJust(mvb));
           einst = EWB
                   {
 		    pdest:  rd
@@ -493,7 +498,7 @@ module [HASim_Module] mkFUNCP_ExecuteAlg ();
           done  = isJust(mva) && isJust(mvb);
 	  res   = RNop;
 	  wbval = zeroExtend(pack(signedLT(unJust(mva), unJust(mvb))));
-	  dbg = $display("EXE [ %d] DSLT PR%d <= %0h = slt(%0h, %0h)", tok.index, rd, wbval, unJust(mva), unJust(mvb));
+	  dbg = $display("EXE: [%d] DSLT PR%d <= %0h = slt(%0h, %0h)", tok.index, rd, wbval, unJust(mva), unJust(mvb));
           einst = EWB
                   {
 		    pdest:  rd
@@ -507,7 +512,7 @@ module [HASim_Module] mkFUNCP_ExecuteAlg ();
           done  = isJust(mva) && isJust(mvb);
 	  res   = RNop;
 	  wbval = zeroExtend(pack(unJust(mva) < unJust(mvb)));
-	  dbg = $display("EXE [ %d] DSLTU PR%d <= %0h = sltu(%0h, %0h)", tok.index, rd, wbval, unJust(mva), unJust(mvb));
+	  dbg = $display("EXE: [%d] DSLTU PR%d <= %0h = sltu(%0h, %0h)", tok.index, rd, wbval, unJust(mva), unJust(mvb));
           einst = EWB
                   {
 		    pdest:  rd
@@ -522,11 +527,11 @@ module [HASim_Module] mkFUNCP_ExecuteAlg ();
 	begin
 
           Bool taken = signedLE(unJust(mva), 0);
-	  Addr dest  = addr + signExtend(off);
+	  Addr dest  = addr_plus_4 + (signExtend(off) << 2);
 
           done  = isJust(mva);
 	  res   = taken ? (RBranchTaken dest) : RBranchNotTaken;
-	  dbg = $display("EXE [ %d] DBLEZ PC <= 0x%h = 0x%h + 0x%h if (0x%h < 0)", tok.index, dest, addr, off, unJust(mva));
+	  dbg = $display("EXE: [%d] DBLEZ PC <= 0x%h (offset 0x%h) if (0x%h <= 0)", tok.index, dest, off, unJust(mva));
 	  einst = ENop;
 
 	end
@@ -536,11 +541,11 @@ module [HASim_Module] mkFUNCP_ExecuteAlg ();
 	begin
 	
           Bool taken = signedGT(unJust(mva), 0);
-	  Addr dest  = addr + signExtend(off);
+	  Addr dest  = addr_plus_4 + (signExtend(off) << 2);
 
           done  = isJust(mva);
 	  res   = taken ? (RBranchTaken dest) : RBranchNotTaken;
-	  dbg = $display("EXE [ %d] DBGTZ PC <= 0x%h = 0x%h + 0x%h if (0x%h > 0)", tok.index, dest, addr, off, unJust(mva));
+	  dbg = $display("EXE: [%d] DBGTZ PC <= 0x%h (offset 0x%h) if (0x%h > 0)", tok.index, dest, off, unJust(mva));
 	  einst = ENop;
 
 	end
@@ -550,11 +555,11 @@ module [HASim_Module] mkFUNCP_ExecuteAlg ();
 	begin
 	
           Bool taken = signedLT(unJust(mva), 0);
-	  Addr dest  = addr + signExtend(off);
+	  Addr dest  = addr_plus_4 + (signExtend(off) << 2);
 
           done  = isJust(mva);
 	  res   = taken ? (RBranchTaken dest) : RBranchNotTaken;
-	  dbg = $display("EXE [ %d] DBLTZ PC <= 0x%h = 0x%h + 0x%h if (0x%h < 0)", tok.index, dest, addr, off, unJust(mva));
+	  dbg = $display("EXE: [%d] DBLTZ PC <= 0x%h (offset 0x%h) if (0x%h < 0)", tok.index, dest, off, unJust(mva));
 	  einst = ENop;
 
 	end
@@ -564,11 +569,11 @@ module [HASim_Module] mkFUNCP_ExecuteAlg ();
 	begin
 
           Bool taken = signedGE(unJust(mva), 0);
-	  Addr dest  = addr + signExtend(off);
+	  Addr dest  = addr_plus_4 + (signExtend(off) << 2);
 
           done  = isJust(mva);
 	  res   = taken ? (RBranchTaken dest) : RBranchNotTaken;
-	  dbg = $display("EXE [ %d] DBGEZ PC <= 0x%h = 0x%h + 0x%h if (0x%h > 0)", tok.index, dest, addr, off, unJust(mva));
+	  dbg = $display("EXE: [%d] DBGEZ PC <= 0x%h (offset 0x%h) if (0x%h > 0)", tok.index, dest, off, unJust(mva));
 	  einst = ENop;
 
 	end
@@ -578,11 +583,11 @@ module [HASim_Module] mkFUNCP_ExecuteAlg ();
 	begin
 
           Bool taken = unJust(mva) == unJust(mvb);
-	  Addr dest  = addr + (signExtend(off));
+	  Addr dest  = addr_plus_4 + (signExtend(off) << 2);
 
           done  = isJust(mva) && isJust(mvb);
 	  res   = taken ? (RBranchTaken dest) : RBranchNotTaken;
-	  dbg = $display("EXE [ %d] DBEQ PC <= 0x%h = 0x%h + 0x%h if (0x%h == 0x%h)", tok.index, dest, addr, off, unJust(mva), unJust(mvb));
+	  dbg = $display("EXE: [%d] DBEQ PC <= 0x%h (offset 0x%h) if (0x%h == 0x%h)", tok.index, dest, off, unJust(mva), unJust(mvb));
 	  einst = ENop;
 
 	end
@@ -592,11 +597,11 @@ module [HASim_Module] mkFUNCP_ExecuteAlg ();
 	begin
 
           Bool taken = unJust(mva) != unJust(mvb);
-	  Addr dest  = addr + (signExtend(off));
+	  Addr dest  = addr_plus_4 + (signExtend(off) << 2);
 
           done  = isJust(mva) && isJust(mvb);
 	  res   = taken ? (RBranchTaken dest) : RBranchNotTaken;
-	  dbg = $display("EXE [ %d] DBNE PC <= 0x%h = 0x%h + 0x%h if (0x%h != 0x%h)", tok.index, dest, addr, off, unJust(mva), unJust(mvb));
+	  dbg = $display("EXE: [%d] DBNE PC <= 0x%h (offset 0x%h) if (0x%h != 0x%h)", tok.index, dest, off, unJust(mva), unJust(mvb));
 	  einst = ENop;
 
 	end
@@ -607,11 +612,11 @@ module [HASim_Module] mkFUNCP_ExecuteAlg ();
       tagged DJ {target: .targ}: 
 	begin
 
-	  Addr dest  = {addr[31:26], targ};
+	  Addr dest  = {addr_plus_4[31:28], targ, 2'b00};
 
           done  = True;
 	  res   = RBranchTaken dest;
-	  dbg = $display("EXE [ %d] DJ PC <= 0x%h = {%0h, %0h, 00}", tok.index, dest, addr[31:26], targ);
+	  dbg = $display("EXE: [%d] DJ PC <= 0x%h = {%0h, %0h, 00}", tok.index, dest, addr_plus_4[31:26], targ);
 	  einst = ENop;
 
 	end
@@ -624,7 +629,7 @@ module [HASim_Module] mkFUNCP_ExecuteAlg ();
 
           done  = isJust(mva);
 	  res   = RBranchTaken dest;
-	  dbg = $display("EXE [ %d] DJR PC <= 0x%h ", tok.index, dest);
+	  dbg = $display("EXE: [%d] DJR PC <= 0x%h ", tok.index, dest);
 	  einst = ENop;
 
 	end
@@ -633,12 +638,12 @@ module [HASim_Module] mkFUNCP_ExecuteAlg ();
       tagged DJAL {target: .targ, pdest: .rd}:
 	begin
 
-	  Addr dest  = {addr[31:28], targ, 2'b0};
+	  Addr dest  = {addr_plus_4[31:28], targ, 2'b0};
 	  
           done  = True;
 	  res   = RBranchTaken dest;
-	  wbval = addr;
-	  dbg = $display("EXE [ %d] DJAL PC <= 0x%h, PR%d <= 0x%h", tok.index, dest, rd, addr);
+	  wbval = addr_plus_4;
+	  dbg = $display("EXE: [%d] DJAL PC <= 0x%h, PR%d <= 0x%h", tok.index, dest, rd, addr_plus_4);
           einst = EWB
                   {
 		    pdest:  rd
@@ -654,8 +659,36 @@ module [HASim_Module] mkFUNCP_ExecuteAlg ();
 	  
           done  = isJust(mva);
 	  res   = RBranchTaken dest;
-	  wbval = addr;
-	  dbg = $display("EXE [ %d] DJALR PC <= 0x%h, PR%d <= 0x%h", tok.index, dest, rd, addr);
+	  wbval = addr_plus_4;
+	  dbg = $display("EXE: [%d] DJALR PC <= 0x%h, PR%d <= 0x%h", tok.index, dest, rd, addr_plus_4);
+          einst = EWB
+                  {
+		    pdest:  rd
+		  };
+	end
+       // -- Co-Proc ---------------------------------------------------
+
+      //Move To Co-Processor 0
+      tagged DMTC0 {psrc: .rs, cop0dest: .cd}: 
+	begin
+	  
+          done  = isJust(mva);
+	  Bool pf = unJust(mva) == 1; //Equal to 1 means we passed
+	  //A Non-Zero value to "fromHost" is equivalent to a terminate for our purposes
+	  res   = (unJust(mva) == 0) ? RNop : (cd == 21) ? RTerminate pf : RNop;
+	  dbg = $display("EXE: [%d] DMTC0 COP0 R%d <= 0x%h", tok.index, cd, rs);
+          einst = ENop;
+	end
+
+      //Move From Co-Processor 0
+      tagged DMFC0 {pdest: .rd, cop0src: .cs}: 
+	begin
+	  //This instruction is pretty useless because cop0src doesn't exist.
+	  //So what we do instead is set rd to 1 (because this is what most of our testcases use this for).
+          done  = True;
+	  res   = RNop;
+	  wbval = 1;
+	  dbg = $display("EXE: [%d] DMFC0 PR%d <= COP0 R%0d (Hardwired to 1)", tok.index, rd, cs);
           einst = EWB
                   {
 		    pdest:  rd
@@ -668,8 +701,8 @@ module [HASim_Module] mkFUNCP_ExecuteAlg ();
         begin
 	
 	  done = True;
-	  res = RTerminate;
-	  dbg = $display("EXE [ %d] DTERMINATE", tok.index);
+	  res = RTerminate True;
+	  dbg = $display("EXE: [%d] DTERMINATE", tok.index);
 	  einst = ENop;
 	  	  
         end

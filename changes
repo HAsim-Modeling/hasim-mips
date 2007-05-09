@@ -699,3 +699,40 @@ Directory config/bm/smips
 This is the first step towards getting hasim to run the smips cross-compiler.
 
 Michael
+
+----------
+pellauer    Date: Wed May  9 14:58:51 EDT 2007  CSN: CSN-hasim-mips-44
+                  Wed May  9 18:58:51 UTC 2007
+
+
+Directory tools/scripts/smips
+ setup-all-tests-smips     Locally Removed            43 
+ setup-all-tests           Locally Added               0 
+ setup-bmark               Locally Modified           43 
+ Makefile.bmarks           Locally Modified           43 
+ setup-test                Locally Modified           43 
+ Makefile.tests            Locally Modified           43 
+
+Directory config/bm/smips
+ 6_375.cfx                 Locally Modified           43 
+
+Directory modules/functional/smips
+ FUNCP_ExecuteAlg.bsv      Locally Modified           43 
+ FUNCP_DecodeAlg.bsv       Locally Modified           43 
+
+Directory modules/functional/test-cases/smips/branch
+ TestCase.bsv              Locally Modified           43 
+
+Directory modules/chip/mips/5stage-ports
+ CommandCenter.bsv         Locally Modified           43 
+ Chip.bsv                  Locally Modified           43 
+
+Directory modules/isa/smips
+ ISA.bsv                   Locally Modified           43 
+
+
+Modifications to work with the new Functional Partition. Also some bugfixes.
+
+The next checkin will bring all the models back in line to the new organization.
+
+Michael P.

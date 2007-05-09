@@ -70,3 +70,19 @@ endfunction
 
 //Eventually these should be parameters
 TestCase test_case = testBranch(17, 12);
+
+(* synthesize *)
+module printTestCase ();
+
+  Reg#(int) r <- mkReg(0);
+  let max = 34;
+  
+  rule printNext (r < max);
+  
+    
+    $display("%h", instToBits(test_case.imem_init[r]));
+    r <= r + 1;
+  
+  endrule
+
+endmodule

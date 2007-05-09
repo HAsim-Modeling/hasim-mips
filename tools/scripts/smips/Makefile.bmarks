@@ -105,7 +105,7 @@ incs  += -I. $(addprefix -I$(global_bmarkdir)/, $(global_bmarks)) \
              $(addprefix -I$(local_bmarkdir)/, $(local_bmarks))
 objs  :=
 
-smips_gcc_dir    = /afs/csail.mit.edu/group/csg/tools_lx86/src/smips/
+smips_gcc_dir    = /afs/csail.mit.edu/group/csg/tools_lx86/
 smips_gcc_libdir = $(smips_gcc_dir)/lib
 smips_gcc_incdir = $(Smips_gcc_inc)/include
 

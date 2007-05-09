@@ -44,8 +44,8 @@ fi
 /bin/ln -f -s $bmark_dir/$bmark/* program
 /bin/ln -f -s $srcdir/Makefile.bmarks program/Makefile
 
-echo "Making benchmark"
-make -C program $bmark.smips.vmh
+#echo "Making benchmark"
+#make -C program $bmark.smips.vmh
 
 echo "Creating run script"
 echo '#!/bin/sh'                                                                   > run

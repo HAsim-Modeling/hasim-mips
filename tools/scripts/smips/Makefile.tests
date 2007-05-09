@@ -89,7 +89,7 @@ HOST_COMP = gcc $(HOST_OPTS)
 VCS      = vcs
 VCS_OPTS = -notice -PP -line +lint=all +v2k -timescale=1ns/10ps 
 
-SMIPS_TESTBUILD = smips-testbuild -smips -opti O2
+SMIPS_TESTBUILD = smips-testbuild -v -smips -opti O2
 SMIPS_OBJDUMP = smips-objdump --disassemble-all --disassemble-zeroes
 SMIPS_OBJDUMP_TO_VMH = objdump2vmh.pl 
 

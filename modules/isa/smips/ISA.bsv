@@ -32,7 +32,7 @@ typedef Bit#(16) ZImm;
 typedef Bit#(5)  ShAmt;
 typedef Bit#(26) Target;
 typedef Bit#(5)  CP0Index;
-typedef Bit#(9)  SoftAddr;
+typedef Bit#(12) SoftAddr;
 
 //For convenience
 
@@ -58,7 +58,7 @@ typedef union tagged
 {
 
   struct { RName rbase; RName rdest;  SImm offset;  } LW;
-  struct { RName rbase; RName rsrc;  SImm offset;  } SW; 
+  struct { RName rbase; RName rsrc;   SImm offset;  } SW; 
 
   struct { RName rsrc;  RName rdest;  SImm imm;     } ADDIU;
   struct { RName rsrc;  RName rdest;  SImm imm;     } SLTI;
@@ -74,31 +74,31 @@ typedef union tagged
   struct { RName rsrc;  RName rdest;  RName rshamt; } SLLV;
   struct { RName rsrc;  RName rdest;  RName rshamt; } SRLV;
   struct { RName rsrc;  RName rdest;  RName rshamt; } SRAV;
-  struct { RName rsrc1; RName rsrc2; RName rdest;   } ADDU;
-  struct { RName rsrc1; RName rsrc2; RName rdest;   } SUBU;
-  struct { RName rsrc1; RName rsrc2; RName rdest;   } AND;
-  struct { RName rsrc1; RName rsrc2; RName rdest;   } OR;
-  struct { RName rsrc1; RName rsrc2; RName rdest;   } XOR;
-  struct { RName rsrc1; RName rsrc2; RName rdest;   } NOR;
-  struct { RName rsrc1; RName rsrc2; RName rdest;   } SLT;
-  struct { RName rsrc1; RName rsrc2; RName rdest;   } SLTU;
+  struct { RName rsrc1; RName rsrc2;  RName rdest;  } ADDU;
+  struct { RName rsrc1; RName rsrc2;  RName rdest;  } SUBU;
+  struct { RName rsrc1; RName rsrc2;  RName rdest;  } AND;
+  struct { RName rsrc1; RName rsrc2;  RName rdest;  } OR;
+  struct { RName rsrc1; RName rsrc2;  RName rdest;  } XOR;
+  struct { RName rsrc1; RName rsrc2;  RName rdest;  } NOR;
+  struct { RName rsrc1; RName rsrc2;  RName rdest;  } SLT;
+  struct { RName rsrc1; RName rsrc2;  RName rdest;  } SLTU;
 
-  struct { Target target;                          } J;
-  struct { Target target;                          } JAL;
-  struct { RName rsrc;                             } JR;
+  struct { Target target;                           } J;
+  struct { Target target;                           } JAL;
+  struct { RName rsrc;                              } JR;
   struct { RName rsrc;  RName rdest;                } JALR;
-  struct { RName rsrc1; RName rsrc2; SImm offset;  } BEQ;
-  struct { RName rsrc1; RName rsrc2; SImm offset;  } BNE;
-  struct { RName rsrc;  SImm offset;               } BLEZ;
-  struct { RName rsrc;  SImm offset;               } BGTZ;
-  struct { RName rsrc;  SImm offset;               } BLTZ;
-  struct { RName rsrc;  SImm offset;               } BGEZ;
+  struct { RName rsrc1; RName rsrc2; SImm offset;   } BEQ;
+  struct { RName rsrc1; RName rsrc2; SImm offset;   } BNE;
+  struct { RName rsrc;  SImm offset;                } BLEZ;
+  struct { RName rsrc;  SImm offset;                } BGTZ;
+  struct { RName rsrc;  SImm offset;                } BLTZ;
+  struct { RName rsrc;  SImm offset;                } BGEZ;
 
-  //struct { RName rdest;  CP0Index cop0src;          } MFC0;
-  //struct { RName rsrc;  CP0Index cop0dest;          } MTC0; 
+  struct { RName rdest; CP0Index cop0src;           } MFC0;
+  struct { RName rsrc;  CP0Index cop0dest;          } MTC0;
 
-  void                                               TERMINATE;
-  void                                               ILLEGAL;
+  void                                                TERMINATE;
+  void                                                ILLEGAL;
 
 }
   Inst
@@ -141,8 +141,8 @@ function Bit#(32) instToBits(Inst instr);
 
   case (instr) matches
 
-    tagged LW    .it : return { opLW,    it.rbase, it.rdest,  it.offset };
-    tagged SW    .it : return { opSW,    it.rbase, it.rsrc,  it.offset };
+    tagged LW    .it : return { opLW,    it.rbase, it.rdest,  it.offset                   };
+    tagged SW    .it : return { opSW,    it.rbase, it.rsrc,   it.offset                   };
 
     tagged ADDIU .it : return { opADDIU, it.rsrc,  it.rdest,  it.imm                      }; 
     tagged SLTI  .it : return { opSLTI,  it.rsrc,  it.rdest,  it.imm                      }; 
@@ -169,19 +169,19 @@ function Bit#(32) instToBits(Inst instr);
     tagged SLT   .it : return { opFUNC,  it.rsrc1, it.rsrc2, it.rdest,   5'b0,     fcSLT  }; 
     tagged SLTU  .it : return { opFUNC,  it.rsrc1, it.rsrc2, it.rdest,   5'b0,     fcSLTU }; 
 
-    tagged J     .it : return { opJ,     it.target                                       }; 
-    tagged JAL   .it : return { opJAL,   it.target                                       }; 
-    tagged JR    .it : return { opFUNC,  it.rsrc,  5'b0,     5'b0,      5'b0,     fcJR   };
+    tagged J     .it : return { opJ,     it.target                                        }; 
+    tagged JAL   .it : return { opJAL,   it.target                                        }; 
+    tagged JR    .it : return { opFUNC,  it.rsrc,  5'b0,     5'b0,      5'b0,      fcJR   };
     tagged JALR  .it : return { opFUNC,  it.rsrc,  5'b0,     it.rdest,   5'b0,     fcJALR };
-    tagged BEQ   .it : return { opBEQ,   it.rsrc1, it.rsrc2, it.offset                   }; 
-    tagged BNE   .it : return { opBNE,   it.rsrc1, it.rsrc2, it.offset                   }; 
-    tagged BLEZ  .it : return { opBLEZ,  it.rsrc,  5'b0,     it.offset                   }; 
-    tagged BGTZ  .it : return { opBGTZ,  it.rsrc,  5'b0,     it.offset                   }; 
-    tagged BLTZ  .it : return { opRT,    it.rsrc,  rtBLTZ,   it.offset                   }; 
-    tagged BGEZ  .it : return { opRT,    it.rsrc,  rtBGEZ,   it.offset                   }; 
+    tagged BEQ   .it : return { opBEQ,   it.rsrc1, it.rsrc2, it.offset                    };
+    tagged BNE   .it : return { opBNE,   it.rsrc1, it.rsrc2, it.offset                    };
+    tagged BLEZ  .it : return { opBLEZ,  it.rsrc,  5'b0,     it.offset                    };
+    tagged BGTZ  .it : return { opBGTZ,  it.rsrc,  5'b0,     it.offset                    };
+    tagged BLTZ  .it : return { opRT,    it.rsrc,  rtBLTZ,   it.offset                    };
+    tagged BGEZ  .it : return { opRT,    it.rsrc,  rtBGEZ,   it.offset                    };
 
-    //tagged MFC0  .it : return { opRS,    rsMFC0,   it.rdest,  it.cop0src, 11'b0           }; 
-    //tagged MTC0  .it : return { opRS,    rsMTC0,   it.rsrc,  it.cop0dest, 11'b0           }; 
+    tagged MFC0  .it : return { opRS,    rsMFC0,   it.rdest,  it.cop0src,  11'b0          };
+    tagged MTC0  .it : return { opRS,    rsMTC0,   it.rsrc,   it.cop0dest, 11'b0          };
     tagged TERMINATE  .it : return { opRS, rsTERMINATE, 21'b0           };  
 
   endcase
@@ -204,7 +204,7 @@ function Inst bitsToInst( Bit#(32) instrBits );
   case (opcode)
 
     opLW        : return LW    { rbase:rs, rdest:rt,  offset:imm  };
-    opSW        : return SW    { rbase:rs, rsrc:rt,  offset:imm  };
+    opSW        : return SW    { rbase:rs, rsrc:rt,  offset:imm   };
     opADDIU     : return ADDIU { rsrc:rs,  rdest:rt,  imm:imm     };
     opSLTI      : return SLTI  { rsrc:rs,  rdest:rt,  imm:imm     };
     opSLTIU     : return SLTIU { rsrc:rs,  rdest:rt,  imm:imm     };
@@ -212,12 +212,12 @@ function Inst bitsToInst( Bit#(32) instrBits );
     opORI       : return ORI   { rsrc:rs,  rdest:rt,  imm:imm     };
     opXORI      : return XORI  { rsrc:rs,  rdest:rt,  imm:imm     };
     opLUI       : return LUI   {           rdest:rt,  imm:imm     };
-    opJ         : return J     { target:target                   };
-    opJAL       : return JAL   { target:target                   };
-    opBEQ       : return BEQ   { rsrc1:rs, rsrc2:rt, offset:imm  };
-    opBNE       : return BNE   { rsrc1:rs, rsrc2:rt, offset:imm  };
-    opBLEZ      : return BLEZ  { rsrc:rs,  offset:imm            };
-    opBGTZ      : return BGTZ  { rsrc:rs,  offset:imm            };
+    opJ         : return J     { target:target                    };
+    opJAL       : return JAL   { target:target                    };
+    opBEQ       : return BEQ   { rsrc1:rs, rsrc2:rt, offset:imm   };
+    opBNE       : return BNE   { rsrc1:rs, rsrc2:rt, offset:imm   };
+    opBLEZ      : return BLEZ  { rsrc:rs,  offset:imm             };
+    opBGTZ      : return BGTZ  { rsrc:rs,  offset:imm             };
 
     opFUNC  : 
       case (funct)
@@ -235,23 +235,23 @@ function Inst bitsToInst( Bit#(32) instrBits );
         fcNOR   : return NOR   { rsrc1:rs, rsrc2:rt, rdest:rd     };
         fcSLT   : return SLT   { rsrc1:rs, rsrc2:rt, rdest:rd     }; 
         fcSLTU  : return SLTU  { rsrc1:rs, rsrc2:rt, rdest:rd     };
-        fcJR    : return JR    { rsrc:rs                         };
+        fcJR    : return JR    { rsrc:rs                          };
         fcJALR  : return JALR  { rsrc:rs,  rdest:rd               };
         default : return ILLEGAL;
       endcase
 
     opRT : 
       case (rt)
-        rtBLTZ  : return BLTZ  { rsrc:rs,  offset:imm            };
-        rtBGEZ  : return BGEZ  { rsrc:rs,  offset:imm            };
+        rtBLTZ  : return BLTZ  { rsrc:rs,  offset:imm             };
+        rtBGEZ  : return BGEZ  { rsrc:rs,  offset:imm             };
         default : return ILLEGAL;
       endcase
 
     opRS : 
       case (rs)
-        //rsMFC0  : return MFC0  { rdest:rt,  cop0src:rd            };
-        //rsMTC0  : return MTC0  { rsrc:rt,  cop0dest:rd            };
-	rsTERMINATE : return TERMINATE;
+        rsMFC0  : return MFC0  { rdest:rt,  cop0src:rd            };
+        rsMTC0  : return MTC0  { rsrc:rt,   cop0dest:rd           };
+        rsTERMINATE : return TERMINATE;
         default : return ILLEGAL;
       endcase
 
@@ -275,7 +275,7 @@ typedef union tagged
   struct { PRName psrc;  PRName pdest; ZImm imm;      } DANDI;
   struct { PRName psrc;  PRName pdest; ZImm imm;      } DORI;
   struct { PRName psrc;  PRName pdest; ZImm imm;      } DXORI;
-  struct { 		 PRName pdest; ZImm imm;      } DLUI;
+  struct {               PRName pdest; ZImm imm;      } DLUI;
 
   struct { PRName psrc;  PRName pdest; ShAmt shamt;   } DSLL;
   struct { PRName psrc;  PRName pdest; ShAmt shamt;   } DSRL;
@@ -292,19 +292,19 @@ typedef union tagged
   struct { PRName psrc1; PRName psrc2; PRName pdest;  } DSLT;
   struct { PRName psrc1; PRName psrc2; PRName pdest;  } DSLTU;
 
-  struct { Target target; 			      } DJ;
-  struct { PRName pdest;  Target target;	      } DJAL;
-  struct { PRName psrc;				      } DJR;
-  struct { PRName psrc;  PRName pdest;		      } DJALR;
+  struct { Target target;                             } DJ;
+  struct { PRName pdest;  Target target;              } DJAL;
+  struct { PRName psrc;                               } DJR;
+  struct { PRName psrc;  PRName pdest;                } DJALR;
   struct { PRName psrc1; PRName psrc2; SImm offset;   } DBEQ;
   struct { PRName psrc1; PRName psrc2; SImm offset;   } DBNE;
-  struct { PRName psrc;  SImm offset;		      } DBLEZ;
-  struct { PRName psrc;  SImm offset;		      } DBGTZ;
-  struct { PRName psrc;  SImm offset;		      } DBLTZ;
-  struct { PRName psrc;  SImm offset;		      } DBGEZ;
+  struct { PRName psrc;  SImm offset;                 } DBLEZ;
+  struct { PRName psrc;  SImm offset;                 } DBGTZ;
+  struct { PRName psrc;  SImm offset;                 } DBLTZ;
+  struct { PRName psrc;  SImm offset;                 } DBGEZ;
 
-  //struct { PRName pdest;  CP0Index cop0src;  	      } DMFC0;
-  //struct { PRName rsrc;  CP0Index cop0dest;  	      } DMTC0; 
+  struct { PRName pdest;  CP0Index cop0src;           } DMFC0;
+  struct { PRName psrc;   CP0Index cop0dest;          } DMTC0; 
 
   void                                                  DTERMINATE;
   void                                                  DILLEGAL;
@@ -322,7 +322,6 @@ typedef union tagged
 typedef union tagged 
 {
   struct {PRName pdest;                      } EWB;
-  //struct { PRName val; CP0Index cop0dest;  } ECoProc;
   struct {Value addr; PRName pdest;          } ELoad;
   struct {Value addr; Value val;             } EStore;
   void                                         ENop;
@@ -352,7 +351,7 @@ typedef enum
 typedef struct 
 {
   Maybe#(Tuple2#(RName, PRName)) dep_dest;
-  Maybe#(Tuple2#(RName, PRName)) dep_src1;  	 
+  Maybe#(Tuple2#(RName, PRName)) dep_src1; 
   Maybe#(Tuple2#(RName, PRName)) dep_src2;
 }
   DepInfo 
@@ -367,7 +366,7 @@ typedef union tagged
   Addr     RBranchTaken;
   void     RBranchNotTaken; // Possibly should also include address. 
   void     RNop;
-  void     RTerminate;
+  Bool     RTerminate; //Bool is pass/fail
 }
   InstResult 
     deriving 
