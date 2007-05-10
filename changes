@@ -793,3 +793,17 @@ Directory modules/cpu/mips/s10k/fetch/s10k_simple
 
 Merging the branch changes into the main trunk for s10k
 
+
+----------
+pellauer    Date: Thu May 10 18:34:41 EDT 2007  CSN: CSN-hasim-mips-48
+                  Thu May 10 22:34:41 UTC 2007
+
+
+Directory modules/functional/smips
+ FUNCP_ExecuteAlg.bsv      Locally Modified           47 
+ FUNCP_DecodeAlg.bsv       Locally Modified           47 
+
+
+Miscellaneous bug fixes to the SMIPS ISA.
+
+Michael P.

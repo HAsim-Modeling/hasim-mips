@@ -108,7 +108,7 @@ module [HASim_Module] mkFUNCP_DecodeAlg ();
       
       tagged J     .it : return ?;
       
-      tagged JR    .it : return ?;
+      tagged JR    .it : return it.rsrc;
 
       tagged JAL   .it : return ?;
 
@@ -129,6 +129,9 @@ module [HASim_Module] mkFUNCP_DecodeAlg ();
       tagged NOR   .it : return it.rsrc2;
       tagged SLT   .it : return it.rsrc2;
       tagged SLTU  .it : return it.rsrc2;
+      tagged SLLV  .it : return it.rshamt;
+      tagged SRLV  .it : return it.rshamt;
+      tagged SRAV  .it : return it.rshamt;
 
       tagged BEQ   .it : return it.rsrc2;
 
@@ -155,7 +158,7 @@ module [HASim_Module] mkFUNCP_DecodeAlg ();
       tagged ANDI  .it : return tagged Valid it.rdest;
       tagged ORI   .it : return tagged Valid it.rdest;
       tagged XORI  .it : return tagged Valid it.rdest;
-      tagged LUI   .it : return tagged Invalid;
+      tagged LUI   .it : return tagged Valid it.rdest;
 
       tagged SLL   .it : return tagged Valid it.rdest;
       tagged SRL   .it : return tagged Valid it.rdest;
@@ -195,7 +198,7 @@ module [HASim_Module] mkFUNCP_DecodeAlg ();
       
       tagged JR    .it : return tagged Invalid;
 
-      tagged JAL   .it : return tagged Invalid;
+      tagged JAL   .it : return tagged Valid 5'd31;
 
       tagged JALR  .it : return tagged Valid it.rdest;
       default:           return tagged Invalid;
@@ -224,9 +227,9 @@ module [HASim_Module] mkFUNCP_DecodeAlg ();
       
       tagged JR    .it : return True;
 
-      tagged JAL   .it : return True;
+      tagged JAL   .it : return False; //Don't snapshot JAL instructions
 
-      tagged JALR  .it : return True;
+      tagged JALR  .it : return False;
       default:           return False;
     endcase;
   endfunction

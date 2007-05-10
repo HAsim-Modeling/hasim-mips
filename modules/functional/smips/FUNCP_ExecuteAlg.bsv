@@ -107,11 +107,11 @@ module [HASim_Module] mkFUNCP_ExecuteAlg ();
       
       tagged DJ     .it : return ?;
       
-      tagged DJR    .it : return ?;
+      tagged DJR    .it : return it.psrc;
 
       tagged DJAL   .it : return ?;
 
-      tagged DJALR  .it : return  it.psrc;
+      tagged DJALR  .it : return it.psrc;
       default:           return ?;
     endcase;
   endfunction
@@ -194,9 +194,10 @@ module [HASim_Module] mkFUNCP_ExecuteAlg ();
 	begin
 	
           done  = isJust(mva);
-	  Value ea = unJust(mva) + signExtend(off);
+	  Addr extimm = signExtend(off);
+	  Addr ea = unJust(mva) + extimm;
 	  res   = tagged RNop;
-	  dbg = $display("EXE: [%d] LW PR%d <= MEM[0x%h = 0x%h + 0x%h]", tok.index, rd, ea, unJust(mva), off);
+	  dbg = $display("EXE: [%d] LW PR%d <= MEM[0x%h = 0x%h + 0x%h]", tok.index, rd, ea, unJust(mva), extimm);
 	  einst = ELoad 
 	          {
 		    addr:  ea,
@@ -209,9 +210,10 @@ module [HASim_Module] mkFUNCP_ExecuteAlg ();
 	begin
 	
           done  = isJust(mva) && isJust(mvb);
-	  Value ea = unJust(mva) + signExtend(off);
+	  Addr extimm = signExtend(off);
+	  Value ea = unJust(mva) + extimm;
 	  res   = tagged RNop;
-	  dbg = $display("EXE: [%d] SW MEM[0x%h = 0x%h + 0x%h] <= 0x%h", tok.index, ea, unJust(mva), off, unJust(mvb));
+	  dbg = $display("EXE: [%d] SW MEM[0x%h = 0x%h + 0x%h] <= 0x%h", tok.index, ea, unJust(mva), extimm, unJust(mvb));
 	  einst = EStore
 	          {
 		    addr: ea,
@@ -228,8 +230,9 @@ module [HASim_Module] mkFUNCP_ExecuteAlg ();
 	
           done  = isJust(mva);
 	  res   = tagged RNop;
-	  wbval = unJust(mva) + signExtend(simm);
-	  dbg = $display("EXE: [%d] DADDIU PR%d <= 0x%h = 0x%h + 0x%h]", tok.index, rd, wbval, unJust(mva), simm);
+	  Value extimm = signExtend(simm);
+	  wbval = unJust(mva) + extimm;
+	  dbg = $display("EXE: [%d] DADDIU PR%d <= 0x%h = 0x%h + 0x%h]", tok.index, rd, wbval, unJust(mva), extimm);
 	  einst = EWB
 	          {
 		    pdest:  rd
@@ -242,8 +245,9 @@ module [HASim_Module] mkFUNCP_ExecuteAlg ();
 	
           done  = isJust(mva);
 	  res   = tagged RNop;
-	  wbval = zeroExtend(pack(signedLT(unJust(mva), signExtend(simm))));
-	  dbg = $display("EXE: [%d] DSLTI PR%d <= 0x%h = slt(0x%h, 0x%h)", tok.index, rd, wbval, unJust(mva), simm);
+	  Value extimm = signExtend(simm);
+	  wbval = zeroExtend(pack(signedLT(unJust(mva), extimm)));
+	  dbg = $display("EXE: [%d] DSLTI PR%d <= 0x%h = slt(0x%h, 0x%h)", tok.index, rd, wbval, unJust(mva), extimm);
 	  einst = EWB
 	          {
 		    pdest:  rd
@@ -256,8 +260,9 @@ module [HASim_Module] mkFUNCP_ExecuteAlg ();
 	
           done  = isJust(mva);
 	  res   = tagged RNop;
-	  wbval = zeroExtend(pack(unJust(mva) < signExtend(simm)));
-	  dbg = $display("EXE: [%d] DSLTIU PR%d <= 0x%h = sltu(0x%h, 0x%h)", tok.index, rd, wbval, unJust(mva), simm);
+	  Value extimm = signExtend(simm);
+	  wbval = zeroExtend(pack(unJust(mva) < extimm));
+	  dbg = $display("EXE: [%d] DSLTIU PR%d <= 0x%h = sltu(0x%h, 0x%h)", tok.index, rd, wbval, unJust(mva), extimm);
 	  einst = EWB
 	          {
 		    pdest:  rd
@@ -526,11 +531,12 @@ module [HASim_Module] mkFUNCP_ExecuteAlg ();
 	begin
 
           Bool taken = signedLE(unJust(mva), 0);
-	  Addr dest  = addr_plus_4 + (signExtend(off) << 2);
+	  Addr extimm = signExtend(off) << 2;
+	  Addr dest  = addr_plus_4 + extimm;
 
           done  = isJust(mva);
 	  res   = taken ? (tagged RBranchTaken dest) : tagged RBranchNotTaken;
-	  dbg = $display("EXE: [%d] DBLEZ PC <= 0x%h (offset 0x%h) if (0x%h <= 0)", tok.index, dest, off, unJust(mva));
+	  dbg = $display("EXE: [%d] DBLEZ PC <= 0x%h (offset 0x%h) if (0x%h <= 0)", tok.index, dest, extimm, unJust(mva));
 	  einst = ENop;
 
 	end
@@ -540,11 +546,12 @@ module [HASim_Module] mkFUNCP_ExecuteAlg ();
 	begin
 	
           Bool taken = signedGT(unJust(mva), 0);
-	  Addr dest  = addr_plus_4 + (signExtend(off) << 2);
+	  Addr extimm = signExtend(off) << 2;
+	  Addr dest  = addr_plus_4 + extimm;
 
           done  = isJust(mva);
 	  res   = taken ? (tagged RBranchTaken dest) : tagged RBranchNotTaken;
-	  dbg = $display("EXE: [%d] DBGTZ PC <= 0x%h (offset 0x%h) if (0x%h > 0)", tok.index, dest, off, unJust(mva));
+	  dbg = $display("EXE: [%d] DBGTZ PC <= 0x%h (offset 0x%h) if (0x%h > 0)", tok.index, dest, extimm, unJust(mva));
 	  einst = ENop;
 
 	end
@@ -554,11 +561,12 @@ module [HASim_Module] mkFUNCP_ExecuteAlg ();
 	begin
 	
           Bool taken = signedLT(unJust(mva), 0);
-	  Addr dest  = addr_plus_4 + (signExtend(off) << 2);
+	  Addr extimm = signExtend(off) << 2;
+	  Addr dest  = addr_plus_4 + extimm;
 
           done  = isJust(mva);
 	  res   = taken ? (tagged RBranchTaken dest) : tagged RBranchNotTaken;
-	  dbg = $display("EXE: [%d] DBLTZ PC <= 0x%h (offset 0x%h) if (0x%h < 0)", tok.index, dest, off, unJust(mva));
+	  dbg = $display("EXE: [%d] DBLTZ PC <= 0x%h (offset 0x%h) if (0x%h < 0)", tok.index, dest, extimm, unJust(mva));
 	  einst = ENop;
 
 	end
@@ -568,11 +576,12 @@ module [HASim_Module] mkFUNCP_ExecuteAlg ();
 	begin
 
           Bool taken = signedGE(unJust(mva), 0);
-	  Addr dest  = addr_plus_4 + (signExtend(off) << 2);
+	  Addr extimm = signExtend(off) << 2;
+	  Addr dest  = addr_plus_4 + extimm;
 
           done  = isJust(mva);
 	  res   = taken ? (tagged RBranchTaken dest) : tagged RBranchNotTaken;
-	  dbg = $display("EXE: [%d] DBGEZ PC <= 0x%h (offset 0x%h) if (0x%h > 0)", tok.index, dest, off, unJust(mva));
+	  dbg = $display("EXE: [%d] DBGEZ PC <= 0x%h (offset 0x%h) if (0x%h > 0)", tok.index, dest, extimm, unJust(mva));
 	  einst = ENop;
 
 	end
@@ -582,11 +591,12 @@ module [HASim_Module] mkFUNCP_ExecuteAlg ();
 	begin
 
           Bool taken = unJust(mva) == unJust(mvb);
-	  Addr dest  = addr_plus_4 + (signExtend(off) << 2);
+	  Addr extimm = signExtend(off) << 2;
+	  Addr dest  = addr_plus_4 + extimm;
 
           done  = isJust(mva) && isJust(mvb);
 	  res   = taken ? (tagged RBranchTaken dest) : tagged RBranchNotTaken;
-	  dbg = $display("EXE: [%d] DBEQ PC <= 0x%h (offset 0x%h) if (0x%h == 0x%h)", tok.index, dest, off, unJust(mva), unJust(mvb));
+	  dbg = $display("EXE: [%d] DBEQ PC <= 0x%h (offset 0x%h) if (0x%h == 0x%h)", tok.index, dest, extimm, unJust(mva), unJust(mvb));
 	  einst = ENop;
 
 	end
@@ -596,11 +606,12 @@ module [HASim_Module] mkFUNCP_ExecuteAlg ();
 	begin
 
           Bool taken = unJust(mva) != unJust(mvb);
-	  Addr dest  = addr_plus_4 + (signExtend(off) << 2);
+	  Addr extimm = signExtend(off) << 2;
+	  Addr dest  = addr_plus_4 + extimm;
 
           done  = isJust(mva) && isJust(mvb);
 	  res   = taken ? (tagged RBranchTaken dest) : tagged RBranchNotTaken;
-	  dbg = $display("EXE: [%d] DBNE PC <= 0x%h (offset 0x%h) if (0x%h != 0x%h)", tok.index, dest, off, unJust(mva), unJust(mvb));
+	  dbg = $display("EXE: [%d] DBNE PC <= 0x%h (offset 0x%h) if (0x%h != 0x%h)", tok.index, dest, extimm, unJust(mva), unJust(mvb));
 	  einst = ENop;
 
 	end
