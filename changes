@@ -807,3 +807,52 @@ Directory modules/functional/smips
 Miscellaneous bug fixes to the SMIPS ISA.
 
 Michael P.
+
+----------
+vmurali     Date: Sun May 13 16:59:22 EDT 2007  CSN: CSN-hasim-mips-49
+                  Sun May 13 20:59:22 UTC 2007
+
+
+Directory modules/cpu/mips/s10k/execute
+ s10k_simple/              Locally Removed            48 
+
+Directory modules/cpu/mips/s10k/execute/s10k_simple
+ s10k_execute_simple.awb   Locally Removed            48 
+ s10k_execute_simple.bsv   Locally Removed            48 
+
+Directory modules/cpu/mips/s10k/decode
+ s10k_simple/              Locally Removed            48 
+
+Directory modules/cpu/mips/s10k/decode/s10k_simple
+ s10k_decode_simple.awb    Locally Removed            48 
+ s10k_decode_simple.bsv    Locally Removed            48 
+
+Directory modules/cpu/mips/s10k/issue
+ s10k_simple/              Locally Removed            48 
+
+Directory modules/cpu/mips/s10k/issue/s10k_simple
+ s10k_issue_simple.awb     Locally Removed            48 
+ s10k_issue_simple.bsv     Locally Removed            48 
+
+Directory modules/cpu/mips/s10k
+ common/                   Locally Added               0 
+
+Directory modules/cpu/mips/s10k/common
+ simple/                   Locally Added               0 
+
+Directory modules/cpu/mips/s10k/common/simple
+ Common.bsv                Locally Added               0 
+ s10k_simple_common.awb    Locally Added               0 
+
+Directory modules/cpu/mips/s10k/fetch
+ s10k_simple/              Locally Removed            48 
+
+Directory modules/cpu/mips/s10k/fetch/s10k_simple
+ s10k_fetch_simple.awb     Locally Removed            48 
+ s10k_fetch_simple.bsv     Locally Removed            48 
+
+Directory modules/cpu/mips/s10k
+ s10k_cpu.awb              Locally Modified           48 
+
+restructered entire structure, added ROB, branch target buffer and dummy branch predictor
+

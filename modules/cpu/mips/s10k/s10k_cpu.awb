@@ -16,9 +16,9 @@
 # %requires hasim_issue
 # %requires hasim_execute
 #
-# %attributes sk10k mips hasim
+# %attributes s10k mips hasim
 # 
-# %public s10k_cpu.bsv
+# %public CPU.bsv
 #
 # %AWB_END
 # */

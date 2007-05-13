@@ -7,13 +7,13 @@
 #/*
 # %AWB_START
 #
-# %name SMIPS R10K-like simple issue unit
-# %desc SMIPS R10K-like simple issue unit
-# %provides hasim_issue
+# %name SMIPS common types files
+# %desc SMIPS common types files
+# %provides s10k_common
 #
-# %attributes sk10k mips hasim
+# %attributes s10k mips hasim
 #
-# %public s10k_issue_simple.bsv
+# %public Common.bsv
 #
 # %AWB_END
 # */
