@@ -6,13 +6,12 @@ import hasim_common::*;
 import hasim_cpu::*;
 import hasim_memory::*;
 
-module [HASim_Module] mkChip 
-    //interface:
-                (TModule#(Command, Response));
+module [HASim_Module] mkChip ();
 
   let cpu <- mkCpu();
   let mem <- mkMemory();
 
+  /*
   method Action exec(Command c);
 
     cpu.exec(c);
@@ -25,6 +24,6 @@ module [HASim_Module] mkChip
     return r;
 
   endmethod
-
+  */
 
 endmodule

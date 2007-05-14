@@ -7,13 +7,15 @@
 #/*
 # %AWB_START
 #
-# %name SMIPS common types files
-# %desc SMIPS common types files
-# %provides hasim_others
+# %name SMIPS R10K-like simple decode unit
+# %desc SMIPS R10K-like simple decode unit
+# %provides hasim_decode
+#
+# %requires s10k_rob branch_pred target_buffer
 #
 # %attributes s10k mips hasim
 #
-# %public s10k_simple_common.bsv
+# %public s10k_simple_decode.bsv
 #
 # %AWB_END
 # */

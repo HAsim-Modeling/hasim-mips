@@ -1,4 +1,3 @@
-
 import hasim_base::*;
 import hasim_fpgalib::*;
 import hasim_common::*;
@@ -7,10 +6,9 @@ import hasim_fetch::*;
 import hasim_decode::*;
 import hasim_issue::*;
 import hasim_execute::*;
+import hasim_commit::*;
 
-module [HASim_Module] mkCpu
-    //interface:
-                (TModule#(Command, Response));
+module [HASim_Module] mkCpu();
 
 
   let fetch   <- mkFetch();
@@ -20,6 +18,7 @@ module [HASim_Module] mkCpu
 
   Reg#(Bool) ran <- mkReg(False);
 
+   /*
   method Action exec(Command c);
     ran <= True;
   endmethod
@@ -27,5 +26,5 @@ module [HASim_Module] mkCpu
   method ActionValue#(Response) response() if(ran && decode.done());
     return RESP_DoneRunning;
   endmethod
-
+    */
 endmodule

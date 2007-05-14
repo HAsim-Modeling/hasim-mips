@@ -7,13 +7,13 @@
 #/*
 # %AWB_START
 #
-# %name SMIPS common types files
-# %desc SMIPS common types files
-# %provides hasim_others
+# %name Branch Predictor
+# %desc Branch Predictor
+# %provides branch_pred
 #
-# %attributes s10k mips hasim
+# %attributes mips hasim
 #
-# %public s10k_simple_common.bsv
+# %public BranchPred.bsv
 #
 # %AWB_END
 # */
