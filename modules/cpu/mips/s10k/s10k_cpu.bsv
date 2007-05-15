@@ -15,6 +15,7 @@ module [HASim_Module] mkCpu();
   let decode  <- mkDecode();
   let issue   <- mkIssue();
   let execute <- mkExecute();
+  let commit  <- mkCommit();
 
   Reg#(Bool) ran <- mkReg(False);
 

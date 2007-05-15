@@ -1,6 +1,4 @@
 
-
-
 [Hasim functional partition regstate]
 Packagehint=hasim
 File=modules/functional/common/hasim_funcp_regstate.awb
@@ -40,7 +38,6 @@ hasim_funcp_memstate_ifc=Hasim functional partition memstate interface
 hasim_funcp=Hasim functional partition
 hasim_chip=Uniprocessor chip
 hasim_isa=Hasim - SMIPS ISA
-
 
 [Hasim functional partition pipeline]
 Packagehint=hasim
@@ -110,9 +107,6 @@ File=modules/functional/smips/smips_funcp_execute_alg.awb
 Packagehint=hasim-mips
 File=modules/isa/smips/hasim_smips_isa.awb
 
-
-
-
 [Hasim base library/Requires]
 hasim_fpgalib=Hasim FPGA library software
 hasim_base=Hasim base module
@@ -133,12 +127,8 @@ hasim_cpu=SMIPS R10K-like cpu
 File=modules/chip/mips/uniprocessor/uniprocessor.awb
 Packagehint=hasim-mips
 
-[SMIPS R10K-like simple execute unit]
-File=modules/cpu/mips/s10k/execute/s10k_simple/s10k_execute_simple.awb
-Packagehint=hasim-mips
-
 [SMIPS R10K-like simple decode unit]
-File=modules/cpu/mips/s10k/decode/s10k_simple/s10k_decode_simple.awb
+File=modules/cpu/mips/s10k/decode/simple/s10k_simple_decode.awb
 Packagehint=hasim-mips
 
 [SMIPS R10K-like cpu]
@@ -147,16 +137,15 @@ Packagehint=hasim-mips
 
 [SMIPS R10K-like cpu/Requires]
 hasim_decode=SMIPS R10K-like simple decode unit
-hasim_execute=SMIPS R10K-like simple execute unit
-hasim_issue=SMIPS R10K-like simple issue unit
 hasim_fetch=SMIPS R10K-like simple fetch unit
+hasim_issue=SMIPS R10K-like simple issue unit
+hasim_commit=Local Commit Module
+hasim_execute=SMIPS R10K-like simple execute unit
+hasim_parameters=SMIPS R10K Parameters files
+hasim_types=SMIPS R10K Typess files
 
 [SMIPS R10K-like simple fetch unit]
-File=modules/cpu/mips/s10k/fetch/s10k_simple/s10k_fetch_simple.awb
-Packagehint=hasim-mips
-
-[SMIPS R10K-like simple issue unit]
-File=modules/cpu/mips/s10k/issue/s10k_simple/s10k_issue_simple.awb
+File=modules/cpu/mips/s10k/fetch/simple/s10k_simple_fetch.awb
 Packagehint=hasim-mips
 
 [magic memory]
@@ -166,3 +155,40 @@ Packagehint=hasim-mips
 [Hasim FPGA library software]
 File=modules/common/fpgalib/fpgalib_software.awb
 Packagehint=hasim
+
+[Target Buffer]
+File=modules/cpu/mips/target_buffer/target_buffer.awb
+Packagehint=hasim-mips
+
+[Branch Predictor]
+File=modules/cpu/mips/branch_pred/simple/branch_pred.awb
+Packagehint=hasim-mips
+
+[SMIPS R10K-like simple decode unit/Requires]
+target_buffer=Target Buffer
+branch_pred=Branch Predictor
+s10k_rob=ROB
+
+[ROB]
+File=modules/cpu/mips/s10k/rob/simple/s10k_simple_rob.awb
+Packagehint=hasim-mips
+
+[SMIPS R10K-like simple issue unit]
+File=modules/cpu/mips/s10k/issue/simple/s10k_simple_issue.awb
+Packagehint=hasim-mips
+
+[SMIPS R10K-like simple execute unit]
+File=modules/cpu/mips/s10k/execute/simple/s10k_simple_execute.awb
+Packagehint=hasim-mips
+
+[Local Commit Module]
+File=modules/cpu/mips/s10k/commit/simple/s10k_simple_commit.awb
+Packagehint=hasim-mips
+
+[SMIPS R10K Parameters files]
+File=modules/cpu/mips/s10k/s10k_parameters.awb
+Packagehint=hasim-mips
+
+[SMIPS R10K Typess files]
+File=modules/cpu/mips/s10k/s10k_types.awb
+Packagehint=hasim-mips

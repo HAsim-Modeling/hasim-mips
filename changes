@@ -856,3 +856,52 @@ Directory modules/cpu/mips/s10k
 
 restructered entire structure, added ROB, branch target buffer and dummy branch predictor
 
+
+----------
+vmurali     Date: Tue May 15 09:21:28 EDT 2007  CSN: CSN-hasim-mips-51
+                  Tue May 15 13:21:28 UTC 2007
+
+
+Directory config/pm/hasim-mips/s10k
+ s10k_funcp.apm            Locally Modified           50 
+ s10k.apm                  Locally Modified           50 
+
+Directory modules/cpu/mips/s10k/execute/simple
+ s10k_simple_execute.bsv   Locally Modified           50 
+
+Directory modules/cpu/mips/s10k/rob/simple
+ s10k_simple_rob.bsv       Locally Modified           50 
+
+Directory modules/cpu/mips/s10k/decode/simple
+ s10k_simple_decode.bsv    Locally Modified           50 
+
+Directory modules/cpu/mips/s10k/commit/simple
+ s10k_simple_commit.bsv    Locally Modified           50 
+
+Directory modules/cpu/mips/s10k
+ common/                   Locally Removed            50 
+
+Directory modules/cpu/mips/s10k/common
+ simple/                   Locally Removed            50 
+
+Directory modules/cpu/mips/s10k/common/simple
+ s10k_simple_common.awb    Locally Removed            50 
+ s10k_simple_common.bsv    Locally Removed            50 
+
+Directory modules/cpu/mips/s10k/issue/simple
+ s10k_simple_issue.bsv     Locally Modified           50 
+
+Directory modules/cpu/mips/s10k
+ s10k_parameters.awb       Locally Added               0 
+ s10k_parameters.bsv       Locally Added               0 
+ s10k_types.awb            Locally Added               0 
+ s10k_types.bsv            Locally Added               0 
+ s10k_cpu.awb              Locally Modified           50 
+ s10k_cpu.bsv              Locally Modified           50 
+
+Changed the structure of issue queue so that the order is maintained - basically stored it in a separate structure and 
+output it simultaneously when I read the input.
+Had to rework a bit also because JR instructions can not be handled correctly - I can detect mispredict only
+when I execute JR. The current Issue accomodates this.
+It should be taking care of most of the scenarios. But I couldn't figure how to test it as simv file seems to be missing.
+

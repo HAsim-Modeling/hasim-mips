@@ -5,7 +5,7 @@ import hasim_common::*;
 import FIFO::*;
 import Vector::*;
 
-import s10k_simple_common::*;
+import hasim_parameters::*;
 
 module [HASim_Module] mkCommit();
     function sendFunctionM(String str, Integer i) = mkPort_Send(strConcat(str, fromInteger(i)));
@@ -24,10 +24,6 @@ module [HASim_Module] mkCommit();
 
     FIFO#(Token)                                globalCommitFIFO <- mkFIFO();
 
-    rule localCommitAck(True);
-        let ack <- fpLocalCommitResp.receive();
-    endrule
-
     rule globalCommitAck(True);
         let ack <- fpGlobalCommitResp.receive();
     endrule
@@ -44,8 +40,8 @@ module [HASim_Module] mkCommit();
     endrule
 
     rule globalCommit(True);
-        let token = globalCommitFIFO.first();
+        let token <- fpLocalCommitResp.receive();
         globalCommitFIFO.deq();
-        fpGlobalCommitReq.send(tuple2(token, ?));
+        fpGlobalCommitReq.send(token);
     endrule
 endmodule

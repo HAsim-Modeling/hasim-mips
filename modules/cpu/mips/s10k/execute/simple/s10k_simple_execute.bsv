@@ -4,78 +4,59 @@ import hasim_common::*;
 import hasim_isa::*;
 
 import FIFOF::*;
+import Vector::*;
 
-import s10k_simple_common::*;
+import hasim_parameters::*;
+import hasim_types::*;
+
+typedef enum {Exec, Done} State deriving (Bits, Eq);
 
 module [HASim_Module] mkExecute();
-    Connection_Receive#(Tuple2#(Token, InstResult))  fpExeResponse <- mkConnection_Receive("fp_exe_resp");
-    Connection_Receive#(Tuple2#(Token, void))        fpMemResponse <- mkConnection_Receive("fp_mem_resp");
+    Connection_Receive#(Tuple2#(Token, InstResult))           fpExeResponse <- mkConnection_Receive("fp_exe_resp");
+    Connection_Send#(Tuple2#(Token, void))                         fpMemReq <- mkConnection_Send("fp_mem_req");
 
-    Port_Receive#(ExecEntry)                         alu1IssuePort <- mkPort_Receive("ALU1IssuePort", 1);
-    Port_Receive#(ExecEntry)                         alu2IssuePort <- mkPort_Receive("ALU2IssuePort", 1);
-    Port_Receive#(ExecEntry)                          memIssuePort <- mkPort_Receive("MemIssuePort", 1);
+    function sendFunctionM(String str, Integer i) = mkPort_Send(strConcat(str, fromInteger(i)));
 
-    Port_Send#(ExecEntry)                                exec1Port <- mkPort_Send("execToDecode1");
-    Port_Send#(ExecEntry)                                exec2Port <- mkPort_Send("execToDecode2");
-    Port_Send#(ExecEntry)                                exec3Port <- mkPort_Send("execToDecode3");
-    Port_Send#(Addr)                               branchTakenPort <- mkPort_Send("execToDecodeBranch");
+    function receiveFunctionM(String str, Integer i) = mkPort_Receive(strConcat(str, fromInteger(i)), 1);
 
-    FIFOF#(Maybe#(ExecEntry))                            exec1FIFO <- mkFIFOF();
-    FIFOF#(Maybe#(ExecEntry))                            exec2FIFO <- mkFIFOF();
-    FIFOF#(Maybe#(ExecEntry))                            exec3FIFO <- mkFIFOF();
+    Vector#(TSub#(NumFuncUnits,1), Port_Receive#(ExecEntry))issueToExecPort <- genWithM(receiveFunctionM("issueToExec"));
+    Port_Receive#(ExecEntry)                                        memPort <- mkPort_Receive("issueToExecMem", 2);
 
-    rule exec1(True);
-        let exec1 <- alu1IssuePort.receive();
-        exec1FIFO.enq(exec1);
+    Vector#(NumFuncUnits, Port_Send#(ExecEntry))                   execPort <- genWithM(sendFunctionM("execToDecode"));
+
+    Reg#(FuncUnitPos)                                           funcUnitPos <- mkReg(fromInteger(valueOf(NumFuncUnits)));
+
+    rule start(funcUnitPos == fromInteger(valueOf(NumFuncUnits)));
+        funcUnitPos <= 1;
+        let recv <- issueToExecPort[0].receive();
+        execPort[0].send(recv);
+        if(isValid(recv))
+        begin
+            let ack <- fpExeResponse.receive();
+            fpMemReq.send(tuple2(tpl_1(ack),?));
+        end
     endrule
 
-    rule exec2(True);
-        let exec2 <- alu2IssuePort.receive();
-        exec2FIFO.enq(exec2);
+    rule cont(funcUnitPos < fromInteger(valueOf(NumFuncUnits))-1);
+        funcUnitPos <= funcUnitPos + 1;
+        let recv <- issueToExecPort[funcUnitPos].receive();
+        execPort[funcUnitPos].send(recv);
+        if(isValid(recv))
+        begin
+            let ack <- fpExeResponse.receive();
+            fpMemReq.send(tuple2(tpl_1(ack),?));
+        end
     endrule
 
-    rule exec3(True);
-        let exec3 <- memIssuePort.receive();
-        exec3FIFO.enq(exec3);
+    rule mem(funcUnitPos == fromInteger(valueOf(NumFuncUnits))-1);
+        funcUnitPos <= funcUnitPos + 1;
+        let recv <- memPort.receive();
+        execPort[funcUnitPos].send(recv);
+        if(isValid(recv))
+        begin
+            let ack <- fpExeResponse.receive();
+            fpMemReq.send(tuple2(tpl_1(ack),?));
+        end
     endrule
-
-    rule fillAlu1(isValid(exec1FIFO.first()));
-        exec1Port.send(exec1FIFO.first());
-        exec1FIFO.deq();
-        match {.token, .result}  <- fpExeResponse.receive();
-        case (result) matches
-            tagged RBranchTaken .addr:
-                branchTakenPort.send(tagged Valid addr);
-            default:
-                branchTakenPort.send(tagged Invalid);
-        endcase
-    endrule
-
-    rule fillAlu1Invalid(exec1FIFO.notEmpty() && !isValid(exec1FIFO.first()));
-        exec1Port.send(tagged Invalid);
-        exec1FIFO.deq();
-        branchTakenPort.send(tagged Invalid);
-    endrule
-
-    rule fillAlu2(isValid(exec2FIFO.first()));
-        exec2Port.send(exec2FIFO.first());
-        exec2FIFO.deq();
-        let resp <- fpExeResponse.receive();
-    endrule
-
-    rule fillAlu2Invalid(exec2FIFO.notEmpty() && !isValid(exec2FIFO.first()));
-        exec2Port.send(tagged Invalid);
-        exec2FIFO.deq();
-    endrule
-
-    rule fillMem(isValid(exec3FIFO.first()));
-        exec3Port.send(exec3FIFO.first());
-        exec3FIFO.deq();
-        let resp <- fpMemResponse.receive();
-    endrule
-
-    rule fillMemInvalid(exec3FIFO.notEmpty() && !isValid(exec3FIFO.first()));
-        exec3Port.send(tagged Invalid);
-        exec3FIFO.deq();
-    endrule
+    
 endmodule

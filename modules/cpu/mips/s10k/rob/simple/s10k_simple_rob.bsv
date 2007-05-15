@@ -10,6 +10,7 @@ typedef 32 ROBCount;
 typedef struct {
     Token token;
     Addr addr;
+    Bool finished;
     Bool done;
     Bool isBranch;
     Bool prediction;
@@ -33,7 +34,7 @@ interface ROB;
 endinterface
 
 module mkROB(ROB);
-    RegFile#(ROBTag, ROBEntry) robFile <- mkRegFileFull();
+    RegFile#(Bit#(TLog#(ROBCount)), ROBEntry) robFile <- mkRegFileFull();
     Reg#(ROBTag) head <- mkReg(0);
     Reg#(ROBTag) tail <- mkReg(0);
 
@@ -50,11 +51,11 @@ module mkROB(ROB);
     endmethod
 
     method ActionValue#(ROBEntry) readAnyResp();
-        return robFile.sub(anyReg);
+        return robFile.sub(truncate(anyReg));
     endmethod
 
     method Action writeAny(ROBTag robTag, ROBEntry robEntry);
-        robFile.upd(robTag, robEntry);
+        robFile.upd(truncate(robTag), robEntry);
     endmethod
 
     method Action readHeadReq();
@@ -62,7 +63,7 @@ module mkROB(ROB);
     endmethod
 
     method ActionValue#(ROBEntry) readHeadResp();
-        return robFile.sub(headReg);
+        return robFile.sub(truncate(headReg));
     endmethod
 
     method Action updateTail(ROBTag robTab);
@@ -71,7 +72,7 @@ module mkROB(ROB);
     endmethod
 
     method Action writeTail(ROBEntry robEntry); //and increment
-        robFile.upd(tail, robEntry);
+        robFile.upd(truncate(tail), robEntry);
         tail <= (tail + 1)%fromInteger(valueOf(ROBCount));
         inc  <= True;
     endmethod

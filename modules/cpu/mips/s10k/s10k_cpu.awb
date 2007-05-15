@@ -11,7 +11,8 @@
 # %desc SMIPS R10K-like cpu
 # %provides hasim_cpu
 #
-# %requires hasim_others
+# %requires hasim_parameters
+# %requires hasim_types
 # %requires hasim_fetch
 # %requires hasim_decode
 # %requires hasim_issue
