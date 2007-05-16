@@ -62,71 +62,97 @@ typedef enum {Issue, IssueFinal, IssueDone} IssueState    deriving (Bits, Eq);
 typedef enum {Dispatch, DispatchDone}       DispatchState deriving (Bits, Eq);
 
 module [HASim_Module] mkIssue();
-    Connection_Send#(Tuple2#(Token, void))                            fpExeReq <- mkConnection_Send("fp_exe_req");
+    Connection_Send#(Tuple2#(Token, void))                      fpExeReq <- mkConnection_Send("fp_exe_req");
 
     function sendFunctionM(String str, Integer i) = mkPort_Send(strConcat(str, fromInteger(i)));
 
     function receiveFunctionM(String str, Integer i) = mkPort_Receive(strConcat(str, fromInteger(i)), 1);
 
-    Vector#(TSub#(NumFuncUnits,1), Port_Send#(ExecEntry))             execPort <- genWithM(sendFunctionM("issueToExec"));
-    Port_Send#(ExecEntry)                                              memPort <- mkPort_Send("issueToExecMem");
+    Vector#(TSub#(NumFuncUnits,1), Port_Send#(ExecEntry))       execPort <- genWithM(sendFunctionM("issueToExecNormal"));
+    Port_Send#(ExecEntry)                                        memPort <- mkPort_Send("issueToExecMem");
 
-    Vector#(FetchWidth, Port_Receive#(IssueEntry))                   issuePort <- genWithM(receiveFunctionM("decodeToIssue"));
-    Port_Send#(IntQCountType)                                    intQCountPort <- mkPort_Send("issueToDecodeIntQ");
-    Port_Send#(AddrQCountType)                                  addrQCountPort <- mkPort_Send("issueToDecodeAddrQ");
+    Vector#(FetchWidth, Port_Receive#(IssueEntry))             issuePort <- genWithM(receiveFunctionM("decodeToIssue"));
+    Port_Send#(IntQCountType)                              intQCountPort <- mkPort_Send("issueToDecodeIntQ");
+    Port_Send#(AddrQCountType)                            addrQCountPort <- mkPort_Send("issueToDecodeAddrQ");
 
-    Reg#(IntQCountType)                                              intQCount <- mkReg(fromInteger(valueOf(IntQCount)));
-    Reg#(AddrQCountType)                                            addrQCount <- mkReg(fromInteger(valueOf(AddrQCount)));
+    Reg#(IntQCountType)                                        intQCount <- mkReg(fromInteger(valueOf(IntQCount)));
+    Reg#(AddrQCountType)                                      addrQCount <- mkReg(fromInteger(valueOf(AddrQCount)));
 
-    Reg#(Maybe#(PRName))                                               oldAlu1 <- mkReg(?);
-    Reg#(Maybe#(PRName))                                               oldAlu2 <- mkReg(?);
-    Reg#(Maybe#(PRName))                                               oldMem1 <- mkReg(tagged Invalid);
-    Reg#(Maybe#(PRName))                                               oldMem2 <- mkReg(?);
+    Reg#(Maybe#(PRName))                                         oldAlu1 <- mkReg(?);
+    Reg#(Maybe#(PRName))                                         oldAlu2 <- mkReg(?);
+    Reg#(Maybe#(PRName))                                         oldMem1 <- mkReg(tagged Invalid);
+    Reg#(Maybe#(PRName))                                         oldMem2 <- mkReg(?);
 
-    Reg#(Maybe#(PRName))                                               newAlu1 <- mkReg(tagged Invalid);
-    Reg#(Maybe#(PRName))                                               newAlu2 <- mkReg(tagged Invalid);
-    Reg#(Maybe#(PRName))                                               newMem1 <- mkReg(tagged Invalid);
+    Reg#(Maybe#(PRName))                                         newAlu1 <- mkReg(tagged Invalid);
+    Reg#(Maybe#(PRName))                                         newAlu2 <- mkReg(tagged Invalid);
+    Reg#(Maybe#(PRName))                                         newMem1 <- mkReg(tagged Invalid);
 
-    Reg#(IssueState)                                                issueState <- mkReg(IssueDone);
-    Reg#(DispatchState)                                          dispatchState <- mkReg(DispatchDone);
+    Reg#(IssueState)                                          issueState <- mkReg(IssueDone);
+    Reg#(DispatchState)                                    dispatchState <- mkReg(DispatchDone);
+    Reg#(FuncUnitPos)                                         issueCount <- mkReg(?);
+    Reg#(FetchCount)                                       dispatchCount <- mkReg(?);
 
-    Reg#(FuncUnitPos)                                               issueCount <- mkReg(?);
-    Reg#(FetchCount)                                             dispatchCount <- mkReg(?);
+    Reg#(IntQCountType)                                         intCount <- mkReg(0);
+    Reg#(IntQCountType)                                           intPtr <- mkReg(0);
+    Reg#(AddrQCountType)                                        memCount <- mkReg(0);
+    Reg#(AddrQCountType)                                          memPtr <- mkReg(0);
 
-    Reg#(IntQCountType)                                               intCount <- mkReg(0);
-    Reg#(IntQCountType)                                                 intPtr <- mkReg(0);
-    Reg#(AddrQCountType)                                              memCount <- mkReg(0);
-    Reg#(AddrQCountType)                                                memPtr <- mkReg(0);
+    IssueQ                                                          intQ <- mkIssueQ();
+    IssueQ                                                         addrQ <- mkIssueQ();
 
-    IssueQ                                                                intQ <- mkIssueQ();
-    IssueQ                                                               addrQ <- mkIssueQ();
+    Reg#(Bool)                                             syncToExecute <- mkReg(False);
+    Reg#(Bool)                                              syncToDecode <- mkReg(False);
 
-    Vector#(NumFuncUnits, Reg#(Maybe#(ExecEntry)))                   issueVals <- replicateM(mkReg(tagged Invalid));
+    Vector#(NumFuncUnits, Reg#(Maybe#(ExecEntry)))             issueVals <- replicateM(mkReg(tagged Invalid));
 
-    rule synchronize(issueState == IssueDone && dispatchState == DispatchDone);
-        issueState    <= Issue;
+    Reg#(Bit#(32))                                          clockCounter <- mkReg(0);
 
-        intPtr   <= 0;
-        intCount <= intQ.getCount();
+    rule clockCount(True);
+        clockCounter <= clockCounter + 1;
+    endrule
 
-        memPtr   <= 0;
-        memCount <= intQ.getCount();
-
+    rule synchronizeToDecode(issueState == IssueDone && dispatchState == DispatchDone);
+        $display("&issue_synchronizeToDecode %d", clockCounter);
         intQCountPort.send(tagged Valid intQCount);
         addrQCountPort.send(tagged Valid addrQCount);
+        $display("&    intQCountPort.send(tagged Valid %d)", intQCount);
+        $display("&    addrQCountPort.send(tagged Valid %d)", addrQCount);
+        syncToDecode <= True;
+    endrule
+
+    rule synchronizeToExecute(issueState == IssueDone && dispatchState == DispatchDone);
+        $display("&issue_synchronizeToExecute %d", clockCounter);
+
+        for(Integer i = 0; i < valueOf(NumFuncUnits) - 1; i=i+1)
+        begin
+            execPort[i].send(issueVals[i]);
+            $display("&    execPort[%d].send(Maybe#(%b, ...))", i, isValid(issueVals[i]));
+            issueVals[i] <= tagged Invalid;
+        end
+        memPort.send(issueVals[valueOf(NumFuncUnits)-1]);
+        $display("&    memPort.send(Maybe#(%b, ...))", isValid(issueVals[valueOf(NumFuncUnits)-1]));
+        issueVals[valueOf(NumFuncUnits)-1] <= tagged Invalid;
+        syncToExecute <= True;
+    endrule
+
+    rule syncOver(syncToExecute && syncToDecode);
+        $display("&issue_syncOver %d", clockCounter);
+        issueState <= Issue;
+
+        intPtr     <= 0;
+        intCount   <= intQ.getCount();
+
+        memPtr   <= 0;
+        let addrQCountLocal = addrQ.getCount();
+        memCount <= addrQCountLocal != 0 ? 1: 0;
 
         oldAlu1  <= newAlu1;
         oldAlu2  <= newAlu2;
         oldMem1  <= newMem1;
         oldMem2  <= oldMem1;
 
-        for(Integer i = 0; i < valueOf(NumFuncUnits) - 1; i=i+1)
-        begin
-            execPort[i].send(issueVals[i]);
-            issueVals[i] <= tagged Invalid;
-        end
-        memPort.send(issueVals[valueOf(NumFuncUnits)-1]);
-        issueVals[valueOf(NumFuncUnits)-1] <= tagged Invalid;
+        syncToExecute <= False;
+        syncToDecode  <= False;
     endrule
 
     function isReady(PRName pRName) =  isValid(oldAlu1) && pRName == validValue(oldAlu1) || 
@@ -134,73 +160,109 @@ module [HASim_Module] mkIssue();
                                        isValid(oldMem2) && pRName == validValue(oldMem2);
     function isAllReady(IssueEntry issue) = issue.src1Ready && issue.src2Ready;
 
-    let intIssueEntry = intQ.read(intPtr);
-    let intExecEntry  = ExecEntry{token: (validValue(intIssueEntry)).token, robTag: (validValue(intIssueEntry)).robTag, pRName: (validValue(intIssueEntry)).dest};
-    let newIntIssueEntry = IssueEntry{issueType: (validValue(intIssueEntry)).issueType, token: (validValue(intIssueEntry)).token, robTag: (validValue(intIssueEntry)).robTag,
-                                   src1Ready: (validValue(intIssueEntry)).src1Ready || isReady((validValue(intIssueEntry)).src1), src1: (validValue(intIssueEntry)).src1,
-                                   src2Ready: (validValue(intIssueEntry)).src2Ready || isReady((validValue(intIssueEntry)).src2), src2: (validValue(intIssueEntry)).src2,
-                                   dest: (validValue(intIssueEntry)).dest};
-
-    let addrIssueEntry = addrQ.read(memPtr);
-    let addrExecEntry  = ExecEntry{token: (validValue(addrIssueEntry)).token, robTag: (validValue(addrIssueEntry)).robTag, pRName: (validValue(addrIssueEntry)).dest};
-    let newAddrIssueEntry = IssueEntry{issueType: (validValue(addrIssueEntry)).issueType, token: (validValue(addrIssueEntry)).token, robTag: (validValue(addrIssueEntry)).robTag,
-                                   src1Ready: (validValue(addrIssueEntry)).src1Ready || isReady((validValue(addrIssueEntry)).src1), src1: (validValue(addrIssueEntry)).src1,
-                                   src2Ready: (validValue(addrIssueEntry)).src2Ready || isReady((validValue(addrIssueEntry)).src2), src2: (validValue(addrIssueEntry)).src2,
-                                   dest: (validValue(addrIssueEntry)).dest};
-
-    rule noIntIssue(issueState == Issue && intPtr != intCount && !(isValid(intIssueEntry) && isAllReady(newIntIssueEntry)));
-        intQ.write(intPtr, newIntIssueEntry);
-        intPtr <= intPtr + 1;
-    endrule
-
-    rule intIssueJR(issueState == Issue && intPtr != intCount && isValid(intIssueEntry) && isAllReady(newIntIssueEntry) && (validValue(intIssueEntry)).issueType == JR );
-        if(!isValid(issueVals[0]))
+    rule intIssue(issueState == Issue && intPtr != intCount);
+        $display("&issue_intIssue %d", clockCounter);
+        let intIssueEntry = intQ.read(intPtr);
+        if(isValid(intIssueEntry))
         begin
-            issueVals[0] <= tagged Valid intExecEntry;
-            intQ.remove(intPtr);
+            Bool removed = ?;
+            let validEntry = validValue(intIssueEntry);
+            let intExecEntry  = ExecEntry{token: validEntry.token, robTag: validEntry.robTag, pRName: validEntry.dest};
+            let newIntIssueEntry = IssueEntry{issueType: validEntry.issueType, token: validEntry.token, robTag: validEntry.robTag,
+                                              src1Ready: validEntry.src1Ready || isReady(validEntry.src1), src1: validEntry.src1,
+                                              src2Ready: validEntry.src2Ready || isReady(validEntry.src2), src2: validEntry.src2,
+                                              dest: validEntry.dest};
+            if(isAllReady(newIntIssueEntry))
+            begin
+                let issueType = (validValue(intIssueEntry)).issueType;
+                if(issueType == JR)
+                begin
+                    if(!isValid(issueVals[0]))
+                    begin
+                        issueVals[0] <= tagged Valid intExecEntry;
+                        removed = True;
+                    end
+                    else
+                        removed = False;
+                end
+                else if(issueType == Branch || issueType == Shift)
+                begin
+                    if(!isValid(issueVals[1]))
+                    begin
+                        issueVals[1] <= tagged Valid intExecEntry;
+                        removed = True;
+                    end
+                    else
+                        removed = False;
+                end
+                else if(issueType == Shift)
+                begin
+                    if(!isValid(issueVals[1]))
+                    begin
+                        issueVals[1] <= tagged Valid intExecEntry;
+                        removed = True;
+                        newAlu2 <= tagged Valid validEntry.dest;
+                    end
+                    else
+                        removed = False;
+                end
+                else if(issueType == Normal)
+                begin
+                    if(!isValid(issueVals[2]))
+                    begin
+                        issueVals[2] <= tagged Valid intExecEntry;
+                        newAlu2 <= tagged Valid validEntry.dest;
+                        removed = True;
+                    end
+                    else if(!isValid(issueVals[1]))
+                    begin
+                        issueVals[1] <= tagged Valid intExecEntry;
+                        newAlu1 <= tagged Valid validEntry.dest;
+                        removed = True;
+                    end
+                    else
+                        removed = False;
+                end
+                else
+                begin
+                    if(!isValid(issueVals[3]))
+                    begin
+                        issueVals[3] <= tagged Valid intExecEntry;
+                        removed = True;
+                    end
+                    else
+                        removed = False;
+                end
+            end
+            if(!removed)
+                intQ.write(intPtr, newIntIssueEntry);
+            else
+                intQ.remove(intPtr);
         end
         intPtr <= intPtr + 1;
     endrule
 
-    rule intIssueBranchShift(issueState == Issue && intPtr != intCount && isValid(intIssueEntry) && ((validValue(intIssueEntry)).issueType == Branch || (validValue(intIssueEntry)).issueType == Shift) && isAllReady(newIntIssueEntry));
-        if(!isValid(issueVals[1]))
+    rule memIssue(issueState == Issue && memPtr != memCount);
+        $display("&issue_memIssue %d", clockCounter);
+        let addrIssueEntry = addrQ.read(memPtr);
+        if(isValid(addrIssueEntry))
         begin
-            issueVals[1] <= tagged Valid intExecEntry;
-            intQ.remove(intPtr);
+            let validEntry = validValue(addrIssueEntry);
+            let addrExecEntry  = ExecEntry{token: validEntry.token, robTag: validEntry.robTag, pRName: validEntry.dest};
+            let newAddrIssueEntry = IssueEntry{issueType: validEntry.issueType, token: validEntry.token, robTag: validEntry.robTag,
+                                               src1Ready: validEntry.src1Ready || isReady(validEntry.src1), src1: validEntry.src1,
+                                               src2Ready: validEntry.src2Ready || isReady(validEntry.src2), src2: validEntry.src2,
+                                               dest: validEntry.dest};
+            if(isAllReady(newAddrIssueEntry))
+                issueVals[4] <= tagged Valid addrExecEntry;
+            else
+                addrQ.write(memPtr, newAddrIssueEntry);
         end
-        intPtr <= intPtr + 1;
+        memPtr <= memPtr + 1;
     endrule
 
-    rule intIssueNormal(issueState == Issue && intPtr != intCount && isValid(intIssueEntry) && (validValue(intIssueEntry)).issueType == Normal && isAllReady(newIntIssueEntry));
-        if(!isValid(issueVals[2]))
-        begin
-            issueVals[2] <= tagged Valid intExecEntry;
-            intQ.remove(intPtr);
-            newAlu2 <= tagged Valid ((validValue(intIssueEntry)).dest);
-        end
-        else if(!isValid(issueVals[1]))
-        begin
-            issueVals[1] <= tagged Valid intExecEntry;
-            intQ.remove(intPtr);
-            newAlu1 <= tagged Valid ((validValue(intIssueEntry)).dest);
-        end
-        intPtr <= intPtr + 1;
-    endrule
-
-    rule intIssueJ(issueState == Issue && intPtr != intCount && isValid(intIssueEntry) && (validValue(intIssueEntry)).issueType == J && isAllReady(newIntIssueEntry));
-        if(!isValid(issueVals[3]))
-        begin
-            issueVals[3] <= tagged Valid intExecEntry;
-            intQ.remove(intPtr);
-        end
-        intPtr <= intPtr + 1;
-    endrule
-
-    rule memIssue(issueState == Issue && memPtr != memCount && isValid(addrIssueEntry) && isAllReady(newAddrIssueEntry));
-        issueVals[4] <= tagged Valid addrExecEntry;
-    endrule
-
-    rule issueFinish(issueState == Issue && intPtr == intCount && (memPtr == memCount || !isValid(addrIssueEntry) || !isAllReady(newAddrIssueEntry)));
+    rule issueFinish(issueState == Issue && intPtr == intCount && memPtr == memCount);
+        $display("&issue_issueFinish %d", clockCounter);
         issueState <= IssueFinal;
         dispatchState <= Dispatch;
         issueCount <= 0;
@@ -208,20 +270,33 @@ module [HASim_Module] mkIssue();
     endrule
 
     rule issueFinishProceeding(issueState == IssueFinal && issueCount != fromInteger(valueOf(NumFuncUnits))-1);
+        $display("&issue_issueFinishProceeding %d", clockCounter);
         execPort[issueCount].send(issueVals[issueCount]);
+        $display("&    execPort[%d].send(Maybe#(%b, ...)", issueCount, isValid(issueVals[issueCount]));
         if(isValid(issueVals[issueCount]))
+        begin
             fpExeReq.send(tuple2((validValue(issueVals[issueCount])).token, ?));
+            $display("&    fpExeReq.send(...)");
+        end
+        issueCount <= issueCount + 1;
     endrule
 
-    rule issueFinishProeceedingReally(issueState == IssueFinal && issueCount == fromInteger(valueOf(NumFuncUnits))-1);
+    rule issueFinishProceedingReally(issueState == IssueFinal && issueCount == fromInteger(valueOf(NumFuncUnits))-1);
+        $display("&issue_issueFinishProceedingReally %d", clockCounter);
         memPort.send(issueVals[issueCount]);
+        $display("&    memPort.send(Maybe#(%b, ...)", isValid(issueVals[issueCount]));
         if(isValid(issueVals[issueCount]))
+        begin
             fpExeReq.send(tuple2((validValue(issueVals[issueCount])).token, ?));
+            $display("&    fpExeReq.send(...");
+        end
         issueState <= IssueDone;
     endrule
 
     rule dispatch(dispatchState == Dispatch && dispatchCount != fromInteger(valueOf(FetchWidth)));
+        $display("&issue_dispatch %d", clockCounter);
         let issue <- issuePort[dispatchCount].receive();
+        $display("&    Maybe#(%b, ...) <- issuePort[%d].receive()", isValid(issue), dispatchCount);
         if(isValid(issue))
         begin
             if(validValue(issue).issueType != Load && validValue(issue).issueType != Store)
@@ -229,9 +304,11 @@ module [HASim_Module] mkIssue();
             else
                 addrQ.add(validValue(issue));
         end
+        dispatchCount <= dispatchCount + 1;
     endrule
 
     rule dispatchDone(dispatchState == Dispatch && dispatchCount == fromInteger(valueOf(FetchWidth)));
+        $display("&issue_dispatchDone %d", clockCounter);
         dispatchState <= DispatchDone;
     endrule
 endmodule

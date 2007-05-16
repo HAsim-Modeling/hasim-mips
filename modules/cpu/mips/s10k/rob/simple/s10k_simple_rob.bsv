@@ -24,7 +24,7 @@ interface ROB;
     method ActionValue#(ROBEntry) readAnyResp();
     method Action writeAny(ROBTag robTag, ROBEntry robEntry);
     method Action readHeadReq();
-    method ActionValue#(ROBEntry) readHeadResp();
+    method ActionValue#(Maybe#(ROBEntry)) readHeadResp();
     method Action updateTail(ROBTag robTab);
     method Action writeTail(ROBEntry robEntry); //and increment
     method Action incrementHead();
@@ -62,8 +62,11 @@ module mkROB(ROB);
         headReg <= head;
     endmethod
 
-    method ActionValue#(ROBEntry) readHeadResp();
-        return robFile.sub(truncate(headReg));
+    method ActionValue#(Maybe#(ROBEntry)) readHeadResp();
+        if(!empty)
+            return tagged Valid(robFile.sub(truncate(headReg)));
+        else
+            return tagged Invalid;
     endmethod
 
     method Action updateTail(ROBTag robTab);

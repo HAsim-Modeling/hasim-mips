@@ -905,3 +905,29 @@ Had to rework a bit also because JR instructions can not be handled correctly - 
 when I execute JR. The current Issue accomodates this.
 It should be taking care of most of the scenarios. But I couldn't figure how to test it as simv file seems to be missing.
 
+
+----------
+vmurali     Date: Wed May 16 04:18:28 EDT 2007  CSN: CSN-hasim-mips-52
+                  Wed May 16 08:18:28 UTC 2007
+
+
+Directory modules/cpu/mips/s10k/execute/simple
+ s10k_simple_execute.bsv   Locally Modified           51 
+
+Directory modules/cpu/mips/s10k/rob/simple
+ s10k_simple_rob.bsv       Locally Modified           51 
+
+Directory modules/cpu/mips/s10k/decode/simple
+ s10k_simple_decode.bsv    Locally Modified           51 
+
+Directory modules/cpu/mips/s10k/commit/simple
+ s10k_simple_commit.bsv    Locally Modified           51 
+
+Directory modules/cpu/mips/s10k/issue/simple
+ s10k_simple_issue.bsv     Locally Modified           51 
+
+Directory modules/cpu/mips/s10k/fetch/simple
+ s10k_simple_fetch.bsv     Locally Modified           51 
+
+Fixed deadlock issue
+
