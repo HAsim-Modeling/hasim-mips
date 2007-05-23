@@ -931,3 +931,14 @@ Directory modules/cpu/mips/s10k/fetch/simple
 
 Fixed deadlock issue
 
+
+----------
+mvijayar    Date: Wed May 23 16:44:35 EDT 2007  CSN: CSN-hasim-mips-53
+                  Wed May 23 20:44:35 UTC 2007
+
+
+Directory config/pm/hasim-mips/s10k
+ s10k.apm                  Locally Modified           52 
+
+Added branch predictor awb file
+

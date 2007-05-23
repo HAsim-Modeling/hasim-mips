@@ -23,9 +23,10 @@ File=modules/controller/simple/hasim_simple_controller.awb
 SaveParameters=0
 Description=SMIPS R10K Core
 File=s10k
-Version=2.0
+Version=2.1
 Name=SMIPS R10K Core
 Type=HAsim
+Class=Asim::Model
 
 [Hasim functional partition/Requires]
 hasim_funcp_memstate=Hasim functional partition memstate software
@@ -161,7 +162,7 @@ File=modules/cpu/mips/target_buffer/target_buffer.awb
 Packagehint=hasim-mips
 
 [Branch Predictor]
-File=modules/cpu/mips/branch_pred/simple/branch_pred.awb
+File=modules/cpu/mips/branch_pred/branch_pred.awb
 Packagehint=hasim-mips
 
 [SMIPS R10K-like simple decode unit/Requires]
