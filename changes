@@ -942,3 +942,13 @@ Directory config/pm/hasim-mips/s10k
 
 Added branch predictor awb file
 
+
+----------
+mvijayar    Date: Wed May 23 17:35:23 EDT 2007  CSN: CSN-hasim-mips-54
+                  Wed May 23 21:35:23 UTC 2007
+
+
+Directory config/pm/hasim-mips/s10k
+ s10k.apm                  Locally Modified           53 
+
+changed version
