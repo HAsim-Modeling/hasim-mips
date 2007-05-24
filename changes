@@ -952,3 +952,18 @@ Directory config/pm/hasim-mips/s10k
  s10k.apm                  Locally Modified           53 
 
 changed version
+
+----------
+mpellaux    Date: Thu May 24 15:33:46 EDT 2007  CSN: CSN-hasim-mips-55
+                  Thu May 24 19:33:46 UTC 2007
+
+
+Directory tools/scripts/smips
+ setup-all-tests           Locally Modified           54 
+ setup-bmark               Locally Modified           54 
+ setup-test                Locally Modified           54 
+
+
+Temporary solution to get benchmarks to run.
+
+Michael P.

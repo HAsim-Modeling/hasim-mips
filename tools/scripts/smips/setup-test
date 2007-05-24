@@ -10,7 +10,13 @@
 #
 ##############################################################
 
-bmark_dir="/afs/csail.mit.edu/group/csg/tools_lx86/src/smips"
+#XXX improve this
+
+if [ -e /afs/csail.mit.edu/group/csg/tools_lx86/src/smips ]; then
+  bmark_dir="/afs/csail.mit.edu/group/csg/tools_lx86/src/smips"
+elif [ -e /p/asim/benchmarks/hasim/smips/ ]; then
+  bmark_dir="/p/asim/benchmarks/hasim/smips/"
+fi
 
 # 1. Build Benchmark in $destdir
 # 2. Create $destdir/run
