@@ -12,9 +12,9 @@
 
 #XXX improve this
 
-if [-e /afs/csail.mit.edu/group/csg/tools_lx86/src/smips]
+if [ -e /afs/csail.mit.edu/group/csg/tools_lx86/src/smips ]; then
   bmark_dir="/afs/csail.mit.edu/group/csg/tools_lx86/src/smips"
-elif [-e /p/asim/benchmarks/hasim/smips/]
+elif [ -e /p/asim/benchmarks/hasim/smips/ ]; then
   bmark_dir="/p/asim/benchmarks/hasim/smips/"
 fi
 

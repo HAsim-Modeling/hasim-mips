@@ -967,3 +967,17 @@ Directory tools/scripts/smips
 Temporary solution to get benchmarks to run.
 
 Michael P.
+
+----------
+mpellaux    Date: Thu May 24 15:35:41 EDT 2007  CSN: CSN-hasim-mips-56
+                  Thu May 24 19:35:41 UTC 2007
+
+
+Directory tools/scripts/smips
+ setup-all-tests           Locally Modified           55 
+ setup-bmark               Locally Modified           55 
+
+
+Bugfix over previous checkin.
+
+Michael P.
