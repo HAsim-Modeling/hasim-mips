@@ -48,6 +48,18 @@ module [HASim_Module] mkFetch();
         clockCounter <= clockCounter + 1;
     endrule
 
+    function fillTokenAddrPort(FetchCount fetchedCount);
+    action
+        for(Integer i = 0; i < valueof(FetchWidth); i=i+1)
+        begin
+            if(fromInteger(i) >= fetchedCount)
+            begin
+                tokenAddrPort[i].send(tagged Invalid);
+            end
+        end
+    endaction
+    endfunction
+
     rule synchronize(fetchState == FetchDone);
         let predictedTaken <- predictedTakenPort.receive();
         let     mispredict <- mispredictPort.receive();
@@ -78,12 +90,15 @@ module [HASim_Module] mkFetch();
         totalCount   <= newCount;
         fetchPos     <= 0;
 
-        if(newCount != 0)
+        if(newCount == 0)
+        begin
+            fillTokenAddrPort(0);
+        end
+        else
         begin
             fpTokenReq.send(17);
+            fetchState <= Fetch;
         end
-
-        fetchState   <= Fetch;
     endrule
 
     rule missWait(fetchState == Fetch && latency != 0);
@@ -102,14 +117,12 @@ module [HASim_Module] mkFetch();
         fetchPos  <= newFetchPos;
         pc        <= pc + 4;
         if(newFetchPos != totalCount)
+        begin
             fpTokenReq.send(17);
+        end
         else
         begin
-            for(Integer i = 0; i < valueof(FetchWidth); i=i+1)
-            begin
-                if(fromInteger(i) >= totalCount)
-                    tokenAddrPort[i].send(tagged Invalid);
-            end
+            fillTokenAddrPort(totalCount);
             fetchState <= FetchDone;
         end
     endrule

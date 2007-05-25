@@ -1010,3 +1010,15 @@ Directory modules/cpu/mips/s10k
 
 Trying to fix the schedule dependant deadlocking problem. Right now, the fix is broken as fetch seems to deadlock. Will investigate this.
 
+
+----------
+mvijayar    Date: Fri May 25 17:47:48 EDT 2007  CSN: CSN-hasim-mips-58
+                  Fri May 25 21:47:48 UTC 2007
+
+
+Directory modules/cpu/mips/s10k/fetch/simple
+ s10k_simple_fetch.bsv     Locally Modified           57 
+
+Hopefully corrected the deadlocking at fetch. Didnt have time to check. Will do it after reaching home.
+
+
