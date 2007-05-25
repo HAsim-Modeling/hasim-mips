@@ -25,70 +25,34 @@ module [HASim_Module] mkExecute();
     Vector#(NumFuncUnits, Port_Send#(Tuple2#(ExecEntry, InstResult))) 
                                                              execResultPort <- genWithM(sendFunctionM("execToDecodeResult"));
 
-    Reg#(FuncUnitPos)                                           funcUnitPos <- mkReg(fromInteger(valueOf(NumFuncUnits)));
+    Reg#(FuncUnitPos)                                           funcUnitPos <- mkReg(0);
 
-    Reg#(Bit#(32))                                             clockCounter <- mkReg(0);
+    Reg#(ClockCounter)                                         clockCounter <- mkReg(0);
 
     rule clockCount(True);
         clockCounter <= clockCounter + 1;
     endrule
 
-    rule start(funcUnitPos == fromInteger(valueOf(NumFuncUnits)));
-        $display("&execute_start %d", clockCounter);
-        funcUnitPos <= 1;
-        let recv <- execPort[0].receive();
-        $display("&    Maybe#(%b, ...) <- execPort[0]", isValid(recv));
-        Maybe#(Tuple2#(ExecEntry, InstResult)) execResult = ?;
-        if(isValid(recv))
+    rule execute(True);
+        funcUnitPos <= (funcUnitPos == fromInteger(valueOf(TSub#(NumFuncUnits,1))))? 0: funcUnitPos + 1;
+        Maybe#(ExecEntry) recv = ?;
+        if(funcUnitPos == fromInteger(valueOf(TSub#(NumFuncUnits,1))))
         begin
-            match {.token, .res} <- fpExeResponse.receive();
-            $display("&    ... <- fpExeResponse.receive()");
-            fpMemReq.send(tuple2(token,?));
-            $display("&    fpMemReq.send()");
-            execResult = tagged Valid tuple2(validValue(recv), res);
+            recv <- memPort.receive();
         end
         else
-            execResult = tagged Invalid;
-        execResultPort[0].send(execResult);
-        $display("&    execResultPort[0].send(Maybe#(%b, ...))", isValid(execResult));
-    endrule
-
-    rule cont(funcUnitPos < fromInteger(valueOf(NumFuncUnits))-1);
-        $display("&execute_cont %d", clockCounter);
-        funcUnitPos <= funcUnitPos + 1;
-        let recv <- execPort[funcUnitPos].receive();
-        $display("&    Maybe#(%b, ...) <- execPort[%d]", isValid(recv), funcUnitPos);
+        begin
+            recv <- execPort[funcUnitPos].receive();
+        end
         Maybe#(Tuple2#(ExecEntry, InstResult)) execResult = ?;
         if(isValid(recv))
         begin
             match {.token, .res} <- fpExeResponse.receive();
-            $display("&    ... <- fpExeResponse.receive()");
             fpMemReq.send(tuple2(token, ?));
-            $display("&    fpMemReq.send()");
             execResult = tagged Valid tuple2(validValue(recv), res);
         end
         else
             execResult = tagged Invalid;
         execResultPort[funcUnitPos].send(execResult);
-        $display("&    execResultPort[%d].send(Maybe#(%b, ...))", funcUnitPos, isValid(execResult));
-    endrule
-
-    rule mem(funcUnitPos == fromInteger(valueOf(NumFuncUnits))-1);
-        $display("&execute_mem %d", clockCounter);
-        funcUnitPos <= funcUnitPos + 1;
-        let recv <- memPort.receive();
-        $display("&    Maybe#(%b, ...) <- execPort[%d]", isValid(recv), funcUnitPos);
-        Maybe#(Tuple2#(ExecEntry, InstResult)) execResult = ?;
-        if(isValid(recv))
-        begin
-            match {.token, .res} <- fpExeResponse.receive();
-            $display("&    ... <- fpExeResponse.receive()");
-            fpMemReq.send(tuple2(token, ?));
-            $display("&    fpMemReq.send()");
-            execResult = tagged Valid tuple2(validValue(recv), res);
-        end
-            execResult = tagged Invalid;
-        execResultPort[funcUnitPos].send(execResult);
-        $display("&    execResultPort[%d].send(Maybe#(%b, ...))", funcUnitPos, isValid(execResult));
     endrule
 endmodule

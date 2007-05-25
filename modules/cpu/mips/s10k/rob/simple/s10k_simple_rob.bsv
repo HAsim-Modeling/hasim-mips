@@ -3,9 +3,8 @@ import hasim_base::*;
 
 import RegFile::*;
 
-import s10k_simple_common::*;
-
-typedef 32 ROBCount;
+import s10k_types::*;
+import s10k_parameters::*;
 
 typedef struct {
     Token token;

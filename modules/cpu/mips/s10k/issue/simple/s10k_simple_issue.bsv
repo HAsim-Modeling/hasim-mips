@@ -111,32 +111,25 @@ module [HASim_Module] mkIssue();
         clockCounter <= clockCounter + 1;
     endrule
 
-    rule synchronizeToDecode(issueState == IssueDone && dispatchState == DispatchDone);
-        $display("&issue_synchronizeToDecode %d", clockCounter);
+    rule synchronizeToDecode(issueState == IssueDone && dispatchState == DispatchDone && !syncToDecode);
         intQCountPort.send(tagged Valid intQCount);
         addrQCountPort.send(tagged Valid addrQCount);
-        $display("&    intQCountPort.send(tagged Valid %d)", intQCount);
-        $display("&    addrQCountPort.send(tagged Valid %d)", addrQCount);
         syncToDecode <= True;
     endrule
 
-    rule synchronizeToExecute(issueState == IssueDone && dispatchState == DispatchDone);
-        $display("&issue_synchronizeToExecute %d", clockCounter);
-
+    rule synchronizeToExecute(issueState == IssueDone && dispatchState == DispatchDone && !syncToExecute);
         for(Integer i = 0; i < valueOf(NumFuncUnits) - 1; i=i+1)
         begin
             execPort[i].send(issueVals[i]);
-            $display("&    execPort[%d].send(Maybe#(%b, ...))", i, isValid(issueVals[i]));
             issueVals[i] <= tagged Invalid;
         end
         memPort.send(issueVals[valueOf(NumFuncUnits)-1]);
-        $display("&    memPort.send(Maybe#(%b, ...))", isValid(issueVals[valueOf(NumFuncUnits)-1]));
         issueVals[valueOf(NumFuncUnits)-1] <= tagged Invalid;
         syncToExecute <= True;
     endrule
 
-    rule syncOver(syncToExecute && syncToDecode);
-        $display("&issue_syncOver %d", clockCounter);
+    rule synchronize(issueState == IssueDone && dispatchState == DispatchDone && syncToExecute && syncToDecode);
+        $display("issue_syncOver %d", clockCounter);
         issueState <= Issue;
 
         intPtr     <= 0;
@@ -150,9 +143,8 @@ module [HASim_Module] mkIssue();
         oldAlu2  <= newAlu2;
         oldMem1  <= newMem1;
         oldMem2  <= oldMem1;
-
-        syncToExecute <= False;
         syncToDecode  <= False;
+        syncToExecute <= False;
     endrule
 
     function isReady(PRName pRName) =  isValid(oldAlu1) && pRName == validValue(oldAlu1) || 
@@ -161,7 +153,6 @@ module [HASim_Module] mkIssue();
     function isAllReady(IssueEntry issue) = issue.src1Ready && issue.src2Ready;
 
     rule intIssue(issueState == Issue && intPtr != intCount);
-        $display("&issue_intIssue %d", clockCounter);
         let intIssueEntry = intQ.read(intPtr);
         if(isValid(intIssueEntry))
         begin
@@ -243,7 +234,6 @@ module [HASim_Module] mkIssue();
     endrule
 
     rule memIssue(issueState == Issue && memPtr != memCount);
-        $display("&issue_memIssue %d", clockCounter);
         let addrIssueEntry = addrQ.read(memPtr);
         if(isValid(addrIssueEntry))
         begin
@@ -262,41 +252,29 @@ module [HASim_Module] mkIssue();
     endrule
 
     rule issueFinish(issueState == Issue && intPtr == intCount && memPtr == memCount);
-        $display("&issue_issueFinish %d", clockCounter);
         issueState <= IssueFinal;
         dispatchState <= Dispatch;
         issueCount <= 0;
         dispatchCount <= 0;
     endrule
 
-    rule issueFinishProceeding(issueState == IssueFinal && issueCount != fromInteger(valueOf(NumFuncUnits))-1);
-        $display("&issue_issueFinishProceeding %d", clockCounter);
-        execPort[issueCount].send(issueVals[issueCount]);
-        $display("&    execPort[%d].send(Maybe#(%b, ...)", issueCount, isValid(issueVals[issueCount]));
+    rule issueFinishProceeding(issueState == IssueFinal);
+        if(issueCount == fromInteger(valueOf(TSub#(NumFuncUnits,1))))
+        begin
+            memPort.send(issueVals[issueCount]);
+            issueState <= IssueDone;
+        end
+        else
+            execPort[issueCount].send(issueVals[issueCount]);
         if(isValid(issueVals[issueCount]))
         begin
             fpExeReq.send(tuple2((validValue(issueVals[issueCount])).token, ?));
-            $display("&    fpExeReq.send(...)");
         end
         issueCount <= issueCount + 1;
     endrule
 
-    rule issueFinishProceedingReally(issueState == IssueFinal && issueCount == fromInteger(valueOf(NumFuncUnits))-1);
-        $display("&issue_issueFinishProceedingReally %d", clockCounter);
-        memPort.send(issueVals[issueCount]);
-        $display("&    memPort.send(Maybe#(%b, ...)", isValid(issueVals[issueCount]));
-        if(isValid(issueVals[issueCount]))
-        begin
-            fpExeReq.send(tuple2((validValue(issueVals[issueCount])).token, ?));
-            $display("&    fpExeReq.send(...");
-        end
-        issueState <= IssueDone;
-    endrule
-
-    rule dispatch(dispatchState == Dispatch && dispatchCount != fromInteger(valueOf(FetchWidth)));
-        $display("&issue_dispatch %d", clockCounter);
+    rule dispatch(dispatchState == Dispatch);
         let issue <- issuePort[dispatchCount].receive();
-        $display("&    Maybe#(%b, ...) <- issuePort[%d].receive()", isValid(issue), dispatchCount);
         if(isValid(issue))
         begin
             if(validValue(issue).issueType != Load && validValue(issue).issueType != Store)
@@ -305,10 +283,7 @@ module [HASim_Module] mkIssue();
                 addrQ.add(validValue(issue));
         end
         dispatchCount <= dispatchCount + 1;
-    endrule
-
-    rule dispatchDone(dispatchState == Dispatch && dispatchCount == fromInteger(valueOf(FetchWidth)));
-        $display("&issue_dispatchDone %d", clockCounter);
-        dispatchState <= DispatchDone;
+        if(dispatchCount == fromInteger(valueOf(TSub#(FetchWidth,1))))
+            dispatchState <= DispatchDone;
     endrule
 endmodule

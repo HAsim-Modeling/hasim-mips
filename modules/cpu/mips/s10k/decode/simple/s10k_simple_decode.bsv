@@ -118,7 +118,6 @@ module [HASim_Module] mkDecode();
     Reg#(Bool)                                                     killInstBuffer <- mkReg(False);
     Reg#(Bool)                                                 nextKillInstBuffer <- mkReg(?);
     Reg#(Bool)                                                     realDecodeDone <- mkReg(?);
-    Reg#(Bool)                                                     realCommitDone <- mkReg(?);
 
     Reg#(Maybe#(Tuple2#(ExecEntry, InstResult)))                        execEntry <- mkReg(?);
 
@@ -144,12 +143,13 @@ module [HASim_Module] mkDecode();
     Reg#(Bool)                                                      syncFromIssue <- mkReg(False);
     Reg#(Bool)                                                        syncToFetch <- mkReg(False);
 
-    Reg#(Bit#(32))                                                   clockCounter <- mkReg(0);
+    Reg#(ClockCounter)                                               clockCounter <- mkReg(0);
+    Reg#(ClockCounter)                                               modelCounter <- mkReg(0);
+
 
     function Action restoreToToken(Token token);
     action
         fpRewindToToken.send(token);
-        $display("&    fpRewindToToken.send(%x)", token);
     endaction
     endfunction
 
@@ -158,9 +158,6 @@ module [HASim_Module] mkDecode();
         fpTokKill.send(token);
         fpLocalCommitKill.send(token);
         fpMemStateKill.send(token);
-        $display("&    fpTokKill.send(%x)", token);
-        $display("&    fpLocalCommitKill.send(%x)", token);
-        $display("&    fpMemStateKill.send(%x)", token);
     endaction
     endfunction
     
@@ -168,8 +165,6 @@ module [HASim_Module] mkDecode();
     action
         fpTokKill.send(token);
         fpExeKill.send(token);
-        $display("&    fpTokKill.send(%x)", token);
-        $display("&    fpExeKill.send(%x)", token);
     endaction
     endfunction
 
@@ -178,16 +173,12 @@ module [HASim_Module] mkDecode();
     endrule
 
     rule birthOfModel(birth);
-        $display("&decode_birthOfModel: %d", clockCounter);
         let req <- finishServer.getReq();
-        $display("&    req <- finishServer.getReq()");
         birth <= False;
     endrule
 
     rule getDecodeResp(True);
-        $display("&decode_getDecodeResp: %d", clockCounter);
         let decodeTuple <- fpDecodeResp.receive();
-        $display("&    decodeTuple <- fpDecodeResp.receive()");
         decodeBuffer.enq(tpl_2(decodeTuple));
     endrule
 
@@ -207,52 +198,76 @@ module [HASim_Module] mkDecode();
     */
 
     //Synchronization point
-    rule syncOver(syncToFetch && syncFromIssue);
-        $display("&decode_syncOver: %d", clockCounter);
-        syncToFetch   <= False;
-        syncFromIssue <= False;
+    rule synchronizeToFetch(fetchState == FetchDone && decodeState == DecodeDone && robUpdateState == ROBUpdateDone && commitState == CommitDone && !syncToFetch);
+        decodeNumPort.send(tagged Valid decodeNum);
+        predictedTakenPort.send(predictedPC);
+        mispredictPort.send(mispredictPC);
+        syncToFetch <= True;
+    endrule
+
+    rule synchronizeFromIssue(fetchState == FetchDone && decodeState == DecodeDone && robUpdateState == ROBUpdateDone && commitState == CommitDone && !syncFromIssue);
+        let intQFreeCountLocal  <- intQCountPort.receive();
+        let addrQFreeCountLocal <- addrQCountPort.receive();
+
+        intQFreeCount      <= fromMaybe(fromInteger(valueOf(IntQCount)), intQFreeCountLocal);
+        addrQFreeCount     <= fromMaybe(fromInteger(valueOf(AddrQCount)), addrQFreeCountLocal);
+        syncFromIssue      <= True;
+    endrule
+
+    rule synchronize(fetchState == FetchDone && decodeState == DecodeDone && robUpdateState == ROBUpdateDone && commitState == CommitDone && syncToFetch && syncFromIssue);
+        $display("decode_synchronize %d %d", clockCounter, modelCounter);
+        modelCounter       <= modelCounter + 1;
 
         fetchState         <= Fetch;
         fetchCount         <= 0;
 
         robUpdateState     <= ROBUpdate;
         let execReceive    <- execResultPort[0].receive();
-        $display("&    Maybe#(%b, ...) <- execResultPort[0].receive()", isValid(execReceive));
         execEntry          <= execReceive;
         if(isValid(execReceive))
             rob.readAnyReq((tpl_1(validValue(execReceive))).robTag);
-
         robOpState         <= isValid(execReceive)? Write: Read;
         robUpdateCount     <= isValid(execReceive)? 0: 1;
+
         nextKillInstBuffer <= False;
+
+        syncToFetch        <= False;
+        syncFromIssue      <= False;
     endrule
 
-    rule synchronizeToFetch(fetchState == FetchDone && decodeState == DecodeDone && robUpdateState == ROBUpdateDone && commitState == CommitDone);
-        $display("&decode_synchronizeToFetch: %d", clockCounter);
-        decodeNumPort.send(tagged Valid decodeNum);
-        predictedTakenPort.send(predictedPC);
-        mispredictPort.send(mispredictPC);
-        $display("&    decodeNumPort.send(tagged Valid %d)", decodeNum);
-        $display("&    predictedTakenPort.send(Maybe#(%b, %x))", isValid(predictedPC), validValue(predictedPC));
-        $display("&    mispredictPort.send(Maybe#(%b, %x))", isValid(mispredictPC), validValue(mispredictPC));
-        syncToFetch <= True;
+    rule fetch(fetchState == Fetch);
+        let tokenAddr <- tokenAddrPort[fetchCount].receive();
+        if(isValid(tokenAddr))
+        begin
+            let tokenAddrVal = validValue(tokenAddr);
+            tokenAddrBuffer.enq(tokenAddrVal);
+            match {.token, .inst} <- fpFetchResp.receive();
+            instBuffer.enq(inst);
+            fpDecodeReq.send(tuple2(tpl_1(tokenAddrVal), ?));
+        end
+        fetchCount       <= fetchCount + 1;
+        if(fetchCount == fromInteger(valueOf(TSub#(FetchWidth,1))))
+            fetchState   <= FetchDone;
     endrule
 
-    rule synchronizeFromIssue(fetchState == FetchDone && decodeState == DecodeDone && robUpdateState == ROBUpdateDone && commitState == CommitDone);
-        let intQFreeCountLocal  <- intQCountPort.receive();
-        let addrQFreeCountLocal <- addrQCountPort.receive();
-        $display("&    Maybe#(%b, %d) <- intQCountPort.receive()", isValid(intQFreeCountLocal), validValue(intQFreeCountLocal));
-        $display("&    Maybe#(%b, %d) <- addrQCountPort.receive()", isValid(addrQFreeCountLocal), validValue(addrQFreeCountLocal));
+    function finishROB();
+    action
+        robUpdateState <= ROBUpdateDone;
 
-        intQFreeCount      <= fromMaybe(fromInteger(valueOf(IntQCount)), intQFreeCountLocal);
-        addrQFreeCount     <= fromMaybe(fromInteger(valueOf(AddrQCount)), addrQFreeCountLocal);
-        syncFromIssue <= True;
-    endrule
+        decodeState    <= Decoding;
+        decodeNum      <= killInstBuffer? fromInteger(valueOf(FetchWidth)): 0;
+        realDecodeDone <= killInstBuffer? True: False;
 
-    rule robUpdateRead(robUpdateState == ROBUpdate && robOpState == Read && robUpdateCount != fromInteger(valueOf(NumFuncUnits)));
-        $display("&decode_robUpdateRead: %d", clockCounter);
+        commitState    <= Commit;
+        commitCount    <= 0;
+        rob.readHeadReq();
+
+        predictedPC    <= tagged Invalid;
+    endaction
+    endfunction 
+
+    rule robUpdateRead(robUpdateState == ROBUpdate && robOpState == Read);
         let execReceive    <- execResultPort[robUpdateCount].receive();
-        $display("&    Maybe#(%b, ...) <- execResultPort[%d].receive()", isValid(execReceive), robUpdateCount);
         execEntry          <= execReceive;
         if(isValid(execReceive))
         begin
@@ -260,14 +275,18 @@ module [HASim_Module] mkDecode();
             robOpState     <= Write;
         end
         else
+        begin
             robUpdateCount <= robUpdateCount + 1;
+            if(robUpdateCount == fromInteger(valueOf(TSub#(NumFuncUnits,1))))
+            begin
+                finishROB();
+            end
+        end
     endrule
 
     rule robUpdateWrite(robUpdateState == ROBUpdate && robOpState == Write);
-        $display("&decode_robUpdateWrite: %d", clockCounter);
         let robEntry       <- rob.readAnyResp();
         let memAck         <- fpMemoryResp.receive();
-        $display("&    ... <- fpMemoryResp.receive()");
         match {.exec, .res} = validValue(execEntry);
         if(rob.isROBTagValid(exec.robTag) && robEntry.token == exec.token)
         begin
@@ -309,77 +328,37 @@ module [HASim_Module] mkDecode();
         else
             killROBStage(exec.token);
 
-        robUpdateCount <= robUpdateCount + 1;
-        robOpState     <= Read;
-    endrule
-
-    rule robUpdateDone(robUpdateState == ROBUpdate && robOpState == Read && robUpdateCount == fromInteger(valueOf(NumFuncUnits)));
-        $display("&decode_robUpdateDone %d", clockCounter);
-        robUpdateState  <= ROBUpdateDone;
-
-        decodeState     <= Decoding;
-        decodeNum       <= killInstBuffer? fromInteger(valueOf(FetchWidth)): 0;
-        realDecodeDone  <= killInstBuffer? True: False;
-
-        commitState     <= Commit;
-        commitCount     <= 0;
-        realCommitDone  <= False;
-        rob.readHeadReq();
-
-        predictedPC     <= tagged Invalid;
-    endrule
-
-    rule fetch(fetchState == Fetch && fetchCount != fromInteger(valueOf(FetchWidth)));
-        $display("&decode_fetch %d", clockCounter);
-        let tokenAddr <- tokenAddrPort[fetchCount].receive();
-        $display("&    Maybe#(%b) <- tokenAddrPort[fetchCount].receive()", isValid(tokenAddr));
-        if(isValid(tokenAddr))
+        robUpdateCount     <= robUpdateCount + 1;
+        robOpState         <= Read;
+        if(robUpdateCount == fromInteger(valueOf(TSub#(NumFuncUnits,1))))
         begin
-            let tokenAddrVal = validValue(tokenAddr);
-            tokenAddrBuffer.enq(tokenAddrVal);
-            match {.token, .inst} <- fpFetchResp.receive();
-            $display("&    {.%x, .%x} <- fpFetchResp.receive()", token, inst);
-            instBuffer.enq(inst);
-            fpDecodeReq.send(tuple2(tpl_1(tokenAddrVal), ?));
-            $display("&    fpDecodeReq.send(...);");
+            finishROB();
         end
-        fetchCount <= fetchCount + 1;
     endrule
 
-    rule fetchDone(fetchState == Fetch && fetchCount == fromInteger(valueOf(FetchWidth)));
-        $display("&decode_fetchDone %d", clockCounter);
-        fetchState <= FetchDone;
-    endrule
-
-    rule commit(commitState == Commit && !realCommitDone && commitCount != fromInteger(valueOf(CommitWidth)));
-        $display("&decode_commit %d", clockCounter);
+    rule commit(commitState == Commit && commitCount != fromInteger(valueOf(CommitWidth)));
         let robEntryMaybe <- rob.readHeadResp();
         let robEntry = validValue(robEntryMaybe);
+        commitCount <= commitCount + 1;
         if(isValid(robEntryMaybe) && robEntry.done)
         begin
             rob.incrementHead();
             commitTokenPort[commitCount].send(tagged Valid robEntry.token);
-            $display("&    commitTokenPort[%d].send(tagged Valid %x)", commitCount, robEntry.token);
             if(robEntry.isBranch)
                 branchPred.upd(robEntry.addr, robEntry.prediction, robEntry.taken);
             rob.readHeadReq();
-            commitCount <= commitCount + 1;
         end
         else
-            realCommitDone <= True;
-    endrule
-
-    rule commitDone(commitState == Commit && (realCommitDone || commitCount == fromInteger(valueOf(CommitWidth))));
-        $display("&decode_commitDone %d", clockCounter);
-        for(CommitCount i = 0; i < fromInteger(valueOf(FetchWidth)); i=i+1)
         begin
-            if(i >= commitCount)
+            for(Integer i = 0; i < valueOf(CommitWidth); i=i+1)
             begin
-                commitTokenPort[i].send(tagged Invalid);
-                $display("&    commitTokenPort[%d].send(tagged Invalid)", i);
+                if(fromInteger(i) >= commitCount)
+                begin
+                    commitTokenPort[i].send(tagged Invalid);
+                end
             end
+            commitState <= CommitDone;
         end
-        commitState <= CommitDone;
     endrule
 
     let currInst                  = instBuffer.first();
@@ -406,7 +385,6 @@ module [HASim_Module] mkDecode();
     endfunction
 
     rule decodeInst(decodeState == Decoding && !killInstBuffer && !realDecodeDone && tokenAddrBuffer.notEmpty() && decodeNum != fromInteger(valueOf(FetchWidth)));
-        $display("decode_decodeInst %d", clockCounter);
         let branchPredAddr = branchPred.getPredAddr(currAddr);
         let jumpPredAddr   = targetBuffer.first();
         ROBEntry res = ROBEntry{token: currToken, addr: currAddr, done: False, finished: False,
@@ -561,7 +539,6 @@ module [HASim_Module] mkDecode();
 
             rob.writeTail(res);
             issuePort[decodeNum].send(tagged Valid issue);
-            $display("&    issuePort[%d].send(tagged Valid getNewIssueEntry())", decodeNum);
 
             tokenAddrBuffer.deq();
             instBuffer.deq();
@@ -570,39 +547,35 @@ module [HASim_Module] mkDecode();
     endrule
 
     rule noInst(decodeState == Decoding && !killInstBuffer && !realDecodeDone && !tokenAddrBuffer.notEmpty() && fetchState == FetchDone);
-        $display("&decode_noInst %d", clockCounter);
         realDecodeDone <= True;
     endrule
 
     rule decodeDone(decodeState == Decoding && !killInstBuffer && (realDecodeDone || decodeNum == fromInteger(valueOf(FetchWidth))));
-        $display("&decode_decodeDone %d", clockCounter);
         decodeState <= DecodeDone;
     endrule
 
     rule fillIssueQueues(decodeState == Decoding && realDecodeDone);
-        $display("&decode_fillIssueQueues %d", clockCounter);
         for(FetchCount i = 0; i != fromInteger(valueOf(FetchWidth)); i=i+1)
         begin
             if(i > decodeNum)
             begin
                 issuePort[i].send(tagged Invalid);
-                $display("&    issuePort[%d].send(tagged Invalid)", i);
             end
         end
     endrule
 
     rule decodeKillInstBuffer(decodeState == Decoding && killInstBuffer && tokenAddrBuffer.notEmpty());
-        $display("&decode_decodeKillInstBuffer %d", clockCounter);
-        tokenAddrBuffer.deq();
-        instBuffer.deq();
-        decodeBuffer.deq();
-
-        killDecodeStage(tpl_1(tokenAddrBuffer.first()));
-    endrule
-
-    rule decodeKillInstBufferDone(decodeState == Decoding && killInstBuffer && !tokenAddrBuffer.notEmpty());
-        $display("&decode_decodeKillInstBufferDone %d", clockCounter);
-        killInstBuffer <= nextKillInstBuffer;
-        decodeState    <= DecodeDone;
+        if(tokenAddrBuffer.notEmpty())
+        begin
+            tokenAddrBuffer.deq();
+            instBuffer.deq();
+            decodeBuffer.deq();
+            killDecodeStage(tpl_1(tokenAddrBuffer.first()));
+        end
+        else
+        begin
+            killInstBuffer <= nextKillInstBuffer;
+            decodeState    <= DecodeDone;
+        end
     endrule
 endmodule

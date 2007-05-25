@@ -981,3 +981,32 @@ Directory tools/scripts/smips
 Bugfix over previous checkin.
 
 Michael P.
+
+----------
+mvijayar    Date: Fri May 25 17:17:47 EDT 2007  CSN: CSN-hasim-mips-57
+                  Fri May 25 21:17:47 UTC 2007
+
+
+Directory modules/cpu/mips/s10k/execute/simple
+ s10k_simple_execute.bsv   Locally Modified           56 
+
+Directory modules/cpu/mips/s10k/rob/simple
+ s10k_simple_rob.bsv       Locally Modified           56 
+
+Directory modules/cpu/mips/s10k/decode/simple
+ s10k_simple_decode.bsv    Locally Modified           56 
+
+Directory modules/cpu/mips/s10k/commit/simple
+ s10k_simple_commit.bsv    Locally Modified           56 
+
+Directory modules/cpu/mips/s10k/issue/simple
+ s10k_simple_issue.bsv     Locally Modified           56 
+
+Directory modules/cpu/mips/s10k/fetch/simple
+ s10k_simple_fetch.bsv     Locally Modified           56 
+
+Directory modules/cpu/mips/s10k
+ s10k_types.bsv            Locally Modified           56 
+
+Trying to fix the schedule dependant deadlocking problem. Right now, the fix is broken as fetch seems to deadlock. Will investigate this.
+

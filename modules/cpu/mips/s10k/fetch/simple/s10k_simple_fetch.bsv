@@ -6,7 +6,10 @@ import hasim_isa::*;
 import FIFOF::*;
 import Vector::*;
 
-import s10k_simple_common::*;
+import s10k_types::*;
+import s10k_parameters::*;
+
+typedef enum {Fetch, FetchDone} FetchState deriving (Bits, Eq);
 
 module [HASim_Module] mkFetch();
     Connection_Send#(Bit#(8))               fpTokenReq <- mkConnection_Send("fp_tok_req");
@@ -24,10 +27,11 @@ module [HASim_Module] mkFetch();
     Vector#(FetchWidth, Port_Send#(Tuple2#(Token, Addr)))
                                          tokenAddrPort <- genWithM(sendFunctionM("fetchToDecode"));
 
+    Reg#(FetchState)                        fetchState <- mkReg(FetchDone);
     Reg#(Addr)                                      pc <- mkReg(pcStart);
-    Reg#(FetchCount)                        fetchCount <- mkReg(0);
+    Reg#(FetchCount)                        totalCount <- mkReg(?);
     Reg#(Bit#(32))                             latency <- mkReg(?); //Actual model latency * 4
-    Reg#(FetchCount)                      instPosition <- mkReg(fromInteger(valueOf(FetchWidth))); //This triggers only start rule
+    Reg#(FetchCount)                          fetchPos <- mkReg(?); //This triggers only start rule
 
     Reg#(Bit#(32))                        clockCounter <- mkReg(0);
 
@@ -44,14 +48,10 @@ module [HASim_Module] mkFetch();
         clockCounter <= clockCounter + 1;
     endrule
 
-    rule start(fetchCount == 0 && instPosition == fromInteger(valueOf(FetchWidth)));
-        $display("&fetch_start: %d", clockCounter);
+    rule synchronize(fetchState == FetchDone);
         let predictedTaken <- predictedTakenPort.receive();
         let     mispredict <- mispredictPort.receive();
         let      decodeNum <- decodeNumPort.receive();
-        $display("&    Maybe#(%b, %x) <- predictedTakenPort.receive()", isValid(predictedTaken), validValue(predictedTaken));
-        $display("&    Maybe#(%b, %x) <- mispredictPort.receive()", isValid(mispredict), validValue(mispredict));
-        $display("&    Maybe#(%b, %d) <- decodeNum.receive()", isValid(decodeNum), validValue(decodeNum));
 
         Addr newPC = ?;
         Bit#(32) newLatency = ?;
@@ -75,63 +75,42 @@ module [HASim_Module] mkFetch();
         latency      <= newLatency;
 
         let newCount  = getCacheBoundary(newPC, decodeNum);
-        fetchCount   <= newCount;
-        instPosition <= 0;
+        totalCount   <= newCount;
+        fetchPos     <= 0;
 
         if(newCount != 0)
         begin
             fpTokenReq.send(17);
-            $display("&    fpTokenReq.send(17)");
         end
 
+        fetchState   <= Fetch;
     endrule
 
-    rule missWait(latency != 0 && fetchCount != 0);
-        $display("&fetch_missWait: %d", clockCounter);
+    rule missWait(fetchState == Fetch && latency != 0);
         latency <= latency - 1;
         for(Integer i = 0; i < valueOf(FetchWidth); i=i+1)
         begin
             tokenAddrPort[i].send(tagged Invalid);
-            $display("&    tokenAddrPort[%d].send(tagged Invalid)", i);
         end
     endrule
 
-    function Action doFetch();
-    action
+    rule fetchInsts(fetchState == Fetch && latency == 0);
         let token <- fpTokenResp.receive();
         fpFetchReq.send(tuple2(token, pc));
-        tokenAddrPort[instPosition].send(tagged Valid tuple2(token, pc));
-        instPosition <= instPosition + 1;
-        $display("&    Token %x <- fpTokenResp.receive()", token);
-        $display("&    fpFetchReq.send(tuple2(%x, %x))", token, pc);
-        $display("&    tokenAddrPort[%d].send(tagged Valid tuple2(%x, %x))", instPosition, token, pc);
-        fetchCount <= fetchCount - 1;
-        pc <= pc + 4;
-
-    endaction
-    endfunction
-
-    rule middleInsts(latency == 0 && fetchCount != 1);  //if fetchCount = 0, then we wont receive anything from the token, so this rule wont fire
-        $display("&fetch_middleInsts: %d", clockCounter);
-        doFetch();
-        fpTokenReq.send(17);
-        $display("&    fpTokenReq.send(17)");
+        tokenAddrPort[fetchPos].send(tagged Valid tuple2(token, pc));
+        let newFetchPos = fetchPos + 1;
+        fetchPos  <= newFetchPos;
+        pc        <= pc + 4;
+        if(newFetchPos != totalCount)
+            fpTokenReq.send(17);
+        else
+        begin
+            for(Integer i = 0; i < valueof(FetchWidth); i=i+1)
+            begin
+                if(fromInteger(i) >= totalCount)
+                    tokenAddrPort[i].send(tagged Invalid);
+            end
+            fetchState <= FetchDone;
+        end
     endrule
-
-    rule finishInsts(latency == 0 && fetchCount == 1);
-        $display("&fetch_finishInsts: %d", clockCounter);
-        doFetch();
-    endrule
-
-    rule finishOverall(latency == 0 && fetchCount == 0 && instPosition != fromInteger(valueOf(FetchWidth)));
-        $display("&fetch_finishOverall: %d", clockCounter);
-        instPosition <= instPosition + 1;
-        tokenAddrPort[instPosition].send(tagged Invalid);
-        $display("&    tokenAddrPort[%d].send(tagged Invalid)", instPosition);
-    endrule
-
-    rule displayDone(instPosition == fromInteger(valueOf(FetchWidth)) - 1);
-        $display("&fetch_displayDone %d", clockCounter);
-    endrule
-
 endmodule

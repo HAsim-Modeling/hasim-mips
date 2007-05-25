@@ -16,6 +16,8 @@ typedef Bit#(TLog#(TAdd#(NumFuncUnits,1))) FuncUnitPos;
 
 typedef enum {J, JR, Branch, Shift, Normal, Load, Store} IssueType deriving (Bits, Eq);
 
+typedef Bit#(64) ClockCounter;
+
 typedef struct {
     IssueType issueType;
     Token     token;
