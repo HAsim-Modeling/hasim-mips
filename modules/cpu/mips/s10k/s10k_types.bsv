@@ -7,6 +7,7 @@ import hasim_parameters::*;
 typedef Bit#(TLog#(TAdd#(ROBCount,1))) ROBTag;
 
 typedef Bit#(TLog#(TAdd#(FetchWidth,1))) FetchCount;
+typedef Bit#(TLog#(TAdd#(1,TMul#(FetchWidth,2)))) InstCount;
 typedef Bit#(TLog#(TAdd#(CommitWidth,1))) CommitCount;
 
 typedef Bit#(TLog#(TAdd#(IntQCount,1))) IntQCountType;

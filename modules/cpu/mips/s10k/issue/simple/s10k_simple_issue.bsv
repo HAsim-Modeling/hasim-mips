@@ -100,9 +100,6 @@ module [HASim_Module] mkIssue();
     IssueQ                                                          intQ <- mkIssueQ();
     IssueQ                                                         addrQ <- mkIssueQ();
 
-    Reg#(Bool)                                             syncToExecute <- mkReg(False);
-    Reg#(Bool)                                              syncToDecode <- mkReg(False);
-
     Vector#(NumFuncUnits, Reg#(Maybe#(ExecEntry)))             issueVals <- replicateM(mkReg(tagged Invalid));
 
     Reg#(Bit#(32))                                          clockCounter <- mkReg(0);
@@ -111,25 +108,11 @@ module [HASim_Module] mkIssue();
         clockCounter <= clockCounter + 1;
     endrule
 
-    rule synchronizeToDecode(issueState == IssueDone && dispatchState == DispatchDone && !syncToDecode);
+    rule synchronize(issueState == IssueDone && dispatchState == DispatchDone);
+        $display("issue_synchronize %d", clockCounter);
         intQCountPort.send(tagged Valid intQCount);
         addrQCountPort.send(tagged Valid addrQCount);
-        syncToDecode <= True;
-    endrule
 
-    rule synchronizeToExecute(issueState == IssueDone && dispatchState == DispatchDone && !syncToExecute);
-        for(Integer i = 0; i < valueOf(NumFuncUnits) - 1; i=i+1)
-        begin
-            execPort[i].send(issueVals[i]);
-            issueVals[i] <= tagged Invalid;
-        end
-        memPort.send(issueVals[valueOf(NumFuncUnits)-1]);
-        issueVals[valueOf(NumFuncUnits)-1] <= tagged Invalid;
-        syncToExecute <= True;
-    endrule
-
-    rule synchronize(issueState == IssueDone && dispatchState == DispatchDone && syncToExecute && syncToDecode);
-        $display("issue_syncOver %d", clockCounter);
         issueState <= Issue;
 
         intPtr     <= 0;
@@ -143,8 +126,6 @@ module [HASim_Module] mkIssue();
         oldAlu2  <= newAlu2;
         oldMem1  <= newMem1;
         oldMem2  <= oldMem1;
-        syncToDecode  <= False;
-        syncToExecute <= False;
     endrule
 
     function isReady(PRName pRName) =  isValid(oldAlu1) && pRName == validValue(oldAlu1) || 

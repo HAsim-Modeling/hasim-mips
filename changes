@@ -1022,3 +1022,19 @@ Directory modules/cpu/mips/s10k/fetch/simple
 Hopefully corrected the deadlocking at fetch. Didnt have time to check. Will do it after reaching home.
 
 
+
+----------
+vmurali     Date: Mon May 28 07:21:49 EDT 2007  CSN: CSN-hasim-mips-59
+                  Mon May 28 11:21:49 UTC 2007
+
+
+Directory modules/cpu/mips/s10k/decode/simple
+ s10k_simple_decode.bsv    Locally Modified           58 
+
+Directory modules/cpu/mips/s10k/issue/simple
+ s10k_simple_issue.bsv     Locally Modified           58 
+
+Directory modules/cpu/mips/s10k
+ s10k_types.bsv            Locally Modified           58 
+
+Fixed a bug which was causing multiple issues. The test passes, but I doubt if it really works, as it doesnt seem to even look at the whole program yet

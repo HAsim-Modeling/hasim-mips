@@ -128,6 +128,7 @@ module [HASim_Module] mkDecode();
 
     Reg#(FetchCount)                                                   fetchCount <- mkReg(?);
     Reg#(FetchCount)                                                    decodeNum <- mkReg(fromInteger(valueOf(FetchWidth)));
+    Reg#(InstCount)                                                       instNum <- mkReg(fromInteger(valueOf(TMul#(2,FetchWidth))));
     Reg#(FuncUnitPos)                                              robUpdateCount <- mkReg(?);
     Reg#(CommitCount)                                                 commitCount <- mkReg(?);
     Reg#(Maybe#(Addr))                                                predictedPC <- mkReg(tagged Invalid);
@@ -199,7 +200,10 @@ module [HASim_Module] mkDecode();
 
     //Synchronization point
     rule synchronizeToFetch(fetchState == FetchDone && decodeState == DecodeDone && robUpdateState == ROBUpdateDone && commitState == CommitDone && !syncToFetch);
-        decodeNumPort.send(tagged Valid decodeNum);
+        let newInstNum = instNum + zeroExtend(decodeNum);
+        let sendInstNum = (newInstNum >= 4)? 4: newInstNum;
+        instNum <= newInstNum;
+        decodeNumPort.send(tagged Valid truncate(newInstNum));
         predictedTakenPort.send(predictedPC);
         mispredictPort.send(mispredictPC);
         syncToFetch <= True;
@@ -241,6 +245,7 @@ module [HASim_Module] mkDecode();
         begin
             let tokenAddrVal = validValue(tokenAddr);
             tokenAddrBuffer.enq(tokenAddrVal);
+            instNum <= instNum - 1;
             match {.token, .inst} <- fpFetchResp.receive();
             instBuffer.enq(inst);
             fpDecodeReq.send(tuple2(tpl_1(tokenAddrVal), ?));
@@ -543,6 +548,7 @@ module [HASim_Module] mkDecode();
             tokenAddrBuffer.deq();
             instBuffer.deq();
             decodeBuffer.deq();
+            $display("&decoded Instruction: %x", currAddr);
         end
     endrule
 
