@@ -219,7 +219,7 @@ module [HASim_Module] mkDecode();
     endrule
 
     rule synchronize(fetchState == FetchDone && decodeState == DecodeDone && robUpdateState == ROBUpdateDone && commitState == CommitDone && syncToFetch && syncFromIssue);
-        $display("decode_synchronize %d %d", clockCounter, modelCounter);
+        $display("Decode Synchronize @ FPGA: %0d, Model: %0d", clockCounter, modelCounter);
         modelCounter       <= modelCounter + 1;
 
         fetchState         <= Fetch;
@@ -305,8 +305,13 @@ module [HASim_Module] mkDecode();
                           endcase;
 
             let finished = case (res) matches
-                               tagged RTerminate .arbit: True;
+                               tagged RTerminate .execResult: True;
+                               default: False;
                            endcase;
+
+            let correct = case (res) matches
+                              tagged RTerminate .execResult: execResult;
+                          endcase;
 
             rob.writeAny(exec.robTag, ROBEntry{token: robEntry.token, addr: robEntry.addr, done: True, finished: finished,
                                                isBranch: robEntry.isBranch, prediction: robEntry.prediction, taken: taken,
@@ -328,7 +333,7 @@ module [HASim_Module] mkDecode();
             end
 
             if(finished)
-                finishServer.makeResp(tagged RESP_DoneRunning True);
+                finishServer.makeResp(tagged RESP_DoneRunning correct);
         end
         else
             killROBStage(exec.token);
@@ -548,7 +553,7 @@ module [HASim_Module] mkDecode();
             tokenAddrBuffer.deq();
             instBuffer.deq();
             decodeBuffer.deq();
-            $display("&decoded Instruction: %x", currAddr);
+            $display("Decoded Instruction: Token: %0d, Addr: %x, Inst: %x @ Model: %0d", currToken.index, currAddr, currInst, modelCounter-1);
         end
     endrule
 
@@ -563,7 +568,7 @@ module [HASim_Module] mkDecode();
     rule fillIssueQueues(decodeState == Decoding && realDecodeDone);
         for(FetchCount i = 0; i != fromInteger(valueOf(FetchWidth)); i=i+1)
         begin
-            if(i > decodeNum)
+            if(i >= decodeNum)
             begin
                 issuePort[i].send(tagged Invalid);
             end

@@ -1038,3 +1038,19 @@ Directory modules/cpu/mips/s10k
  s10k_types.bsv            Locally Modified           58 
 
 Fixed a bug which was causing multiple issues. The test passes, but I doubt if it really works, as it doesnt seem to even look at the whole program yet
+
+----------
+mvijayar    Date: Wed May 30 13:47:02 EDT 2007  CSN: CSN-hasim-mips-60
+                  Wed May 30 17:47:02 UTC 2007
+
+
+Directory modules/cpu/mips/s10k/decode/simple
+ s10k_simple_decode.bsv    Locally Modified           59 
+
+Directory modules/cpu/mips/s10k/issue/simple
+ s10k_simple_issue.bsv     Locally Modified           59 
+
+Directory modules/cpu/mips/s10k/fetch/simple
+ s10k_simple_fetch.bsv     Locally Modified           59 
+
+Added some debug statements in these modules. Had a bug in issue where I didnt update the free-buffer Num.

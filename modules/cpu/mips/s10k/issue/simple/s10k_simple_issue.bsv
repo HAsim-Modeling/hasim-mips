@@ -13,6 +13,7 @@ typedef Bit#(TLog#(TAdd#(NumFuncUnits,1))) FuncUnitPos;
 
 interface IssueQ;
     method IntQCountType getHead();
+    method IntQCountType getTail();
     method IntQCountType getCount();
     method Maybe#(IssueEntry) read(IntQCountType idx);
     method Action write(IntQCountType idx, IssueEntry issue);
@@ -31,20 +32,24 @@ module mkIssueQ(IssueQ);
         return head;
     endmethod
 
+    method IntQCountType getTail();
+        return (head+count)%fromInteger(valueOf(IntQCount));
+    endmethod
+
     method IntQCountType getCount();
         return count;
     endmethod
 
     method Maybe#(IssueEntry) read(IntQCountType idx);
-        return regFile.sub(truncate((head+idx)%fromInteger(valueOf(IntQCount))));
+        return regFile.sub(truncate(idx%fromInteger(valueOf(IntQCount))));
     endmethod
 
     method Action write(IntQCountType idx, IssueEntry issue);
-        regFile.upd(truncate((head+idx)%fromInteger(valueOf(IntQCount))), tagged Valid issue);
+        regFile.upd(truncate(idx%fromInteger(valueOf(IntQCount))), tagged Valid issue);
     endmethod
 
     method Action remove(IntQCountType idx);
-        regFile.upd(truncate((head+idx)%fromInteger(valueOf(IntQCount))), tagged Invalid);
+        regFile.upd(truncate(idx%fromInteger(valueOf(IntQCount))), tagged Invalid);
         if(idx == head)
         begin
             head  <= (head + 1)%fromInteger(valueOf(IntQCount));
@@ -54,7 +59,7 @@ module mkIssueQ(IssueQ);
 
     method Action add(IssueEntry issue);
         count <= count + 1;
-        regFile.upd(truncate(head+count), tagged Valid issue);
+        regFile.upd(truncate((head+count)%fromInteger(valueOf(IntQCount))), tagged Valid issue);
     endmethod
 endmodule
 
@@ -75,9 +80,6 @@ module [HASim_Module] mkIssue();
     Port_Send#(IntQCountType)                              intQCountPort <- mkPort_Send("issueToDecodeIntQ");
     Port_Send#(AddrQCountType)                            addrQCountPort <- mkPort_Send("issueToDecodeAddrQ");
 
-    Reg#(IntQCountType)                                        intQCount <- mkReg(fromInteger(valueOf(IntQCount)));
-    Reg#(AddrQCountType)                                      addrQCount <- mkReg(fromInteger(valueOf(AddrQCount)));
-
     Reg#(Maybe#(PRName))                                         oldAlu1 <- mkReg(?);
     Reg#(Maybe#(PRName))                                         oldAlu2 <- mkReg(?);
     Reg#(Maybe#(PRName))                                         oldMem1 <- mkReg(tagged Invalid);
@@ -92,40 +94,48 @@ module [HASim_Module] mkIssue();
     Reg#(FuncUnitPos)                                         issueCount <- mkReg(?);
     Reg#(FetchCount)                                       dispatchCount <- mkReg(?);
 
-    Reg#(IntQCountType)                                         intCount <- mkReg(0);
-    Reg#(IntQCountType)                                           intPtr <- mkReg(0);
-    Reg#(AddrQCountType)                                        memCount <- mkReg(0);
-    Reg#(AddrQCountType)                                          memPtr <- mkReg(0);
+    Reg#(IntQCountType)                                          intTail <- mkReg(?);
+    Reg#(IntQCountType)                                           intPtr <- mkReg(?);
+    Reg#(AddrQCountType)                                        memCount <- mkReg(?);
+    Reg#(AddrQCountType)                                         memTail <- mkReg(?);
+    Reg#(AddrQCountType)                                          memPtr <- mkReg(?);
 
     IssueQ                                                          intQ <- mkIssueQ();
     IssueQ                                                         addrQ <- mkIssueQ();
 
     Vector#(NumFuncUnits, Reg#(Maybe#(ExecEntry)))             issueVals <- replicateM(mkReg(tagged Invalid));
 
-    Reg#(Bit#(32))                                          clockCounter <- mkReg(0);
+    Reg#(ClockCounter)                                      clockCounter <- mkReg(0);
+    Reg#(ClockCounter)                                      modelCounter <- mkReg(0);
+
 
     rule clockCount(True);
         clockCounter <= clockCounter + 1;
     endrule
 
     rule synchronize(issueState == IssueDone && dispatchState == DispatchDone);
-        $display("issue_synchronize %d", clockCounter);
-        intQCountPort.send(tagged Valid intQCount);
-        addrQCountPort.send(tagged Valid addrQCount);
+        modelCounter <= modelCounter + 1;
+        $display("Issue Synchronize @ FPGA: %0d, Model: %0d", clockCounter, modelCounter);
+
+        let newIntQCount  = fromInteger(valueOf(IntQCount)) - intQ.getCount();
+        let newAddrQCount = fromInteger(valueOf(AddrQCount)) - addrQ.getCount();
+
+        intQCountPort.send(tagged Valid newIntQCount);
+        addrQCountPort.send(tagged Valid newAddrQCount);
 
         issueState <= Issue;
 
-        intPtr     <= 0;
-        intCount   <= intQ.getCount();
+        intPtr     <= intQ.getHead();
+        intTail    <= intQ.getTail();
 
-        memPtr   <= 0;
-        let addrQCountLocal = addrQ.getCount();
-        memCount <= addrQCountLocal != 0 ? 1: 0;
+        memPtr     <= addrQ.getHead();
+        memTail    <= addrQ.getTail();
+        memCount   <= 0;
 
-        oldAlu1  <= newAlu1;
-        oldAlu2  <= newAlu2;
-        oldMem1  <= newMem1;
-        oldMem2  <= oldMem1;
+        oldAlu1    <= newAlu1;
+        oldAlu2    <= newAlu2;
+        oldMem1    <= newMem1;
+        oldMem2    <= oldMem1;
     endrule
 
     function isReady(PRName pRName) =  isValid(oldAlu1) && pRName == validValue(oldAlu1) || 
@@ -133,8 +143,9 @@ module [HASim_Module] mkIssue();
                                        isValid(oldMem2) && pRName == validValue(oldMem2);
     function isAllReady(IssueEntry issue) = issue.src1Ready && issue.src2Ready;
 
-    rule intIssue(issueState == Issue && intPtr != intCount);
+    rule intIssueCollect(issueState == Issue && intPtr != intTail);
         let intIssueEntry = intQ.read(intPtr);
+        $display("Issue vals: %d %d", intPtr, intTail);
         if(isValid(intIssueEntry))
         begin
             Bool removed = ?;
@@ -144,9 +155,11 @@ module [HASim_Module] mkIssue();
                                               src1Ready: validEntry.src1Ready || isReady(validEntry.src1), src1: validEntry.src1,
                                               src2Ready: validEntry.src2Ready || isReady(validEntry.src2), src2: validEntry.src2,
                                               dest: validEntry.dest};
+            $display("Check Issue: token: %0d, dest: %0d, src1: %b(%0d), src2: %b(%0d) @ Model: %0d", newIntIssueEntry.token.index, newIntIssueEntry.dest, newIntIssueEntry.src1Ready, newIntIssueEntry.src1, newIntIssueEntry.src2Ready, newIntIssueEntry.src2, modelCounter-1);
             if(isAllReady(newIntIssueEntry))
             begin
                 let issueType = (validValue(intIssueEntry)).issueType;
+                $display("Can Issue: token: %0d", newIntIssueEntry.token.index);
                 if(issueType == JR)
                 begin
                     if(!isValid(issueVals[0]))
@@ -211,10 +224,14 @@ module [HASim_Module] mkIssue();
             else
                 intQ.remove(intPtr);
         end
+        else
+        begin
+            intQ.remove(intPtr);
+        end
         intPtr <= intPtr + 1;
     endrule
 
-    rule memIssue(issueState == Issue && memPtr != memCount);
+    rule memIssueCollect(issueState == Issue && memPtr != memTail && memCount != 1);
         let addrIssueEntry = addrQ.read(memPtr);
         if(isValid(addrIssueEntry))
         begin
@@ -229,27 +246,34 @@ module [HASim_Module] mkIssue();
             else
                 addrQ.write(memPtr, newAddrIssueEntry);
         end
-        memPtr <= memPtr + 1;
+        memPtr   <= memPtr + 1;
+        memCount <= memCount + 1;
     endrule
 
-    rule issueFinish(issueState == Issue && intPtr == intCount && memPtr == memCount);
-        issueState <= IssueFinal;
+    rule issueBegin(issueState == Issue && intPtr == intTail && (memPtr == memTail || memCount == 1));
+        issueState    <= IssueFinal;
         dispatchState <= Dispatch;
-        issueCount <= 0;
+        issueCount    <= 0;
         dispatchCount <= 0;
     endrule
 
-    rule issueFinishProceeding(issueState == IssueFinal);
+    rule issue(issueState == IssueFinal);
         if(issueCount == fromInteger(valueOf(TSub#(NumFuncUnits,1))))
         begin
             memPort.send(issueVals[issueCount]);
+            issueVals[issueCount] <= tagged Invalid;
             issueState <= IssueDone;
         end
         else
+        begin
             execPort[issueCount].send(issueVals[issueCount]);
+            issueVals[issueCount] <= tagged Invalid;
+        end
         if(isValid(issueVals[issueCount]))
         begin
-            fpExeReq.send(tuple2((validValue(issueVals[issueCount])).token, ?));
+            let issueVal = validValue(issueVals[issueCount]);
+            $display("Issued index: %0d, Token: %0d @ Model: %0d", issueCount, issueVal.token.index,  modelCounter-1);
+            fpExeReq.send(tuple2(issueVal.token, ?));
         end
         issueCount <= issueCount + 1;
     endrule
@@ -258,10 +282,15 @@ module [HASim_Module] mkIssue();
         let issue <- issuePort[dispatchCount].receive();
         if(isValid(issue))
         begin
+            $display("Dispatched Token: %0d @ Model: %0d", (validValue(issue)).token.index, modelCounter-1);
             if(validValue(issue).issueType != Load && validValue(issue).issueType != Store)
+            begin
                 intQ.add(validValue(issue));
+            end
             else
+            begin
                 addrQ.add(validValue(issue));
+            end
         end
         dispatchCount <= dispatchCount + 1;
         if(dispatchCount == fromInteger(valueOf(TSub#(FetchWidth,1))))

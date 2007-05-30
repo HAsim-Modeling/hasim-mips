@@ -33,7 +33,8 @@ module [HASim_Module] mkFetch();
     Reg#(Bit#(32))                             latency <- mkReg(?); //Actual model latency * 4
     Reg#(FetchCount)                          fetchPos <- mkReg(?); //This triggers only start rule
 
-    Reg#(Bit#(32))                        clockCounter <- mkReg(0);
+    Reg#(ClockCounter)                    clockCounter <- mkReg(0);
+    Reg#(ClockCounter)                    modelCounter <- mkReg(0);
 
     //Returns model latency * 4
     function Bit#(32) getHostLatency();
@@ -61,6 +62,7 @@ module [HASim_Module] mkFetch();
     endfunction
 
     rule synchronize(fetchState == FetchDone);
+        modelCounter <= modelCounter + 1;
         let predictedTaken <- predictedTakenPort.receive();
         let     mispredict <- mispredictPort.receive();
         let      decodeNum <- decodeNumPort.receive();
