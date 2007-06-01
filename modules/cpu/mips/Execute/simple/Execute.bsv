@@ -20,8 +20,11 @@ module [HASim_Module] mkExecute();
 
     Vector#(NumFuncUnits, Port_Receive#(ExecEntry))                execPort  = newVector();
     for(Integer i = 0; i < valueOf(TSub#(NumFuncUnits,1)); i=i+1)
-        execPort[i] <- mkPort_Receive(strConcat("issueToExecNormal",i), 1);
-    execPort[i] <- mkPort_Receive(strConcat("issueToExecNormal",i), 2);
+        execPort[i] <- mkPort_Receive(strConcat("issueToExec", fromInteger(i)), 1);
+    execPort[valueOf(TSub#(NumFuncUnits,1))] <- mkPort_Receive(strConcat("issueToExec", fromInteger(valueOf(TSub#(NumFuncUnits,1)))), 2);
+
+    Vector#(NumFuncUnits, Port_Send#(Tuple2#(ExecEntry, InstResult)))
+                                                             execResultPort <- genWithM(sendFunctionM("execToDecodeResult"));
 
     Reg#(FuncUnitPos)                                           funcUnitPos <- mkReg(0);
 

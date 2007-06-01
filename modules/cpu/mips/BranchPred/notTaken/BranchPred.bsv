@@ -14,5 +14,3 @@ module mkBranchPred(BranchPred);
         return tagged Invalid;
     endmethod
 endmodule
-
-

@@ -9,8 +9,7 @@ import hasim_cpu_types::*;
 import hasim_cpu_unguardedIssueQ::*;
 
 interface IssueAlg;
-    method Action dispatchInt(IssueEntry issue);
-    method Action dispatchMem(IssueEntry issue);
+    method Action dispatch(IssueEntry issue);
     method IntQCountType getIntQCount();
     method MemQCountType getMemQCount();
     method Action reqIssueVals();
@@ -22,18 +21,12 @@ typedef enum {IntIssue, IntIssueDone} IntIssueState deriving (Bits, Eq);
 typedef enum {MemIssue, MemIssueDone} MemIssueState deriving (Bits, Eq);
 
 module mkIssueAlg(IssueAlg);
-    Reg#(Vector#(NumFuncUnits, Maybe#(ExecEntry))) issueVals <- mkReg(replicate(tagged Invalid));
-    IssueQ#(IntQCount)                                  intQ <- mkIssueQ();
-    IssueQ#(MemQCount)                                  memQ <- mkIssueQ();
+    Vector#(NumFuncUnits, Reg#(Maybe#(ExecEntry))) issueVals <- replicateM(mkReg(tagged Invalid));
+    UnguardedIssueQ#(IntQCount)                         intQ <- mkUnguardedIssueQ();
+    UnguardedIssueQ#(MemQCount)                         memQ <- mkUnguardedIssueQ();
 
     Reg#(IntIssueState)                        intIssueState <- mkReg(IntIssueDone);
     Reg#(MemIssueState)                        memIssueState <- mkReg(MemIssueDone);
-
-    Reg#(IntQCountType)                              intTail <- mkReg(?);
-    Reg#(IntQCountType)                              intPtr  <- mkReg(?);
-
-    Reg#(MemQCountType)                              memTail <- mkReg(?);
-    Reg#(MemQCountType)                              memPtr  <- mkReg(?);
 
     Reg#(Maybe#(PRName))                             oldAlu1 <- mkReg(tagged Invalid);
     Reg#(Maybe#(PRName))                             oldAlu2 <- mkReg(tagged Invalid);
@@ -61,81 +54,84 @@ module mkIssueAlg(IssueAlg);
                                        isValid(oldMem2) && pRName == validValue(oldMem2);
     function isAllReady(IssueEntry issue) = issue.src1Ready && issue.src2Ready;
 
+    function ExecEntry getExecEntry(IssueEntry issue);
+        return ExecEntry{token: issue.token, robTag: issue.robTag, pRName: issue.dest};
+    endfunction
+
+    function IssueEntry getNewIssueEntry(IssueEntry issue);
+        let newEntry = issue;
+        newEntry.src1Ready = issue.src1Ready;
+        newEntry.src2Ready = issue.src2Ready;
+        return newEntry;
+    endfunction
+
     rule intIssueCollect(intIssueState == IntIssue);
-        if(intPtr == intTail)
-            intIssueState <= IntIssueDone;
-        else
+        let issueEntry   <- intQ.readResp();
+        let validEntry    = validValue(issueEntry);
+        let execEntry     = getExecEntry(validEntry);
+        let newIssueEntry = getNewIssueEntry(validEntry);
+        let newWriteEntry = ?;
+        if(isValid(issueEntry))
         begin
-            let issueEntry = intQ.read(intPtr);
-            $display("Int Issue index: %0d", intPtr);
-            if(isValid(issueEntry))
+            if(isAllReady(newIssueEntry))
             begin
-                Bool removed = ?;
-                let validEntry = validValue(issueEntry);
-                let execEntry  = ExecEntry{token: validEntry.token, robTag: validEntry.robTag, pRName: validEntry.dest};
-                let newIssueEntry = validEntry;
-                newIssueEntry.src1Ready = validEntry.src1Ready || isReady(validEntry.src1);
-                newIssueEntry.src2Ready = validEntry.src2Ready || isReady(validEntry.src2);
-                $display("Check Int Issue: token: %0d, dest: %0d, src1: %b(%0d), src2: %b(%0d)", newIssueEntry.token.index, newIssueEntry.dest, newIssueEntry.src1Ready, newIssueEntry.src1, newIssueEntry.src2Ready, newIssueEntry.src2);
-                if(isAllReady(newIssueEntry))
+                $display("Can issue int: token: %0d", validEntry.token.index);
+                Bit#(TLog#(NumFuncUnits)) index = case (validEntry.issueType) matches
+                                                      JR     : 0;
+                                                      Branch : 1;
+                                                      Shift  : 1;
+                                                      Normal : ((isValid(issueVals[2]))? 1: 2);
+                                                      J      : 3;
+                                                  endcase;
+                let aluOp = validEntry.issueType == Shift || validEntry.issueType == Normal;
+                if(!isValid(issueVals[index]))
                 begin
-                    $display("Can issue int: token: %0d", validEntry.token.index);
-                    Bit#(TLog#(NumFuncUnits)) index = case (validEntry.issueType) matches
-                                                          JR     : 0;
-                                                          Branch : 1;
-                                                          Shift  : 1;
-                                                          Normal : ((isValid(issueVals[2]))? 1: 2);
-                                                          J      : 3;
-                                                      endcase;
-                    let aluOp = validEntry.issueType == Shift || validEntry.issueType == Normal;
-                    if(!isValid(issueVals[index]))
+                    issueVals[index] <= tagged Valid execEntry;
+                    newWriteEntry     = tagged Invalid;
+                    if(aluOp)
                     begin
-                        issueVals[index] <= tagged Valid execEntry;
-                        intQ.remove(intPtr);
-                        if(aluOp)
-                        begin
-                            if(index == 1)
-                                newAlu1 <= tagged Valid validEntry.dest;
-                            else if(index == 2)
-                                newAlu2 <= tagged Valid validEntry.dest;
-                        end
+                        if(index == 1)
+                            newAlu1 <= tagged Valid validEntry.dest;
+                        else if(index == 2)
+                            newAlu2 <= tagged Valid validEntry.dest;
                     end
-                    else
-                        intQ.write(intPtr, newIssueEntry);
                 end
+                else
+                    newWriteEntry = tagged Valid newIssueEntry;
             end
             else
-                intQ.remove(intPtr);
-            intPtr <= (intPtr + 1)%fromInteger(valueOf(IntQCount));
+                newWriteEntry = tagged Valid newIssueEntry;
         end
+        else
+            newWriteEntry = tagged Invalid;
+        intQ.write(newWriteEntry);
+        if(intQ.isLast())
+            intIssueState <= IntIssueDone;
     endrule
 
     rule memIssueCollect(memIssueState == MemIssue);
         memIssueState <= MemIssueDone;
-        if(memPtr != memTail)
+        if(!memQ.isLast())
         begin
-            let issueEntry = memQ.read(memPtr);
-            $display("Mem Issue index: %0d", memPtr);
+            let issueEntry   <- memQ.readResp();
+            let validEntry    = validValue(issueEntry);
+            let execEntry     = getExecEntry(validEntry);
+            let newIssueEntry = getNewIssueEntry(validEntry);
+            let newWriteEntry = ?;
             if(isValid(issueEntry))
             begin
-                Bool removed = ?;
-                let validEntry = validValue(issueEntry);
-                let execEntry  = ExecEntry{token: validEntry.token, robTag: validEntry.robTag, pRName: validEntry.dest};
-                let newIssueEntry = validEntry;
-                newIssueEntry.src1Ready = validEntry.src1Ready || isReady(validEntry.src1);
-                newIssueEntry.src2Ready = validEntry.src2Ready || isReady(validEntry.src2);
-                $display("Check Mem Issue: token: %0d, dest: %0d, src1: %b(%0d), src2: %b(%0d)", newIssueEntry.token.index, newIssueEntry.dest, newIssueEntry.src1Ready, newIssueEntry.src1, newIssueEntry.src2Ready, newIssueEntry.src2);
                 if(isAllReady(newIssueEntry))
                 begin
-                    $display("Can issue mem: token: %0d", validEntry.token.index);
                     issueVals[4] <= tagged Valid execEntry;
-                    memQ.remove(memPtr);
+                    newWriteEntry = tagged Invalid;
                     if(validEntry.issueType == Load)
                         newMem1 <= tagged Valid validEntry.dest;
                 end
                 else
-                    memQ.write(memPtr, newIssueEntry);
+                    newWriteEntry = tagged Valid newIssueEntry;
             end
+            else
+                newWriteEntry = tagged Invalid;
         end
     endrule
 
@@ -162,11 +158,8 @@ module mkIssueAlg(IssueAlg);
         intIssueState <= IntIssue;
         memIssueState <= MemIssue;
 
-        intPtr        <= intQ.getHead();
-        intTail       <= intQ.getTail();
-
-        memPtr        <= memQ.getHead();
-        memTail       <= memQ.getTail();
+        intQ.start();
+        memQ.start();
 
         oldAlu1       <= newAlu1;
         oldAlu2       <= newAlu2;
