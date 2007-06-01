@@ -1,0 +1,21 @@
+#/********************************************************************
+# *
+# * Awb module specification
+# *
+# *******************************************************************/
+
+#/*
+# %AWB_START
+#
+# %name SMIPS R10K simple Decode module
+# %desc SMIPS R10K simple Decode module
+# %provides hasim_cpu_decode
+#
+# %requires hasim_cpu_rob hasim_cpu_branchPred hasim_cpu_targetBuffer
+#
+# %attributes s10k mips hasim
+#
+# %public Decode.bsv
+#
+# %AWB_END
+# */

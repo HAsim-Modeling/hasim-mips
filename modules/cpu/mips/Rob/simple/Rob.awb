@@ -1,0 +1,20 @@
+#/********************************************************************
+# *
+# * Awb module specification
+# *
+# *******************************************************************/
+
+#/*
+# %AWB_START
+#
+# %name ROB module
+# %desc ROB module
+# %provides hasim_cpu_rob
+#
+# %attributes mips hasim
+#
+# %public Rob.bsv
+#
+# %AWB_END
+# */
+

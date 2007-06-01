@@ -1,0 +1,20 @@
+#/********************************************************************
+# *
+# * Awb module specification
+# *
+# *******************************************************************/
+
+#/*
+# %AWB_START
+#
+# %name Simple Execute module
+# %desc Simple Execute module
+# %provides hasim_cpu_execute
+#
+# %attributes mips hasim
+#
+# %public Execute.bsv
+#
+# %AWB_END
+# */
+

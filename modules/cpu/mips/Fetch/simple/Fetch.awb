@@ -1,0 +1,20 @@
+#/********************************************************************
+# *
+# * Awb module specification
+# *
+# *******************************************************************/
+
+#/*
+# %AWB_START
+#
+# %name Fetch module
+# %desc Fetch module
+# %provides hasim_cpu_fetch
+#
+# %attributes mips hasim
+#
+# %public Fetch.bsv
+#
+# %AWB_END
+# */
+

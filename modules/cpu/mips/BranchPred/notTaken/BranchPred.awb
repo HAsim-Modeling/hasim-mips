@@ -1,0 +1,20 @@
+#/********************************************************************
+# *
+# * Awb module specification
+# *
+# *******************************************************************/
+
+#/*
+# %AWB_START
+#
+# %name Branch Predictor module
+# %desc Branch Predictor module
+# %provides hasim_cpu_branchPred
+#
+# %attributes mips hasim
+#
+# %public BranchPred.bsv
+#
+# %AWB_END
+# */
+
