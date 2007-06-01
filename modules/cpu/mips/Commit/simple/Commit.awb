@@ -7,8 +7,8 @@
 #/*
 # %AWB_START
 #
-# %name Simple Commit Module
-# %desc Simple Commit Module
+# %name Simple Commit module
+# %desc Simple Commit module
 # %provides hasim_cpu_commit
 #
 # %attributes mips hasim

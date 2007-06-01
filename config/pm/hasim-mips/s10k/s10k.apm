@@ -26,7 +26,6 @@ File=s10k
 Version=2.0
 Name=SMIPS R10K Core
 Type=HAsim
-Class=Asim::Model
 
 [Hasim functional partition/Requires]
 hasim_funcp_memstate=Hasim functional partition memstate software
@@ -122,31 +121,10 @@ Packagehint=hasim
 
 [Uniprocessor chip/Requires]
 hasim_memory=magic memory
-hasim_cpu=SMIPS R10K-like cpu
+hasim_cpu=CPU module
 
 [Uniprocessor chip]
 File=modules/chip/mips/uniprocessor/uniprocessor.awb
-Packagehint=hasim-mips
-
-[SMIPS R10K-like simple decode unit]
-File=modules/cpu/mips/s10k/decode/simple/s10k_simple_decode.awb
-Packagehint=hasim-mips
-
-[SMIPS R10K-like cpu]
-File=modules/cpu/mips/s10k/s10k_cpu.awb
-Packagehint=hasim-mips
-
-[SMIPS R10K-like cpu/Requires]
-hasim_decode=SMIPS R10K-like simple decode unit
-hasim_fetch=SMIPS R10K-like simple fetch unit
-hasim_issue=SMIPS R10K-like simple issue unit
-hasim_commit=Local Commit Module
-hasim_execute=SMIPS R10K-like simple execute unit
-hasim_parameters=SMIPS R10K Parameters files
-hasim_types=SMIPS R10K Typess files
-
-[SMIPS R10K-like simple fetch unit]
-File=modules/cpu/mips/s10k/fetch/simple/s10k_simple_fetch.awb
 Packagehint=hasim-mips
 
 [magic memory]
@@ -157,39 +135,74 @@ Packagehint=hasim-mips
 File=modules/common/fpgalib/fpgalib_software.awb
 Packagehint=hasim
 
-[Target Buffer]
-File=modules/cpu/mips/target_buffer/target_buffer.awb
+[Simple time-based priority issue queue]
+File=modules/cpu/mips/IssueAlg/simple/PriorityIssueAlg.awb
 Packagehint=hasim-mips
 
-[Branch Predictor]
-File=modules/cpu/mips/branch_pred/branch_pred.awb
+[Simple time-based priority issue queue/Requires]
+hasim_cpu_unguardedIssueQ=Simple unguarded queue, which supports out-of-order issue
+
+[Simple Execute module]
+File=modules/cpu/mips/Execute/simple/Execute.awb
 Packagehint=hasim-mips
 
-[SMIPS R10K-like simple decode unit/Requires]
-target_buffer=Target Buffer
-branch_pred=Branch Predictor
-s10k_rob=ROB
-
-[ROB]
-File=modules/cpu/mips/s10k/rob/simple/s10k_simple_rob.awb
+[Simple unguarded queue, which supports out-of-order issue]
+File=modules/cpu/mips/IssueAlg/simple/UnguardedIssueQ.awb
 Packagehint=hasim-mips
 
-[SMIPS R10K-like simple issue unit]
-File=modules/cpu/mips/s10k/issue/simple/s10k_simple_issue.awb
+[SMIPS R10K simple Decode module]
+File=modules/cpu/mips/s10k/Decode/simple/Decode.awb
 Packagehint=hasim-mips
 
-[SMIPS R10K-like simple execute unit]
-File=modules/cpu/mips/s10k/execute/simple/s10k_simple_execute.awb
+[ROB module]
+File=modules/cpu/mips/Rob/simple/Rob.awb
 Packagehint=hasim-mips
 
-[Local Commit Module]
-File=modules/cpu/mips/s10k/commit/simple/s10k_simple_commit.awb
+[CPU module]
+File=modules/cpu/mips/Cpu.awb
 Packagehint=hasim-mips
 
-[SMIPS R10K Parameters files]
-File=modules/cpu/mips/s10k/s10k_parameters.awb
+[Target Buffer module]
+File=modules/cpu/mips/TargetBuffer/oneEntry/TargetBuffer.awb
 Packagehint=hasim-mips
 
-[SMIPS R10K Typess files]
-File=modules/cpu/mips/s10k/s10k_types.awb
+[SMIPS R10K simple Decode module/Requires]
+hasim_cpu_targetBuffer=Target Buffer module
+hasim_cpu_branchPred=Branch Predictor module
+hasim_cpu_rob=ROB module
+
+[SMIPS R10K simple Issue module/Requires]
+hasim_cpu_issueAlg=Simple time-based priority issue queue
+
+[CPU module/Requires]
+hasim_cpu_fetch=Simple Fetch module
+hasim_cpu_execute=Simple Execute module
+hasim_cpu_commit=Simple Commit module
+hasim_cpu_types=SMIPS R10K Types module
+hasim_cpu_parameters=SMIPS R10K Parameters module
+hasim_cpu_issue=SMIPS R10K simple Issue module
+hasim_cpu_decode=SMIPS R10K simple Decode module
+
+[Branch Predictor module]
+File=modules/cpu/mips/BranchPred/notTaken/BranchPred.awb
+Packagehint=hasim-mips
+
+[SMIPS R10K Parameters module]
+File=modules/cpu/mips/s10k/Parameters.awb
+Packagehint=hasim-mips
+
+[SMIPS R10K simple Issue module]
+File=modules/cpu/mips/s10k/Issue/simple/Issue.awb
+Packagehint=hasim-mips
+
+[SMIPS R10K Types module]
+File=modules/cpu/mips/s10k/Types.awb
+Packagehint=hasim-mips
+
+[Simple Fetch module]
+File=modules/cpu/mips/Fetch/simple/Fetch.awb
+Packagehint=hasim-mips
+
+[Simple Commit module]
+File=modules/cpu/mips/Commit/simple/Commit.awb
 Packagehint=hasim-mips

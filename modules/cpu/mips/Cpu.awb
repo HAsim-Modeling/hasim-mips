@@ -21,6 +21,8 @@
 #
 # %attributes mips hasim
 # 
+# %param SYNTH_BOUNDARY mkCpu "Name of synthesis boundary"
+#
 # %public Cpu.bsv
 #
 # %AWB_END

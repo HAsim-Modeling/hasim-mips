@@ -7,8 +7,8 @@
 #/*
 # %AWB_START
 #
-# %name Fetch module
-# %desc Fetch module
+# %name Simple Fetch module
+# %desc Simple Fetch module
 # %provides hasim_cpu_fetch
 #
 # %attributes mips hasim

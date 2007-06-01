@@ -1073,3 +1073,23 @@ Changes to support the new RegState semantics.
 Fixed a bug with Shift-Reg instructions.
 
 Michael P.
+
+----------
+mvijayar    Date: Fri Jun  1 11:53:45 EDT 2007  CSN: CSN-hasim-mips-63
+                  Fri Jun  1 15:53:45 UTC 2007
+
+
+Directory config/pm/hasim-mips/s10k
+ s10k.apm                  Locally Modified           62 
+
+Directory modules/cpu/mips
+ Cpu.awb                   Locally Modified           62 
+
+Directory modules/cpu/mips/Commit/simple
+ Commit.awb                Locally Modified           62 
+
+Directory modules/cpu/mips/Fetch/simple
+ Fetch.awb                 Locally Modified           62 
+
+Changed the structure of s10k and added a synthesis boundary
+
