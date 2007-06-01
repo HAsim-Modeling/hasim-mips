@@ -1054,3 +1054,22 @@ Directory modules/cpu/mips/s10k/fetch/simple
  s10k_simple_fetch.bsv     Locally Modified           59 
 
 Added some debug statements in these modules. Had a bug in issue where I didnt update the free-buffer Num.
+
+----------
+mpellaux    Date: Fri Jun  1 11:32:16 EDT 2007  CSN: CSN-hasim-mips-61
+                  Fri Jun  1 15:32:16 UTC 2007
+
+
+Directory modules/functional/mips
+ FUNCP_MemAlg.bsv          Locally Modified           60 
+
+Directory modules/functional/smips
+ FUNCP_ExecuteAlg.bsv      Locally Modified           60 
+ FUNCP_DecodeAlg.bsv       Locally Modified           60 
+
+
+Changes to support the new RegState semantics.
+
+Fixed a bug with Shift-Reg instructions.
+
+Michael P.

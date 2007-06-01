@@ -33,19 +33,11 @@ module [HASim_Module] mkFUNCP_DecodeAlg ();
   //...
   link_dec <- mkConnection_Server("fp_dec_stage");
 
-  Connection_Client#(Tuple3#(Maybe#(RName), Token, Bool), 
-                     PRName)
+  Connection_Client#(Tuple5#(Maybe#(RName), Token, Bool, RName, RName), 
+                     Tuple3#(PRName, PRName, PRName))
   //...
   link_mapping <- mkConnection_Client("dec_to_bypass_mapping");
   
-  Connection_Client#(RName, PRName) 
-  //...
-        link_lookup1 <- mkConnection_Client("dec_to_bypass_lookup1");
-
-  Connection_Client#(RName, PRName) 
-  //...
-        link_lookup2 <- mkConnection_Client("dec_to_bypass_lookup2");
-
   FIFO#(Tuple3#(Token, Addr, PackedInst)) 
   //...
   waitingQ <- mkFIFO();
@@ -252,10 +244,7 @@ module [HASim_Module] mkFUNCP_DecodeAlg ();
     Bool rewind = isBranch(inst);
     
     //Translate into physical registers
-    link_lookup1.makeReq(ara);
-    link_lookup2.makeReq(arb);
-    
-    link_mapping.makeReq(tuple3(mrd, t, rewind));
+    link_mapping.makeReq(tuple5(mrd, t, rewind, ara, arb));
     
     waitingQ.enq(tuple3(t, a, pinst));
         
@@ -276,9 +265,7 @@ module [HASim_Module] mkFUNCP_DecodeAlg ();
     DecodedInst decinst = ?;
     Action dbg = noAction;
     
-    PRName pra <- link_lookup1.getResp();
-    PRName prb <- link_lookup2.getResp();
-    PRName prd <- link_mapping.getResp();
+    match {.prd, .pra, .prb} <- link_mapping.getResp();
     
     //Actually do the decode
     case (inst) matches
@@ -1042,6 +1029,9 @@ module [HASim_Module] mkFUNCP_DecodeAlg ();
     endcase
     
     debug(2, dbg);
+    if (prd == 0)
+      $display("WARNING: Got assigned PR0 as destination!");
+      
     link_dec.makeResp(tuple3(tok, depinfo, tuple2(a, decinst)));
     
   endrule

@@ -128,6 +128,9 @@ module [HASim_Module] mkFUNCP_ExecuteAlg ();
       tagged DNOR   .it : return it.psrc2;
       tagged DSLT   .it : return it.psrc2;
       tagged DSLTU  .it : return it.psrc2;
+      tagged DSLLV  .it : return it.pshamt;
+      tagged DSRLV  .it : return it.pshamt;
+      tagged DSRAV  .it : return it.pshamt;
 
       tagged DBEQ   .it : return it.psrc2;
 
@@ -390,7 +393,8 @@ module [HASim_Module] mkFUNCP_ExecuteAlg ();
           done  = isJust(mva) && isJust(mvb);
 	  res   = tagged RNop;
 	  wbval = unJust(mva) >> unJust(mvb)[4:0];
-	  dbg = $display("EXE: [%d] DSRLV PR%d <= 0x%h = 0x%h >> 0x%h", tok.index, rd, wbval, unJust(mva), unJust(mvb)[4:0]);          einst = EWB
+	  dbg = $display("EXE: [%d] DSRLV PR%d <= 0x%h = 0x%h >> 0x%h", tok.index, rd, wbval, unJust(mva), unJust(mvb)[4:0]);
+	  einst = EWB
                   {
 		    pdest:  rd
 		  };
@@ -403,7 +407,8 @@ module [HASim_Module] mkFUNCP_ExecuteAlg ();
           done  = isJust(mva) && isJust(mvb);
 	  res   = tagged RNop;
 	  wbval = signedShiftRight(unJust(mva), unJust(mvb)[4:0]);
-	  dbg = $display("EXE: [%d] DSRAV PR%d <= 0x%h = 0x%h >>a 0x%h", tok.index, rd, wbval, unJust(mva), unJust(mvb)[4:0]);          einst = EWB
+	  dbg = $display("EXE: [%d] DSRAV PR%d <= 0x%h = 0x%h >>a 0x%h", tok.index, rd, wbval, unJust(mva), unJust(mvb)[4:0]);
+	  einst = EWB
                   {
 		    pdest:  rd
 		  };
