@@ -25,12 +25,6 @@ module [HASim_Module] mkCommit();
 
     FIFO#(Token)                                globalCommitFIFO <- mkFIFO();
 
-    Reg#(ClockCounter)                              clockCounter <- mkReg(0);
-
-    rule clockCount(True);
-        clockCounter <= clockCounter + 1;
-    endrule
-
     rule localCommit(True);
         localCommitPos <= (localCommitPos + 1)%fromInteger(valueOf(CommitWidth));
         let tokenMaybe <- commitPort[localCommitPos].receive();

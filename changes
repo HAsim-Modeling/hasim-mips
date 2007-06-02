@@ -1117,3 +1117,28 @@ Directory modules/cpu/mips/s10k/Issue/simple
  Issue.bsv                 Locally Modified           66 
 
 Removed synthesis boundaries. Also fixed a scheduling-conflict bug
+
+----------
+vmurali     Date: Sat Jun  2 08:10:59 EDT 2007  CSN: CSN-hasim-mips-68
+                  Sat Jun  2 12:10:59 UTC 2007
+
+
+Directory modules/cpu/mips/Execute/simple
+ Execute.bsv               Locally Modified           67 
+
+Directory modules/cpu/mips/Commit/simple
+ Commit.bsv                Locally Modified           67 
+
+Directory modules/cpu/mips/Fetch/simple
+ Fetch.bsv                 Locally Modified           67 
+
+Directory modules/cpu/mips/s10k/Decode/simple
+ Decode.bsv                Locally Modified           67 
+
+Directory modules/cpu/mips/s10k/Issue/simple
+ Issue.bsv                 Locally Modified           67 
+
+Directory modules/isa/smips
+ ISA.bsv                   Locally Modified           67 
+
+Changed ISA to contain helper functions for decode

@@ -371,3 +371,62 @@ typedef union tagged
   InstResult 
     deriving 
             (Eq, Bits);
+
+//Timing model helper functions
+function Bool isShift(PackedInst inst);
+    let op   = inst[31:26];
+    let func = inst[5:0];
+    return (op == opFUNC) && (func == fcSLL || func == fcSRL || func == fcSRA || func == fcSLLV || func == fcSRLV || func == fcSRAV);
+endfunction
+
+function Bool isBranch(PackedInst inst);
+    let op = inst[31:26];
+    let rt = inst[20:16];
+    return (op == opBEQ || op == opBNE || op == opBLEZ || op == opBGTZ) || (op == opRT && (rt == rtBLTZ || rt == rtBGEZ));
+endfunction
+
+function Bool isJ(PackedInst inst);
+    let op = inst[31:26];
+    return op == opJ;
+endfunction
+
+function Bool isJAL(PackedInst inst);
+    let op = inst[31:26];
+    return op == opJAL;
+endfunction
+
+function Bool isJR(PackedInst inst);
+    let op   = inst[31:26];
+    let func = inst[5:0];
+    return op == opFUNC && func == fcJR;
+endfunction
+
+function Bool isJALR(PackedInst inst);
+    let op   = inst[31:26];
+    let func = inst[5:0];
+    return op == opFUNC && func == fcJALR;
+endfunction
+
+function Bool isLoad(PackedInst inst);
+    let op = inst[31:26];
+    return op == opLW;  
+endfunction
+
+function Bool isStore(PackedInst inst);
+    let op = inst[31:26];
+    return op == opSW;  
+endfunction
+
+function Bool isALU(PackedInst inst);
+    return !(isBranch(inst) || isJ(inst) || isJAL(inst) || isJR(inst) || isJALR(inst) || isLoad(inst) || isStore(inst));
+endfunction
+
+function Addr getJAddr(PackedInst inst, Addr pc);
+    let addr = inst[25:0];
+    let pcPlus4 = pc + 4;
+    return {pcPlus4[31:28], {addr, 2'b0}};
+endfunction
+
+function Addr getJALAddr(PackedInst inst, Addr pc);
+    return getJAddr(inst, pc);
+endfunction

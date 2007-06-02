@@ -35,6 +35,13 @@ module [HASim_Module] mkIssue();
 
     IssueAlg                                        issueAlg <- mkIssueAlg();
 
+    Reg#(ClockCounter)                          clockCounter <- mkReg(0);
+    Reg#(ClockCounter)                          modelCounter <- mkReg(0);
+
+    rule clockCount (True);
+        clockCounter <= clockCounter + 1;
+    endrule
+
     rule synchronize(issueState == IssueDone && dispatchState == DispatchDone);
         let freeIntQ = fromInteger(valueOf(IntQCount)) - issueAlg.getIntQCount();
         let freeMemQ = fromInteger(valueOf(MemQCount)) - issueAlg.getMemQCount();
@@ -47,6 +54,7 @@ module [HASim_Module] mkIssue();
         dispatchCount <= 0;
 
         issueAlg.reqIssueVals();
+        modelCounter  <= modelCounter + 1;
     endrule
 
     rule issue(issueAlg.canIssue());

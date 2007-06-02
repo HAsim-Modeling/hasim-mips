@@ -31,13 +31,6 @@ module [HASim_Module] mkFetch();
     Reg#(FetchCount)                        totalCount <- mkReg(?);
     Reg#(FetchCount)                          fetchPos <- mkReg(?);
 
-    Reg#(ClockCounter)                    clockCounter <- mkReg(0);
-    Reg#(ClockCounter)                    modelCounter <- mkReg(0);
-
-    rule clockCount(True);
-        clockCounter <= clockCounter + 1;
-    endrule
-
     function fillTokenAddrPort(FetchCount fetchedCount);
     action
         for(Integer i = 0; i < valueof(FetchWidth); i=i+1)
@@ -49,7 +42,6 @@ module [HASim_Module] mkFetch();
     endfunction
 
     rule synchronize(fetchState == FetchDone);
-        modelCounter <= modelCounter + 1;
         let predictedTaken <- predictedTakenPort.receive();
         let     mispredict <- mispredictPort.receive();
         let      decodeNum <- decodeNumPort.receive();

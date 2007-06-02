@@ -28,15 +28,9 @@ module [HASim_Module] mkExecute();
 
     Reg#(FuncUnitPos)                                           funcUnitPos <- mkReg(0);
 
-    Reg#(ClockCounter)                                         clockCounter <- mkReg(0);
-
-    rule clockCount(True);
-        clockCounter <= clockCounter + 1;
-    endrule
-
     rule execute(True);
         funcUnitPos <= (funcUnitPos + 1)%fromInteger(valueOf(NumFuncUnits));
-        let recv <- execPort[funcUnitPos].receive();
+        let recv    <- execPort[funcUnitPos].receive();
 
         Maybe#(Tuple2#(ExecEntry, InstResult)) execResult = ?;
         if(isValid(recv))

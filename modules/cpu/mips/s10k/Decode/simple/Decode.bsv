@@ -20,54 +20,6 @@ typedef enum {Read, Write}              RobOpState     deriving (Bits, Eq);
 typedef enum {Fetch, FetchDone}         FetchState     deriving (Bits, Eq);
 typedef enum {Decoding, DecodeDone}     DecodeState    deriving (Bits, Eq);
 
-function Bool isShift(PackedInst inst);
-    let func = inst[31:26];
-    let op   = inst[5:0];
-    return (func == opFUNC) && (op == fcSLL || op == fcSRL || op == fcSRA || op == fcSLLV || op == fcSRLV || op == fcSRAV);
-endfunction
-
-function Bool isBranch(PackedInst inst);
-    let func = inst[31:26];
-    let rt   = inst[20:16];
-    return (func == opBEQ || func == opBNE || func == opBLEZ || func == opBGTZ) || (func == opRT && (rt == rtBLTZ || rt == rtBGEZ));
-endfunction
-
-function Bool isJump(PackedInst inst);
-    let func = inst[31:26];
-    return func == opJ;
-endfunction
-
-function Bool isJAL(PackedInst inst);
-    let func = inst[31:26];
-    return func == opJAL;
-endfunction
-
-function Bool isJR(PackedInst inst);
-    let func = inst[31:26];
-    let op = inst[5:0];
-    return func == opFUNC && op == fcJR;
-endfunction
-
-function Bool isJALR(PackedInst inst);
-    let func = inst[31:26];
-    let op = inst[5:0];
-    return func == opFUNC && op == fcJALR;
-endfunction
-
-function Bool isLoad(PackedInst inst);
-    let func = inst[31:26];
-    return func == opLW;  
-endfunction
-
-function Bool isStore(PackedInst inst);
-    let func = inst[31:26];
-    return func == opSW;  
-endfunction
-
-function Bool isALU(PackedInst inst);
-    return !(isBranch(inst) || isJump(inst) || isJAL(inst) || isJR(inst) || isJALR(inst) || isLoad(inst) || isStore(inst));
-endfunction
-
 module [HASim_Module] mkDecode();
     function sendFunctionM(String str, Integer i) = mkPort_Send(strConcat(str, fromInteger(i)));
 
@@ -187,44 +139,22 @@ module [HASim_Module] mkDecode();
     /*
               AllDone
                 /   \
-               /     RobUpdate
-           Fetch         |
-             |       RobUpdateDone
-         FetchDone       /    \
-      ----------------------   \
-                        /       \
-                     Decode    Commit
-                      /           \
-                 DecodeDone    CommitDone
+               /     \
+           Fetch     RobUpdate
+             |           |
+         FetchDone   RobUpdateDone
+              \        /      \
+               \      /        \
+                Decode        Commit
+                   |             \
+              DecodeDone       CommitDone
     */
 
-    //Synchronization point
-    /*
-    rule synchronizeToFetch(fetchState == FetchDone && decodeState == DecodeDone && robUpdateState == RobUpdateDone && commitState == CommitDone && !syncToFetch);
-        let newInstNum = instNum + zeroExtend(decodeNum);
-        let sendInstNum = (newInstNum >= 4)? 4: newInstNum;
-        instNum <= newInstNum;
-        decodeNumPort.send(tagged Valid truncate(newInstNum));
-        predictedTakenPort.send(predictedPC);
-        mispredictPort.send(mispredictPC);
-        syncToFetch <= True;
-    endrule
-
-    rule synchronizeFromIssue(fetchState == FetchDone && decodeState == DecodeDone && robUpdateState == RobUpdateDone && commitState == CommitDone && !syncFromIssue);
-        let intQFreeCountLocal  <- intQCountPort.receive();
-        let memQFreeCountLocal <- memQCountPort.receive();
-
-        intQFreeCount      <= fromMaybe(fromInteger(valueOf(IntQCount)), intQFreeCountLocal);
-        memQFreeCount     <= fromMaybe(fromInteger(valueOf(MemQCount)), memQFreeCountLocal);
-        syncFromIssue      <= True;
-    endrule
-    */
-
-    rule synchronize(fetchState == FetchDone && decodeState == DecodeDone && robUpdateState == RobUpdateDone && commitState == CommitDone);
+    rule synchronize(fetchState == FetchDone && decodeState == DecodeDone && commitState == CommitDone);
         modelCounter       <= modelCounter + 1;
         $display("Decode Synchronize @ FPGA: %0d, Model: %0d", clockCounter, modelCounter);
 
-        let newInstNum = instNum + zeroExtend(decodeNum);
+        let newInstNum  = instNum + zeroExtend(decodeNum);
         let sendInstNum = (newInstNum >= 4)? 4: newInstNum;
         instNum <= newInstNum;
         decodeNumPort.send(tagged Valid truncate(newInstNum));
@@ -249,9 +179,6 @@ module [HASim_Module] mkDecode();
         robUpdateCount     <= isValid(execReceive)? 0: 1;
 
         nextKillInstBuffer <= False;
-
-        //syncToFetch        <= False;
-        //syncFromIssue      <= False;
     endrule
 
     rule fetch(fetchState == Fetch);
@@ -260,7 +187,7 @@ module [HASim_Module] mkDecode();
         begin
             let tokenAddrVal = validValue(tokenAddr);
             tokenAddrBuffer.enq(tokenAddrVal);
-            instNum <= instNum - 1;
+            instNum         <= instNum - 1;
             match {.token, .inst} <- fpFetchResp.receive();
             instBuffer.enq(inst);
             fpDecodeReq.send(tuple2(tpl_1(tokenAddrVal), ?));
@@ -399,16 +326,6 @@ module [HASim_Module] mkDecode();
     let src1Ready = src1Valid? !pRegFile[src1]: True;
     let src2Ready = src2Valid? !pRegFile[src2]: True;
 
-    function Addr getJumpAddr(PackedInst inst);
-        let addr = inst[25:0];
-        let pc_4 = currAddr + 4;
-        return {pc_4[31:28], {addr, 2'b0}};
-    endfunction
-
-    function Addr getJALAddr(PackedInst inst);
-        return getJumpAddr(inst);
-    endfunction
-
     rule decodeInst(decodeState == Decoding && !killInstBuffer && !realDecodeDone && tokenAddrBuffer.notEmpty() && decodeNum != fromInteger(valueOf(FetchWidth)));
         let branchPredAddr = branchPred.getPredAddr(currAddr);
         let jumpPredAddr   = targetBuffer.first();
@@ -496,10 +413,10 @@ module [HASim_Module] mkDecode();
                 doCommonDecode  = False;
             end
         end
-        else if(isJump(currInst))
+        else if(isJ(currInst))
         begin
             issue.issueType     = J;
-            predictedPC        <= tagged Valid getJumpAddr(currInst);
+            predictedPC        <= tagged Valid getJAddr(currInst, currAddr);
             realDecodeDone     <= True;
             nextKillInstBuffer <= True;
             killInstBuffer     <= True;
@@ -511,7 +428,7 @@ module [HASim_Module] mkDecode();
             begin
                 issue.issueType     = J;
                 freeListFreeCount  <= freeListFreeCount - 1;
-                let newPC           = getJALAddr(currInst);
+                let newPC           = getJALAddr(currInst, currAddr);
                 predictedPC        <= tagged Valid newPC;
                 targetBuffer.enq(currAddr+4);
                 realDecodeDone     <= True;
@@ -584,9 +501,7 @@ module [HASim_Module] mkDecode();
         for(FetchCount i = 0; i != fromInteger(valueOf(FetchWidth)); i=i+1)
         begin
             if(i >= decodeNum)
-            begin
                 issuePort[i].send(tagged Invalid);
-            end
         end
     endrule
 
