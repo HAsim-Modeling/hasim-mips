@@ -15,6 +15,8 @@
 #
 # %public Rob.bsv
 #
+# %param SYNTH_BOUNDARY mkRob "Name of synthesis boundary"
+#
 # %AWB_END
 # */
 

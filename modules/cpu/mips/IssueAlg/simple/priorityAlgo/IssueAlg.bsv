@@ -6,7 +6,7 @@ import Vector::*;
 
 import hasim_cpu_parameters::*;
 import hasim_cpu_types::*;
-import hasim_cpu_unguardedIssueQ::*;
+import hasim_cpu_issueQ::*;
 
 interface IssueAlg;
     method Action dispatch(IssueEntry issue);

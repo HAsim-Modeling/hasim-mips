@@ -9,11 +9,11 @@
 #
 # %name Simple unguarded queue, which supports out-of-order issue
 # %desc Simple unguarded queue, which supports out-of-order issue
-# %provides hasim_cpu_unguardedIssueQ
+# %provides hasim_cpu_issueQ
 #
 # %attributes mips hasim
 #
-# %public UnguardedIssueQ.bsv
+# %public IssueQ.bsv
 #
 # %param mkUnguardedIssueQ "Name of synthesis boundary"
 #

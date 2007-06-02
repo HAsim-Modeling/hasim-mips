@@ -10,11 +10,11 @@
 # %name Simple time-based priority issue queue
 # %desc Simple time-based priority issue queue
 # %provides hasim_cpu_issueAlg
-# %requires hasim_cpu_unguardedIssueQ
+# %requires hasim_cpu_issueQ
 #
 # %attributes mips hasim
 #
-# %public PriorityIssueAlg.bsv
+# %public IssueAlg.bsv
 #
 # %param SYNTH_BOUNDARY mkIssueAlg "Name of the synthesis boundary"
 # 

@@ -4,7 +4,7 @@ import hasim_cpu_types::*;
 
 typedef Bit#(TLog#(TAdd#(qCount,1))) QCountType#(numeric type qCount);
 
-interface UnguardedIssueQ#(numeric type qCount);
+interface IssueQ#(numeric type qCount);
     method Action start();
     method Action readReq();
     method ActionValue#(Maybe#(IssueEntry)) readResp();
@@ -14,7 +14,7 @@ interface UnguardedIssueQ#(numeric type qCount);
     method QCountType#(qCount) getCount();
 endinterface
 
-module mkUnguardedIssueQ(IssueQ#(qCount))
+module mkIssueQ(IssueQ#(qCount))
     provisos(Add#(positive, TLog#(qCount), TLog#(TAdd#(qCount,1))));
 
     Reg#(QCountType#(qCount))     head <- mkReg(0);
