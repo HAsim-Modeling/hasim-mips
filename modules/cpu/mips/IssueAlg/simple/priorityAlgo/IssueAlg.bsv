@@ -22,8 +22,8 @@ typedef enum {MemIssue, MemIssueDone} MemIssueState deriving (Bits, Eq);
 
 module mkIssueAlg(IssueAlg);
     Vector#(NumFuncUnits, Reg#(Maybe#(ExecEntry))) issueVals <- replicateM(mkReg(tagged Invalid));
-    UnguardedIssueQ#(IntQCount)                         intQ <- mkUnguardedIssueQ();
-    UnguardedIssueQ#(MemQCount)                         memQ <- mkUnguardedIssueQ();
+    IssueQ#(IntQCount)                                  intQ <- mkIssueQ();
+    IssueQ#(MemQCount)                                  memQ <- mkIssueQ();
 
     Reg#(IntIssueState)                        intIssueState <- mkReg(IntIssueDone);
     Reg#(MemIssueState)                        memIssueState <- mkReg(MemIssueDone);

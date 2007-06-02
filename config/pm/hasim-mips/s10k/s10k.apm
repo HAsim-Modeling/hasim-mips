@@ -136,18 +136,18 @@ File=modules/common/fpgalib/fpgalib_software.awb
 Packagehint=hasim
 
 [Simple time-based priority issue queue]
-File=modules/cpu/mips/IssueAlg/simple/PriorityIssueAlg.awb
+File=modules/cpu/mips/IssueAlg/simple/priorityAlgo/IssueAlg.awb
 Packagehint=hasim-mips
 
 [Simple time-based priority issue queue/Requires]
-hasim_cpu_unguardedIssueQ=Simple unguarded queue, which supports out-of-order issue
+hasim_cpu_issueQ=Simple unguarded queue, which supports out-of-order issue
 
 [Simple Execute module]
 File=modules/cpu/mips/Execute/simple/Execute.awb
 Packagehint=hasim-mips
 
 [Simple unguarded queue, which supports out-of-order issue]
-File=modules/cpu/mips/IssueAlg/simple/UnguardedIssueQ.awb
+File=modules/cpu/mips/IssueAlg/simple/unguardedQ/IssueQ.awb
 Packagehint=hasim-mips
 
 [SMIPS R10K simple Decode module]

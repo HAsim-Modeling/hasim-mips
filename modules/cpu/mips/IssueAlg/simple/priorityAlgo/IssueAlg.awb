@@ -16,8 +16,6 @@
 #
 # %public IssueAlg.bsv
 #
-# %param SYNTH_BOUNDARY mkIssueAlg "Name of the synthesis boundary"
-# 
 # %AWB_END
 # */
 

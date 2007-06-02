@@ -1093,3 +1093,27 @@ Directory modules/cpu/mips/Fetch/simple
 
 Changed the structure of s10k and added a synthesis boundary
 
+
+----------
+vmurali     Date: Sat Jun  2 06:45:30 EDT 2007  CSN: CSN-hasim-mips-67
+                  Sat Jun  2 10:45:30 UTC 2007
+
+
+Directory config/pm/hasim-mips/s10k
+ s10k.apm                  Locally Modified           66 
+
+Directory modules/cpu/mips/Rob/simple
+ Rob.awb                   Locally Modified           66 
+
+Directory modules/cpu/mips/IssueAlg/simple/unguardedQ
+ IssueQ.awb                Locally Modified           66 
+ IssueQ.bsv                Locally Modified           66 
+
+Directory modules/cpu/mips/IssueAlg/simple/priorityAlgo
+ IssueAlg.awb              Locally Modified           66 
+ IssueAlg.bsv              Locally Modified           66 
+
+Directory modules/cpu/mips/s10k/Issue/simple
+ Issue.bsv                 Locally Modified           66 
+
+Removed synthesis boundaries. Also fixed a scheduling-conflict bug

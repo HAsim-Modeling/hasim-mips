@@ -4,15 +4,16 @@ import hasim_common::*;
 import hasim_isa::*;
 
 import Vector::*;
+import GetPut::*;
 
-import hasim_parameters::*;
-import hasim_types::*;
+import hasim_cpu_parameters::*;
+import hasim_cpu_types::*;
 import hasim_cpu_issueAlg::*;
 
 typedef enum {Issue, IssueDone} IssueState deriving (Bits, Eq);
 typedef enum {Dispatch, DispatchDone} DispatchState deriving (Bits, Eq);
 
-module [HASim_module] mkIssue();
+module [HASim_Module] mkIssue();
     function sendFunctionM(String str, Integer i) = mkPort_Send(strConcat(str, fromInteger(i)));
 
     function receiveFunctionM(String str, Integer i) = mkPort_Receive(strConcat(str, fromInteger(i)), 1);
@@ -24,11 +25,10 @@ module [HASim_module] mkIssue();
 
     Vector#(FetchWidth, Port_Receive#(IssueEntry)) issuePort <- genWithM(receiveFunctionM("decodeToIssue"));
 
-    Vector#(NumFuncUnits, Port_Receive#(ExecEntry)) execPort <- genWithM(sendFunctionM("issueToExec"));
+    Vector#(NumFuncUnits, Port_Send#(ExecEntry))    execPort <- genWithM(sendFunctionM("issueToExec"));
 
     Reg#(IssueState)                              issueState <- mkReg(IssueDone);
     Reg#(DispatchState)                        dispatchState <- mkReg(DispatchDone);
-    Reg#(DispatchState)
 
     Reg#(FetchCount)                           dispatchCount <- mkReg(?);
     Reg#(FuncUnitPos)                            funcUnitPos <- mkReg(?);
@@ -51,18 +51,18 @@ module [HASim_module] mkIssue();
 
     rule issue(issueAlg.canIssue());
         funcUnitPos <= funcUnitPos + 1;
-        if(funcUnitPoc == valueOf(TSub#(NumFuncUnits,1)))
+        if(funcUnitPos == fromInteger(valueOf(TSub#(NumFuncUnits,1))))
             issueState <= IssueDone;
 
-        let recv <- respIssueVals[funcUnitPos].get();
+        let recv <- (issueAlg.respIssueVals[funcUnitPos]).get();
         execPort[funcUnitPos].send(recv);
         if(isValid(recv))
-            fpExePort[funcUnitPos].send((validValue(recv)).token, ?);
+            fpExePort.send(tuple2((validValue(recv)).token, ?));
     endrule
 
     rule dispatch(issueAlg.canIssue());
         dispatchCount <= dispatchCount + 1;
-        if(dispatchCount == valueOf(TSub#(FetchWidth,1)))
+        if(dispatchCount == fromInteger(valueOf(TSub#(FetchWidth,1))))
             dispatchState <= DispatchDone;
 
         let recv <- issuePort[dispatchCount].receive();

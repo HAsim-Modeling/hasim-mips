@@ -15,8 +15,6 @@
 #
 # %public IssueQ.bsv
 #
-# %param mkUnguardedIssueQ "Name of synthesis boundary"
-#
 # %AWB_END
 # */
 

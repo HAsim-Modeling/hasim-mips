@@ -1,4 +1,5 @@
 import RegFile::*;
+import RWire::*;
 
 import hasim_cpu_types::*;
 
@@ -22,7 +23,17 @@ module mkIssueQ(IssueQ#(qCount))
     Reg#(QCountType#(qCount))  readPtr <- mkReg(?);
     Reg#(QCountType#(qCount)) writePtr <- mkReg(?);
 
+    PulseWire               incReadPtr <- mkPulseWire();
+    PulseWire               decReadPtr <- mkPulseWire();
+
     RegFile#(Bit#(TLog#(qCount)), Maybe#(IssueEntry)) regFile <- mkRegFileFull();
+
+    rule updateReadPtr(True);
+        if(incReadPtr && !decReadPtr)
+            readPtr <= readPtr + 1;
+        else if(!incReadPtr && decReadPtr)
+            readPtr <= readPtr - 1;
+    endrule
 
     method Action start();
          readPtr <= head;
@@ -34,7 +45,7 @@ module mkIssueQ(IssueQ#(qCount))
     endmethod
 
     method ActionValue#(Maybe#(IssueEntry)) readResp();
-        readPtr <= readPtr + 1;
+        incReadPtr.send();
         if(readPtr >= count)
             return tagged Invalid;
         else
@@ -47,7 +58,7 @@ module mkIssueQ(IssueQ#(qCount))
         begin
             head     <= (head + 1)%fromInteger(valueOf(qCount));
             count    <= count - 1;
-            readPtr  <= readPtr - 1;
+            decReadPtr.send();
         end
         else
             writePtr <= writePtr + 1;
