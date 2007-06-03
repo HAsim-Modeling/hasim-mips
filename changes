@@ -1142,3 +1142,26 @@ Directory modules/isa/smips
  ISA.bsv                   Locally Modified           67 
 
 Changed ISA to contain helper functions for decode
+
+----------
+vmurali     Date: Sun Jun  3 10:06:03 EDT 2007  CSN: CSN-hasim-mips-69
+                  Sun Jun  3 14:06:03 UTC 2007
+
+
+Directory modules/cpu/mips/s10k/Decode/simple
+ Decode.bsv                Locally Modified           68 
+
+Directory modules/cpu/mips/s10k/Issue/simple
+ Issue.bsv                 Locally Modified           68 
+
+Directory modules/cpu/mips/s10k
+ Types.bsv                 Locally Modified           67 
+
+Directory modules/cpu/mips/IssueAlg/simple/unguardedQ
+ IssueQ.bsv                Locally Modified           67 
+
+Directory modules/cpu/mips/IssueAlg/simple/priorityAlgo
+ IssueAlg.bsv              Locally Modified           67 
+
+Fixed a bug which caused JALs and JALRs to not participate in score-boarding. Still some issues with issue queue length. Haven't figured out what it is yet
+

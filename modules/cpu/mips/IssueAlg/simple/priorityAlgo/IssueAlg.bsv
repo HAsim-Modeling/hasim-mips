@@ -30,12 +30,18 @@ module mkIssueAlg(IssueAlg);
 
     Reg#(Maybe#(PRName))                             oldAlu1 <- mkReg(tagged Invalid);
     Reg#(Maybe#(PRName))                             oldAlu2 <- mkReg(tagged Invalid);
+    Reg#(Maybe#(PRName))                             oldJAL  <- mkReg(tagged Invalid);
+    Reg#(Maybe#(PRName))                             oldJALR <- mkReg(tagged Invalid);
     Reg#(Maybe#(PRName))                             oldMem1 <- mkReg(tagged Invalid);
     Reg#(Maybe#(PRName))                             oldMem2 <- mkReg(tagged Invalid);
 
     Reg#(Maybe#(PRName))                             newAlu1 <- mkReg(?);
     Reg#(Maybe#(PRName))                             newAlu2 <- mkReg(?);
     Reg#(Maybe#(PRName))                             newMem1 <- mkReg(?);
+    Reg#(Maybe#(PRName))                             newJAL  <- mkReg(?);
+    Reg#(Maybe#(PRName))                             newJALR <- mkReg(?);
+
+    Reg#(ClockCounter)                          modelCounter <- mkReg(0);
 
     Vector#(NumFuncUnits, Get#(Maybe#(ExecEntry))) respIssueValsLocal = newVector();
 
@@ -50,7 +56,9 @@ module mkIssueAlg(IssueAlg);
     end
 
     function isReady(PRName pRName) =  isValid(oldAlu1) && pRName == validValue(oldAlu1) || 
-                                       isValid(oldAlu2) && pRName == validValue(oldAlu2) || 
+                                       isValid(oldAlu2) && pRName == validValue(oldAlu2) ||
+                                       isValid(oldJAL)  && pRName == validValue(oldJAL)  ||
+                                       isValid(oldJALR) && pRName == validValue(oldJALR) ||
                                        isValid(oldMem2) && pRName == validValue(oldMem2);
     function isAllReady(IssueEntry issue) = issue.src1Ready && issue.src2Ready;
 
@@ -60,53 +68,62 @@ module mkIssueAlg(IssueAlg);
 
     function IssueEntry getNewIssueEntry(IssueEntry issue);
         let newEntry = issue;
-        newEntry.src1Ready = issue.src1Ready;
-        newEntry.src2Ready = issue.src2Ready;
+        newEntry.src1Ready = issue.src1Ready || isReady(issue.src1);
+        newEntry.src2Ready = issue.src2Ready || isReady(issue.src2);
         return newEntry;
     endfunction
 
     rule intIssueCollect(intIssueState == IntIssue);
-        let issueEntry   <- intQ.readResp();
-        let validEntry    = validValue(issueEntry);
-        let execEntry     = getExecEntry(validEntry);
-        let newIssueEntry = getNewIssueEntry(validEntry);
-        let newWriteEntry = ?;
-        if(isValid(issueEntry))
+        if(intQ.isLast())
+            intIssueState <= IntIssueDone;
+        else
         begin
-            if(isAllReady(newIssueEntry))
+            let issueEntry   <- intQ.readResp();
+            let validEntry    = validValue(issueEntry);
+            let execEntry     = getExecEntry(validEntry);
+            let newIssueEntry = getNewIssueEntry(validEntry);
+            let newWriteEntry = ?;
+            if(isValid(issueEntry))
             begin
-                $display("Can issue int: token: %0d", validEntry.token.index);
-                Bit#(TLog#(NumFuncUnits)) index = case (validEntry.issueType) matches
-                                                      JR     : 0;
-                                                      Branch : 1;
-                                                      Shift  : 1;
-                                                      Normal : ((isValid(issueVals[2]))? 1: 2);
-                                                      J      : 3;
-                                                  endcase;
-                let aluOp = validEntry.issueType == Shift || validEntry.issueType == Normal;
-                if(!isValid(issueVals[index]))
+                $display("Issue: present Token: %0d @ Model: %0d", validEntry.token.index, modelCounter-1);
+                if(isAllReady(newIssueEntry))
                 begin
-                    issueVals[index] <= tagged Valid execEntry;
-                    newWriteEntry     = tagged Invalid;
-                    if(aluOp)
+                    $display("Issue: Source Ready Token: %0d", validEntry.token.index);
+                    Bit#(TLog#(NumFuncUnits)) index = case (validEntry.issueType) matches
+                                                          J      : 3;
+                                                          JAL    : 3;
+                                                          JR     : 0;
+                                                          JALR   : 0;
+                                                          Branch : 1;
+                                                          Shift  : 1;
+                                                          Normal : ((isValid(issueVals[2]))? 1: 2);
+                                                      endcase;
+                    let aluOp = validEntry.issueType == Shift || validEntry.issueType == Normal;
+                    if(!isValid(issueVals[index]))
                     begin
-                        if(index == 1)
-                            newAlu1 <= tagged Valid validEntry.dest;
-                        else if(index == 2)
-                            newAlu2 <= tagged Valid validEntry.dest;
+                        $display("Issue: Issued Token: %0d", validEntry.token.index);
+                        issueVals[index] <= tagged Valid execEntry;
+                        newWriteEntry     = tagged Invalid;
+                        if(aluOp)
+                        begin
+                            if(index == 0)
+                                newJALR <= tagged Valid validEntry.dest;
+                            else if(index == 1)
+                                newAlu1 <= tagged Valid validEntry.dest;
+                            else if(index == 2)
+                                newAlu2 <= tagged Valid validEntry.dest;
+                        end
                     end
+                    else
+                        newWriteEntry = tagged Valid newIssueEntry;
                 end
                 else
                     newWriteEntry = tagged Valid newIssueEntry;
             end
             else
-                newWriteEntry = tagged Valid newIssueEntry;
+                newWriteEntry = tagged Invalid;
+            intQ.write(newWriteEntry);
         end
-        else
-            newWriteEntry = tagged Invalid;
-        intQ.write(newWriteEntry);
-        if(intQ.isLast())
-            intIssueState <= IntIssueDone;
     endrule
 
     rule memIssueCollect(memIssueState == MemIssue);
@@ -136,7 +153,13 @@ module mkIssueAlg(IssueAlg);
     endrule
 
     method Action dispatch(IssueEntry issue);
-        if(issue.issueType != Load && issue.issueType != Store)
+        if(issue.issueType == J || issue.issueType == JAL)
+        begin
+            issueVals[3] <= tagged Valid getExecEntry(issue);
+            if(issue.issueType == JALR)
+                newJAL   <= tagged Valid issue.dest;
+        end
+        else if(issue.issueType != Load && issue.issueType != Store)
             intQ.add(issue);
         else
             memQ.add(issue);
@@ -163,8 +186,18 @@ module mkIssueAlg(IssueAlg);
 
         oldAlu1       <= newAlu1;
         oldAlu2       <= newAlu2;
+        oldJAL        <= newJAL;
+        oldJALR       <= newJALR;
         oldMem1       <= newMem1;
         oldMem2       <= oldMem1;
+
+        newAlu1       <= tagged Invalid;
+        newAlu2       <= tagged Invalid;
+        newJAL        <= tagged Invalid;
+        newJALR       <= tagged Invalid;
+        newMem1       <= tagged Invalid;
+
+        modelCounter  <= modelCounter + 1;
     endmethod
 
     interface respIssueVals = respIssueValsLocal;

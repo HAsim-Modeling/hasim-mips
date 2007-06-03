@@ -15,7 +15,7 @@ typedef Bit#(TLog#(TAdd#(MemQCount,1))) MemQCountType;
 
 typedef Bit#(TLog#(TAdd#(NumFuncUnits,1))) FuncUnitPos;
 
-typedef enum {J, JR, Branch, Shift, Normal, Load, Store} IssueType deriving (Bits, Eq);
+typedef enum {J, JAL, JR, JALR, Branch, Shift, Normal, Load, Store} IssueType deriving (Bits, Eq);
 
 typedef Bit#(64) ClockCounter;
 

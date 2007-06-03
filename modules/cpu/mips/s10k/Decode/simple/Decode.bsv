@@ -152,7 +152,6 @@ module [HASim_Module] mkDecode();
 
     rule synchronize(fetchState == FetchDone && decodeState == DecodeDone && commitState == CommitDone);
         modelCounter       <= modelCounter + 1;
-        $display("Decode Synchronize @ FPGA: %0d, Model: %0d", clockCounter, modelCounter);
 
         let newInstNum  = instNum + zeroExtend(decodeNum);
         let sendInstNum = (newInstNum >= 4)? 4: newInstNum;
@@ -161,7 +160,7 @@ module [HASim_Module] mkDecode();
         predictedTakenPort.send(predictedPC);
         mispredictPort.send(mispredictPC);
 
-        let intQFreeCountLocal  <- intQCountPort.receive();
+        let intQFreeCountLocal <- intQCountPort.receive();
         let memQFreeCountLocal <- memQCountPort.receive();
 
         intQFreeCount      <= fromMaybe(fromInteger(valueOf(IntQCount)), intQFreeCountLocal);
@@ -338,6 +337,7 @@ module [HASim_Module] mkDecode();
                                       src2Ready: src2Ready, src2: src2,
                                       dest: dest};
         Bool doCommonDecode = ?;
+        $display("QFreeCount: %0d %0d", intQFreeCount, memQFreeCount);
         if(!rob.notFull())
         begin
             realDecodeDone <= True;
@@ -426,7 +426,7 @@ module [HASim_Module] mkDecode();
         begin
             if(freeListFreeCount != 0)
             begin
-                issue.issueType     = J;
+                issue.issueType     = JAL;
                 freeListFreeCount  <= freeListFreeCount - 1;
                 let newPC           = getJALAddr(currInst, currAddr);
                 predictedPC        <= tagged Valid newPC;
@@ -444,22 +444,32 @@ module [HASim_Module] mkDecode();
         end
         else if(isJR(currInst))
         begin
-            issue.issueType     = JR;
-            res.isJR            = True;
-            predictedPC <= tagged Valid jumpPredAddr;
-            targetBuffer.deq();
-            realDecodeDone     <= True;
-            nextKillInstBuffer <= True;
-            killInstBuffer     <= True;
-            doCommonDecode      = True;
-        end
-        else if(isJALR(currInst))
-        begin
-            if(freeListFreeCount != 0)
+            if(intQFreeCount != 0)
             begin
                 issue.issueType     = JR;
                 res.isJR            = True;
+                intQFreeCount       <= intQFreeCount - 1;
+                predictedPC <= tagged Valid jumpPredAddr;
+                targetBuffer.deq();
+                realDecodeDone     <= True;
+                nextKillInstBuffer <= True;
+                killInstBuffer     <= True;
+                doCommonDecode      = True;
+            end
+            else
+            begin
+                realDecodeDone <= True;
+                doCommonDecode  = False;
+            end
+        end
+        else if(isJALR(currInst))
+        begin
+            if(freeListFreeCount != 0 && intQFreeCount != 0)
+            begin
+                issue.issueType     = JALR;
+                res.isJR            = True;
                 freeListFreeCount  <= freeListFreeCount - 1;
+                intQFreeCount       <= intQFreeCount - 1;
                 predictedPC        <= tagged Valid jumpPredAddr;
                 targetBuffer.deq();
                 targetBuffer.enq(currAddr+4);
@@ -485,7 +495,7 @@ module [HASim_Module] mkDecode();
             tokenAddrBuffer.deq();
             instBuffer.deq();
             decodeBuffer.deq();
-            $display("Decoded Instruction: Token: %0d, Addr: %x, Inst: %x @ Model: %0d", currToken.index, currAddr, currInst, modelCounter-1);
+            $display("Decoded Instruction: Token: %0d @ Model: %0d", currToken.index, modelCounter-1);
         end
     endrule
 

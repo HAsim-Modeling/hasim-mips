@@ -36,8 +36,8 @@ module mkIssueQ(IssueQ#(qCount))
     endrule
 
     method Action start();
-         readPtr <= head;
-        writePtr <= head;
+         readPtr <= 0;
+        writePtr <= 0;
     endmethod
 
     method Action readReq();
@@ -45,6 +45,7 @@ module mkIssueQ(IssueQ#(qCount))
     endmethod
 
     method ActionValue#(Maybe#(IssueEntry)) readResp();
+        $display("Head: %0d, Count: %0d, ReadPtr: %0d, WritePtr: %0d", head, count, readPtr, writePtr);
         incReadPtr.send();
         if(readPtr >= count)
             return tagged Invalid;
@@ -65,12 +66,12 @@ module mkIssueQ(IssueQ#(qCount))
     endmethod
 
     method Bool isLast();
-        return writePtr == count - 1;
+        return writePtr == count;
     endmethod
 
     method Action add(IssueEntry issue);
         count <= count + 1;
-        regFile.upd(truncate((head + writePtr)%fromInteger(valueOf(qCount))), tagged Valid issue);
+        regFile.upd(truncate((head + count)%fromInteger(valueOf(qCount))), tagged Valid issue);
     endmethod
 
     method QCountType#(qCount) getCount();
