@@ -36,8 +36,10 @@ module [HASim_Module] mkIssue();
     IssueAlg                                        issueAlg <- mkIssueAlg();
 
     rule synchronize(issueState == IssueDone && dispatchState == DispatchDone);
-        let freeIntQ = fromInteger(valueOf(IntQCount)) - issueAlg.getIntQCount();
-        let freeMemQ = fromInteger(valueOf(MemQCount)) - issueAlg.getMemQCount();
+        let pseudoIntIssueFreeCount = fromInteger(valueOf(TSub#(IntQCount, FetchWidth)));
+        let pseudoMemIssueFreeCount = fromInteger(valueOf(TSub#(MemQCount, FetchWidth)));
+        let freeIntQ = pseudoIntIssueFreeCount > issueAlg.getIntQCount()? pseudoIntIssueFreeCount - issueAlg.getIntQCount() : 0;
+        let freeMemQ = pseudoMemIssueFreeCount > issueAlg.getMemQCount()? pseudoMemIssueFreeCount - issueAlg.getMemQCount() : 0;
         intQCountPort.send(tagged Valid freeIntQ);
         memQCountPort.send(tagged Valid freeMemQ);
 

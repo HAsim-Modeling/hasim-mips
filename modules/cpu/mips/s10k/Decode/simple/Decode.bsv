@@ -163,7 +163,17 @@ module [HASim_Module] mkDecode();
         let intQFreeCountLocal <- intQCountPort.receive();
         let memQFreeCountLocal <- memQCountPort.receive();
 
-        intQFreeCount      <= fromMaybe(fromInteger(valueOf(IntQCount)), intQFreeCountLocal);
+        if(isValid(intQFreeCountLocal))
+        begin
+            $display("Initial Free Count: %0d", validValue(intQFreeCountLocal));
+            intQFreeCount  <= validValue(intQFreeCountLocal);
+        end
+        else
+        begin
+            $display("Initial Free Count Invalid");
+            intQFreeCount  <= fromInteger(valueOf(IntQCount));
+        end
+        //intQFreeCount      <= fromMaybe(fromInteger(valueOf(IntQCount)), intQFreeCountLocal);
         memQFreeCount      <= fromMaybe(fromInteger(valueOf(MemQCount)), memQFreeCountLocal);
 
         fetchState         <= Fetch;

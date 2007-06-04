@@ -1,3 +1,5 @@
+import hasim_base::*;
+
 import RegFile::*;
 import RWire::*;
 
@@ -45,7 +47,6 @@ module mkIssueQ(IssueQ#(qCount))
     endmethod
 
     method ActionValue#(Maybe#(IssueEntry)) readResp();
-        $display("Head: %0d, Count: %0d, ReadPtr: %0d, WritePtr: %0d", head, count, readPtr, writePtr);
         incReadPtr.send();
         if(readPtr >= count)
             return tagged Invalid;
@@ -70,6 +71,7 @@ module mkIssueQ(IssueQ#(qCount))
     endmethod
 
     method Action add(IssueEntry issue);
+        $display("ADD: Count: %0d, Token: %0d", count, issue.token.index);
         count <= count + 1;
         regFile.upd(truncate((head + count)%fromInteger(valueOf(qCount))), tagged Valid issue);
     endmethod

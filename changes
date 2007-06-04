@@ -1165,3 +1165,21 @@ Directory modules/cpu/mips/IssueAlg/simple/priorityAlgo
 
 Fixed a bug which caused JALs and JALRs to not participate in score-boarding. Still some issues with issue queue length. Haven't figured out what it is yet
 
+
+----------
+vmurali     Date: Mon Jun  4 10:27:54 EDT 2007  CSN: CSN-hasim-mips-70
+                  Mon Jun  4 14:27:54 UTC 2007
+
+
+Directory modules/cpu/mips/IssueAlg/simple/unguardedQ
+ IssueQ.bsv                Locally Modified           69 
+
+Directory modules/cpu/mips/s10k/Decode/simple
+ Decode.bsv                Locally Modified           69 
+
+Directory modules/cpu/mips/s10k/Issue/simple
+ Issue.bsv                 Locally Modified           69 
+
+Made issueQ count more conservative, so that it doesnt overflow. Not sure what the right solution is.
+Looks like there is one more dead lock scenario ...
+
