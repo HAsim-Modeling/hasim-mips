@@ -59,7 +59,10 @@ module [HASim_Module] mkIssue();
         let recv <- (issueAlg.respIssueVals[funcUnitPos]).get();
         execPort[funcUnitPos].send(recv);
         if(isValid(recv))
+        begin
             fpExePort.send(tuple2((validValue(recv)).token, ?));
+            $display("Execute Issue: Token: %0d, index: %0d", (validValue(recv)).token.index, funcUnitPos);
+        end
     endrule
 
     rule dispatch(dispatchState == Dispatch && issueAlg.canIssue());

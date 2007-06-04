@@ -71,7 +71,6 @@ module mkIssueQ(IssueQ#(qCount))
     endmethod
 
     method Action add(IssueEntry issue);
-        $display("ADD: Count: %0d, Token: %0d", count, issue.token.index);
         count <= count + 1;
         regFile.upd(truncate((head + count)%fromInteger(valueOf(qCount))), tagged Valid issue);
     endmethod

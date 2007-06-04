@@ -50,6 +50,8 @@ module mkIssueAlg(IssueAlg);
         respIssueValsLocal[i] = (interface Get#(Maybe#(ExecEntry));
                                       method ActionValue#(Maybe#(ExecEntry)) get();
                                           issueVals[i] <= tagged Invalid;
+                                          if(isValid(issueVals[i]))
+                                              $display("collect Issue: Token: %0d, index: %0d", (validValue(issueVals[i])).token.index, i);
                                           return issueVals[i];
                                       endmethod
                                   endinterface);   
@@ -85,10 +87,8 @@ module mkIssueAlg(IssueAlg);
             let newWriteEntry = ?;
             if(isValid(issueEntry))
             begin
-                $display("Issue: present Token: %0d @ Model: %0d", validEntry.token.index, modelCounter-1);
                 if(isAllReady(newIssueEntry))
                 begin
-                    $display("Issue: Source Ready Token: %0d", validEntry.token.index);
                     Bit#(TLog#(NumFuncUnits)) index = case (validEntry.issueType) matches
                                                           J      : 3;
                                                           JAL    : 3;
@@ -101,7 +101,7 @@ module mkIssueAlg(IssueAlg);
                     let aluOp = validEntry.issueType == Shift || validEntry.issueType == Normal;
                     if(!isValid(issueVals[index]))
                     begin
-                        $display("Issue: Issued Token: %0d", validEntry.token.index);
+                        $display("Issue: Issued Token: %0d in index: %0d @ Model: %0d", execEntry.token.index, index, modelCounter-1);
                         issueVals[index] <= tagged Valid execEntry;
                         newWriteEntry     = tagged Invalid;
                         if(aluOp)
@@ -198,6 +198,7 @@ module mkIssueAlg(IssueAlg);
         newMem1       <= tagged Invalid;
 
         modelCounter  <= modelCounter + 1;
+        $display("Issue Start @ Model: %0d", modelCounter);
     endmethod
 
     interface respIssueVals = respIssueValsLocal;

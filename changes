@@ -1183,3 +1183,28 @@ Directory modules/cpu/mips/s10k/Issue/simple
 Made issueQ count more conservative, so that it doesnt overflow. Not sure what the right solution is.
 Looks like there is one more dead lock scenario ...
 
+
+----------
+mvijayar    Date: Mon Jun  4 17:55:36 EDT 2007  CSN: CSN-hasim-mips-71
+                  Mon Jun  4 21:55:36 UTC 2007
+
+
+Directory modules/cpu/mips/Execute/simple
+ Execute.bsv               Locally Modified           70 
+
+Directory modules/cpu/mips/Fetch/simple
+ Fetch.bsv                 Locally Modified           70 
+
+Directory modules/cpu/mips/IssueAlg/simple/unguardedQ
+ IssueQ.bsv                Locally Modified           70 
+
+Directory modules/cpu/mips/IssueAlg/simple/priorityAlgo
+ IssueAlg.bsv              Locally Modified           70 
+
+Directory modules/cpu/mips/s10k/Decode/simple
+ Decode.bsv                Locally Modified           70 
+
+Directory modules/cpu/mips/s10k/Issue/simple
+ Issue.bsv                 Locally Modified           70 
+
+Checking in to work from home tomorrow

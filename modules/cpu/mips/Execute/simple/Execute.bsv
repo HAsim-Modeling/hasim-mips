@@ -36,6 +36,7 @@ module [HASim_Module] mkExecute();
         if(isValid(recv))
         begin
             match {.token, .res} <- fpExeResponse.receive();
+            $display("Execute: Token: %0d", token);
             fpMemReq.send(tuple2(token, ?));
             execResult = tagged Valid tuple2(validValue(recv), res);
         end

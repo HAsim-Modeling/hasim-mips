@@ -31,6 +31,8 @@ module [HASim_Module] mkFetch();
     Reg#(FetchCount)                        totalCount <- mkReg(?);
     Reg#(FetchCount)                          fetchPos <- mkReg(?);
 
+    Reg#(ClockCounter)                    modelCounter <- mkReg(0);
+
     function fillTokenAddrPort(FetchCount fetchedCount);
     action
         for(Integer i = 0; i < valueof(FetchWidth); i=i+1)
@@ -64,12 +66,15 @@ module [HASim_Module] mkFetch();
             fpTokenReq.send(17);
             fetchState <= Fetch;
         end
+        $display("Fetch @ Model: %0d", modelCounter);
+        modelCounter <= modelCounter + 1;
     endrule
 
     rule fetch(fetchState == Fetch);
         let token <- fpTokenResp.receive();
         fpFetchReq.send(tuple2(token, pc));
         tokenAddrPort[fetchPos].send(tagged Valid tuple2(token, pc));
+        $display("Fetched token: %0d @ Model: %0d", token.index, modelCounter-1);
         let newFetchPos = fetchPos + 1;
         fetchPos  <= newFetchPos;
         pc        <= pc + 4;

@@ -59,8 +59,8 @@ module [HASim_Module] mkDecode();
     Vector#(CommitWidth, Port_Send#(Token))                       commitTokenPort <- genWithM(sendFunctionM("decodeToCommit"));
 
     FIFOF#(Tuple2#(Token, Addr))                                  tokenAddrBuffer <- mkSizedFIFOF(2*fromInteger(valueOf(FetchWidth)));
-    FIFOF#(PackedInst)                                                 instBuffer <- mkFIFOF();
-    FIFOF#(DepInfo)                                                  decodeBuffer <- mkFIFOF();
+    FIFOF#(PackedInst)                                                 instBuffer <- mkSizedFIFOF(2*fromInteger(valueOf(FetchWidth)));
+    FIFOF#(DepInfo)                                                  decodeBuffer <- mkSizedFIFOF(2*fromInteger(valueOf(FetchWidth)));
 
     Reg#(CommitState)                                                 commitState <- mkReg(CommitDone);
     Reg#(RobUpdateState)                                           robUpdateState <- mkReg(RobUpdateDone);
@@ -80,7 +80,7 @@ module [HASim_Module] mkDecode();
 
     Reg#(FetchCount)                                                   fetchCount <- mkReg(?);
     Reg#(FetchCount)                                                    decodeNum <- mkReg(fromInteger(valueOf(FetchWidth)));
-    Reg#(InstCount)                                                       instNum <- mkReg(fromInteger(valueOf(TMul#(2,FetchWidth))));
+    Reg#(InstCount)                                                       instNum <- mkReg(fromInteger(valueOf(FetchWidth)));
     Reg#(FuncUnitPos)                                              robUpdateCount <- mkReg(?);
     Reg#(CommitCount)                                                 commitCount <- mkReg(?);
     Reg#(Maybe#(Addr))                                                predictedPC <- mkReg(tagged Invalid);
@@ -151,10 +151,11 @@ module [HASim_Module] mkDecode();
     */
 
     rule synchronize(fetchState == FetchDone && decodeState == DecodeDone && commitState == CommitDone);
+        $display("Decode start: @ Model %0d", modelCounter);
         modelCounter       <= modelCounter + 1;
 
         let newInstNum  = instNum + zeroExtend(decodeNum);
-        let sendInstNum = (newInstNum >= 4)? 4: newInstNum;
+        let sendInstNum = (newInstNum >= valueOf(FetchWidth))? valueOf(FetchWidth): newInstNum;
         instNum <= newInstNum;
         decodeNumPort.send(tagged Valid truncate(newInstNum));
         predictedTakenPort.send(predictedPC);
@@ -162,18 +163,7 @@ module [HASim_Module] mkDecode();
 
         let intQFreeCountLocal <- intQCountPort.receive();
         let memQFreeCountLocal <- memQCountPort.receive();
-
-        if(isValid(intQFreeCountLocal))
-        begin
-            $display("Initial Free Count: %0d", validValue(intQFreeCountLocal));
-            intQFreeCount  <= validValue(intQFreeCountLocal);
-        end
-        else
-        begin
-            $display("Initial Free Count Invalid");
-            intQFreeCount  <= fromInteger(valueOf(IntQCount));
-        end
-        //intQFreeCount      <= fromMaybe(fromInteger(valueOf(IntQCount)), intQFreeCountLocal);
+        intQFreeCount      <= fromMaybe(fromInteger(valueOf(IntQCount)), intQFreeCountLocal);
         memQFreeCount      <= fromMaybe(fromInteger(valueOf(MemQCount)), memQFreeCountLocal);
 
         fetchState         <= Fetch;
@@ -281,6 +271,7 @@ module [HASim_Module] mkDecode();
                 killInstBuffer     <= True;
                 nextKillInstBuffer <= True;
                 mispredictPC       <= tagged Valid newAddr;
+                $display("Branch mispredicted @ Model: %0d. Correct address: %x", modelCounter-1, newAddr);
             end
 
             if(finished)
@@ -347,7 +338,6 @@ module [HASim_Module] mkDecode();
                                       src2Ready: src2Ready, src2: src2,
                                       dest: dest};
         Bool doCommonDecode = ?;
-        $display("QFreeCount: %0d %0d", intQFreeCount, memQFreeCount);
         if(!rob.notFull())
         begin
             realDecodeDone <= True;
@@ -505,7 +495,7 @@ module [HASim_Module] mkDecode();
             tokenAddrBuffer.deq();
             instBuffer.deq();
             decodeBuffer.deq();
-            $display("Decoded Instruction: Token: %0d @ Model: %0d", currToken.index, modelCounter-1);
+            $display("Decoded Instruction: Token: %0d, addr: %x, type: %0d @ Model: %0d", currToken.index, currAddr, issue.issueType, modelCounter-1);
         end
     endrule
 
