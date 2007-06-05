@@ -44,6 +44,9 @@ module [HASim_Module] mkFetch();
     endfunction
 
     rule synchronize(fetchState == FetchDone);
+        modelCounter <= modelCounter + 1;
+        $display("Fetch synchronize @ Model: %0d", modelCounter);
+
         let predictedTaken <- predictedTakenPort.receive();
         let     mispredict <- mispredictPort.receive();
         let      decodeNum <- decodeNumPort.receive();
@@ -66,15 +69,13 @@ module [HASim_Module] mkFetch();
             fpTokenReq.send(17);
             fetchState <= Fetch;
         end
-        $display("Fetch @ Model: %0d", modelCounter);
-        modelCounter <= modelCounter + 1;
     endrule
 
     rule fetch(fetchState == Fetch);
         let token <- fpTokenResp.receive();
         fpFetchReq.send(tuple2(token, pc));
         tokenAddrPort[fetchPos].send(tagged Valid tuple2(token, pc));
-        $display("Fetched token: %0d @ Model: %0d", token.index, modelCounter-1);
+        $display("Fetch: Token: %0d @ Model: %0d", token.index, modelCounter-1);
         let newFetchPos = fetchPos + 1;
         fetchPos  <= newFetchPos;
         pc        <= pc + 4;

@@ -79,7 +79,7 @@ module [HASim_Module] mkDecode();
     Reg#(Bit#(TLog#(TAdd#(BranchCount,1))))                           branchCount <- mkReg(fromInteger(valueOf(BranchCount)));
 
     Reg#(FetchCount)                                                   fetchCount <- mkReg(?);
-    Reg#(FetchCount)                                                    decodeNum <- mkReg(fromInteger(valueOf(FetchWidth)));
+    Reg#(FetchCount)                                                    decodeNum <- mkReg(0);
     Reg#(InstCount)                                                       instNum <- mkReg(fromInteger(valueOf(FetchWidth)));
     Reg#(FuncUnitPos)                                              robUpdateCount <- mkReg(?);
     Reg#(CommitCount)                                                 commitCount <- mkReg(?);
@@ -151,15 +151,16 @@ module [HASim_Module] mkDecode();
     */
 
     rule synchronize(fetchState == FetchDone && decodeState == DecodeDone && commitState == CommitDone);
-        $display("Decode start: @ Model %0d", modelCounter);
         modelCounter       <= modelCounter + 1;
 
-        let newInstNum  = instNum + zeroExtend(decodeNum);
-        let sendInstNum = (newInstNum >= valueOf(FetchWidth))? valueOf(FetchWidth): newInstNum;
-        instNum <= newInstNum;
+        let newInstNum      = instNum + zeroExtend(decodeNum);
+        let sendInstNum     = (newInstNum >= fromInteger(valueOf(FetchWidth)))? fromInteger(valueOf(FetchWidth)): newInstNum;
+        instNum            <= newInstNum;
         decodeNumPort.send(tagged Valid truncate(newInstNum));
         predictedTakenPort.send(predictedPC);
         mispredictPort.send(mispredictPC);
+
+        $display("Decode synchronize: newInstNum: %0d, decodeNum: %0d, @ Model %0d", newInstNum, decodeNum, modelCounter);
 
         let intQFreeCountLocal <- intQCountPort.receive();
         let memQFreeCountLocal <- memQCountPort.receive();
@@ -207,6 +208,7 @@ module [HASim_Module] mkDecode();
         commitState    <= Commit;
         commitCount    <= 0;
         rob.readHeadReq();
+        rob.incrementHead();
 
         predictedPC    <= tagged Invalid;
     endaction
@@ -234,8 +236,11 @@ module [HASim_Module] mkDecode();
         let robEntry       <- rob.readAnyResp();
         let memAck         <- fpMemoryResp.receive();
         match {.exec, .res} = validValue(execEntry);
-        if(rob.isRobTagValid(exec.robTag) && robEntry.token == exec.token)
+        $display("DoneInit: Token: %0d %b %b", exec.token.index);
+        if(isValid(execEntry) && rob.isRobTagValid(exec.robTag) && robEntry.token == exec.token)
         begin
+            $display("Done: Token: %0d, index: %0d @ Model: %0d", exec.token.index, exec.robTag, modelCounter);
+
             let taken = case (res) matches
                             tagged RBranchTaken .addr: True;
                             default: False;
@@ -294,11 +299,12 @@ module [HASim_Module] mkDecode();
         commitCount <= commitCount + 1;
         if(isValid(robEntryMaybe) && robEntry.done)
         begin
-            rob.incrementHead();
             commitTokenPort[commitCount].send(tagged Valid robEntry.token);
+            $display("Commit: Token: %0d @ Model: %0d", robEntry.token.index, modelCounter-1);
             if(robEntry.isBranch)
                 branchPred.upd(robEntry.addr, robEntry.prediction, robEntry.taken);
             rob.readHeadReq();
+            rob.incrementHead();
         end
         else
         begin
@@ -495,7 +501,7 @@ module [HASim_Module] mkDecode();
             tokenAddrBuffer.deq();
             instBuffer.deq();
             decodeBuffer.deq();
-            $display("Decoded Instruction: Token: %0d, addr: %x, type: %0d @ Model: %0d", currToken.index, currAddr, issue.issueType, modelCounter-1);
+            $display("Decode : Token: %0d, addr: %x, type: %0d @ Model: %0d", currToken.index, currAddr, issue.issueType, modelCounter-1);
         end
     endrule
 

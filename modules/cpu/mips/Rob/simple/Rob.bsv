@@ -2,6 +2,7 @@ import hasim_isa::*;
 import hasim_base::*;
 
 import RegFile::*;
+import RWire::*;
 
 import hasim_cpu_types::*;
 import hasim_cpu_parameters::*;
@@ -39,11 +40,18 @@ module mkRob(Rob);
 
     Reg#(Bool) inc <- mkReg(False);
 
+    PulseWire incrementHeadEn <- mkPulseWire();
+    PulseWire updateTailEn    <- mkPulseWire();
+
     Reg#(RobTag) anyReg  <- mkReg(?);
     Reg#(RobTag) headReg <- mkReg(?);
 
     let empty = head == tail && !inc;
     let full  = head == tail && inc;
+
+    rule updateInc(incrementHeadEn || updateTailEn);
+        inc <= False;
+    endrule
 
     method Action readAnyReq(RobTag robTag);
         anyReg <= robTag;    
@@ -62,6 +70,7 @@ module mkRob(Rob);
     endmethod
 
     method ActionValue#(Maybe#(RobEntry)) readHeadResp();
+        $display("ROB read: head: %0d %0b", head, empty);
         if(!empty)
             return tagged Valid(robFile.sub(truncate(headReg)));
         else
@@ -70,7 +79,7 @@ module mkRob(Rob);
 
     method Action updateTail(RobTag robTab);
         tail <= robTab;
-        inc  <= False;
+        updateTailEn.send();
     endmethod
 
     method Action writeTail(RobEntry robEntry); //and increment
@@ -80,8 +89,12 @@ module mkRob(Rob);
     endmethod
 
     method Action incrementHead();
-        head <= (head + 1)%fromInteger(valueOf(RobCount));
-        inc  <= False;
+        if(!empty)
+        begin
+            incrementHeadEn.send();
+            head <= (head + 1)%fromInteger(valueOf(RobCount));
+        end
+        $display("ROB inc: head: %0d %0b", head, empty);
     endmethod
 
     method RobTag getTail();

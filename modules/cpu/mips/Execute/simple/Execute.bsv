@@ -28,6 +28,8 @@ module [HASim_Module] mkExecute();
 
     Reg#(FuncUnitPos)                                           funcUnitPos <- mkReg(0);
 
+    Reg#(ClockCounter)                                         modelCounter <- mkReg(0);
+
     rule execute(True);
         funcUnitPos <= (funcUnitPos + 1)%fromInteger(valueOf(NumFuncUnits));
         let recv    <- execPort[funcUnitPos].receive();
@@ -36,12 +38,15 @@ module [HASim_Module] mkExecute();
         if(isValid(recv))
         begin
             match {.token, .res} <- fpExeResponse.receive();
-            $display("Execute: Token: %0d", token);
+            $display("Execute: Token: %0d @ Model: %0d", token.index, modelCounter);
             fpMemReq.send(tuple2(token, ?));
             execResult = tagged Valid tuple2(validValue(recv), res);
         end
         else
             execResult = tagged Invalid;
         execResultPort[funcUnitPos].send(execResult);
+
+        if(funcUnitPos == fromInteger(valueOf(TSub#(NumFuncUnits,1))))
+            modelCounter <= modelCounter + 1;
     endrule
 endmodule

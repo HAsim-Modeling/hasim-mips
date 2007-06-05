@@ -35,7 +35,12 @@ module [HASim_Module] mkIssue();
 
     IssueAlg                                        issueAlg <- mkIssueAlg();
 
+    Reg#(ClockCounter)                          modelCounter <- mkReg(0);
+
     rule synchronize(issueState == IssueDone && dispatchState == DispatchDone);
+        modelCounter  <= modelCounter + 1;
+        $display("Issue synchronize @ Model: %0d", modelCounter);
+
         let pseudoIntIssueFreeCount = fromInteger(valueOf(TSub#(IntQCount, FetchWidth)));
         let pseudoMemIssueFreeCount = fromInteger(valueOf(TSub#(MemQCount, FetchWidth)));
         let freeIntQ = pseudoIntIssueFreeCount > issueAlg.getIntQCount()? pseudoIntIssueFreeCount - issueAlg.getIntQCount() : 0;
@@ -61,7 +66,7 @@ module [HASim_Module] mkIssue();
         if(isValid(recv))
         begin
             fpExePort.send(tuple2((validValue(recv)).token, ?));
-            $display("Execute Issue: Token: %0d, index: %0d", (validValue(recv)).token.index, funcUnitPos);
+            $display("Issue: Token: %0d, index: %0d @ Model: %0d", (validValue(recv)).token.index, funcUnitPos, modelCounter-1);
         end
     endrule
 

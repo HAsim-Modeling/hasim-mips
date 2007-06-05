@@ -41,8 +41,6 @@ module mkIssueAlg(IssueAlg);
     Reg#(Maybe#(PRName))                             newJAL  <- mkReg(?);
     Reg#(Maybe#(PRName))                             newJALR <- mkReg(?);
 
-    Reg#(ClockCounter)                          modelCounter <- mkReg(0);
-
     Vector#(NumFuncUnits, Get#(Maybe#(ExecEntry))) respIssueValsLocal = newVector();
 
     for(Integer i = 0; i < valueOf(NumFuncUnits); i=i+1)
@@ -50,8 +48,6 @@ module mkIssueAlg(IssueAlg);
         respIssueValsLocal[i] = (interface Get#(Maybe#(ExecEntry));
                                       method ActionValue#(Maybe#(ExecEntry)) get();
                                           issueVals[i] <= tagged Invalid;
-                                          if(isValid(issueVals[i]))
-                                              $display("collect Issue: Token: %0d, index: %0d", (validValue(issueVals[i])).token.index, i);
                                           return issueVals[i];
                                       endmethod
                                   endinterface);   
@@ -101,7 +97,6 @@ module mkIssueAlg(IssueAlg);
                     let aluOp = validEntry.issueType == Shift || validEntry.issueType == Normal;
                     if(!isValid(issueVals[index]))
                     begin
-                        $display("Issue: Issued Token: %0d in index: %0d @ Model: %0d", execEntry.token.index, index, modelCounter-1);
                         issueVals[index] <= tagged Valid execEntry;
                         newWriteEntry     = tagged Invalid;
                         if(aluOp)
@@ -196,9 +191,6 @@ module mkIssueAlg(IssueAlg);
         newJAL        <= tagged Invalid;
         newJALR       <= tagged Invalid;
         newMem1       <= tagged Invalid;
-
-        modelCounter  <= modelCounter + 1;
-        $display("Issue Start @ Model: %0d", modelCounter);
     endmethod
 
     interface respIssueVals = respIssueValsLocal;
