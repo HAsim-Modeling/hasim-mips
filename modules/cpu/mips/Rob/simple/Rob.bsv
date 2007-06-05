@@ -23,14 +23,13 @@ interface Rob;
     method Action readAnyReq(RobTag robTag);
     method ActionValue#(RobEntry) readAnyResp();
     method Action writeAny(RobTag robTag, RobEntry robEntry);
-    method Action readHeadReq();
+    method Action readHeadReq(Bool increment);
     method ActionValue#(Maybe#(RobEntry)) readHeadResp();
     method Action updateTail(RobTag robTab);
     method Action writeTail(RobEntry robEntry); //and increment
-    method Action incrementHead();
     method RobTag getTail();
     method Bool notFull();
-    method Bool isRobTagValid(RobTag robTag);
+    method ActionValue#(Bool) isRobTagValid(RobTag robTag);
 endinterface
 
 module mkRob(Rob);
@@ -46,8 +45,12 @@ module mkRob(Rob);
     Reg#(RobTag) anyReg  <- mkReg(?);
     Reg#(RobTag) headReg <- mkReg(?);
 
+    Reg#(Bool) emptyReg  <- mkReg(?);
+
     let empty = head == tail && !inc;
     let full  = head == tail && inc;
+
+    let newHead = (head+1)%fromInteger(valueOf(RobCount));
 
     rule updateInc(incrementHeadEn || updateTailEn);
         inc <= False;
@@ -65,13 +68,19 @@ module mkRob(Rob);
         robFile.upd(truncate(robTag), robEntry);
     endmethod
 
-    method Action readHeadReq();
-        headReg <= head;
+    method Action readHeadReq(Bool increment);
+        if(!empty && increment)
+        begin
+            incrementHeadEn.send();
+            head <= newHead;
+        end
+        headReg  <= increment? newHead: head;
+        emptyReg <= empty;
     endmethod
 
     method ActionValue#(Maybe#(RobEntry)) readHeadResp();
-        $display("ROB read: head: %0d %0b", head, empty);
-        if(!empty)
+        $display("ROB read: head: %0d %0b", head, emptyReg);
+        if(!emptyReg)
             return tagged Valid(robFile.sub(truncate(headReg)));
         else
             return tagged Invalid;
@@ -88,15 +97,6 @@ module mkRob(Rob);
         inc  <= True;
     endmethod
 
-    method Action incrementHead();
-        if(!empty)
-        begin
-            incrementHeadEn.send();
-            head <= (head + 1)%fromInteger(valueOf(RobCount));
-        end
-        $display("ROB inc: head: %0d %0b", head, empty);
-    endmethod
-
     method RobTag getTail();
         return tail;
     endmethod
@@ -105,7 +105,8 @@ module mkRob(Rob);
         return !full;
     endmethod
 
-    method Bool isRobTagValid(RobTag robTag);
+    method ActionValue#(Bool) isRobTagValid(RobTag robTag);
+        $display("TagValid: %0d %0d %0d", head, tail, robTag);
         if(head < tail)
         begin
             return robTag >= head && robTag < tail;

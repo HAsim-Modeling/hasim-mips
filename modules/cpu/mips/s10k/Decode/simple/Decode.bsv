@@ -156,11 +156,11 @@ module [HASim_Module] mkDecode();
         let newInstNum      = instNum + zeroExtend(decodeNum);
         let sendInstNum     = (newInstNum >= fromInteger(valueOf(FetchWidth)))? fromInteger(valueOf(FetchWidth)): newInstNum;
         instNum            <= newInstNum;
-        decodeNumPort.send(tagged Valid truncate(newInstNum));
+        decodeNumPort.send(tagged Valid truncate(sendInstNum));
         predictedTakenPort.send(predictedPC);
         mispredictPort.send(mispredictPC);
 
-        $display("Decode synchronize: newInstNum: %0d, decodeNum: %0d, @ Model %0d", newInstNum, decodeNum, modelCounter);
+        $display("Decode synchronize: newInstNum: %0d, decodeNum: %0d, sendInstNum: %0d, @ Model %0d", newInstNum, sendInstNum, decodeNum, modelCounter);
 
         let intQFreeCountLocal <- intQCountPort.receive();
         let memQFreeCountLocal <- memQCountPort.receive();
@@ -188,6 +188,8 @@ module [HASim_Module] mkDecode();
             let tokenAddrVal = validValue(tokenAddr);
             tokenAddrBuffer.enq(tokenAddrVal);
             instNum         <= instNum - 1;
+            if(instNum == 0)
+                $display("CRAP IS HAPPENING");
             match {.token, .inst} <- fpFetchResp.receive();
             instBuffer.enq(inst);
             fpDecodeReq.send(tuple2(tpl_1(tokenAddrVal), ?));
@@ -207,8 +209,7 @@ module [HASim_Module] mkDecode();
 
         commitState    <= Commit;
         commitCount    <= 0;
-        rob.readHeadReq();
-        rob.incrementHead();
+        rob.readHeadReq(False);
 
         predictedPC    <= tagged Invalid;
     endaction
@@ -236,8 +237,10 @@ module [HASim_Module] mkDecode();
         let robEntry       <- rob.readAnyResp();
         let memAck         <- fpMemoryResp.receive();
         match {.exec, .res} = validValue(execEntry);
-        $display("DoneInit: Token: %0d %b %b", exec.token.index);
-        if(isValid(execEntry) && rob.isRobTagValid(exec.robTag) && robEntry.token == exec.token)
+
+        let crap <- rob.isRobTagValid(exec.robTag);
+        $display("DoneInit: Token: %0d %b %b", exec.token.index, crap, robEntry.token == exec.token);
+        if(isValid(execEntry) && crap && robEntry.token == exec.token)
         begin
             $display("Done: Token: %0d, index: %0d @ Model: %0d", exec.token.index, exec.robTag, modelCounter);
 
@@ -303,8 +306,7 @@ module [HASim_Module] mkDecode();
             $display("Commit: Token: %0d @ Model: %0d", robEntry.token.index, modelCounter-1);
             if(robEntry.isBranch)
                 branchPred.upd(robEntry.addr, robEntry.prediction, robEntry.taken);
-            rob.readHeadReq();
-            rob.incrementHead();
+            rob.readHeadReq(True);
         end
         else
         begin

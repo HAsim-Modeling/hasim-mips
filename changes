@@ -1233,3 +1233,16 @@ Directory modules/cpu/mips/s10k/Issue/simple
  Issue.bsv                 Locally Modified           71 
 
 Committing to work from office. Looks like modularized ROB is broken
+
+----------
+mvijayar    Date: Tue Jun  5 17:26:15 EDT 2007  CSN: CSN-hasim-mips-73
+                  Tue Jun  5 21:26:15 UTC 2007
+
+
+Directory modules/cpu/mips/Rob/simple
+ Rob.bsv                   Locally Modified           72 
+
+Directory modules/cpu/mips/s10k/Decode/simple
+ Decode.bsv                Locally Modified           72 
+
+Some issues with the number of instructions to fetch. Fixed the ROB issue
