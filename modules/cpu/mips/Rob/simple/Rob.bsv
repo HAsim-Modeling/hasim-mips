@@ -108,12 +108,12 @@ module mkRob(Rob);
     method ActionValue#(Bool) isRobTagValid(RobTag robTag);
         $display("TagValid: %0d %0d %0d", head, tail, robTag);
         if(head < tail)
-        begin
             return robTag >= head && robTag < tail;
-        end
-        else
-        begin
+        else if(head > tail)
             return robTag >= head || robTag < tail;
-        end
+        else if(empty)
+            return False;
+        else
+            return True;
     endmethod
 endmodule

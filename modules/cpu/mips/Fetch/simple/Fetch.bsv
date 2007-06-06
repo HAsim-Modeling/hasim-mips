@@ -45,7 +45,6 @@ module [HASim_Module] mkFetch();
 
     rule synchronize(fetchState == FetchDone);
         modelCounter <= modelCounter + 1;
-        $display("Fetch synchronize @ Model: %0d", modelCounter);
 
         let predictedTaken <- predictedTakenPort.receive();
         let     mispredict <- mispredictPort.receive();
@@ -61,6 +60,7 @@ module [HASim_Module] mkFetch();
         let newCount  = isValid(decodeNum)? validValue(decodeNum): fromInteger(valueOf(FetchWidth));
         totalCount   <= newCount;
         fetchPos     <= 0;
+        $display("Fetch synchronize @ Model: %0d newCount: %0d", modelCounter, newCount);
 
         if(newCount == 0)
             fillTokenAddrPort(0);

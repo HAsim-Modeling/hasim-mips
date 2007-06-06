@@ -1246,3 +1246,23 @@ Directory modules/cpu/mips/s10k/Decode/simple
  Decode.bsv                Locally Modified           72 
 
 Some issues with the number of instructions to fetch. Fixed the ROB issue
+
+----------
+vmurali     Date: Wed Jun  6 02:29:04 EDT 2007  CSN: CSN-hasim-mips-74
+                  Wed Jun  6 06:29:04 UTC 2007
+
+
+Directory modules/cpu/mips/Rob/simple
+ Rob.bsv                   Locally Modified           73 
+
+Directory modules/cpu/mips/Fetch/simple
+ Fetch.bsv                 Locally Modified           73 
+
+Directory modules/cpu/mips/s10k/Decode/simple
+ Decode.bsv                Locally Modified           73 
+
+Seems to pass smips v1 addiu test case now. This implies it will most likely pass
+all the non-branch test cases. Will test the rest tomorrow. Still not sure about the
+queues, as I found (and fixed) a lot of bugs which crept in while modularizing the issueQ, and
+the system already had a lot of ROB queue bugs (which crept in when I modularized
+the ROB initially). But hopefully everything works fine now

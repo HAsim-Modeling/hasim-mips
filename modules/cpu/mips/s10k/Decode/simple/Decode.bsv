@@ -75,12 +75,12 @@ module [HASim_Module] mkDecode();
 
     Reg#(Bit#(TLog#(TAdd#(FreeListCount,1))))                   freeListFreeCount <- mkReg(fromInteger(valueOf(FreeListCount)));
     Reg#(Bit#(TLog#(TAdd#(IntQCount,1))))                           intQFreeCount <- mkReg(?);
-    Reg#(Bit#(TLog#(TAdd#(MemQCount,1))))                         memQFreeCount <- mkReg(?);
+    Reg#(Bit#(TLog#(TAdd#(MemQCount,1))))                           memQFreeCount <- mkReg(?);
     Reg#(Bit#(TLog#(TAdd#(BranchCount,1))))                           branchCount <- mkReg(fromInteger(valueOf(BranchCount)));
 
     Reg#(FetchCount)                                                   fetchCount <- mkReg(?);
-    Reg#(FetchCount)                                                    decodeNum <- mkReg(0);
-    Reg#(InstCount)                                                       instNum <- mkReg(fromInteger(valueOf(FetchWidth)));
+    Reg#(FetchCount)                                                    decodeNum <- mkReg(fromInteger(valueOf(FetchWidth)));
+    Reg#(FetchCount)                                               instBufferSize <- mkReg(0);
     Reg#(FuncUnitPos)                                              robUpdateCount <- mkReg(?);
     Reg#(CommitCount)                                                 commitCount <- mkReg(?);
     Reg#(Maybe#(Addr))                                                predictedPC <- mkReg(tagged Invalid);
@@ -153,14 +153,12 @@ module [HASim_Module] mkDecode();
     rule synchronize(fetchState == FetchDone && decodeState == DecodeDone && commitState == CommitDone);
         modelCounter       <= modelCounter + 1;
 
-        let newInstNum      = instNum + zeroExtend(decodeNum);
-        let sendInstNum     = (newInstNum >= fromInteger(valueOf(FetchWidth)))? fromInteger(valueOf(FetchWidth)): newInstNum;
-        instNum            <= newInstNum;
-        decodeNumPort.send(tagged Valid truncate(sendInstNum));
+        decodeNumPort.send(tagged Valid truncate(decodeNum));
         predictedTakenPort.send(predictedPC);
         mispredictPort.send(mispredictPC);
 
-        $display("Decode synchronize: newInstNum: %0d, decodeNum: %0d, sendInstNum: %0d, @ Model %0d", newInstNum, sendInstNum, decodeNum, modelCounter);
+        let sendSize = (instBufferSize < fromInteger(valueOf(FetchWidth)))? fromInteger(valueOf(FetchWidth))-instBufferSize: 0;
+        $display("Decode synchronize: instBufferSize %0d, sendSize: %0d @ Model: %0d", instBufferSize, sendSize, modelCounter);
 
         let intQFreeCountLocal <- intQCountPort.receive();
         let memQFreeCountLocal <- memQCountPort.receive();
@@ -187,10 +185,9 @@ module [HASim_Module] mkDecode();
         begin
             let tokenAddrVal = validValue(tokenAddr);
             tokenAddrBuffer.enq(tokenAddrVal);
-            instNum         <= instNum - 1;
-            if(instNum == 0)
-                $display("CRAP IS HAPPENING");
             match {.token, .inst} <- fpFetchResp.receive();
+            instBufferSize <= instBufferSize+1;
+            $display("Decode Fetch: instBufferSize: %0d", instBufferSize+1);
             instBuffer.enq(inst);
             fpDecodeReq.send(tuple2(tpl_1(tokenAddrVal), ?));
         end
@@ -496,6 +493,8 @@ module [HASim_Module] mkDecode();
         if(doCommonDecode)
         begin
             decodeNum <= decodeNum + 1;
+            instBufferSize <= instBufferSize-1;
+            $display("Decode Decode: instBufferSize: %0d", instBufferSize+1);
 
             rob.writeTail(res);
             issuePort[decodeNum].send(tagged Valid issue);
@@ -523,11 +522,12 @@ module [HASim_Module] mkDecode();
         end
     endrule
 
-    rule decodeKillInstBuffer(decodeState == Decoding && killInstBuffer && tokenAddrBuffer.notEmpty());
+    rule decodeKillInstBuffer(decodeState == Decoding && killInstBuffer);
         if(tokenAddrBuffer.notEmpty())
         begin
             tokenAddrBuffer.deq();
             instBuffer.deq();
+            instBufferSize <= instBufferSize-1;
             decodeBuffer.deq();
             killDecodeStage(tpl_1(tokenAddrBuffer.first()));
         end
