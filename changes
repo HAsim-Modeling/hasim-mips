@@ -1266,3 +1266,13 @@ all the non-branch test cases. Will test the rest tomorrow. Still not sure about
 queues, as I found (and fixed) a lot of bugs which crept in while modularizing the issueQ, and
 the system already had a lot of ROB queue bugs (which crept in when I modularized
 the ROB initially). But hopefully everything works fine now
+
+----------
+mvijayar    Date: Wed Jun  6 19:40:13 EDT 2007  CSN: CSN-hasim-mips-75
+                  Wed Jun  6 23:40:13 UTC 2007
+
+
+Directory modules/cpu/mips/s10k/Decode/simple
+ Decode.bsv                Locally Modified           74 
+
+Didnt implement branch stack as a stack. This results in a bug when I roll back to older branches ... Will be changing this at home

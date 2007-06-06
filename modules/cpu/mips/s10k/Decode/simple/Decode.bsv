@@ -135,21 +135,6 @@ module [HASim_Module] mkDecode();
         decodeBuffer.enq(tpl_2(decodeTuple));
     endrule
 
-    //Currently the state transition diagram is:
-    /*
-              AllDone
-                /   \
-               /     \
-           Fetch     RobUpdate
-             |           |
-         FetchDone   RobUpdateDone
-              \        /      \
-               \      /        \
-                Decode        Commit
-                   |             \
-              DecodeDone       CommitDone
-    */
-
     rule synchronize(fetchState == FetchDone && decodeState == DecodeDone && commitState == CommitDone);
         modelCounter       <= modelCounter + 1;
 
@@ -267,7 +252,10 @@ module [HASim_Module] mkDecode();
             freeListFreeCount <= freeListFreeCount + 1;
 
             if(robEntry.isBranch || robEntry.isJR)
+            begin
+                $display("ROB received branch");
                 branchCount <= branchCount + 1;
+            end
 
             if(robEntry.isBranch && robEntry.prediction != taken || robEntry.isJR && robEntry.predAddr != newAddr)
             begin
@@ -397,16 +385,17 @@ module [HASim_Module] mkDecode();
         end
         else if(isBranch(currInst))
         begin
-            if(intQFreeCount != 0)
+            if(intQFreeCount != 0 && branchCount != 0)
             begin
+                $display("branchCount @ branch %0d", branchCount-1);
                 issue.issueType = Branch;
                 res.isBranch    = True;
                 intQFreeCount  <= intQFreeCount - 1;
                 branchCount    <= branchCount - 1;
                 predictedPC    <= branchPredAddr;
+                realDecodeDone     <= True;
                 if(isValid(branchPredAddr))
                 begin
-                    realDecodeDone     <= True;
                     nextKillInstBuffer <= True;
                     killInstBuffer     <= True;
                 end
@@ -449,11 +438,12 @@ module [HASim_Module] mkDecode();
         end
         else if(isJR(currInst))
         begin
-            if(intQFreeCount != 0)
+            if(intQFreeCount != 0 && branchCount != 0)
             begin
                 issue.issueType     = JR;
                 res.isJR            = True;
-                intQFreeCount       <= intQFreeCount - 1;
+                intQFreeCount      <= intQFreeCount - 1;
+                branchCount        <= branchCount - 1; 
                 predictedPC <= tagged Valid jumpPredAddr;
                 targetBuffer.deq();
                 realDecodeDone     <= True;
@@ -467,14 +457,15 @@ module [HASim_Module] mkDecode();
                 doCommonDecode  = False;
             end
         end
-        else if(isJALR(currInst))
+        else if(isJALR(currInst) && branchCount != 0)
         begin
             if(freeListFreeCount != 0 && intQFreeCount != 0)
             begin
                 issue.issueType     = JALR;
                 res.isJR            = True;
                 freeListFreeCount  <= freeListFreeCount - 1;
-                intQFreeCount       <= intQFreeCount - 1;
+                intQFreeCount      <= intQFreeCount - 1;
+                branchCount        <= branchCount - 1;
                 predictedPC        <= tagged Valid jumpPredAddr;
                 targetBuffer.deq();
                 targetBuffer.enq(currAddr+4);
@@ -502,7 +493,7 @@ module [HASim_Module] mkDecode();
             tokenAddrBuffer.deq();
             instBuffer.deq();
             decodeBuffer.deq();
-            $display("Decode : Token: %0d, addr: %x, type: %0d @ Model: %0d", currToken.index, currAddr, issue.issueType, modelCounter-1);
+            $display("Decode : Token: %0d, addr: %x, type: %0d @ Model: %0d, res.isBranch: %0d", currToken.index, currAddr, issue.issueType, modelCounter-1, res.isBranch);
         end
     endrule
 
