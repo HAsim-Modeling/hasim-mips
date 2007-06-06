@@ -1,7 +1,4 @@
-import hasim_base::*;
-
 import RegFile::*;
-import RWire::*;
 
 import hasim_cpu_types::*;
 
@@ -22,24 +19,12 @@ module mkIssueQ(IssueQ#(qCount))
 
     Reg#(QCountType#(qCount))     head <- mkReg(0);
     Reg#(QCountType#(qCount))    count <- mkReg(0);
-    Reg#(QCountType#(qCount))  readPtr <- mkReg(?);
-    Reg#(QCountType#(qCount)) writePtr <- mkReg(?);
-
-    PulseWire               incReadPtr <- mkPulseWire();
-    PulseWire               decReadPtr <- mkPulseWire();
+    Reg#(QCountType#(qCount))       ptr <- mkReg(?);
 
     RegFile#(Bit#(TLog#(qCount)), Maybe#(IssueEntry)) regFile <- mkRegFileFull();
 
-    rule updateReadPtr(True);
-        if(incReadPtr && !decReadPtr)
-            readPtr <= readPtr + 1;
-        else if(!incReadPtr && decReadPtr)
-            readPtr <= readPtr - 1;
-    endrule
-
     method Action start();
-         readPtr <= 0;
-        writePtr <= 0;
+         ptr <= 0;
     endmethod
 
     method Action readReq();
@@ -47,27 +32,25 @@ module mkIssueQ(IssueQ#(qCount))
     endmethod
 
     method ActionValue#(Maybe#(IssueEntry)) readResp();
-        incReadPtr.send();
-        if(readPtr >= count)
+        if(ptr >= count)
             return tagged Invalid;
         else
-            return regFile.sub(truncate((head + readPtr)%fromInteger(valueOf(qCount))));
+            return regFile.sub(truncate((head + ptr)%fromInteger(valueOf(qCount))));
     endmethod
 
     method Action write(Maybe#(IssueEntry) issue);
-        regFile.upd(truncate((head + writePtr)%fromInteger(valueOf(qCount))), issue);
-        if(!isValid(issue) && writePtr == 0)
+        regFile.upd(truncate((head + ptr)%fromInteger(valueOf(qCount))), issue);
+        if(!isValid(issue) && ptr == 0)
         begin
             head     <= (head + 1)%fromInteger(valueOf(qCount));
             count    <= count - 1;
-            decReadPtr.send();
         end
         else
-            writePtr <= writePtr + 1;
+            ptr <= ptr + 1;
     endmethod
 
     method Bool isLast();
-        return writePtr == count;
+        return ptr == count;
     endmethod
 
     method Action add(IssueEntry issue);

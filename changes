@@ -1276,3 +1276,16 @@ Directory modules/cpu/mips/s10k/Decode/simple
  Decode.bsv                Locally Modified           74 
 
 Didnt implement branch stack as a stack. This results in a bug when I roll back to older branches ... Will be changing this at home
+
+----------
+mvijayar    Date: Wed Jun  6 19:52:02 EDT 2007  CSN: CSN-hasim-mips-76
+                  Wed Jun  6 23:52:02 UTC 2007
+
+
+Directory modules/cpu/mips/s10k/Decode/simple
+ Decode.bsv                Locally Modified           75 
+
+Directory modules/cpu/mips/IssueAlg/simple/unguardedQ
+ IssueQ.bsv                Locally Modified           74 
+
+Got rid of an extra pointer in the issueQ...

@@ -385,7 +385,7 @@ module [HASim_Module] mkDecode();
         end
         else if(isBranch(currInst))
         begin
-            if(intQFreeCount != 0 && branchCount != 0)
+            if(intQFreeCount != 0)// && branchCount != 0)
             begin
                 $display("branchCount @ branch %0d", branchCount-1);
                 issue.issueType = Branch;
