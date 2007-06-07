@@ -317,7 +317,7 @@ module [HASim_Module] mkDecode();
                                           src2Ready: src2Ready, src2: src2,
                                           dest: dest};
 
-            IssueType issueType = getIssueType(bitsToInst(inst));
+            IssueType issueType = getIssueType(bitsToInst(currInst));
 
             let freeList     = isALU(currInst) || isLoad(currInst) || isJAL(currInst) || isJALR(currInst);
             let intQ         = isALU(currInst) || isBranch(currInst) || isJR(currInst) || isJALR(currInst);

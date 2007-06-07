@@ -1420,3 +1420,13 @@ Directory modules/cpu/mips/s10k
 
 Cleaned up all the modules. Some things are broken as I didnt have time to test it. Will finish fixing things tonight.
 Also added a new branch stack module , currently having infinite stack space.
+
+----------
+mvijayar    Date: Thu Jun  7 18:16:22 EDT 2007  CSN: CSN-hasim-mips-81
+                  Thu Jun  7 22:16:22 UTC 2007
+
+
+Directory modules/cpu/mips/s10k/Decode/simple
+ Decode.bsv                Locally Modified           80 
+
+Fixed a small bug now
