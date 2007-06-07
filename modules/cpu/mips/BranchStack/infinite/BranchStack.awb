@@ -1,0 +1,20 @@
+#/********************************************************************
+# *
+# * Awb module specification
+# *
+# *******************************************************************/
+
+#/*
+# %AWB_START
+#
+# %name Infinite entry Branch Stack module
+# %desc Infinite Branch Stack module
+# %provides hasim_cpu_branchStack
+#
+# %attributes mips hasim
+#
+# %public BranchPred.bsv
+#
+# %AWB_END
+# */
+
