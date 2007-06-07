@@ -1,3 +1,5 @@
+import hasim_common::*;
+
 import RegFile::*;
 
 import hasim_cpu_types::*;

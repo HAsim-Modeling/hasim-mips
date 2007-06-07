@@ -1,5 +1,4 @@
 import hasim_common::*;
-import hasim_base::*;
 import hasim_isa::*;
 
 import hasim_cpu_parameters::*;

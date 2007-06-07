@@ -5,8 +5,7 @@ import RegFile::*;
 import FIFO::*;
 import Vector::*;
 
-import hasim_base::*;
-import hasim_fpgalib::*;
+import fpga_components::*;
 import hasim_common::*;
 
 import hasim_funcp_base::*;

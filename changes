@@ -1306,3 +1306,70 @@ Directory modules/cpu/mips/s10k/Decode/simple
 
 Middle of a major cleanup
 
+
+----------
+mpellaue    Date: Thu Jun  7 17:29:24 EDT 2007  CSN: CSN-hasim-mips-79
+                  Thu Jun  7 21:29:24 UTC 2007
+
+
+Directory config/pm/hasim-mips/smips-5stage
+ hasim_smips_5stage.apm    Locally Modified           78 
+ hasim_smips_5stage_ports.apm Locally Modified           78 
+
+Directory modules/functional/mips
+ FUNCP_FetchAlg.bsv        Locally Modified           78 
+ FUNCP_GlobalCommitAlg.bsv Locally Modified           78 
+ FUNCP_MemAlg.bsv          Locally Modified           78 
+ FUNCP_LocalCommitAlg.bsv  Locally Modified           78 
+
+Directory modules/functional/smips
+ FUNCP_ExecuteAlg.bsv      Locally Modified           78 
+ FUNCP_DecodeAlg.bsv       Locally Modified           78 
+
+Directory modules/functional/test-cases/smips/branch
+ TestCase.bsv              Locally Modified           78 
+
+Directory modules/chip/mips/uniprocessor
+ uniprocessor.bsv          Locally Modified           78 
+
+Directory modules/chip/mips/5stage-ports
+ CommandCenter.bsv         Locally Modified           78 
+ Chip.bsv                  Locally Modified           78 
+
+Directory modules/cpu/mips/Execute/simple
+ Execute.bsv               Locally Modified           78 
+
+Directory modules/cpu/mips/Rob/simple
+ Rob.bsv                   Locally Modified           78 
+
+Directory modules/cpu/mips/Commit/simple
+ Commit.bsv                Locally Modified           78 
+
+Directory modules/cpu/mips/Fetch/simple
+ Fetch.bsv                 Locally Modified           78 
+
+Directory modules/cpu/mips/IssueAlg/simple/unguardedQ
+ IssueQ.bsv                Locally Modified           78 
+
+Directory modules/cpu/mips/IssueAlg/simple/priorityAlgo
+ IssueAlg.bsv              Locally Modified           78 
+
+Directory modules/cpu/mips/s10k/Decode/simple
+ Decode.bsv                Locally Modified           78 
+
+Directory modules/cpu/mips/s10k/Issue/simple
+ Issue.bsv                 Locally Modified           78 
+
+Directory modules/cpu/mips/s10k
+ Types.bsv                 Locally Modified           78 
+
+Directory modules/memory
+ magic_memory.bsv          Locally Modified           78 
+
+Directory modules/isa/smips
+ ISA.bsv                   Locally Modified           78 
+
+
+Using the new fpga environment, we can deprecate hasim_base in favor on hasim_common.
+
+Michael P.

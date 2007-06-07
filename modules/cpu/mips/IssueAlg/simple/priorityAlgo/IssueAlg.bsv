@@ -1,5 +1,5 @@
 import hasim_isa::*;
-import hasim_base::*;
+import hasim_common::*;
 
 import GetPut::*;
 import Vector::*;
