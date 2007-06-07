@@ -7,8 +7,8 @@
 #/*
 # %AWB_START
 #
-# %name Branch Predictor module
-# %desc Branch Predictor module
+# %name Not Taken Branch Predictor module
+# %desc Not Taken Branch Predictor module
 # %provides hasim_cpu_branchPred
 #
 # %attributes mips hasim

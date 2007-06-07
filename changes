@@ -1373,3 +1373,50 @@ Directory modules/isa/smips
 Using the new fpga environment, we can deprecate hasim_base in favor on hasim_common.
 
 Michael P.
+
+----------
+mvijayar    Date: Thu Jun  7 18:12:12 EDT 2007  CSN: CSN-hasim-mips-80
+                  Thu Jun  7 22:12:12 UTC 2007
+
+
+Directory config/pm/hasim-mips/s10k
+ s10k.apm                  Locally Modified           79 
+
+Directory modules/cpu/mips
+ Cpu.bsv                   Locally Modified           79 
+
+Directory modules/cpu/mips/TargetBuffer/oneEntry
+ TargetBuffer.awb          Locally Modified           79 
+ TargetBuffer.bsv          Locally Modified           79 
+
+Directory modules/cpu/mips/Execute/simple
+ Execute.bsv               Locally Modified           79 
+
+Directory modules/cpu/mips/Rob/simple
+ Rob.bsv                   Locally Modified           79 
+
+Directory modules/cpu/mips/BranchStack/infinite
+ BranchStack.awb           Locally Modified           79 
+ BranchStack.bsv           Locally Modified           79 
+
+Directory modules/cpu/mips/BranchPred/notTaken
+ BranchPred.awb            Locally Modified           79 
+
+Directory modules/cpu/mips/Fetch/simple
+ Fetch.bsv                 Locally Modified           79 
+
+Directory modules/cpu/mips/IssueAlg/simple/unguardedQ
+ IssueQ.bsv                Locally Modified           79 
+
+Directory modules/cpu/mips/IssueAlg/simple/priorityAlgo
+ IssueAlg.bsv              Locally Modified           79 
+
+Directory modules/cpu/mips/s10k/Decode/simple
+ Decode.awb                Locally Modified           79 
+ Decode.bsv                Locally Modified           79 
+
+Directory modules/cpu/mips/s10k
+ Types.bsv                 Locally Modified           79 
+
+Cleaned up all the modules. Some things are broken as I didnt have time to test it. Will finish fixing things tonight.
+Also added a new branch stack module , currently having infinite stack space.

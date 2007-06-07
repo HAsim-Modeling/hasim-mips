@@ -11,7 +11,7 @@
 # %desc SMIPS R10K simple Decode module
 # %provides hasim_cpu_decode
 #
-# %requires hasim_cpu_rob hasim_cpu_branchPred hasim_cpu_targetBuffer
+# %requires hasim_cpu_rob hasim_cpu_branchPred hasim_cpu_targetBuffer hasim_cpu_branchStack
 #
 # %attributes s10k mips hasim
 #

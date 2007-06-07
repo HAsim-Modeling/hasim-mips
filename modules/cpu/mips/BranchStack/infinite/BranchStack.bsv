@@ -1,4 +1,4 @@
-import hasim_base::*;
+import hasim_common::*;
 
 interface BranchStack;
     method Action resolveWrong(Token token);

@@ -7,8 +7,8 @@
 #/*
 # %AWB_START
 #
-# %name Target Buffer module
-# %desc Target Buffer module
+# %name One Entry Target Buffer module
+# %desc One Entry Target Buffer module
 # %provides hasim_cpu_targetBuffer
 #
 # %attributes mips hasim

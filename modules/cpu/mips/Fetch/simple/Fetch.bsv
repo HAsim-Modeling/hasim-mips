@@ -18,12 +18,11 @@ module [HASim_Module] mkFetch();
     Connection_Receive#(Token)             fpTokenResp <- mkConnection_Receive("fp_tok_resp");
     Connection_Send#(Tuple2#(Token, Addr))  fpFetchReq <- mkConnection_Send("fp_fet_req");
 
-    Port_Receive#(FetchCount)            instBufferCountPort <- mkPort_Receive("decodeToFetchDecodeNum", 1);
+    Port_Receive#(FetchCount)      instBufferCountPort <- mkPort_Receive("decodeToFetchDecodeNum", 1);
     Port_Receive#(Addr)             predictedTakenPort <- mkPort_Receive("decodeToFetchPredictedTaken", 1);
     Port_Receive#(Addr)                 mispredictPort <- mkPort_Receive("decodeToFetchMispredict", 1);
 
-    Vector#(FetchWidth, Port_Send#(Tuple2#(Token, Addr)))
-                                         tokenAddrPort <- genWithM(sendFunctionM("fetchToDecode"));
+    Vector#(FetchWidth, Port_Send#(Addr))     addrPort <- genWithM(sendFunctionM("fetchToDecode"));
 
     Reg#(FetchState)                        fetchState <- mkReg(FetchDone);
     Reg#(Addr)                                      pc <- mkReg(pcStart);
@@ -37,7 +36,7 @@ module [HASim_Module] mkFetch();
         for(Integer i = 0; i < valueof(FetchWidth); i=i+1)
         begin
             if(fromInteger(i) >= fetchedCount)
-                tokenAddrPort[i].send(tagged Invalid);
+                addrPort[i].send(tagged Invalid);
         end
     endaction
     endfunction
@@ -56,7 +55,7 @@ module [HASim_Module] mkFetch();
         else
             pc <= pc;
 
-        let newCount  = fromMaybe(fromInteger(valueOf(FetchWidth)), validValue(decodeNum));
+        let newCount  = fromMaybe(fromInteger(valueOf(FetchWidth)), instBufferCount);
         totalCount   <= newCount;
         fetchPos     <= 0;
         $display("Fetch synchronize @ Model: %0d newCount: %0d", modelCounter, newCount);
@@ -73,7 +72,7 @@ module [HASim_Module] mkFetch();
     rule fetch(fetchState == Fetch);
         let token <- fpTokenResp.receive();
         fpFetchReq.send(tuple2(token, pc));
-        tokenAddrPort[fetchPos].send(tagged Valid tuple2(token, pc));
+        addrPort[fetchPos].send(tagged Valid pc);
         $display("Fetch: Token: %0d @ Model: %0d", token.index, modelCounter-1);
         let newFetchPos = fetchPos + 1;
         fetchPos  <= newFetchPos;

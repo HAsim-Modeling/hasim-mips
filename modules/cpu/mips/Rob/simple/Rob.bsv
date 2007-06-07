@@ -11,6 +11,7 @@ typedef struct {
     Token token;
     Addr addr;
     Bool finished;
+    Bool result;
     Bool done;
     Bool isBranch;
     Bool prediction;
@@ -20,16 +21,13 @@ typedef struct {
 } RobEntry deriving (Bits, Eq);
 
 interface Rob;
-    method Action readAnyReq(RobTag robTag);
-    method ActionValue#(RobEntry) readAnyResp();
-    method Action writeAny(RobTag robTag, RobEntry robEntry);
-    method Action readHeadReq(Bool increment);
-    method ActionValue#(Maybe#(RobEntry)) readHeadResp();
+    method ActionValue#(Maybe#(RobEntry)) readHead();
+    method Maybe#(RobEntry) read(RobTag robTag);
+    method Action write(RobTag robTag, RobEntry robEntry);
     method Action updateTail(RobTag robTab);
     method Action writeTail(RobEntry robEntry); //and increment
     method RobTag getTail();
     method Bool notFull();
-    method ActionValue#(Bool) isRobTagValid(RobTag robTag);
 endinterface
 
 module mkRob(Rob);
@@ -56,32 +54,27 @@ module mkRob(Rob);
         inc <= False;
     endrule
 
-    method Action readAnyReq(RobTag robTag);
-        anyReg <= robTag;    
+    method Maybe#(RobEntry) read(RobTag robTag);
+        let valid = head < tail && robTag >= head && robTag < tail ||
+                    head > tail && (robTag >= head || robTag < tail) ||
+                    full;
+        if(valid)
+            return tagged Valid robFile.sub(truncate(robTag));
+        else
+            return tagged Invalid;
     endmethod
 
-    method ActionValue#(RobEntry) readAnyResp();
-        return robFile.sub(truncate(anyReg));
-    endmethod
-
-    method Action writeAny(RobTag robTag, RobEntry robEntry);
+    method Action write(RobTag robTag, RobEntry robEntry);
         robFile.upd(truncate(robTag), robEntry);
     endmethod
 
-    method Action readHeadReq(Bool increment);
-        if(!empty && increment)
+    method ActionValue#(Maybe#(RobEntry)) readHead();
+        if(!empty)
         begin
+            head <= (head + 1)%fromInteger(valueOf(RobCount));
             incrementHeadEn.send();
-            head <= newHead;
+            return tagged Valid robFile.sub(truncate(head));
         end
-        headReg  <= increment? newHead: head;
-        emptyReg <= empty;
-    endmethod
-
-    method ActionValue#(Maybe#(RobEntry)) readHeadResp();
-        $display("ROB read: head: %0d %0b", head, emptyReg);
-        if(!emptyReg)
-            return tagged Valid(robFile.sub(truncate(headReg)));
         else
             return tagged Invalid;
     endmethod
@@ -91,7 +84,7 @@ module mkRob(Rob);
         updateTailEn.send();
     endmethod
 
-    method Action writeTail(RobEntry robEntry); //and increment
+    method Action writeTail(RobEntry robEntry);
         robFile.upd(truncate(tail), robEntry);
         tail <= (tail + 1)%fromInteger(valueOf(RobCount));
         inc  <= True;
@@ -103,17 +96,5 @@ module mkRob(Rob);
 
     method Bool notFull();
         return !full;
-    endmethod
-
-    method ActionValue#(Bool) isRobTagValid(RobTag robTag);
-        $display("TagValid: %0d %0d %0d", head, tail, robTag);
-        if(head < tail)
-            return robTag >= head && robTag < tail;
-        else if(head > tail)
-            return robTag >= head || robTag < tail;
-        else if(empty)
-            return False;
-        else
-            return True;
     endmethod
 endmodule

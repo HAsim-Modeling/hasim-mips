@@ -13,7 +13,7 @@
 #
 # %attributes mips hasim
 #
-# %public BranchPred.bsv
+# %public BranchStack.bsv
 #
 # %AWB_END
 # */

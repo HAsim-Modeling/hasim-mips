@@ -12,82 +12,129 @@ import hasim_cpu_types::*;
 import hasim_cpu_rob::*;
 import hasim_cpu_branchPred::*;
 import hasim_cpu_targetBuffer::*;
+import hasim_cpu_branchStack::*;
 
 typedef enum {Commit, Update, Decode, RobDone} RobState   deriving (Bits, Eq);
 typedef enum {Fetch, FetchDone}                FetchState deriving (Bits, Eq);
 
+function IssueType getIssueType(Inst inst);
+    return case ( inst ) matches
+               // -- Memory Ops ------------------------------------------------      
+               tagged LW .it : return Load;
+               tagged SW .it : return Store;
+
+               // -- Simple Ops ------------------------------------------------      
+               tagged ADDIU .it : return Normal;
+               tagged SLTI  .it : return Normal;
+               tagged SLTIU .it : return Normal;
+               tagged ANDI  .it : return Normal;
+               tagged ORI   .it : return Normal;
+               tagged XORI  .it : return Normal;
+               tagged LUI   .it : return Normal;
+
+               tagged SLL   .it : return Shift;
+               tagged SRL   .it : return Shift;
+               tagged SRA   .it : return Shift;
+               tagged SLLV  .it : return Shift;
+               tagged SRLV  .it : return Shift;
+               tagged SRAV  .it : return Shift;
+
+               tagged ADDU  .it : return Normal;
+               tagged SUBU  .it : return Normal;
+               tagged AND   .it : return Normal;
+               tagged OR    .it : return Normal;
+               tagged XOR   .it : return Normal;
+               tagged NOR   .it : return Normal;
+               tagged SLT   .it : return Normal;
+               tagged SLTU  .it : return Normal;
+
+               tagged MTC0  .it : return Normal;
+               tagged MFC0  .it : return Normal;
+
+               // -- Branches --------------------------------------------------
+               tagged BLEZ  .it : return Branch;
+               tagged BGTZ  .it : return Branch;
+               tagged BLTZ  .it : return Branch;
+               tagged BGEZ  .it : return Branch;
+               tagged BEQ   .it : return Branch;
+               tagged BNE   .it : return Branch;
+    
+               // -- Jumps -----------------------------------------------------
+               tagged J     .it : return J;
+               tagged JR    .it : return JR;
+               tagged JAL   .it : return JAL;
+               tagged JALR  .it : return JALR;
+               default          : return Normal;
+    endcase;
+endfunction
+  
 module [HASim_Module] mkDecode();
     function sendFunctionM(String str, Integer i) = mkPort_Send(strConcat(str, fromInteger(i)));
 
     function receiveFunctionM(String str, Integer i) = mkPort_Receive(strConcat(str, fromInteger(i)), 1);
 
-    Connection_Receive#(Tuple2#(Token, PackedInst))                   fpFetchResp <- mkConnection_Receive("fp_fet_resp");
-    Connection_Send#(Tuple2#(Token, void))                            fpDecodeReq <- mkConnection_Send("fp_dec_req");
-    Connection_Receive#(Tuple2#(Token, DepInfo))                     fpDecodeResp <- mkConnection_Receive("fp_dec_resp");
-    Connection_Receive#(Tuple2#(Token, void))                        fpMemoryResp <- mkConnection_Receive("fp_mem_resp");
+    Connection_Receive#(Tuple2#(Token, PackedInst))     fpFetchResp <- mkConnection_Receive("fp_fet_resp");
+    Connection_Send#(Tuple2#(Token, void))              fpDecodeReq <- mkConnection_Send("fp_dec_req");
+    Connection_Receive#(Tuple2#(Token, DepInfo))       fpDecodeResp <- mkConnection_Receive("fp_dec_resp");
+    Connection_Receive#(Tuple2#(Token, void))          fpMemoryResp <- mkConnection_Receive("fp_mem_resp");
 
-    Connection_Send#(Token)                                             fpTokKill <- mkConnection_Send("fp_tok_kill");
-    Connection_Send#(Token)                                           fpFetchKill <- mkConnection_Send("fp_fet_kill");
-    Connection_Send#(Token)                                          fpDecodeKill <- mkConnection_Send("fp_dec_kill");
-    Connection_Send#(Token)                                             fpExeKill <- mkConnection_Send("fp_exe_kill");
-    Connection_Send#(Token)                                             fpMemKill <- mkConnection_Send("fp_mem_kill");
-    Connection_Send#(Token)                                        fpMemStateKill <- mkConnection_Send("fp_memstate_kill");
-    Connection_Send#(Token)                                     fpLocalCommitKill <- mkConnection_Send("fp_lco_kill");
-    Connection_Send#(Token)                                    fpGlobalCommitKill <- mkConnection_Send("fp_gco_kill");
-    Connection_Send#(Token)                                       fpRewindToToken <- mkConnection_Send("fp_rewindToToken");
+    Connection_Send#(Token)                               fpTokKill <- mkConnection_Send("fp_tok_kill");
+    Connection_Send#(Token)                             fpFetchKill <- mkConnection_Send("fp_fet_kill");
+    Connection_Send#(Token)                            fpDecodeKill <- mkConnection_Send("fp_dec_kill");
+    Connection_Send#(Token)                               fpExeKill <- mkConnection_Send("fp_exe_kill");
+    Connection_Send#(Token)                               fpMemKill <- mkConnection_Send("fp_mem_kill");
+    Connection_Send#(Token)                          fpMemStateKill <- mkConnection_Send("fp_memstate_kill");
+    Connection_Send#(Token)                       fpLocalCommitKill <- mkConnection_Send("fp_lco_kill");
+    Connection_Send#(Token)                      fpGlobalCommitKill <- mkConnection_Send("fp_gco_kill");
+    Connection_Send#(Token)                         fpRewindToToken <- mkConnection_Send("fp_rewindToToken");
 
-    Connection_Server#(Command, Response)                            finishServer <- mkConnection_Server("controller_to_tp");
+    Connection_Server#(Command, Response)                controller <- mkConnection_Server("controller_to_tp");
 
-    Vector#(FetchWidth, Port_Receive#(Tuple2#(Token, Addr)))        tokenAddrPort <- genWithM(receiveFunctionM("fetchToDecode"));
+    Vector#(FetchWidth, Port_Receive#(Addr))               addrPort <- genWithM(receiveFunctionM("fetchToDecode"));
 
-    Port_Send#(FetchCount)                                    instBufferCountPort <- mkPort_Send("decodeToFetchInstBuffer");
-    Port_Send#(Addr)                                           predictedTakenPort <- mkPort_Send("decodeToFetchPredictedTaken");
-    Port_Send#(Addr)                                               mispredictPort <- mkPort_Send("decodeToFetchMispredict");
+    Port_Send#(FetchCount)                      instBufferCountPort <- mkPort_Send("decodeToFetchInstBuffer");
+    Port_Send#(Addr)                             predictedTakenPort <- mkPort_Send("decodeToFetchPredictedTaken");
+    Port_Send#(Addr)                                 mispredictPort <- mkPort_Send("decodeToFetchMispredict");
 
-    Port_Receive#(IntQCountType)                                    intQCountPort <- mkPort_Receive("issueToDecodeIntQ", 1);
-    Port_Receive#(MemQCountType)                                    memQCountPort <- mkPort_Receive("issueToDecodeMemQ", 1);
+    Port_Receive#(IntQCountType)                      intQCountPort <- mkPort_Receive("issueToDecodeIntQ", 1);
+    Port_Receive#(MemQCountType)                      memQCountPort <- mkPort_Receive("issueToDecodeMemQ", 1);
 
-    Vector#(FetchWidth, Port_Send#(IssueEntry))                         issuePort <- genWithM(sendFunctionM("decodeToIssue"));
+    Vector#(FetchWidth, Port_Send#(IssueEntry))           issuePort <- genWithM(sendFunctionM("decodeToIssue"));
 
-    Vector#(NumFuncUnits, Port_Receive#(Tuple2#(ExecEntry, InstResult)))
-                                                                   execResultPort <- genWithM(receiveFunctionM("execToDecodeResult"));
+    Vector#(NumFuncUnits, Port_Receive#(ExecResult)) execResultPort <- genWithM(receiveFunctionM("execToDecode"));
 
-    Vector#(CommitWidth, Port_Send#(Token))                       commitTokenPort <- genWithM(sendFunctionM("decodeToCommit"));
+    Vector#(CommitWidth, Port_Send#(Token))              commitPort <- genWithM(sendFunctionM("decodeToCommit"));
 
-    FIFOF#(Tuple2#(Token, Addr))                                  tokenAddrBuffer <- mkSizedFIFOF(2*fromInteger(valueOf(FetchWidth)));
-    FIFOF#(PackedInst)                                                 instBuffer <- mkSizedFIFOF(2*fromInteger(valueOf(FetchWidth)));
-    FIFOF#(DepInfo)                                                  decodeBuffer <- mkSizedFIFOF(2*fromInteger(valueOf(FetchWidth)));
+    FIFOF#(InstInfo)                                     instBuffer <- mkSizedFIFOF(2*fromInteger(valueOf(FetchWidth))); 
+    FIFOF#(DepInfo)                                    decodeBuffer <- mkSizedFIFOF(2*fromInteger(valueOf(FetchWidth)));
 
-    Reg#(RobState)                                                       robState <- mkReg(RobDone);
-    Reg#(FetchState)                                                   fetchState <- mkReg(FetchDone);
-    Reg#(Bool)                                                     killInstBuffer <- mkReg(False);
-    Reg#(Bool)                                                 nextKillInstBuffer <- mkReg(?);
-    Reg#(Bool)                                                     realDecodeDone <- mkReg(?);
+    Reg#(RobState)                                         robState <- mkReg(RobDone);
+    Reg#(FetchState)                                     fetchState <- mkReg(FetchDone);
+    Reg#(Bool)                                       killInstBuffer <- mkReg(False);
+    Reg#(Bool)                                   nextKillInstBuffer <- mkReg(?);
+    Reg#(Bool)                                       realDecodeDone <- mkReg(?);
 
-    Reg#(Maybe#(Tuple2#(ExecEntry, InstResult)))                        execEntry <- mkReg(?);
+    Reg#(Bit#(TLog#(TAdd#(FreeListCount,1))))     freeListFreeCount <- mkReg(fromInteger(valueOf(FreeListCount)));
+    Reg#(Bit#(TLog#(TAdd#(IntQCount,1))))             intQFreeCount <- mkReg(?);
+    Reg#(Bit#(TLog#(TAdd#(MemQCount,1))))             memQFreeCount <- mkReg(?);
 
-    Reg#(Bit#(TLog#(TAdd#(FreeListCount,1))))                   freeListFreeCount <- mkReg(fromInteger(valueOf(FreeListCount)));
-    Reg#(Bit#(TLog#(TAdd#(IntQCount,1))))                           intQFreeCount <- mkReg(?);
-    Reg#(Bit#(TLog#(TAdd#(MemQCount,1))))                           memQFreeCount <- mkReg(?);
-    Reg#(Bit#(TLog#(TAdd#(BranchCount,1))))                           branchCount <- mkReg(fromInteger(valueOf(BranchCount)));
+    Reg#(FetchCount)                                     fetchCount <- mkReg(?);
+    Reg#(FetchCount)                                instBufferCount <- mkReg(0);
+    Reg#(Bit#(32))                                            count <- mkReg(?);
 
-    Reg#(FetchCount)                                                   fetchCount <- mkReg(?);
-    Reg#(FetchCount)                                              instBufferCount <- mkReg(0);
-    Reg#(Bit#(32))                                                       robCount <- mkReg(?);
+    Reg#(Maybe#(Addr))                                  predictedPC <- mkReg(tagged Invalid);
+    Reg#(Maybe#(Addr))                                 mispredictPC <- mkReg(tagged Invalid);
 
-    Reg#(Maybe#(Addr))                                                predictedPC <- mkReg(tagged Invalid);
-    Reg#(Maybe#(Addr))                                               mispredictPC <- mkReg(tagged Invalid);
+    Rob                                                         rob <- mkRob();
+    Reg#(Vector#(PRNum, Bool))                             pRegFile <- mkReg(replicate(False));
+    BranchPred                                           branchPred <- mkBranchPred();
+    BranchStack                                         branchStack <- mkBranchStack();
+    FIFOF#(Addr)                                       targetBuffer <- mkTargetBuffer(pcStart);
 
-    Rob                                                                       rob <- mkRob();
-    Reg#(Vector#(PRNum, Bool))                                           pRegFile <- mkReg(replicate(False));
-    BranchPred                                                         branchPred <- mkBranchPred();
-    BranchStack                                                       branchStack <- mkBranchStack();
-    FIFO#(Addr)                                                      targetBuffer <- mkTargetBuffer(pcStart);
+    Reg#(Bool)                                                birth <- mkReg(True);
 
-    Reg#(Bool)                                                              birth <- mkReg(True);
-
-    Reg#(ClockCounter)                                               clockCounter <- mkReg(0);
-    Reg#(ClockCounter)                                               modelCounter <- mkReg(0);
+    Reg#(ClockCounter)                                 clockCounter <- mkReg(0);
+    Reg#(ClockCounter)                                 modelCounter <- mkReg(0);
 
     function Action killRobStage(Token token);
     action
@@ -109,23 +156,24 @@ module [HASim_Module] mkDecode();
     endrule
 
     rule birthOfModel(birth);
-        let req <- finishServer.getReq();
+        let req <- controller.getReq();
         birth   <= False;
     endrule
 
     rule getDecodeResp(True);
-        let decodeTuple <- fpDecodeResp.receive();
-        decodeBuffer.enq(tpl_2(decodeTuple));
+        match {.token, .dep} <- fpDecodeResp.receive();
+        decodeBuffer.enq(dep);
     endrule
 
-    rule synchronize(fetchState == FetchDone && decodeState == DecodeDone && commitState == CommitDone);
+    rule synchronize(fetchState == FetchDone && robState == RobDone);
         modelCounter  <= modelCounter + 1;
 
-        instBufferCountPort.send(tagged Valid truncate(robCount));
+        let sendSize = (instBufferCount < fromInteger(valueOf(FetchWidth)))? fromInteger(valueOf(FetchWidth))-instBufferCount: 0;
+
+        instBufferCountPort.send(tagged Valid sendSize);
         predictedTakenPort.send(predictedPC);
         mispredictPort.send(mispredictPC);
 
-        let sendSize = (instBufferCount < fromInteger(valueOf(FetchWidth)))? fromInteger(valueOf(FetchWidth))-instBufferCount: 0;
         $display("Decode synchronize: instBufferCount %0d, sendSize: %0d @ Model: %0d", instBufferCount, sendSize, modelCounter);
 
         let intQFreeCountLocal <- intQCountPort.receive();
@@ -137,21 +185,20 @@ module [HASim_Module] mkDecode();
         fetchCount    <= 0;
 
         robState      <= Commit;
-        robCount      <= 0;
+        count         <= 0;
 
         nextKillInstBuffer <= False;
     endrule
 
     rule fetch(fetchState == Fetch);
-        let tokenAddrMaybe <- tokenAddrPort[fetchCount].receive();
-        if(isValid(tokenAddrMaybe))
+        let addrMaybe <- addrPort[fetchCount].receive();
+        if(isValid(addrMaybe))
         begin
-            let tokenAddr = validValue(tokenAddrMaybe);
-            tokenAddrBuffer.enq(tokenAddr);
+            let addr = validValue(addrMaybe);
             match {.token, .inst} <- fpFetchResp.receive();
             instBufferCount <= instBufferCount + 1;
-            instBuffer.enq(inst);
-            fpDecodeReq.send(token, ?));
+            instBuffer.enq(InstInfo{token: token, addr: addr, inst: inst});
+            fpDecodeReq.send(tuple2(token, ?));
         end
         fetchCount     <= fetchCount + 1;
         if(fetchCount == fromInteger(valueOf(TSub#(FetchWidth,1))))
@@ -159,302 +206,208 @@ module [HASim_Module] mkDecode();
     endrule
 
     rule commit(robState == Commit);
-        let robEntryMaybe = rob.readHead();
-        let robEntry      = validValue(robEntryMaybe);
+        let robEntryMaybe <- rob.readHead();
+        let robEntry       = validValue(robEntryMaybe);
         if(isValid(robEntryMaybe) && robEntry.done)
         begin
-            commitTokenPort[commitCount].send(tagged Valid robEntry.token);
+            commitPort[count].send(tagged Valid robEntry.token);
             $display("Commit: Token: %0d @ Model: %0d", robEntry.token.index, modelCounter-1);
             if(robEntry.isBranch)
                 branchPred.upd(robEntry.addr, robEntry.prediction, robEntry.taken);
             if(robEntry.finished)
-                finishServer.makeResp(tagged RESP_DoneRunning correct);
-            if(robCount == fromInteger(valueOf(TSub#(CommitWidth,1))))
+                controller.makeResp(tagged RESP_DoneRunning robEntry.result);
+            if(count == fromInteger(valueOf(TSub#(CommitWidth,1))))
             begin
                 robState <= Update;
-                robCount <= 0;
+                count    <= 0;
             end
             else
-                robCount <= robCount + 1;
+                count    <= count + 1;
         end
         else
         begin
             for(Integer i = 0; i < valueOf(CommitWidth); i=i+1)
             begin
-                if(fromInteger(i) >= robCount)
-                    commitTokenPort[i].send(tagged Invalid);
+                if(fromInteger(i) >= count)
+                    commitPort[i].send(tagged Invalid);
             end
             robState <= Update;
-            robCount <= 0;
+            count    <= 0;
         end
     endrule
 
     rule update(robState == Update);
-        let execReceive <- execResultPort[robCount].receive();
-        let memAck      <- fpMemoryResp.receive();
-        robCount == robCount + 1;
-        if(isValid(execReceive))
+        let execResultMaybe  <- execResultPort[count].receive();
+        let memAck           <- fpMemoryResp.receive();
+        if(isValid(execResultMaybe))
         begin
-            match {.execResult, .instResult} = validValue(execReceive);
-            let robEntryMaybe = rob.read(execResult);
-            if(isValid(robEntryMaybe)) //robtag is valid and tokens match
+            let execResult    = validValue(execResultMaybe);
+            let robEntryMaybe = rob.read(execResult.robTag);
+            let robEntry      = validValue(robEntryMaybe);
+            if(isValid(robEntryMaybe) && robEntry.token == execResult.token)
             begin
-                let robEntry = validValue(robEntryMaybe);
-                match {.branchTaken, .branchAddr, .finished, .result} = case (instResult) matches
+                match {.branchTaken, .branchAddr, .finished, .result} = case (execResult.instResult) matches
                                                                             tagged RBranchTaken .addr: tuple4(True, addr, False, False);
                                                                             tagged RTerminate .result: tuple4(False, 0, True, result);
                                                                         endcase;
-                let newRobEntry = robEntry;
-                newRobEntry.taken = branchTaken;
-                newRobEntry.finished = finished;
-                rob.write(newRobEntry);
+                let newRobEntry              = robEntry;
+                newRobEntry.taken            = branchTaken;
+                newRobEntry.finished         = finished;
+                newRobEntry.result           = result;
+                rob.write(execResult.robTag, newRobEntry);
 
-                pRegFile[exec.pRName] <= False;
-                freeListFreeCount <= freeListFreeCount + 1;
+                pRegFile[execResult.pRName] <= False;
+                freeListFreeCount           <= freeListFreeCount + 1;
 
-                if(robEntry.isBranch || robEntry.isJR)
-                    branchStack.remove(robEntry.branchIndex);
-
-                if(robEntry.isBranch && robEntry.prediction != taken || robEntry.isJR && robEntry.predAddr != newAddr)
+                if(robEntry.isBranch && robEntry.prediction != branchTaken || robEntry.isJR && robEntry.predAddr != branchAddr)
                 begin
-                    fpRewindToToken.send(token);
-                    rob.updateTail(exec.robTag);
-                    killInstBuffer     <= True;
-                    nextKillInstBuffer <= True;
-                    mispredictPC       <= tagged Valid newAddr;
-                    $display("Branch mispredicted @ Model: %0d. Correct address: %x", modelCounter-1, newAddr);
+                    fpRewindToToken.send(execResult.token);
+                    rob.updateTail(execResult.robTag);
+                    branchStack.resolveWrong(robEntry.token);
+                    killInstBuffer          <= True;
+                    nextKillInstBuffer      <= True;
+                    mispredictPC            <= tagged Valid branchAddr;
+                    $display("Branch mispredicted @ Model: %0d. Correct address: %x", modelCounter-1, branchAddr);
                 end
+                else if(robEntry.isBranch || robEntry.isJR)
+                    branchStack.resolveRight(robEntry.token);
             end
             else
-                killRobStage(exec.token);
+                killRobStage(execResult.token);
+            count <= count + 1;
         end
-        if(robCount == fromInteger(valueOf(TSub#(NumFuncUnits,1))))
+        if(count == fromInteger(valueOf(TSub#(NumFuncUnits,1))))
         begin
             robState <= Decode;
-            robCount <= 0;
+            count <= 0;
         end
     endrule
 
-    let currInst                  = instBuffer.first();
-    let currDepInfo               = decodeBuffer.first();
-    match {.currToken, .currAddr} = tokenAddrBuffer.first();
-
-    let src1Valid = isValid(currDepInfo.dep_src1);
-    let src1      = tpl_2(validValue(currDepInfo.dep_src1));
-    let src2Valid = isValid(currDepInfo.dep_src2);
-    let src2      = tpl_2(validValue(currDepInfo.dep_src2));
-    let dest      = tpl_2(validValue(currDepInfo.dep_dest));
-
-    let src1Ready = src1Valid? !pRegFile[src1]: True;
-    let src2Ready = src2Valid? !pRegFile[src2]: True;
-
-    rule decodeInst(decodeState == Decoding && !killInstBuffer && !realDecodeDone && tokenAddrBuffer.notEmpty() && decodeCount != fromInteger(valueOf(FetchWidth)));
-        let branchPredAddr = branchPred.getPredAddr(currAddr);
-        let jumpPredAddr   = targetBuffer.first();
-        RobEntry res = RobEntry{token: currToken, addr: currAddr, done: False, finished: False,
-                                isBranch: False, prediction: isValid(branchPredAddr), taken: False,
-                                isJR: False, predAddr: jumpPredAddr};
-        IssueEntry issue = IssueEntry{issueType: Normal,
-                                      token: currToken, robTag: rob.getTail(),
-                                      src1Ready: src1Ready, src1: src1,
-                                      src2Ready: src2Ready, src2: src2,
-                                      dest: dest};
-        Bool doCommonDecode = ?;
-        if(!rob.notFull())
+    rule decode(robState == Decode && !killInstBuffer);
+        if(!instBuffer.notEmpty())
         begin
-            realDecodeDone <= True;
-            doCommonDecode  = False;
-        end
-        else if(isALU(currInst))
-        begin
-            if(freeListFreeCount != 0 && intQFreeCount != 0)
-            begin
-                if(isShift(currInst))
-                    issue.issueType = Shift;
-                freeListFreeCount <= freeListFreeCount + 1;
-                intQFreeCount     <= intQFreeCount - 1;
-                pRegFile[dest]    <= True;
-                doCommonDecode     = True;
-            end
-            else
-            begin
-                realDecodeDone <= True;
-                doCommonDecode  = False;
-            end
-        end
-        else if(isLoad(currInst))
-        begin
-            if(freeListFreeCount != 0 && memQFreeCount != 0)
-            begin
-                issue.issueType    = Load;
-                freeListFreeCount <= freeListFreeCount + 1;
-                memQFreeCount     <= memQFreeCount - 1;
-                pRegFile[dest]    <= True;
-                doCommonDecode     = True;
-            end
-            else
-            begin
-                realDecodeDone <= True;
-                doCommonDecode  = False;
-            end
-        end
-        else if(isStore(currInst))
-        begin
-            if(memQFreeCount != 0)
-            begin
-                issue.issueType    = Store;
-                memQFreeCount     <= memQFreeCount - 1;
-                doCommonDecode     = True;
-            end
-            else
-            begin
-                realDecodeDone <= True;
-                doCommonDecode  = False;
-            end
-        end
-        else if(isBranch(currInst))
-        begin
-            if(intQFreeCount != 0)// && branchCount != 0)
-            begin
-                $display("branchCount @ branch %0d", branchCount-1);
-                issue.issueType = Branch;
-                res.isBranch    = True;
-                intQFreeCount  <= intQFreeCount - 1;
-                branchCount    <= branchCount - 1;
-                predictedPC    <= branchPredAddr;
-                realDecodeDone     <= True;
-                if(isValid(branchPredAddr))
-                begin
-                    nextKillInstBuffer <= True;
-                    killInstBuffer     <= True;
-                end
-                doCommonDecode  = True;
-            end
-            else
-            begin
-                realDecodeDone <= True;
-                doCommonDecode  = False;
-            end
-        end
-        else if(isJ(currInst))
-        begin
-            issue.issueType     = J;
-            predictedPC        <= tagged Valid getJAddr(currInst, currAddr);
-            realDecodeDone     <= True;
-            nextKillInstBuffer <= True;
-            killInstBuffer     <= True;
-            doCommonDecode      = True;
-        end
-        else if(isJAL(currInst))
-        begin
-            if(freeListFreeCount != 0)
-            begin
-                issue.issueType     = JAL;
-                freeListFreeCount  <= freeListFreeCount - 1;
-                let newPC           = getJALAddr(currInst, currAddr);
-                predictedPC        <= tagged Valid newPC;
-                targetBuffer.enq(currAddr+4);
-                realDecodeDone     <= True;
-                nextKillInstBuffer <= True;
-                killInstBuffer     <= True;
-                doCommonDecode      = True;
-            end
-            else
-            begin
-                realDecodeDone <= True;
-                doCommonDecode  = False;
-            end
-        end
-        else if(isJR(currInst))
-        begin
-            if(intQFreeCount != 0 && branchCount != 0)
-            begin
-                issue.issueType     = JR;
-                res.isJR            = True;
-                intQFreeCount      <= intQFreeCount - 1;
-                branchCount        <= branchCount - 1; 
-                predictedPC <= tagged Valid jumpPredAddr;
-                targetBuffer.deq();
-                realDecodeDone     <= True;
-                nextKillInstBuffer <= True;
-                killInstBuffer     <= True;
-                doCommonDecode      = True;
-            end
-            else
-            begin
-                realDecodeDone <= True;
-                doCommonDecode  = False;
-            end
-        end
-        else if(isJALR(currInst) && branchCount != 0)
-        begin
-            if(freeListFreeCount != 0 && intQFreeCount != 0)
-            begin
-                issue.issueType     = JALR;
-                res.isJR            = True;
-                freeListFreeCount  <= freeListFreeCount - 1;
-                intQFreeCount      <= intQFreeCount - 1;
-                branchCount        <= branchCount - 1;
-                predictedPC        <= tagged Valid jumpPredAddr;
-                targetBuffer.deq();
-                targetBuffer.enq(currAddr+4);
-                realDecodeDone     <= True;
-                nextKillInstBuffer <= True;
-                killInstBuffer     <= True;
-                doCommonDecode      = True;
-            end
-            else
-            begin
-                realDecodeDone <= True;
-                doCommonDecode  = False;
-            end
-        end
-
-        if(doCommonDecode)
-        begin
-            decodeCount     <= decodeCount + 1;
-            instBufferCount <= instBufferCount-1;
-            $display("Decode Decode: instBufferCount: %0d", instBufferCount+1);
-
-            rob.writeTail(res);
-            issuePort[decodeCount].send(tagged Valid issue);
-
-            tokenAddrBuffer.deq();
-            instBuffer.deq();
-            decodeBuffer.deq();
-            $display("Decode : Token: %0d, addr: %x, type: %0d @ Model: %0d, res.isBranch: %0d", currToken.index, currAddr, issue.issueType, modelCounter-1, res.isBranch);
-        end
-    endrule
-
-    rule noInstInInstBuffer(decodeState == Decoding && !killInstBuffer && !realDecodeDone && !tokenAddrBuffer.notEmpty() && fetchState == FetchDone);
-        realDecodeDone <= True;
-    endrule
-
-    rule decodeDone(decodeState == Decoding && !killInstBuffer && (realDecodeDone || decodeCount == fromInteger(valueOf(FetchWidth))));
-        decodeState <= DecodeDone;
-    endrule
-
-    rule fillIssueQueues(decodeState == Decoding && realDecodeDone);
-        for(FetchCount i = 0; i != fromInteger(valueOf(FetchWidth)); i=i+1)
-        begin
-            if(i >= decodeCount)
-                issuePort[i].send(tagged Invalid);
-        end
-    endrule
-
-    rule decodeKillInstBuffer(decodeState == Decoding && killInstBuffer);
-        if(tokenAddrBuffer.notEmpty())
-        begin
-            tokenAddrBuffer.deq();
-            instBuffer.deq();
-            instBufferCount <= instBufferCount-1;
-            decodeBuffer.deq();
-            killDecodeStage(tpl_1(tokenAddrBuffer.first()));
+            if(fetchState == FetchDone)
+                robState <= RobDone;
         end
         else
         begin
-            killInstBuffer <= nextKillInstBuffer;
-            decodeState    <= DecodeDone;
+            let currBuffer  = instBuffer.first();
+            let currDepInfo = decodeBuffer.first();
+            let currInst    = currBuffer.inst;
+            let currToken   = currBuffer.token;
+            let currAddr    = currBuffer.addr;
+
+            let src1Valid   = isValid(currDepInfo.dep_src1);
+            let src1        = tpl_2(validValue(currDepInfo.dep_src1));
+            let src2Valid   = isValid(currDepInfo.dep_src2);
+            let src2        = tpl_2(validValue(currDepInfo.dep_src2));
+            let dest        = tpl_2(validValue(currDepInfo.dep_dest));
+
+            let src1Ready   = src1Valid? !pRegFile[src1]: True;
+            let src2Ready   = src2Valid? !pRegFile[src2]: True;
+
+            let branchPredAddr = branchPred.getPredAddr(currAddr);
+            let jumpPredAddr   = targetBuffer.first();
+            RobEntry res = RobEntry{token: currToken, addr: currAddr, done: False, finished: False, result: False,
+                                    isBranch: False, prediction: isValid(branchPredAddr), taken: False,
+                                    isJR: False, predAddr: jumpPredAddr};
+            IssueEntry issue = IssueEntry{issueType: Normal,
+                                          token: currToken, robTag: rob.getTail(),
+                                          src1Ready: src1Ready, src1: src1,
+                                          src2Ready: src2Ready, src2: src2,
+                                          dest: dest};
+
+            IssueType issueType = getIssueType(bitsToInst(inst));
+
+            let freeList     = isALU(currInst) || isLoad(currInst) || isJAL(currInst) || isJALR(currInst);
+            let intQ         = isALU(currInst) || isBranch(currInst) || isJR(currInst) || isJALR(currInst);
+            let memQ         = isLoad(currInst) || isStore(currInst);
+            let isB          = isBranch(currInst);
+            let isJwithR     = isJR(currInst) || isJALR(currInst);
+            let branchStk    = isB || isJwithR;
+            let targBuffEnq  = isJAL(currInst) || isJALR(currInst);
+            let targBuffDeq  = isJwithR;
+
+            Maybe#(Addr) newPredictedPC = case (issueType)
+                                              Branch: return branchPredAddr;
+                                              J     : return tagged Valid getJAddr(currInst, currAddr);
+                                              JAL   : return tagged Valid getJALAddr(currInst, currAddr);
+                                              JR    : return tagged Valid jumpPredAddr;
+                                              JALR  : return tagged Valid jumpPredAddr;
+                                              default: return tagged Invalid;
+                                          endcase;
+            
+            let doDecode = !rob.notFull() ||
+                            freeList && freeListFreeCount == 0 ||
+                            intQ && intQFreeCount == 0 ||
+                            memQ && memQFreeCount == 0 ||
+                            branchStk && !branchStack.notFull() ||
+                            targBuffEnq && !targetBuffer.notFull();
+
+            let killInst = isB && isValid(branchPredAddr) || isJ(currInst) || isJAL(currInst) || isJR(currInst) || isJALR(currInst);
+
+            res.isBranch = isB;
+            res.isJR     = isJwithR;
+
+            issue.issueType = issueType;
+
+            if(doDecode)
+            begin
+                count <= count + 1;
+                instBufferCount <= instBufferCount - 1;
+                if(freeList) freeListFreeCount <= freeListFreeCount - 1;
+                if(intQ)     intQFreeCount     <= intQFreeCount - 1;
+                if(memQ)     memQFreeCount     <= memQFreeCount - 1;
+                if(branchStk) branchStack.add(currToken);
+                if(targBuffEnq) targetBuffer.enq(currAddr+4);
+                if(targBuffDeq) targetBuffer.deq();
+
+                if(killInst)
+                begin
+                    killInstBuffer     <= True;
+                    nextKillInstBuffer <= True;
+                end
+
+                rob.writeTail(res);
+                issuePort[count].send(tagged Valid issue);
+
+                instBuffer.deq();
+                decodeBuffer.deq();
+
+                predictedPC <= newPredictedPC;
+
+                $display("Decode : Token: %0d, addr: %x, type: %0d @ Model: %0d, res.isBranch: %0d", currToken.index, currAddr, issue.issueType, modelCounter-1, res.isBranch);
+            end
+
+            if(!doDecode || killInst)
+            begin
+                for(Integer i = 0; i != valueOf(FetchWidth); i=i+1)
+                begin
+                    if(fromInteger(i) >= count)
+                        issuePort[i].send(tagged Invalid);
+                end
+            end
+
+            if(!doDecode || count == fromInteger(valueOf(TSub#(FetchWidth,1))))
+                robState <= RobDone;
+        end
+    endrule
+
+    rule decodeKillInstBuffer(robState == Decode && killInstBuffer);
+        if(!instBuffer.notEmpty())
+        begin
+            if(fetchState == FetchDone)
+            begin
+                killInstBuffer <= nextKillInstBuffer;
+                robState       <= RobDone;
+            end
+        end
+        else
+        begin
+            instBuffer.deq();
+            decodeBuffer.deq();
+            instBufferCount <= instBufferCount-1;
+            killDecodeStage((instBuffer.first()).token);
         end
     endrule
 endmodule

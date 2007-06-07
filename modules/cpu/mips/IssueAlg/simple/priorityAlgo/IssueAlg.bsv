@@ -76,11 +76,11 @@ module mkIssueAlg(IssueAlg);
             intIssueState <= IntIssueDone;
         else
         begin
-            let issueEntry   <- intQ.readResp();
+            let issueEntry    = intQ.read();
             let validEntry    = validValue(issueEntry);
             let execEntry     = getExecEntry(validEntry);
             let newIssueEntry = getNewIssueEntry(validEntry);
-            let newWriteEntry = newIssueEntry;
+            let newWriteEntry = tagged Valid newIssueEntry;
             if(isValid(issueEntry))
             begin
                 if(isAllReady(newIssueEntry))
@@ -125,7 +125,7 @@ module mkIssueAlg(IssueAlg);
         memIssueState <= MemIssueDone;
         if(!memQ.isLast())
         begin
-            let issueEntry   <- memQ.readResp();
+            let issueEntry    = memQ.read();
             let validEntry    = validValue(issueEntry);
             let execEntry     = getExecEntry(validEntry);
             let newIssueEntry = getNewIssueEntry(validEntry);

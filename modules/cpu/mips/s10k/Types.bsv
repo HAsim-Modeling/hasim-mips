@@ -35,3 +35,15 @@ typedef struct {
     RobTag robTag;
 } ExecEntry deriving (Bits, Eq);
 
+typedef struct {
+    Token token;
+    PRName pRName;
+    RobTag robTag;
+    InstResult instResult;
+} ExecResult deriving (Bits, Eq);
+
+typedef struct {
+    Token token;
+    Addr addr;
+    PackedInst inst;
+} InstInfo deriving (Bits, Eq);

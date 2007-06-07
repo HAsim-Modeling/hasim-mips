@@ -1,8 +1,8 @@
 import hasim_isa::*;
 
-import FIFO::*;
+import FIFOF::*;
 
-module mkTargetBuffer#(Addr startAddr)(FIFO#(Addr));
+module mkTargetBuffer#(Addr startAddr)(FIFOF#(Addr));
     Reg#(Addr) addr <- mkReg(startAddr);
 
     method Action enq(Addr _addr);
@@ -19,6 +19,14 @@ module mkTargetBuffer#(Addr startAddr)(FIFO#(Addr));
 
     method Action clear();
         noAction;
+    endmethod
+
+    method Bool notFull();
+        return True;
+    endmethod
+
+    method Bool notEmpty();
+        return True;
     endmethod
 endmodule
 
