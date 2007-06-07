@@ -80,7 +80,7 @@ module mkIssueAlg(IssueAlg);
             let validEntry    = validValue(issueEntry);
             let execEntry     = getExecEntry(validEntry);
             let newIssueEntry = getNewIssueEntry(validEntry);
-            let newWriteEntry = ?;
+            let newWriteEntry = newIssueEntry;
             if(isValid(issueEntry))
             begin
                 if(isAllReady(newIssueEntry))
@@ -109,11 +109,11 @@ module mkIssueAlg(IssueAlg);
                                 newAlu2 <= tagged Valid validEntry.dest;
                         end
                     end
-                    else
-                        newWriteEntry = tagged Valid newIssueEntry;
+                    //else
+                        //newWriteEntry = tagged Valid newIssueEntry;
                 end
-                else
-                    newWriteEntry = tagged Valid newIssueEntry;
+                //else
+                    //newWriteEntry = tagged Valid newIssueEntry;
             end
             else
                 newWriteEntry = tagged Invalid;
