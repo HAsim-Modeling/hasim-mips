@@ -1,4 +1,3 @@
-import fpga_components::*;
 import hasim_common::*;
 import hasim_isa::*;
 
@@ -7,15 +6,12 @@ import GetPut::*;
 
 import hasim_cpu_parameters::*;
 import hasim_cpu_types::*;
-import hasim_issue_alg::*;
+import hasim_cpu_issueAlg::*;
 
 typedef enum {Issue, IssueDone} IssueState deriving (Bits, Eq);
 typedef enum {Dispatch, DispatchDone} DispatchState deriving (Bits, Eq);
 
-module [HASim_Module] mkPipe_Issue
-    //interface:
-                ();
-		
+module [HASim_Module] mkIssue();
     function sendFunctionM(String str, Integer i) = mkPort_Send(strConcat(str, fromInteger(i)));
 
     function receiveFunctionM(String str, Integer i) = mkPort_Receive(strConcat(str, fromInteger(i)), 1);
