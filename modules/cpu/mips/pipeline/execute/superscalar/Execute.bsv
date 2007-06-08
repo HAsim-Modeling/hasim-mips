@@ -9,7 +9,10 @@ import hasim_cpu_types::*;
 
 typedef enum {Exec, Done} State deriving (Bits, Eq);
 
-module [HASim_Module] mkExecute();
+module [HASim_Module] mkPipe_Execute
+    //interface:
+                ();
+
     function sendFunctionM(String str, Integer i) = mkPort_Send(strConcat(str, fromInteger(i)));
 
     function receiveFunctionM(String str, Integer i) = mkPort_Receive(strConcat(str, fromInteger(i)), 1);

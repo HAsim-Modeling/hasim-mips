@@ -20,7 +20,7 @@ typedef enum
   FET_State
     deriving (Eq, Bits);
 
-module [HASim_Module] mk5stage_FET#(CommandCenter cc)
+module [HASim_Module] mkPipe_Fetch#(CommandCenter cc)
     //interface:
                 ();
 

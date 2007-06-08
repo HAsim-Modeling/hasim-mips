@@ -9,7 +9,10 @@ interface BranchPred;
     method Bool getPredAddr(Addr addr);
 endinterface
 
-module mkBranchPred(BranchPred);
+module mkBranchPred
+    //interface:
+                (BranchPred);
+		
     RegFile#(BranchIndex, Bool) branchRegFile <- mkRegFileFull();
 
     method Action upd(Addr addr, Bool pred, Bool actual);

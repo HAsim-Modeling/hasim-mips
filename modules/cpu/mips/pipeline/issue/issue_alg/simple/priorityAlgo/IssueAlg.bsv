@@ -20,7 +20,10 @@ endinterface
 typedef enum {IntIssue, IntIssueDone} IntIssueState deriving (Bits, Eq);
 typedef enum {MemIssue, MemIssueDone} MemIssueState deriving (Bits, Eq);
 
-module mkIssueAlg(IssueAlg);
+module mkIssueAlg
+    //interface:
+                (IssueAlg);
+		
     Vector#(NumFuncUnits, Reg#(Maybe#(ExecEntry))) issueVals <- replicateM(mkReg(tagged Invalid));
     IssueQ#(IntQCount)                                  intQ <- mkIssueQ();
     IssueQ#(MemQCount)                                  memQ <- mkIssueQ();

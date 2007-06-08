@@ -20,7 +20,7 @@ typedef struct {
     Addr predAddr;
 } RobEntry deriving (Bits, Eq);
 
-interface Rob;
+interface ROB;
     method ActionValue#(Maybe#(RobEntry)) readHead();
     method Maybe#(RobEntry) read(RobTag robTag);
     method Action write(RobTag robTag, RobEntry robEntry);
@@ -30,7 +30,10 @@ interface Rob;
     method Bool notFull();
 endinterface
 
-module mkRob(Rob);
+module mkROB
+    //interface:
+                (ROB);
+		
     RegFile#(Bit#(TLog#(RobCount)), RobEntry) robFile <- mkRegFileFull();
     Reg#(RobTag) head <- mkReg(0);
     Reg#(RobTag) tail <- mkReg(0);

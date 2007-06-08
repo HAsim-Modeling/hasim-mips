@@ -7,7 +7,7 @@ import hasim_command_center::*;
 
 typedef TokEpoch Epoch;
 
-module [HASim_Module] mk5stage_EXE#(CommandCenter cc)
+module [HASim_Module] mkPipe_Execute#(CommandCenter cc)
     //interface:
                 ();
   

@@ -15,8 +15,11 @@ interface IssueQ#(numeric type qCount);
     method QCountType#(qCount) getCount();
 endinterface
 
-module mkIssueQ(IssueQ#(qCount))
-    provisos(Add#(positive, TLog#(qCount), TLog#(TAdd#(qCount,1))));
+module mkIssueQ
+    //interface:
+                (IssueQ#(qCount))
+    provisos 
+            (Add#(positive, TLog#(qCount), TLog#(TAdd#(qCount,1))));
 
     Reg#(QCountType#(qCount))  head <- mkReg(0);
     Reg#(QCountType#(qCount)) count <- mkReg(0);

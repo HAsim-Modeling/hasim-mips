@@ -4,12 +4,12 @@ import hasim_pipe_fetch::*;
 import hasim_pipe_decode::*;
 import hasim_pipe_issue::*;
 import hasim_pipe_execute::*;
-import hasim_pipe_commit::*;
+import hasim_pipe_writeback::*;
 
 module [HASim_Module] mkCPU();
-    let fetch   <- mkFetch();
-    let decode  <- mkDecode();
-    let issue   <- mkIssue();
-    let execute <- mkExecute();
-    let commit  <- mkCommit();
+    let fetch   <- mkPipe_Fetch();
+    let decode  <- mkPipe_Decode();
+    let issue   <- mkPipe_Issue();
+    let execute <- mkPipe_Execute();
+    let commit  <- mkPipe_Writeback();
 endmodule

@@ -7,7 +7,10 @@ import Vector::*;
 import hasim_cpu_parameters::*;
 import hasim_cpu_types::*;
 
-module [HASim_Module] mkCommit();
+module [HASim_Module] mkPipe_Writeback
+    //interface:
+                ();
+
     function sendFunctionM(String str, Integer i) = mkPort_Send(strConcat(str, fromInteger(i)));
 
     function receiveFunctionM(String str, Integer i) = mkPort_Receive(strConcat(str, fromInteger(i)), 1);

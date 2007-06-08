@@ -19,11 +19,11 @@ module [HASim_Module] mkCPU
   Connection_Server#(Command, Response)  link_controller <- mkConnection_Server("controller_to_tp");
   Reg#(Bool) ran <- mkReg(False);
 
-  let fet <- mk5stage_FET(cc);
-  let dec <- mk5stage_DEC(cc);
-  let exe <- mk5stage_EXE(cc);
-  let mem <- mk5stage_MEM(cc);
-  let wb  <- mk5stage_WB(cc);
+  let fet <- mkPipe_Fetch(cc);
+  let dec <- mkPipe_Decode(cc);
+  let exe <- mkPipe_Execute(cc);
+  let mem <- mkPipe_Mem(cc);
+  let wb  <- mkPipe_Writeback(cc);
 
   rule startup (True);
   

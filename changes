@@ -1753,3 +1753,101 @@ Directory modules/cpu/mips
 Yet another intermediate checkin. Rearranging directories. Things will work again soon.
 
 Michael P.
+
+----------
+pellauer    Date: Fri Jun  8 15:12:55 EDT 2007  CSN: CSN-hasim-mips-89
+                  Fri Jun  8 19:12:55 UTC 2007
+
+
+Directory modules/cpu/mips
+ Decode/                   Locally Removed            87 
+
+Directory modules/cpu/mips/s10k
+ Decode/                   Locally Removed            87 
+ Issue/                    Locally Removed            87 
+
+Directory modules/cpu/mips/IssueAlg
+ simple/                   Locally Removed            87 
+
+Directory modules/cpu/mips/IssueAlg/simple
+ unguardedQ/               Locally Removed            87 
+
+Directory modules/cpu/mips/IssueAlg/simple/unguardedQ
+ IssueQ.awb                Locally Removed            87 
+ IssueQ.bsv                Locally Removed            87 
+
+Directory modules/cpu/mips/IssueAlg/simple
+ priorityAlgo/             Locally Removed            87 
+
+Directory modules/cpu/mips/IssueAlg/simple/priorityAlgo
+ IssueAlg.awb              Locally Removed            87 
+ IssueAlg.bsv              Locally Removed            87 
+
+Directory modules/cpu/mips
+ IssueAlg/                 Locally Removed            87 
+
+Directory modules/cpu/mips/branch/target_buffer/oneEntry
+ TargetBuffer.bsv          Locally Modified           88 
+
+Directory modules/cpu/mips/branch/target_buffer/multiEntry
+ TargetBuffer.bsv          Locally Modified           88 
+
+Directory modules/cpu/mips/branch/stack/infinite
+ BranchStack.bsv           Locally Modified           88 
+
+Directory modules/cpu/mips/branch/predictor/notTaken
+ BranchPred.bsv            Locally Modified           88 
+
+Directory modules/cpu/mips/branch/predictor/simple
+ BranchPred.bsv            Locally Modified           88 
+
+Directory modules/cpu/mips/command_center
+ CommandCenter.bsv         Locally Modified           87 
+
+Directory modules/cpu/mips
+ CPU.bsv                   Locally Modified           87 
+ SuperscalarCPU.bsv        Locally Modified           87 
+
+Directory modules/cpu/mips/pipeline/execute/superscalar
+ Execute.bsv               Locally Modified           88 
+
+Directory modules/cpu/mips/pipeline/execute/simple
+ Execute.bsv               Locally Modified           88 
+
+Directory modules/cpu/mips/pipeline
+ commit/                   Locally Removed            88 
+
+Directory modules/cpu/mips/pipeline/commit
+ superscalar/              Locally Removed            88 
+
+Directory modules/cpu/mips/pipeline/commit/superscalar
+ Commit.awb                Locally Removed            88 
+ Commit.bsv                Locally Removed            88 
+
+Directory modules/cpu/mips/pipeline/issue/s10k
+ Issue.bsv                 Locally Modified           88 
+
+Directory modules/cpu/mips/pipeline
+ Fetch/                    Locally Removed            88 
+
+Directory modules/cpu/mips/pipeline/Fetch
+ superscalar/              Locally Removed            88 
+
+Directory modules/cpu/mips/pipeline/Fetch/superscalar
+ Fetch.awb                 Locally Removed            88 
+ Fetch.bsv                 Locally Removed            88 
+
+Directory modules/cpu/mips/pipeline/Fetch
+ simple/                   Locally Removed            88 
+
+Directory modules/cpu/mips/pipeline/Fetch/simple
+ Fetch.bsv                 Locally Removed            88 
+ hasim_simple_fetch.awb    Locally Removed            88 
+
+Directory modules/cpu/mips/pipeline/mem/simple
+ Mem.bsv                   Locally Modified           88 
+
+
+Intermediate checkin. After this checkin things should be cleanly organized and only bugfixes remain.
+
+Michael P.

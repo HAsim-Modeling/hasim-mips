@@ -6,7 +6,7 @@ import hasim_command_center::*;
 
 `define DEC_Is_Bypassed True
 
-module [HASim_Module] mk5stage_DEC#(CommandCenter cc)
+module [HASim_Module] mkPipe_Decode#(CommandCenter cc)
     //interface:
                 ();
 

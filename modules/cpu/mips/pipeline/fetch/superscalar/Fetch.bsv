@@ -9,7 +9,10 @@ import hasim_cpu_parameters::*;
 
 typedef enum {Fetch, FetchDone} FetchState deriving (Bits, Eq);
 
-module [HASim_Module] mkFetch();
+module [HASim_Module] mkPipe_Fetch
+    //interface:
+                ();
+
     function sendFunctionM(String str, Integer i) = mkPort_Send(strConcat(str, fromInteger(i)));
 
     function receiveFunctionM(String str, Integer i) = mkPort_Receive(strConcat(str, fromInteger(i)), 1);

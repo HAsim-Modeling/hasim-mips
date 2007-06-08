@@ -5,7 +5,10 @@ interface BranchPred;
     method Bool getPredAddr(Addr addr);
 endinterface
 
-module mkBranchPred(BranchPred);
+module mkBranchPred
+    //interface:
+                (BranchPred);
+
     method Action upd(Addr addr, Bool pred, Bool actual);
         noAction;
     endmethod

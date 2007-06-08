@@ -2,7 +2,10 @@ import hasim_isa::*;
 
 import FIFOF::*;
 
-module mkTargetBuffer#(Addr startAddr)(FIFOF#(Addr));
+module mkTargetBuffer#(Addr startAddr)
+    //interface:
+                (FIFOF#(Addr));
+
     Reg#(Addr) addr <- mkReg(startAddr);
 
     method Action enq(Addr _addr);

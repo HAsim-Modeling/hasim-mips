@@ -7,7 +7,10 @@ interface BranchStack;
     method Bool notFull();
 endinterface
 
-module mkBranchStack(BranchStack);
+module mkBranchStack
+    //interface:
+                (BranchStack);
+
     method Action resolveWrong(Token token);
         noAction;
     endmethod

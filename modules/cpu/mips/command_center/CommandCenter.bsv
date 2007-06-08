@@ -14,7 +14,9 @@ interface CommandCenter;
   method Bool getPassFail();
 endinterface
 
-module mkCommandCenter (CommandCenter);
+module mkCommandCenter
+  //interface:
+              (CommandCenter);
 
   Reg#(Bool) r <- mkReg(False);
   Reg#(Bool) passed <- mkReg(False);

@@ -68,7 +68,10 @@ function IssueType getIssueType(Inst inst);
     endcase;
 endfunction
   
-module [HASim_Module] mkDecode();
+module [HASim_Module] mkPipe_Decode
+    //interface:
+                ();
+		
     function sendFunctionM(String str, Integer i) = mkPort_Send(strConcat(str, fromInteger(i)));
 
     function receiveFunctionM(String str, Integer i) = mkPort_Receive(strConcat(str, fromInteger(i)), 1);
@@ -125,7 +128,7 @@ module [HASim_Module] mkDecode();
     Reg#(Maybe#(Addr))                                  predictedPC <- mkReg(tagged Invalid);
     Reg#(Maybe#(Addr))                                 mispredictPC <- mkReg(tagged Invalid);
 
-    Rob                                                         rob <- mkRob();
+    Rob                                                         rob <- mkROB();
     Reg#(Vector#(PRNum, Bool))                             pRegFile <- mkReg(replicate(False));
     BranchPred                                           branchPred <- mkBranchPred();
     BranchStack                                         branchStack <- mkBranchStack();

@@ -18,7 +18,7 @@ typedef enum
   MEM_State
     deriving (Eq, Bits);
 
-module [HASim_Module] mk5stage_MEM#(CommandCenter cc)
+module [HASim_Module] mkPipe_Mem#(CommandCenter cc)
     //interface:
                 ();
   
