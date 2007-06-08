@@ -1631,3 +1631,125 @@ Directory modules/cpu/mips
 Another intermediate reorg. Merged 5stage and s10k structures. Almost done...
 
 Michael P.
+
+----------
+pellauer    Date: Fri Jun  8 14:57:58 EDT 2007  CSN: CSN-hasim-mips-88
+                  Fri Jun  8 18:57:58 UTC 2007
+
+
+Directory modules/cpu/mips
+ Fetch/                    Locally Removed            86 
+ Execute/                  Locally Removed            86 
+
+Directory modules/cpu/mips/BranchPred
+ notTaken/                 Locally Removed            86 
+
+Directory modules/cpu/mips/BranchPred/notTaken
+ BranchPred.awb            Locally Removed            86 
+ BranchPred.bsv            Locally Removed            86 
+
+Directory modules/cpu/mips/BranchPred
+ simple/                   Locally Removed            86 
+
+Directory modules/cpu/mips/BranchPred/simple
+ BranchPred.awb            Locally Removed            86 
+ BranchPred.bsv            Locally Removed            86 
+
+Directory modules/cpu/mips
+ BranchPred/               Locally Removed            86 
+
+Directory modules/cpu/mips/Writeback
+ simple/                   Locally Removed            87 
+
+Directory modules/cpu/mips/Writeback/simple
+ Writeback.bsv             Locally Removed            87 
+ hasim_simple_writeback.awb Locally Removed            87 
+
+Directory modules/cpu/mips
+ Writeback/                Locally Removed            87 
+
+Directory modules/cpu/mips/s10k/Decode
+ simple/                   Locally Removed            86 
+
+Directory modules/cpu/mips/s10k/Decode/simple
+ Decode.awb                Locally Removed            86 
+ Decode.bsv                Locally Removed            86 
+
+Directory modules/cpu/mips/s10k/Issue
+ simple/                   Locally Removed            86 
+
+Directory modules/cpu/mips/s10k/Issue/simple
+ Issue.awb                 Locally Removed            86 
+ Issue.bsv                 Locally Removed            86 
+
+Directory modules/cpu/mips/Mem
+ simple/                   Locally Removed            87 
+
+Directory modules/cpu/mips/Mem/simple
+ hasim_simple_mem.awb      Locally Removed            87 
+ Mem.bsv                   Locally Removed            87 
+
+Directory modules/cpu/mips
+ Mem/                      Locally Removed            87 
+
+Directory modules/cpu/mips/TargetBuffer
+ oneEntry/                 Locally Removed            86 
+
+Directory modules/cpu/mips/TargetBuffer/oneEntry
+ TargetBuffer.awb          Locally Removed            86 
+ TargetBuffer.bsv          Locally Removed            86 
+
+Directory modules/cpu/mips/TargetBuffer
+ multiEntry/               Locally Removed            86 
+
+Directory modules/cpu/mips/TargetBuffer/multiEntry
+ TargetBuffer.awb          Locally Removed            86 
+ TargetBuffer.bsv          Locally Removed            86 
+
+Directory modules/cpu/mips
+ TargetBuffer/             Locally Removed            86 
+
+Directory modules/cpu/mips/Rob
+ simple/                   Locally Removed            86 
+
+Directory modules/cpu/mips/Rob/simple
+ Rob.awb                   Locally Removed            86 
+ Rob.bsv                   Locally Removed            86 
+
+Directory modules/cpu/mips
+ Rob/                      Locally Removed            86 
+
+Directory modules/cpu/mips/BranchStack
+ infinite/                 Locally Removed            86 
+
+Directory modules/cpu/mips/BranchStack/infinite
+ BranchStack.awb           Locally Removed            86 
+ BranchStack.bsv           Locally Removed            86 
+
+Directory modules/cpu/mips
+ BranchStack/              Locally Removed            86 
+
+Directory modules/cpu/mips/Decode
+ hasim_simple_decode.awb   Locally Added               0 
+
+Directory modules/cpu/mips/Commit
+ superscalar/              Locally Removed            86 
+
+Directory modules/cpu/mips/Commit/superscalar
+ Commit.awb                Locally Removed            86 
+ Commit.bsv                Locally Removed            86 
+
+Directory modules/cpu/mips
+ Commit/                   Locally Removed            86 
+ branch/                   Locally Added               0 
+
+Directory modules/cpu/mips/pipeline
+ issue/                    Locally Added               0 
+
+Directory modules/cpu/mips
+ pipeline/                 Locally Added               0 
+
+
+Yet another intermediate checkin. Rearranging directories. Things will work again soon.
+
+Michael P.
