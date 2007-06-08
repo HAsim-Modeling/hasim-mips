@@ -1,5 +1,5 @@
-import hasim_isa::*;
 import hasim_common::*;
+import hasim_isa::*;
 
 import RegFile::*;
 import RWire::*;
@@ -11,8 +11,9 @@ typedef struct {
     Token token;
     Addr addr;
     Bool finished;
-    Bool result;
+    Bool status;
     Bool done;
+    BranchStackIndex branchIndex;
     Bool isBranch;
     Bool prediction;
     Bool taken;
@@ -20,38 +21,29 @@ typedef struct {
     Addr predAddr;
 } RobEntry deriving (Bits, Eq);
 
-interface ROB;
-    method ActionValue#(Maybe#(RobEntry)) readHead();
+interface Rob;
     method Maybe#(RobEntry) read(RobTag robTag);
     method Action write(RobTag robTag, RobEntry robEntry);
+    method Maybe#(RobEntry) readHead();
+    method Action incrementHead();
     method Action updateTail(RobTag robTab);
     method Action writeTail(RobEntry robEntry); //and increment
     method RobTag getTail();
     method Bool notFull();
 endinterface
 
-module mkROB
-    //interface:
-                (ROB);
-		
+module mkRob(Rob);
     RegFile#(Bit#(TLog#(RobCount)), RobEntry) robFile <- mkRegFileFull();
     Reg#(RobTag) head <- mkReg(0);
     Reg#(RobTag) tail <- mkReg(0);
 
-    Reg#(Bool) inc <- mkReg(False);
+    Reg#(Bool)    inc <- mkReg(False);
 
     PulseWire incrementHeadEn <- mkPulseWire();
     PulseWire updateTailEn    <- mkPulseWire();
 
-    Reg#(RobTag) anyReg  <- mkReg(?);
-    Reg#(RobTag) headReg <- mkReg(?);
-
-    Reg#(Bool) emptyReg  <- mkReg(?);
-
     let empty = head == tail && !inc;
     let full  = head == tail && inc;
-
-    let newHead = (head+1)%fromInteger(valueOf(RobCount));
 
     rule updateInc(incrementHeadEn || updateTailEn);
         inc <= False;
@@ -60,7 +52,7 @@ module mkROB
     method Maybe#(RobEntry) read(RobTag robTag);
         let valid = head < tail && robTag >= head && robTag < tail ||
                     head > tail && (robTag >= head || robTag < tail) ||
-                    full;
+                    !empty;
         if(valid)
             return tagged Valid robFile.sub(truncate(robTag));
         else
@@ -71,13 +63,14 @@ module mkROB
         robFile.upd(truncate(robTag), robEntry);
     endmethod
 
-    method ActionValue#(Maybe#(RobEntry)) readHead();
+    method Action incrementHead();
+        head <= (head + 1)%fromInteger(valueOf(RobCount));
+        incrementHeadEn.send();
+    endmethod
+
+    method Maybe#(RobEntry) readHead();
         if(!empty)
-        begin
-            head <= (head + 1)%fromInteger(valueOf(RobCount));
-            incrementHeadEn.send();
-            return tagged Valid robFile.sub(truncate(head));
-        end
+            return tagged Valid(robFile.sub(truncate(head)));
         else
             return tagged Invalid;
     endmethod
@@ -87,7 +80,7 @@ module mkROB
         updateTailEn.send();
     endmethod
 
-    method Action writeTail(RobEntry robEntry);
+    method Action writeTail(RobEntry robEntry); //and increment
         robFile.upd(truncate(tail), robEntry);
         tail <= (tail + 1)%fromInteger(valueOf(RobCount));
         inc  <= True;
