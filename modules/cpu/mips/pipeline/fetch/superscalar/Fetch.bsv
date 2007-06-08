@@ -1,4 +1,3 @@
-import fpga_components::*;
 import hasim_common::*;
 import hasim_isa::*;
 
@@ -9,10 +8,7 @@ import hasim_cpu_parameters::*;
 
 typedef enum {Fetch, FetchDone} FetchState deriving (Bits, Eq);
 
-module [HASim_Module] mkPipe_Fetch
-    //interface:
-                ();
-
+module [HASim_Module] mkFetch();
     function sendFunctionM(String str, Integer i) = mkPort_Send(strConcat(str, fromInteger(i)));
 
     function receiveFunctionM(String str, Integer i) = mkPort_Receive(strConcat(str, fromInteger(i)), 1);
@@ -21,7 +17,7 @@ module [HASim_Module] mkPipe_Fetch
     Connection_Receive#(Token)             fpTokenResp <- mkConnection_Receive("fp_tok_resp");
     Connection_Send#(Tuple2#(Token, Addr))  fpFetchReq <- mkConnection_Send("fp_fet_req");
 
-    Port_Receive#(FetchCount)      instBufferCountPort <- mkPort_Receive("decodeToFetchDecodeNum", 1);
+    Port_Receive#(FetchCount)            decodeNumPort <- mkPort_Receive("decodeToFetchDecodeNum", 1);
     Port_Receive#(Addr)             predictedTakenPort <- mkPort_Receive("decodeToFetchPredictedTaken", 1);
     Port_Receive#(Addr)                 mispredictPort <- mkPort_Receive("decodeToFetchMispredict", 1);
 
@@ -47,9 +43,9 @@ module [HASim_Module] mkPipe_Fetch
     rule synchronize(fetchState == FetchDone);
         modelCounter <= modelCounter + 1;
 
-        let  predictedTaken <- predictedTakenPort.receive();
-        let      mispredict <- mispredictPort.receive();
-        let instBufferCount <- instBufferCountPort.receive();
+        let predictedTaken <- predictedTakenPort.receive();
+        let     mispredict <- mispredictPort.receive();
+        let      decodeNum <- decodeNumPort.receive();
 
         if(isValid(mispredict))
             pc <= validValue(mispredict);
@@ -58,7 +54,7 @@ module [HASim_Module] mkPipe_Fetch
         else
             pc <= pc;
 
-        let newCount  = fromMaybe(fromInteger(valueOf(FetchWidth)), instBufferCount);
+        let newCount  = isValid(decodeNum)? validValue(decodeNum): fromInteger(valueOf(FetchWidth));
         totalCount   <= newCount;
         fetchPos     <= 0;
         $display("Fetch synchronize @ Model: %0d newCount: %0d", modelCounter, newCount);
