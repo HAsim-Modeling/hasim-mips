@@ -121,64 +121,15 @@ File=modules/memory/magic_memory.awb
 Packagehint=hasim-mips
 
 [Simple time-based priority issue queue]
-File=modules/cpu/mips/IssueAlg/simple/priorityAlgo/IssueAlg.awb
+File=modules/cpu/mips/pipeline/issue/issue_alg/simple/priorityAlgo/IssueAlg.awb
 Packagehint=hasim-mips
 
 [Simple time-based priority issue queue/Requires]
-hasim_cpu_issueQ=Simple unguarded queue, which supports out-of-order issue
-
-[Simple Execute module]
-File=modules/cpu/mips/Execute/simple/Execute.awb
-Packagehint=hasim-mips
+hasim_issueQ=Simple unguarded queue, which supports out-of-order issue
 
 [Simple unguarded queue, which supports out-of-order issue]
-File=modules/cpu/mips/IssueAlg/simple/unguardedQ/IssueQ.awb
+File=modules/cpu/mips/pipeline/issue/issue_alg/simple/unguardedQ/IssueQ.awb
 Packagehint=hasim-mips
-
-[SMIPS R10K simple Decode module]
-File=modules/cpu/mips/s10k/Decode/simple/Decode.awb
-Packagehint=hasim-mips
-
-[ROB module]
-File=modules/cpu/mips/Rob/simple/Rob.awb
-Packagehint=hasim-mips
-
-
-[SMIPS R10K simple Decode module/Requires]
-hasim_cpu_targetBuffer=Multi entry Target Buffer module
-hasim_cpu_branchPred=Always not taken Branch Predictor module
-hasim_cpu_rob=ROB module
-hasim_cpu_branchStack=Infinite entry Branch Stack module
-
-[SMIPS R10K simple Issue module/Requires]
-hasim_cpu_issueAlg=Simple time-based priority issue queue
-
-
-[SMIPS R10K Parameters module]
-File=modules/cpu/mips/s10k/Parameters.awb
-Packagehint=hasim-mips
-
-[SMIPS R10K simple Issue module]
-File=modules/cpu/mips/s10k/Issue/simple/Issue.awb
-Packagehint=hasim-mips
-
-[SMIPS R10K Types module]
-File=modules/cpu/mips/s10k/Types.awb
-Packagehint=hasim-mips
-
-[Simple Fetch module]
-File=modules/cpu/mips/Fetch/simple/Fetch.awb
-Packagehint=hasim-mips
-
-[Simple Commit module]
-File=modules/cpu/mips/Commit/simple/Commit.awb
-Packagehint=hasim-mips
-
-
-[Infinite entry Branch Stack module]
-File=modules/cpu/mips/BranchStack/infinite/BranchStack.awb
-Packagehint=hasim-mips
-
 
 [Hasim Common Library/Requires]
 hasim_fpgaenv=Hasim FPGA Environment
@@ -192,22 +143,67 @@ File=config/pm/hasim/submodels/fpgaenv/hasim-fpgaenv-xup.apm
 Packagehint=hasim
 
 [Superscalar CPU]
-File=modules/cpu/mips/superscaler_cpu.awb
-Packagehint=hasim-mips
-
-[Multi entry Target Buffer module]
-File=modules/cpu/mips/TargetBuffer/multiEntry/TargetBuffer.awb
-Packagehint=hasim-mips
-
-[Always not taken Branch Predictor module]
-File=modules/cpu/mips/BranchPred/notTaken/BranchPred.awb
+File=modules/cpu/mips/superscalar_cpu.awb
 Packagehint=hasim-mips
 
 [Superscalar CPU/Requires]
-hasim_cpu_fetch=Simple Fetch module
-hasim_cpu_execute=Simple Execute module
-hasim_cpu_commit=Simple Commit module
-hasim_cpu_types=SMIPS R10K Types module
-hasim_cpu_parameters=SMIPS R10K Parameters module
-hasim_cpu_issue=SMIPS R10K simple Issue module
-hasim_cpu_decode=SMIPS R10K simple Decode module
+hasim_cpu_types=SMIPS R10K Types
+hasim_cpu_parameters=SMIPS R10K Parameters
+hasim_pipe_writeback=Superscalar Writeback Stage
+hasim_pipe_execute=Superscalar Execute Stage
+hasim_pipe_issue=SMIPS R10K Superscalar Issue Stage
+hasim_pipe_fetch=Superscalar Fetch Stage
+hasim_pipe_decode=SMIPS R10K Superscalar Decode Stage
+
+[SMIPS R10K Parameters]
+File=modules/cpu/mips/s10k/Parameters.awb
+Packagehint=hasim-mips
+
+[Superscalar Writeback Stage]
+File=modules/cpu/mips/pipeline/writeback/superscalar/Commit.awb
+Packagehint=hasim-mips
+
+[SMIPS R10K Superscalar Issue Stage]
+File=modules/cpu/mips/pipeline/issue/s10k/Issue.awb
+Packagehint=hasim-mips
+
+[Superscalar Execute Stage]
+File=modules/cpu/mips/pipeline/execute/superscalar/Execute.awb
+Packagehint=hasim-mips
+
+[Superscalar Fetch Stage]
+File=modules/cpu/mips/pipeline/fetch/superscalar/Fetch.awb
+Packagehint=hasim-mips
+
+[SMIPS R10K Superscalar Issue Stage/Requires]
+hasim_issue_alg=Simple time-based priority issue queue
+
+[SMIPS R10K Types]
+File=modules/cpu/mips/s10k/Types.awb
+Packagehint=hasim-mips
+
+[Infinite Entry Branch Stack]
+File=modules/cpu/mips/branch/stack/infinite/BranchStack.awb
+Packagehint=hasim-mips
+
+[Always not taken Branch Predictor]
+File=modules/cpu/mips/branch/predictor/notTaken/BranchPred.awb
+Packagehint=hasim-mips
+
+[SMIPS R10K Superscalar Decode Stage]
+File=modules/cpu/mips/pipeline/decode/s10k/Decode.awb
+Packagehint=hasim-mips
+
+[SMIPS R10K Superscalar Decode Stage/Requires]
+hasim_branch_pred=Always not taken Branch Predictor
+hasim_rob=Superscalar ROB model
+hasim_branch_stack=Infinite Entry Branch Stack
+hasim_branch_target_buffer=Multi entry Target Buffer
+
+[Superscalar ROB model]
+File=modules/cpu/mips/pipeline/decode/s10k/rob/simple/Rob.awb
+Packagehint=hasim-mips
+
+[Multi entry Target Buffer]
+File=modules/cpu/mips/branch/target_buffer/multiEntry/TargetBuffer.awb
+Packagehint=hasim-mips

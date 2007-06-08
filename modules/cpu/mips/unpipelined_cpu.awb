@@ -7,13 +7,14 @@
 #/*
 # %AWB_START
 #
-# %name 5-stage pipeline Decode
-# %desc 5-stage pipeline Decode
-# %provides hasim_pipe_decode
+# %name Hasim Unpipelined CPU
+# %desc Hasim Unpipelined CPU
+# %provides hasim_cpu
 #
-# %attributes 5stage mips hasim
+# %attributes simple mips hasim
 #
-# %public Decode.bsv
+# %public UnpipelinedCPU.bsv
 #
 # %AWB_END
 # */
+

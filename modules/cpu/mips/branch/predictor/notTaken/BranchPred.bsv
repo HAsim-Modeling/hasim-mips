@@ -2,7 +2,7 @@ import hasim_isa::*;
 
 interface BranchPred;
     method Action upd(Addr addr, Bool pred, Bool actual);
-    method Bool getPredAddr(Addr addr);
+    method Maybe#(Addr) getPredAddr(Addr addr);
 endinterface
 
 module mkBranchPred
@@ -13,7 +13,7 @@ module mkBranchPred
         noAction;
     endmethod
 
-    method Bool getPredAddr(Addr addr);
-        return False;
+    method Maybe#(Addr) getPredAddr(Addr addr);
+        return Invalid;
     endmethod
 endmodule

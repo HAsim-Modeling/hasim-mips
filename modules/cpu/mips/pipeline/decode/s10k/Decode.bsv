@@ -128,7 +128,7 @@ module [HASim_Module] mkPipe_Decode
     Reg#(Maybe#(Addr))                                  predictedPC <- mkReg(tagged Invalid);
     Reg#(Maybe#(Addr))                                 mispredictPC <- mkReg(tagged Invalid);
 
-    Rob                                                         rob <- mkROB();
+    ROB                                                         rob <- mkROB();
     Reg#(Vector#(PRNum, Bool))                             pRegFile <- mkReg(replicate(False));
     BranchPred                                           branchPred <- mkBranchPred();
     BranchStack                                         branchStack <- mkBranchStack();
@@ -309,7 +309,7 @@ module [HASim_Module] mkPipe_Decode
             let src1Ready   = src1Valid? !pRegFile[src1]: True;
             let src2Ready   = src2Valid? !pRegFile[src2]: True;
 
-            let branchPredAddr = branchPred.getPredAddr(currAddr);
+            Maybe#(Addr) branchPredAddr = branchPred.getPredAddr(currAddr);
             let jumpPredAddr   = targetBuffer.first();
             RobEntry res = RobEntry{token: currToken, addr: currAddr, done: False, finished: False, result: False,
                                     isBranch: False, prediction: isValid(branchPredAddr), taken: False,

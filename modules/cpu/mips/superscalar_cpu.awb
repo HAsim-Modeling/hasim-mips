@@ -17,7 +17,7 @@
 # %requires hasim_pipe_decode
 # %requires hasim_pipe_issue
 # %requires hasim_pipe_execute
-# %requires hasim_pipe_commit
+# %requires hasim_pipe_writeback
 #
 # %attributes mips hasim
 # 

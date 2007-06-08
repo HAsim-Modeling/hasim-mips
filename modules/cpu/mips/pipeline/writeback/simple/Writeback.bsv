@@ -4,7 +4,7 @@ import hasim_isa::*;
 
 import hasim_command_center::*;
 
-module [HASim_Module] mk5stage_WB#(CommandCenter cc)
+module [HASim_Module] mkPipe_Writeback#(CommandCenter cc)
     //interface:
                 ();
 

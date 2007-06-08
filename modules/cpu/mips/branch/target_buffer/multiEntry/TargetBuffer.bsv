@@ -7,7 +7,7 @@ typedef 4 BufferSize;
 
 module mkTargetBuffer#(Addr startAddr)
     //interface:
-                (FIFO#(Addr));
+                (FIFOF#(Addr));
 
     FIFOF#(Addr) addrFifo <- mkSizedFIFOF(valueOf(BufferSize));
 

@@ -10,6 +10,7 @@
 # %name 5-stage pipeline Fetch
 # %desc 5-stage pipeline Fetch
 # %provides hasim_pipe_fetch
+# %requires hasim_branch_pred
 #
 # %attributes 5stage mips hasim
 #

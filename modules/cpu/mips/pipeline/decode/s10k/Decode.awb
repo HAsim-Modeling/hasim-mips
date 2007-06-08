@@ -11,7 +11,7 @@
 # %desc SMIPS R10K Superscalar Decode Stage
 # %provides hasim_pipe_decode
 #
-# %requires hasim_rob hasim_branch_pred hasim_target_buffer hasim_branch_stack
+# %requires hasim_rob hasim_branch_pred hasim_branch_target_buffer hasim_branch_stack
 #
 # %attributes s10k mips hasim
 #

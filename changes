@@ -1851,3 +1851,49 @@ Directory modules/cpu/mips/pipeline/mem/simple
 Intermediate checkin. After this checkin things should be cleanly organized and only bugfixes remain.
 
 Michael P.
+
+----------
+pellauer    Date: Fri Jun  8 18:14:45 EDT 2007  CSN: CSN-hasim-mips-90
+                  Fri Jun  8 22:14:45 UTC 2007
+
+
+Directory modules/cpu/mips/pipeline/writeback/simple
+ Writeback.bsv             Locally Modified           88 
+
+Directory modules/cpu/mips/pipeline/decode
+ hasim_simple_decode.awb   Locally Removed            89 
+
+Directory modules/cpu/mips/pipeline/decode/s10k
+ Decode.awb                Locally Modified           89 
+ Decode.bsv                Locally Modified           89 
+
+Directory modules/cpu/mips/pipeline/fetch/simple
+ hasim_simple_fetch.awb    Locally Modified           89 
+
+Directory modules/cpu/mips/branch/target_buffer/multiEntry
+ TargetBuffer.bsv          Locally Modified           89 
+
+Directory modules/cpu/mips/branch/predictor/notTaken
+ BranchPred.bsv            Locally Modified           89 
+
+Directory modules/cpu/mips
+ unpipelined_cpu.awb       Locally Added               0 
+ UnpipelinedCPU.bsv        Locally Added               0 
+ superscalar_cpu.awb       Locally Modified           88 
+
+Directory config/pm/hasim-mips/smips-5stage
+ hasim_smips_5stage_ports_reorg.apm Locally Modified           88 
+
+Directory config/pm/hasim-mips
+ smips-unpipelined/        Locally Added               0 
+
+Directory config/pm/hasim-mips/smips-unpipelined
+ hasim_smips_unpipelined.apm Locally Added               0 
+
+Directory config/pm/hasim-mips/s10k
+ s10k.apm                  Locally Modified           88 
+
+
+Everything should work now, with the new reorganization.
+
+Michael
