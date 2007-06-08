@@ -1897,3 +1897,24 @@ Directory config/pm/hasim-mips/s10k
 Everything should work now, with the new reorganization.
 
 Michael
+
+----------
+pellauer    Date: Fri Jun  8 18:43:26 EDT 2007  CSN: CSN-hasim-mips-91
+                  Fri Jun  8 22:43:26 UTC 2007
+
+
+Directory config/pm/hasim-mips/smips-5stage
+ smips_5stage.apm          Locally Added               - 
+ hasim_smips_5stage.apm    Locally Removed            90 
+ hasim_smips_5stage_ports_funcp.apm Locally Removed            90 
+ hasim_smips_5stage_ports_reorg.apm Locally Removed            90 
+ hasim_smips_5stage_ports.apm Locally Removed            90 
+
+Directory config/pm/hasim-mips/smips-unpipelined
+ smips_unpipelined.apm     Locally Added               - 
+ hasim_smips_unpipelined.apm Locally Removed            90 
+
+
+Changing the APM files. Removing obsolete ones and updating the new ones.
+
+Michael P.
