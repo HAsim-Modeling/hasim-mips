@@ -1,0 +1,20 @@
+#/********************************************************************
+# *
+# * Awb module specification
+# *
+# *******************************************************************/
+
+#/*
+# %AWB_START
+#
+# %name Multi entry Target Buffer module
+# %desc Multi entry Target Buffer module
+# %provides hasim_cpu_targetBuffer
+#
+# %attributes mips hasim
+#
+# %public TargetBuffer.bsv
+#
+# %AWB_END
+# */
+
