@@ -1551,3 +1551,83 @@ Directory modules/cpu/mips
 Intermediate S10k/5-stage reorg checkin.
 
 Michael P.
+
+----------
+pellauer    Date: Fri Jun  8 14:45:50 EDT 2007  CSN: CSN-hasim-mips-87
+                  Fri Jun  8 18:45:50 UTC 2007
+
+
+Directory modules/chip/mips
+ 5stage-ports/             Locally Removed            85 
+
+Directory modules/chip/mips/5stage
+ hasim_5stage_chip.awb     Locally Removed            85 
+ Chip.bsv                  Locally Removed            85 
+
+Directory modules/chip/mips
+ 5stage/                   Locally Removed            85 
+
+Directory modules/chip/mips/simple
+ hasim_simple_chip.awb     Locally Removed            85 
+ Chip.bsv                  Locally Removed            85 
+
+Directory modules/chip/mips
+ simple/                   Locally Removed            85 
+
+Directory modules/cpu/mips/Fetch/simple
+ Fetch.bsv                 Locally Added               - 
+ hasim_simple_fetch.awb    Locally Added               - 
+
+Directory modules/cpu/mips/Fetch
+ simple/                   Locally Added               0 
+
+Directory modules/cpu/mips/Execute/simple
+ hasim_simple_execute.awb  Locally Added               - 
+ Execute.bsv               Locally Added               - 
+
+Directory modules/cpu/mips/Execute
+ simple/                   Locally Added               0 
+
+Directory modules/cpu/mips/Writeback
+ simple/                   Locally Added               0 
+
+Directory modules/cpu/mips/Writeback/simple
+ Writeback.bsv             Locally Added               - 
+ hasim_simple_writeback.awb Locally Added               - 
+
+Directory modules/cpu/mips
+ Writeback/                Locally Added               0 
+
+Directory modules/cpu/mips/Mem
+ simple/                   Locally Added               0 
+
+Directory modules/cpu/mips/Mem/simple
+ hasim_simple_mem.awb      Locally Added               - 
+ Mem.bsv                   Locally Added               - 
+
+Directory modules/cpu/mips
+ Mem/                      Locally Added               0 
+
+Directory modules/cpu/mips/command_center
+ hasim_command_center.awb  Locally Added               - 
+ CommandCenter.bsv         Locally Added               - 
+
+Directory modules/cpu/mips
+ command_center/           Locally Added               0 
+
+Directory modules/cpu/mips/Decode
+ simple/                   Locally Added               0 
+
+Directory modules/cpu/mips/Decode/simple
+ hasim_simple_decode.awb   Locally Added               - 
+ Decode.bsv                Locally Added               - 
+
+Directory modules/cpu/mips
+ Decode/                   Locally Added               0 
+ superscalar_cpu.awb       Locally Added               - 
+ superscaler_cpu.awb       Locally Removed            86 
+
+
+Another intermediate reorg. Merged 5stage and s10k structures. Almost done...
+
+Michael P.
