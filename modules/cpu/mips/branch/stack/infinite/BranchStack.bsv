@@ -1,25 +1,22 @@
-import hasim_common::*;
+import hasim_cpu_types::*;
 
 interface BranchStack;
-    method Action resolveWrong(Token token);
-    method Action resolveRight(Token token);
-    method Action add(Token token);
+    method ActionValue#(BranchStackIndex) add();
+    method Action resolveRight(BranchStackIndex index);
+    method Action resolveWrong(BranchStackIndex index);
     method Bool notFull();
 endinterface
 
-module mkBranchStack
-    //interface:
-                (BranchStack);
+module mkBranchStack(BranchStack);
+    method ActionValue#(BranchStackIndex) add();
+        return 0;
+    endmethod
 
-    method Action resolveWrong(Token token);
+    method Action resolveRight(BranchStackIndex index);
         noAction;
     endmethod
 
-    method Action resolveRight(Token token);
-        noAction;
-    endmethod
-
-    method Action add(Token token);
+    method Action resolveWrong(BranchStackIndex index);
         noAction;
     endmethod
 
@@ -27,5 +24,3 @@ module mkBranchStack
         return True;
     endmethod
 endmodule
-
-
