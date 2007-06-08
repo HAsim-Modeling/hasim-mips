@@ -1430,3 +1430,44 @@ Directory modules/cpu/mips/s10k/Decode/simple
  Decode.bsv                Locally Modified           80 
 
 Fixed a small bug now
+
+----------
+pellauer    Date: Fri Jun  8 14:09:35 EDT 2007  CSN: CSN-hasim-mips-85
+                  Fri Jun  8 18:09:35 UTC 2007
+
+
+Directory config/pm/hasim-mips/smips-5stage
+ hasim_smips_5stage_ports_reorg.apm Locally Added               0 
+
+Directory config/pm/hasim-mips/s10k
+ s10k.apm                  Locally Modified           84 
+
+Directory modules/chip/mips/uniprocessor
+ uniprocessor.bsv          Locally Modified           84 
+
+Directory modules/chip/mips/5stage-ports
+ CPU.bsv                   Locally Added               0 
+ hasim_simple_mem.awb      Locally Added               0 
+ Fetch.bsv                 Locally Added               0 
+ hasim_simple_decode.awb   Locally Added               0 
+ Execute.bsv               Locally Added               0 
+ hasim_simple_fetch.awb    Locally Added               0 
+ hasim_simple_execute.awb  Locally Added               0 
+ Writeback.bsv             Locally Added               0 
+ hasim_command_center.awb  Locally Added               0 
+ Mem.bsv                   Locally Added               0 
+ hasim_5stage_ports_chip.awb Locally Modified           84 
+ Chip.bsv                  Locally Modified           84 
+ Decode.bsv                Locally Added               0 
+ hasim_simple_writeback.awb Locally Added               0 
+
+Directory modules/cpu/mips
+ Cpu.awb                   Locally Removed            84 
+ Cpu.bsv                   Locally Removed            84 
+ SuperscalarCPU.bsv        Locally Added               - 
+ superscaler_cpu.awb       Locally Added               - 
+
+
+The beginning of the reorg to match up 5-stage/s10k pipelines.
+
+Michael P.

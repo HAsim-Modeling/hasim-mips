@@ -1,0 +1,19 @@
+#/********************************************************************
+# *
+# * Awb module specification
+# *
+# *******************************************************************/
+
+#/*
+# %AWB_START
+#
+# %name 5-stage pipeline Execute
+# %desc 5-stage pipeline Execute
+# %provides hasim_pipe_execute
+#
+# %attributes 5stage mips hasim
+#
+# %public Execute.bsv
+#
+# %AWB_END
+# */

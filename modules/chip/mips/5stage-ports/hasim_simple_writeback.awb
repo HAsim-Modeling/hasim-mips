@@ -1,0 +1,19 @@
+#/********************************************************************
+# *
+# * Awb module specification
+# *
+# *******************************************************************/
+
+#/*
+# %AWB_START
+#
+# %name 5-stage pipeline Writeback
+# %desc 5-stage pipeline Writeback
+# %provides hasim_pipe_writeback
+#
+# %attributes 5stage mips hasim
+#
+# %public Writeback.bsv
+#
+# %AWB_END
+# */

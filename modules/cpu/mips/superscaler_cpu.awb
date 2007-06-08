@@ -7,8 +7,8 @@
 #/*
 # %AWB_START
 #
-# %name CPU module
-# %desc CPU module
+# %name Superscalar CPU
+# %desc Superscalar CPU
 # %provides hasim_cpu
 #
 # %requires hasim_cpu_parameters
@@ -21,9 +21,9 @@
 #
 # %attributes mips hasim
 # 
-# %param SYNTH_BOUNDARY mkCpu "Name of synthesis boundary"
+# %param SYNTH_BOUNDARY mkCPU "Name of synthesis boundary"
 #
-# %public Cpu.bsv
+# %public SuperscalarCPU.bsv
 #
 # %AWB_END
 # */

@@ -1,0 +1,19 @@
+#/********************************************************************
+# *
+# * Awb module specification
+# *
+# *******************************************************************/
+
+#/*
+# %AWB_START
+#
+# %name 5-stage pipeline Command Center
+# %desc 5-stage pipeline Command Center
+# %provides hasim_command_center
+#
+# %attributes 5stage mips hasim
+#
+# %public CommandCenter.bsv
+#
+# %AWB_END
+# */

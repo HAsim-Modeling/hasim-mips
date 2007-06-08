@@ -6,7 +6,7 @@ import hasim_cpu_issue::*;
 import hasim_cpu_execute::*;
 import hasim_cpu_commit::*;
 
-module [HASim_Module] mkCpu();
+module [HASim_Module] mkCPU();
     let fetch   <- mkFetch();
     let decode  <- mkDecode();
     let issue   <- mkIssue();

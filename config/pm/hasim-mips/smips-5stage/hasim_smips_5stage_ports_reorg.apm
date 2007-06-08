@@ -21,10 +21,10 @@ File=modules/controller/simple/hasim_simple_controller.awb
 
 [Global]
 SaveParameters=0
-Description=SMIPS R10K Core
-File=s10k
+Description=5-Stage HASim SMIPS Model
+File=hasim_smips_5stage_ports_reorg
 Version=2.1
-Name=SMIPS R10K Core
+Name=5-Stage HASim SMIPS Model
 Type=HAsim
 Class=Asim::Model
 
@@ -45,7 +45,7 @@ Packagehint=hasim
 File=modules/functional/common/hasim_funcp_pipeline.awb
 
 [Model]
-DefaultAttributes=s10k smips hasim
+DefaultAttributes=hasim smips 5-stage
 model=HAsim Model Foundation
 
 [Hasim mips funcp global commit algorithm]
@@ -104,81 +104,10 @@ File=modules/functional/smips/smips_funcp_execute_alg.awb
 Packagehint=hasim-mips
 File=modules/isa/smips/hasim_smips_isa.awb
 
+
 [Hasim functional partition memstate interface]
 File=modules/functional/common/hasim_funcp_memstate_ifc.awb
 Packagehint=hasim
-
-[Uniprocessor chip/Requires]
-hasim_memory=magic memory
-hasim_cpu=Superscalar CPU
-
-[Uniprocessor chip]
-File=modules/chip/mips/uniprocessor/uniprocessor.awb
-Packagehint=hasim-mips
-
-[magic memory]
-File=modules/memory/magic_memory.awb
-Packagehint=hasim-mips
-
-[Simple time-based priority issue queue]
-File=modules/cpu/mips/IssueAlg/simple/priorityAlgo/IssueAlg.awb
-Packagehint=hasim-mips
-
-[Simple time-based priority issue queue/Requires]
-hasim_cpu_issueQ=Simple unguarded queue, which supports out-of-order issue
-
-[Simple Execute module]
-File=modules/cpu/mips/Execute/simple/Execute.awb
-Packagehint=hasim-mips
-
-[Simple unguarded queue, which supports out-of-order issue]
-File=modules/cpu/mips/IssueAlg/simple/unguardedQ/IssueQ.awb
-Packagehint=hasim-mips
-
-[SMIPS R10K simple Decode module]
-File=modules/cpu/mips/s10k/Decode/simple/Decode.awb
-Packagehint=hasim-mips
-
-[ROB module]
-File=modules/cpu/mips/Rob/simple/Rob.awb
-Packagehint=hasim-mips
-
-
-[SMIPS R10K simple Decode module/Requires]
-hasim_cpu_targetBuffer=Multi entry Target Buffer module
-hasim_cpu_branchPred=Always not taken Branch Predictor module
-hasim_cpu_rob=ROB module
-hasim_cpu_branchStack=Infinite entry Branch Stack module
-
-[SMIPS R10K simple Issue module/Requires]
-hasim_cpu_issueAlg=Simple time-based priority issue queue
-
-
-[SMIPS R10K Parameters module]
-File=modules/cpu/mips/s10k/Parameters.awb
-Packagehint=hasim-mips
-
-[SMIPS R10K simple Issue module]
-File=modules/cpu/mips/s10k/Issue/simple/Issue.awb
-Packagehint=hasim-mips
-
-[SMIPS R10K Types module]
-File=modules/cpu/mips/s10k/Types.awb
-Packagehint=hasim-mips
-
-[Simple Fetch module]
-File=modules/cpu/mips/Fetch/simple/Fetch.awb
-Packagehint=hasim-mips
-
-[Simple Commit module]
-File=modules/cpu/mips/Commit/simple/Commit.awb
-Packagehint=hasim-mips
-
-
-[Infinite entry Branch Stack module]
-File=modules/cpu/mips/BranchStack/infinite/BranchStack.awb
-Packagehint=hasim-mips
-
 
 [Hasim Common Library/Requires]
 hasim_fpgaenv=Hasim FPGA Environment
@@ -191,23 +120,51 @@ Packagehint=hasim
 File=config/pm/hasim/submodels/fpgaenv/hasim-fpgaenv-xup.apm
 Packagehint=hasim
 
-[Superscalar CPU]
-File=modules/cpu/mips/superscaler_cpu.awb
+
+[5-stage pipeline Decode]
+File=modules/chip/mips/5stage-ports/hasim_simple_decode.awb
 Packagehint=hasim-mips
 
-[Multi entry Target Buffer module]
-File=modules/cpu/mips/TargetBuffer/multiEntry/TargetBuffer.awb
+[Uniprocessor chip/Requires]
+hasim_cpu=5-stage pipeline CPU
+hasim_memory=magic memory
+
+[5-stage pipeline CPU/Requires]
+hasim_pipe_mem=5-stage pipeline Mem
+hasim_pipe_writeback=5-stage pipeline Writeback
+hasim_pipe_execute=5-stage pipeline Execute
+hasim_pipe_decode=5-stage pipeline Decode
+hasim_command_center=5-stage pipeline Command Center
+hasim_pipe_fetch=5-stage pipeline Fetch
+
+[5-stage pipeline CPU]
+File=modules/chip/mips/5stage-ports/hasim_5stage_ports_chip.awb
 Packagehint=hasim-mips
 
-[Always not taken Branch Predictor module]
-File=modules/cpu/mips/BranchPred/notTaken/BranchPred.awb
+[5-stage pipeline Command Center]
+File=modules/chip/mips/5stage-ports/hasim_command_center.awb
 Packagehint=hasim-mips
 
-[Superscalar CPU/Requires]
-hasim_cpu_fetch=Simple Fetch module
-hasim_cpu_execute=Simple Execute module
-hasim_cpu_commit=Simple Commit module
-hasim_cpu_types=SMIPS R10K Types module
-hasim_cpu_parameters=SMIPS R10K Parameters module
-hasim_cpu_issue=SMIPS R10K simple Issue module
-hasim_cpu_decode=SMIPS R10K simple Decode module
+[5-stage pipeline Writeback]
+File=modules/chip/mips/5stage-ports/hasim_simple_writeback.awb
+Packagehint=hasim-mips
+
+[5-stage pipeline Fetch]
+File=modules/chip/mips/5stage-ports/hasim_simple_fetch.awb
+Packagehint=hasim-mips
+
+[5-stage pipeline Mem]
+File=modules/chip/mips/5stage-ports/hasim_simple_mem.awb
+Packagehint=hasim-mips
+
+[5-stage pipeline Execute]
+File=modules/chip/mips/5stage-ports/hasim_simple_execute.awb
+Packagehint=hasim-mips
+
+[Uniprocessor chip]
+File=modules/chip/mips/uniprocessor/uniprocessor.awb
+Packagehint=hasim-mips
+
+[magic memory]
+File=modules/memory/magic_memory.awb
+Packagehint=hasim-mips
