@@ -7,9 +7,9 @@
 #/*
 # %AWB_START
 #
-# %name Simple Execute module
-# %desc Simple Execute module
-# %provides hasim_cpu_execute
+# %name Superscalar Execute Stage
+# %desc Superscalar Execute Stage
+# %provides hasim_pipe_execute
 #
 # %attributes mips hasim
 #

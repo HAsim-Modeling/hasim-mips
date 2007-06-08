@@ -13,11 +13,11 @@
 #
 # %requires hasim_cpu_parameters
 # %requires hasim_cpu_types
-# %requires hasim_cpu_fetch
-# %requires hasim_cpu_decode
-# %requires hasim_cpu_issue
-# %requires hasim_cpu_execute
-# %requires hasim_cpu_commit
+# %requires hasim_pipe_fetch
+# %requires hasim_pipe_decode
+# %requires hasim_pipe_issue
+# %requires hasim_pipe_execute
+# %requires hasim_pipe_commit
 #
 # %attributes mips hasim
 # 

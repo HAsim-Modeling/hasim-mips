@@ -7,11 +7,11 @@
 #/*
 # %AWB_START
 #
-# %name SMIPS R10K simple Issue module
-# %desc SMIPS R10K simple Issue module
-# %provides hasim_cpu_issue
+# %name SMIPS R10K Superscalar Issue Stage
+# %desc SMIPS R10K Superscalar Issue Stage
+# %provides hasim_pipe_issue
 #
-# %requires hasim_cpu_issueAlg
+# %requires hasim_issue_alg
 #
 # %attributes s10k mips hasim
 #

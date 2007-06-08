@@ -1,10 +1,10 @@
 import hasim_common::*;
 
-import hasim_cpu_fetch::*;
-import hasim_cpu_decode::*;
-import hasim_cpu_issue::*;
-import hasim_cpu_execute::*;
-import hasim_cpu_commit::*;
+import hasim_pipe_fetch::*;
+import hasim_pipe_decode::*;
+import hasim_pipe_issue::*;
+import hasim_pipe_execute::*;
+import hasim_pipe_commit::*;
 
 module [HASim_Module] mkCPU();
     let fetch   <- mkFetch();

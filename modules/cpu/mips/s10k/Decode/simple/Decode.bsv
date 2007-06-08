@@ -9,10 +9,10 @@ import RegFile::*;
 
 import hasim_cpu_parameters::*;
 import hasim_cpu_types::*;
-import hasim_cpu_rob::*;
-import hasim_cpu_branchPred::*;
-import hasim_cpu_targetBuffer::*;
-import hasim_cpu_branchStack::*;
+import hasim_rob::*;
+import hasim_branch_pred::*;
+import hasim_branch_target_buffer::*;
+import hasim_branch_stack::*;
 
 typedef enum {Commit, Update, Decode, RobDone} RobState   deriving (Bits, Eq);
 typedef enum {Fetch, FetchDone}                FetchState deriving (Bits, Eq);

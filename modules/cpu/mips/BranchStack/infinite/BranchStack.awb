@@ -7,9 +7,9 @@
 #/*
 # %AWB_START
 #
-# %name Infinite entry Branch Stack module
-# %desc Infinite Branch Stack module
-# %provides hasim_cpu_branchStack
+# %name Infinite Entry Branch Stack
+# %desc Infinite Entry Branch Stack
+# %provides hasim_branch_stack
 #
 # %attributes mips hasim
 #

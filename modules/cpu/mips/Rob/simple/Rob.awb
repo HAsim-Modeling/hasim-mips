@@ -7,9 +7,9 @@
 #/*
 # %AWB_START
 #
-# %name ROB module
-# %desc ROB module
-# %provides hasim_cpu_rob
+# %name Superscalar ROB model
+# %desc Superscalar ROB model
+# %provides hasim_rob
 #
 # %attributes mips hasim
 #

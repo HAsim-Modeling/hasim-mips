@@ -7,7 +7,7 @@ import GetPut::*;
 
 import hasim_cpu_parameters::*;
 import hasim_cpu_types::*;
-import hasim_cpu_issueAlg::*;
+import hasim_issue_alg::*;
 
 typedef enum {Issue, IssueDone} IssueState deriving (Bits, Eq);
 typedef enum {Dispatch, DispatchDone} DispatchState deriving (Bits, Eq);

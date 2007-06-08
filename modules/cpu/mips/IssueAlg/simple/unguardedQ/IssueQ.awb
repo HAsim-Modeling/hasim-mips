@@ -9,7 +9,7 @@
 #
 # %name Simple unguarded queue, which supports out-of-order issue
 # %desc Simple unguarded queue, which supports out-of-order issue
-# %provides hasim_cpu_issueQ
+# %provides hasim_issueQ
 #
 # %attributes mips hasim
 #

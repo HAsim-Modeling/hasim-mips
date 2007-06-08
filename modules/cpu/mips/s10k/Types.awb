@@ -7,8 +7,8 @@
 #/*
 # %AWB_START
 #
-# %name SMIPS R10K Types module
-# %desc SMIPS R10K Types module
+# %name SMIPS R10K Types
+# %desc SMIPS R10K Types
 # %provides hasim_cpu_types
 #
 # %attributes s10k mips hasim

@@ -9,8 +9,8 @@
 #
 # %name Simple time-based priority issue queue
 # %desc Simple time-based priority issue queue
-# %provides hasim_cpu_issueAlg
-# %requires hasim_cpu_issueQ
+# %provides hasim_issue_alg
+# %requires hasim_issueQ
 #
 # %attributes mips hasim
 #

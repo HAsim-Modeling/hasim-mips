@@ -1471,3 +1471,83 @@ Directory modules/cpu/mips
 The beginning of the reorg to match up 5-stage/s10k pipelines.
 
 Michael P.
+
+----------
+pellauer    Date: Fri Jun  8 14:28:19 EDT 2007  CSN: CSN-hasim-mips-86
+                  Fri Jun  8 18:28:19 UTC 2007
+
+
+Directory modules/chip/mips/5stage-ports
+ CPU.bsv                   Locally Removed            85 
+ hasim_5stage_ports_chip.awb Locally Removed            85 
+
+Directory modules/cpu/mips/Commit
+ simple/                   Locally Removed            84 
+
+Directory modules/cpu/mips/Commit/simple
+ Commit.awb                Locally Removed            84 
+ Commit.bsv                Locally Removed            84 
+
+Directory modules/cpu/mips/BranchPred/notTaken
+ BranchPred.awb            Locally Modified           84 
+
+Directory modules/cpu/mips/BranchPred/simple
+ BranchPred.awb            Locally Modified           84 
+
+Directory modules/cpu/mips/Fetch
+ simple/                   Locally Removed            84 
+
+Directory modules/cpu/mips/Fetch/simple
+ Fetch.awb                 Locally Removed            84 
+ Fetch.bsv                 Locally Removed            84 
+
+Directory modules/cpu/mips/IssueAlg/simple/unguardedQ
+ IssueQ.awb                Locally Modified           84 
+
+Directory modules/cpu/mips/IssueAlg/simple/priorityAlgo
+ IssueAlg.awb              Locally Modified           84 
+ IssueAlg.bsv              Locally Modified           84 
+
+Directory modules/cpu/mips/s10k/Decode/simple
+ Decode.awb                Locally Modified           84 
+ Decode.bsv                Locally Modified           84 
+
+Directory modules/cpu/mips/s10k/Issue/simple
+ Issue.awb                 Locally Modified           84 
+ Issue.bsv                 Locally Modified           84 
+
+Directory modules/cpu/mips/s10k
+ Parameters.awb            Locally Modified           84 
+ Types.awb                 Locally Modified           84 
+
+Directory modules/cpu/mips/TargetBuffer/oneEntry
+ TargetBuffer.awb          Locally Modified           84 
+
+Directory modules/cpu/mips/TargetBuffer/multiEntry
+ TargetBuffer.awb          Locally Modified           84 
+
+Directory modules/cpu/mips
+ CPU.bsv                   Locally Added               - 
+
+Directory modules/cpu/mips/Rob/simple
+ Rob.awb                   Locally Modified           84 
+
+Directory modules/cpu/mips/Execute
+ simple/                   Locally Removed            84 
+
+Directory modules/cpu/mips/Execute/simple
+ Execute.awb               Locally Removed            84 
+ Execute.bsv               Locally Removed            84 
+
+Directory modules/cpu/mips/BranchStack/infinite
+ BranchStack.awb           Locally Modified           84 
+
+Directory modules/cpu/mips
+ SuperscalarCPU.bsv        Locally Modified           85 
+ superscaler_cpu.awb       Locally Modified           85 
+ 5stage_cpu.awb            Locally Added               - 
+
+
+Intermediate S10k/5-stage reorg checkin.
+
+Michael P.

@@ -7,8 +7,8 @@
 #/*
 # %AWB_START
 #
-# %name SMIPS R10K Parameters module
-# %desc SMIPS R10K Parameters module
+# %name SMIPS R10K Parameters
+# %desc SMIPS R10K Parameters
 # %provides hasim_cpu_parameters
 #
 # %attributes s10k mips hasim

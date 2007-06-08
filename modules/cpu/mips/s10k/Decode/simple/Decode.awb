@@ -7,11 +7,11 @@
 #/*
 # %AWB_START
 #
-# %name SMIPS R10K simple Decode module
-# %desc SMIPS R10K simple Decode module
-# %provides hasim_cpu_decode
+# %name SMIPS R10K Superscalar Decode Stage
+# %desc SMIPS R10K Superscalar Decode Stage
+# %provides hasim_pipe_decode
 #
-# %requires hasim_cpu_rob hasim_cpu_branchPred hasim_cpu_targetBuffer hasim_cpu_branchStack
+# %requires hasim_rob hasim_branch_pred hasim_target_buffer hasim_branch_stack
 #
 # %attributes s10k mips hasim
 #
