@@ -1,5 +1,3 @@
-import hasim_common::*;
-
 import RegFile::*;
 
 import hasim_cpu_types::*;
@@ -8,22 +6,20 @@ typedef Bit#(TLog#(TAdd#(qCount,1))) QCountType#(numeric type qCount);
 
 interface IssueQ#(numeric type qCount);
     method Action start();
-    method Maybe#(IssueEntry) read();
+    method Action readReq();
+    method ActionValue#(Maybe#(IssueEntry)) readResp();
     method Action write(Maybe#(IssueEntry) issue);
     method Bool isLast();
     method Action add(IssueEntry issue);
     method QCountType#(qCount) getCount();
 endinterface
 
-module mkIssueQ
-    //interface:
-                (IssueQ#(qCount))
-    provisos 
-            (Add#(positive, TLog#(qCount), TLog#(TAdd#(qCount,1))));
+module mkIssueQ(IssueQ#(qCount))
+    provisos(Add#(positive, TLog#(qCount), TLog#(TAdd#(qCount,1))));
 
-    Reg#(QCountType#(qCount))  head <- mkReg(0);
-    Reg#(QCountType#(qCount)) count <- mkReg(0);
-    Reg#(QCountType#(qCount))   ptr <- mkReg(?);
+    Reg#(QCountType#(qCount))     head <- mkReg(0);
+    Reg#(QCountType#(qCount))    count <- mkReg(0);
+    Reg#(QCountType#(qCount))      ptr <- mkReg(?);
 
     RegFile#(Bit#(TLog#(qCount)), Maybe#(IssueEntry)) regFile <- mkRegFileFull();
 
@@ -31,7 +27,11 @@ module mkIssueQ
          ptr <= 0;
     endmethod
 
-    method Maybe#(IssueEntry) read();
+    method Action readReq();
+        noAction;
+    endmethod
+
+    method ActionValue#(Maybe#(IssueEntry)) readResp();
         if(ptr >= count)
             return tagged Invalid;
         else

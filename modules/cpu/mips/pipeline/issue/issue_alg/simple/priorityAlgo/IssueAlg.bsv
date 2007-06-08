@@ -1,12 +1,12 @@
-import hasim_isa::*;
 import hasim_common::*;
+import hasim_isa::*;
 
 import GetPut::*;
 import Vector::*;
 
 import hasim_cpu_parameters::*;
 import hasim_cpu_types::*;
-import hasim_issueQ::*;
+import hasim_cpu_issueQ::*;
 
 interface IssueAlg;
     method Action dispatch(IssueEntry issue);
@@ -20,10 +20,7 @@ endinterface
 typedef enum {IntIssue, IntIssueDone} IntIssueState deriving (Bits, Eq);
 typedef enum {MemIssue, MemIssueDone} MemIssueState deriving (Bits, Eq);
 
-module mkIssueAlg
-    //interface:
-                (IssueAlg);
-		
+module mkIssueAlg(IssueAlg);
     Vector#(NumFuncUnits, Reg#(Maybe#(ExecEntry))) issueVals <- replicateM(mkReg(tagged Invalid));
     IssueQ#(IntQCount)                                  intQ <- mkIssueQ();
     IssueQ#(MemQCount)                                  memQ <- mkIssueQ();
@@ -79,11 +76,11 @@ module mkIssueAlg
             intIssueState <= IntIssueDone;
         else
         begin
-            let issueEntry    = intQ.read();
+            let issueEntry   <- intQ.readResp();
             let validEntry    = validValue(issueEntry);
             let execEntry     = getExecEntry(validEntry);
             let newIssueEntry = getNewIssueEntry(validEntry);
-            let newWriteEntry = tagged Valid newIssueEntry;
+            let newWriteEntry = ?;
             if(isValid(issueEntry))
             begin
                 if(isAllReady(newIssueEntry))
@@ -112,11 +109,11 @@ module mkIssueAlg
                                 newAlu2 <= tagged Valid validEntry.dest;
                         end
                     end
-                    //else
-                        //newWriteEntry = tagged Valid newIssueEntry;
+                    else
+                        newWriteEntry = tagged Valid newIssueEntry;
                 end
-                //else
-                    //newWriteEntry = tagged Valid newIssueEntry;
+                else
+                    newWriteEntry = tagged Valid newIssueEntry;
             end
             else
                 newWriteEntry = tagged Invalid;
@@ -128,7 +125,7 @@ module mkIssueAlg
         memIssueState <= MemIssueDone;
         if(!memQ.isLast())
         begin
-            let issueEntry    = memQ.read();
+            let issueEntry   <- memQ.readResp();
             let validEntry    = validValue(issueEntry);
             let execEntry     = getExecEntry(validEntry);
             let newIssueEntry = getNewIssueEntry(validEntry);
