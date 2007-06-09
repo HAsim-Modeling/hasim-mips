@@ -8,10 +8,10 @@ import RegFile::*;
 
 import hasim_cpu_parameters::*;
 import hasim_cpu_types::*;
-import hasim_cpu_rob::*;
-import hasim_cpu_branchStack::*;
-import hasim_cpu_branchPred::*;
-import hasim_cpu_targetBuffer::*;
+import hasim_rob::*;
+import hasim_branch_stack::*;
+import hasim_branch_pred::*;
+import hasim_branch_target_buffer::*;
 
 typedef enum {Commit, CommitDone}       CommitState    deriving (Bits, Eq);
 typedef enum {RobUpdate, RobUpdateDone} RobUpdateState deriving (Bits, Eq);
@@ -19,7 +19,7 @@ typedef enum {Read, Write}              RobOpState     deriving (Bits, Eq);
 typedef enum {Fetch, FetchDone}         FetchState     deriving (Bits, Eq);
 typedef enum {Decoding, DecodeDone}     DecodeState    deriving (Bits, Eq);
 
-module [HASim_Module] mkDecode();
+module [HASim_Module] mkPipe_Decode();
     function sendFunctionM(String str, Integer i) = mkPort_Send(strConcat(str, fromInteger(i)));
 
     function receiveFunctionM(String str, Integer i) = mkPort_Receive(strConcat(str, fromInteger(i)), 1);
