@@ -2005,3 +2005,16 @@ Directory modules/cpu/mips/branch/predictor/notTaken
  BranchPred.bsv            Locally Modified          106 
 
 Added token for getPred method
+
+----------
+vmurali     Date: Sun Jun 10 12:37:18 EDT 2007  CSN: CSN-hasim-mips-109
+                  Sun Jun 10 16:37:18 UTC 2007
+
+
+Directory modules/cpu/mips/branch/predictor/notTaken
+ BranchPred.bsv            Locally Modified          108 
+
+Directory modules/cpu/mips/pipeline/decode/s10k
+ Decode.bsv                Locally Modified          107 
+
+Changed Decode to use the new interface. Also had a bug in the notTaken predictor (import statement missing)

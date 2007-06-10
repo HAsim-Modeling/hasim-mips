@@ -171,7 +171,7 @@ module [HASim_Module] mkPipe_Decode();
             commitTokenPort[commitCount].send(tagged Valid robEntry.token);
             $display("Commit: Token: %0d @ Model: %0d", robEntry.token.index, modelCounter-1);
             if(robEntry.isBranch)
-                branchPred.upd(robEntry.addr, robEntry.prediction, robEntry.taken);
+                branchPred.upd(token, robEntry.addr, robEntry.prediction, robEntry.taken);
             if(robEntry.finished)
                 finishServer.makeResp(tagged RESP_DoneRunning robEntry.status);
             if(commitCount == fromInteger(valueOf(TSub#(CommitWidth,1))))
@@ -290,7 +290,7 @@ module [HASim_Module] mkPipe_Decode();
     BranchStackIndex branchIndex = ?;
 
     rule decodeInst(decodeState == Decoding && !killInstBuffer && !realDecodeDone && instBuffer.notEmpty() && decodeNum != fromInteger(valueOf(FetchWidth)));
-        let pred           = branchPred.getPred(currAddr);
+        let pred          <- branchPred.getPred(token, currAddr);
         let branchPredAddr = getBranchAddr(pred);
         let jumpPredAddr   = targetBuffer.first();
         RobEntry res = RobEntry{token: currToken, addr: currAddr, done: False, finished: False, status: False,

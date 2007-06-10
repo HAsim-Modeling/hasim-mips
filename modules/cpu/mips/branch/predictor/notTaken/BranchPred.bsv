@@ -1,3 +1,4 @@
+import hasim_common::*;
 import hasim_isa::*;
 
 interface BranchPred;
