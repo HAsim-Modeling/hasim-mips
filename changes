@@ -1944,3 +1944,17 @@ Directory modules/cpu/mips/pipeline/execute/superscalar
 
 Merged all my changes with Michaels. Something seems to be broken, as a result I get dangling connections...
 I guess Michael will know to fix it (tomorrow)
+
+----------
+vmurali     Date: Sun Jun 10 11:52:14 EDT 2007  CSN: CSN-hasim-mips-105
+                  Sun Jun 10 15:52:14 UTC 2007
+
+
+Directory modules/cpu/mips/branch/predictor/notTaken
+ BranchPred.bsv            Locally Modified          104 
+
+Directory modules/cpu/mips/branch/predictor/simple
+ BranchPred.awb            Locally Modified          104 
+ BranchPred.bsv            Locally Modified          104 
+
+Added abort interface for branch predict

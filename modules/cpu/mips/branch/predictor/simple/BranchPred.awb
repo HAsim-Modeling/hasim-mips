@@ -7,11 +7,13 @@
 #/*
 # %AWB_START
 #
-# %name Simple Branch Predictor
-# %desc Simple Branch Predictor
+# %name Simple 1 bit Branch Predictor
+# %desc Simple 1 bit Branch Predictor
 # %provides hasim_branch_pred
 #
 # %attributes mips hasim
+#
+# %param BRANCH_TABLE_SIZE 5
 #
 # %public BranchPred.bsv
 #
