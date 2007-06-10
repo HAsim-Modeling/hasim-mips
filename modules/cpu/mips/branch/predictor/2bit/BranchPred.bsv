@@ -12,14 +12,21 @@ interface BranchPred;
 endinterface
 
 module mkBranchPred(BranchPred);
-    RegFile#(BranchIndex, Bool) branchRegFile <- mkRegFileFull();
+    RegFile#(BranchIndex, Bit#(2)) branchRegFile <- mkRegFileFull();
 
     method Action upd(Token token, Addr addr, Bool pred, Bool actual);
-        branchRegFile.upd(truncate(addr), actual);
+        let counter = branchRegFile(truncate(addr));
+        let newCounter = 0;
+        if(actual)
+            newCounter = (counter == 3)? 3: counter + 1;
+        else
+            newCounter = (counter == 0)? 0: counter - 1;
+        branchRegFile.upd(truncate(addr), newCounter);
     endmethod
 
     method Bool getPred(Addr addr);
-        return branchRegFile.sub(truncate(addr));
+        let counter = branchRegFile.sub(truncate(addr));
+        return counter > 1;
     endmethod
 
     method Action abort(Token token);
