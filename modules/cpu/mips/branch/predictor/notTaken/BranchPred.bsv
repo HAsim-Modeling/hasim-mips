@@ -2,7 +2,7 @@ import hasim_isa::*;
 
 interface BranchPred;
     method Action upd(Token token, Addr addr, Bool pred, Bool actual);
-    method Bool getPred(Addr addr);
+    method ActionValue#(Bool) getPred(Token token, Addr addr);
     method Action abort(Token token);
 endinterface
 
@@ -11,7 +11,7 @@ module mkBranchPred(BranchPred);
         noAction;
     endmethod
 
-    method Bool getPred(Addr addr);
+    method ActionValue#(Bool) getPred(Token token, Addr addr);
         return False;
     endmethod
 

@@ -7,7 +7,7 @@ typedef Bit#(`BRANCH_TABLE_SIZE) BranchIndex;
 
 interface BranchPred;
     method Action upd(Token token, Addr addr, Bool pred, Bool actual);
-    method Bool getPred(Addr addr);
+    method ActionValue#(Bool) getPred(Token token, Addr addr);
     method Action abort(Token token);
 endinterface
 
@@ -24,7 +24,7 @@ module mkBranchPred(BranchPred);
         branchRegFile.upd(truncate(addr), newCounter);
     endmethod
 
-    method Bool getPred(Addr addr);
+    method ActionValue#(Bool) getPred(Token token, Addr addr);
         let counter = branchRegFile.sub(truncate(addr));
         return counter > 1;
     endmethod

@@ -1989,3 +1989,19 @@ Directory modules/cpu/mips/branch/predictor/2bit
  BranchPred.awb            Locally Modified          106 
 
 added string for the param
+
+----------
+vmurali     Date: Sun Jun 10 12:19:24 EDT 2007  CSN: CSN-hasim-mips-108
+                  Sun Jun 10 16:19:24 UTC 2007
+
+
+Directory modules/cpu/mips/branch/predictor/2bit
+ BranchPred.bsv            Locally Modified          106 
+
+Directory modules/cpu/mips/branch/predictor/simple
+ BranchPred.bsv            Locally Modified          106 
+
+Directory modules/cpu/mips/branch/predictor/notTaken
+ BranchPred.bsv            Locally Modified          106 
+
+Added token for getPred method
