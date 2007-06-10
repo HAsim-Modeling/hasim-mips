@@ -1976,3 +1976,16 @@ Directory modules/cpu/mips/branch/predictor
 
 DO NOT DELETE THIS LINE! ADD COMMENTS BELOW
 The interface was not updated in the last check in. Also added the 2bit predictor
+
+----------
+vmurali     Date: Sun Jun 10 12:01:41 EDT 2007  CSN: CSN-hasim-mips-107
+                  Sun Jun 10 16:01:41 UTC 2007
+
+
+Directory modules/cpu/mips/branch/predictor/simple
+ BranchPred.awb            Locally Modified          105 
+
+Directory modules/cpu/mips/branch/predictor/2bit
+ BranchPred.awb            Locally Modified          106 
+
+added string for the param
