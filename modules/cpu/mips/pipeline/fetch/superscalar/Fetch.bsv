@@ -74,7 +74,7 @@ module [HASim_Module] mkPipe_Fetch();
 
     rule fetch(fetchState == Fetch);
         let token <- fpTokenResp.receive();
-        //token.info = TokInfo{epoch: epoch, ctxt: ?};
+        token.info = TokInfo{epoch: epoch, ctxt: ?};
         fpFetchReq.send(tuple2(token, pc));
         addrPort[fetchPos].send(tagged Valid pc);
         $display("Fetch: @ Model: %0d PC: %x Token: %0d ", modelCounter-1, pc, token.index);

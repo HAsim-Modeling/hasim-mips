@@ -62,7 +62,6 @@ module [HASim_Module] mkPipe_Decode();
 
     Reg#(CommitState)                                                 commitState <- mkReg(CommitDone);
     Reg#(RobUpdateState)                                           robUpdateState <- mkReg(RobUpdateDone);
-    Reg#(RobOpState)                                                   robOpState <- mkReg(?);
     Reg#(FetchState)                                                   fetchState <- mkReg(FetchDone);
     Reg#(DecodeState)                                                 decodeState <- mkReg(DecodeDone);
     Reg#(Bit#(TLog#(TAdd#(KillCount,1))))                               killCount <- mkReg(0);
@@ -104,16 +103,16 @@ module [HASim_Module] mkPipe_Decode();
         decodeBuffer.enq(dep);
     endrule
 
-    rule synchronize(fetchState == FetchDone && decodeState == DecodeDone && commitState == CommitDone);
+    rule synchronize(fetchState == FetchDone && robUpdateState == RobUpdateDone && decodeState == DecodeDone && commitState == CommitDone);
         modelCounter           <= modelCounter + 1;
 
         FetchCount sendSize = (instBufferCount < fromInteger(valueOf(FetchWidth)))? fromInteger(valueOf(FetchWidth)) - instBufferCount: 0;
 
-        decodeNumPort.send(tagged Valid decodeCount);
+        decodeNumPort.send(tagged Valid sendSize);
         predictedTakenPort.send(predictedPC);
         mispredictPort.send(mispredictPC);
 
-        $display("Decode synchronize: instBufferCount %0d, sendSize: %0d @ Model: %0d", instBufferCount, sendSize, modelCounter);
+        $display("Decode synchronize: instBufferCount %0d, sendSize: %0d, decodeCount: %0d @ Model: %0d", instBufferCount, sendSize, decodeCount, modelCounter);
 
         let intQFreeCountLocal <- intQCountPort.receive();
         let memQFreeCountLocal <- memQCountPort.receive();
@@ -133,6 +132,7 @@ module [HASim_Module] mkPipe_Decode();
 
     rule fetch(fetchState == Fetch);
         Maybe#(Addr) addrMaybe  <- addrPort[fetchCount].receive();
+        $display("Decode: FetchCount: %0d", fetchCount);
         case (addrMaybe) matches
             tagged Valid .addr:
             begin
@@ -307,7 +307,6 @@ module [HASim_Module] mkPipe_Decode();
 
                 decodeCount     <= decodeCount + 1;
                 instBufferCount <= instBufferCount - 1;
-                $display("Decode Decode: instBufferCount: %0d", instBufferCount - 1);
 
                 rob.writeTail(res);
                 issuePort[decodeCount].send(tagged Valid issue);
@@ -349,6 +348,18 @@ module [HASim_Module] mkPipe_Decode();
             commonDecode(JR,        True,  False, False, False,  True,  tagged Valid targetBuffer.first(),           False, True,  True);
         else if(isJALR(currInst))
             commonDecode(JALR,      True,  False, True,  False,  True,  tagged Valid targetBuffer.first(),           True,  True,  True);
+        else
+        begin
+            decodeCount     <= decodeCount + 1;
+            instBufferCount <= instBufferCount - 1;
+
+            issuePort[decodeCount].send(tagged Invalid);
+
+            instBuffer.deq();
+            decodeBuffer.deq();
+            if(decodeCount == fromInteger(valueOf(TSub#(FetchWidth,1))))
+                decodeState <= DecodeDone;
+        end
     endrule
 
     rule prematureFinishDecode(decodeState == Decoding && killCount == 0 && !instBuffer.notEmpty() && fetchState == FetchDone);

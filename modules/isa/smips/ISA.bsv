@@ -374,7 +374,7 @@ typedef union tagged
 function Bool isShift(PackedInst inst);
     let op   = inst[31:26];
     let func = inst[5:0];
-    return (op == opFUNC) && (func == fcSLL || func == fcSRL || func == fcSRA || func == fcSLLV || func == fcSRLV || func == fcSRAV);
+    return (inst != 32'b0) && (op == opFUNC) && (func == fcSLL || func == fcSRL || func == fcSRA || func == fcSLLV || func == fcSRLV || func == fcSRAV);
 endfunction
 
 function Bool isBranch(PackedInst inst);
@@ -416,7 +416,7 @@ function Bool isStore(PackedInst inst);
 endfunction
 
 function Bool isALU(PackedInst inst);
-    return !(isBranch(inst) || isJ(inst) || isJAL(inst) || isJR(inst) || isJALR(inst) || isLoad(inst) || isStore(inst));
+    return !(inst == 32'b0) && !(isBranch(inst) || isJ(inst) || isJAL(inst) || isJR(inst) || isJALR(inst) || isLoad(inst) || isStore(inst));
 endfunction
 
 function Addr getJAddr(PackedInst inst, Addr pc);

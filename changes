@@ -2047,3 +2047,19 @@ Directory modules/cpu/mips/s10k
 
 Cleaned up code for Decode
 
+
+----------
+mvijayar    Date: Mon Jun 18 18:55:10 EDT 2007  CSN: CSN-hasim-mips-112
+                  Mon Jun 18 22:55:10 UTC 2007
+
+
+Directory modules/cpu/mips/pipeline/decode/s10k
+ Decode.bsv                Locally Modified          111 
+
+Directory modules/cpu/mips/pipeline/fetch/superscalar
+ Fetch.bsv                 Locally Modified          111 
+
+Directory modules/isa/smips
+ ISA.bsv                   Locally Modified          111 
+
+Had a bug where I didnt handle nops. Only now I am handling nops
