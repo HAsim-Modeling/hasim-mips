@@ -26,12 +26,13 @@ module [HASim_Module] mkPipe_Writeback();
     rule localCommit(True);
         localCommitPos <= (localCommitPos + 1)%fromInteger(valueOf(CommitWidth));
         let tokenMaybe <- commitPort[localCommitPos].receive();
-        if(isValid(tokenMaybe))
-        begin
-            let token = validValue(tokenMaybe);
-            globalCommitFIFO.enq(token);
-            fpLocalCommitReq.send(tuple2(token, ?));
-        end
+        case (tokenMaybe) matches
+            tagged Valid .token:
+            begin
+                globalCommitFIFO.enq(token);
+                fpLocalCommitReq.send(tuple2(token, ?));
+            end
+        endcase
     endrule
 
     rule globalCommit(True);

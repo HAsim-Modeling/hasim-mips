@@ -28,6 +28,8 @@ module [HASim_Module] mkPipe_Fetch();
     Reg#(FetchCount)                        totalCount <- mkReg(?);
     Reg#(FetchCount)                          fetchPos <- mkReg(?);
 
+    Reg#(TokEpoch)                               epoch <- mkReg(0);
+
     Reg#(ClockCounter)                    modelCounter <- mkReg(0);
 
     function fillTokenAddrPort(FetchCount fetchedCount);
@@ -48,7 +50,10 @@ module [HASim_Module] mkPipe_Fetch();
         let      decodeNum <- decodeNumPort.receive();
 
         if(isValid(mispredict))
+        begin
             pc <= validValue(mispredict);
+            epoch <= epoch + 1;
+        end
         else if(isValid(predictedTaken))
             pc <= validValue(predictedTaken);
         else
@@ -57,7 +62,6 @@ module [HASim_Module] mkPipe_Fetch();
         let newCount  = isValid(decodeNum)? validValue(decodeNum): fromInteger(valueOf(FetchWidth));
         totalCount   <= newCount;
         fetchPos     <= 0;
-        $display("Fetch synchronize @ Model: %0d newCount: %0d", modelCounter, newCount);
 
         if(newCount == 0)
             fillTokenAddrPort(0);
@@ -70,9 +74,10 @@ module [HASim_Module] mkPipe_Fetch();
 
     rule fetch(fetchState == Fetch);
         let token <- fpTokenResp.receive();
+        //token.info = TokInfo{epoch: epoch, ctxt: ?};
         fpFetchReq.send(tuple2(token, pc));
         addrPort[fetchPos].send(tagged Valid pc);
-        $display("Fetch: Token: %0d @ Model: %0d", token.index, modelCounter-1);
+        $display("Fetch: @ Model: %0d PC: %x Token: %0d ", modelCounter-1, pc, token.index);
         let newFetchPos = fetchPos + 1;
         fetchPos  <= newFetchPos;
         pc        <= pc + 4;

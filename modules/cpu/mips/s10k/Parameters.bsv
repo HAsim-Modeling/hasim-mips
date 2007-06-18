@@ -11,3 +11,4 @@ typedef 32 FreeListCount;
 typedef 4  BranchCount;
 typedef 5  NumFuncUnits;
 typedef 64 PRNum;
+typedef 3  KillCount;

@@ -76,7 +76,7 @@ module mkRob(Rob);
     endmethod
 
     method Action updateTail(RobTag robTab);
-        tail <= robTab;
+        tail <= (robTab + 1)%fromInteger(valueOf(RobCount));
         updateTailEn.send();
     endmethod
 

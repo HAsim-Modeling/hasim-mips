@@ -26,25 +26,19 @@ module [HASim_Module] mkPipe_Execute();
 
     Reg#(FuncUnitPos)                                           funcUnitPos <- mkReg(0);
 
-    Reg#(ClockCounter)                                         modelCounter <- mkReg(0);
-
     rule execute(True);
-        funcUnitPos <= (funcUnitPos + 1)%fromInteger(valueOf(NumFuncUnits));
-        let recv    <- execPort[funcUnitPos].receive();
+        funcUnitPos   <= (funcUnitPos + 1)%fromInteger(valueOf(NumFuncUnits));
+        let recvMaybe <- execPort[funcUnitPos].receive();
 
-        Maybe#(Tuple2#(ExecEntry, InstResult)) execResult = ?;
-        if(isValid(recv))
-        begin
-            match {.token, .res} <- fpExeResponse.receive();
-            $display("Execute: Token: %0d @ Model: %0d", token.index, modelCounter);
-            fpMemReq.send(tuple2(token, ?));
-            execResult = tagged Valid tuple2(validValue(recv), res);
-        end
-        else
-            execResult = tagged Invalid;
-        execResultPort[funcUnitPos].send(execResult);
-
-        if(funcUnitPos == fromInteger(valueOf(TSub#(NumFuncUnits,1))))
-            modelCounter <= modelCounter + 1;
+        case (recvMaybe) matches
+            tagged Valid .recv:
+            begin
+                match {.token, .res} <- fpExeResponse.receive();
+                fpMemReq.send(tuple2(token, ?));
+                execResultPort[funcUnitPos].send(tagged Valid tuple2(recv, res));
+            end
+            default:
+                execResultPort[funcUnitPos].send(tagged Invalid);
+        endcase
     endrule
 endmodule

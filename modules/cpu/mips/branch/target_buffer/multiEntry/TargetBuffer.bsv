@@ -5,7 +5,7 @@ import FIFOF::*;
 
 typedef 4 BufferSize;
 
-module mkTargetBuffer#(Addr startAddr)(FIFO#(Addr));
+module mkTargetBuffer#(Addr startAddr)(FIFOF#(Addr));
     FIFOF#(Addr) addrFifo <- mkSizedFIFOF(valueOf(BufferSize));
 
     //Really dumb buffer which drops the value if the fifo is full
@@ -28,6 +28,14 @@ module mkTargetBuffer#(Addr startAddr)(FIFO#(Addr));
 
     method Action clear();
         addrFifo.clear();
+    endmethod
+
+    method Bool notEmpty();
+        return addrFifo.notEmpty();
+    endmethod
+
+    method Bool notFull();
+        return addrFifo.notFull();
     endmethod
 endmodule
 

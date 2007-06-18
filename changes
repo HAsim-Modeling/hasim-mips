@@ -2018,3 +2018,32 @@ Directory modules/cpu/mips/pipeline/decode/s10k
  Decode.bsv                Locally Modified          107 
 
 Changed Decode to use the new interface. Also had a bug in the notTaken predictor (import statement missing)
+
+----------
+vmurali     Date: Mon Jun 18 10:28:18 EDT 2007  CSN: CSN-hasim-mips-111
+                  Mon Jun 18 14:28:18 UTC 2007
+
+
+Directory modules/cpu/mips/pipeline/execute/superscalar
+ Execute.bsv               Locally Modified          110 
+
+Directory modules/cpu/mips/pipeline/decode/s10k/rob/simple
+ Rob.bsv                   Locally Modified          110 
+
+Directory modules/cpu/mips/pipeline/decode/s10k
+ Decode.bsv                Locally Modified          110 
+
+Directory modules/cpu/mips/pipeline/fetch/superscalar
+ Fetch.bsv                 Locally Modified          110 
+
+Directory modules/cpu/mips/pipeline/writeback/superscalar
+ Commit.bsv                Locally Modified          110 
+
+Directory modules/cpu/mips/branch/target_buffer/multiEntry
+ TargetBuffer.bsv          Locally Modified          110 
+
+Directory modules/cpu/mips/s10k
+ Parameters.bsv            Locally Modified          110 
+
+Cleaned up code for Decode
+
