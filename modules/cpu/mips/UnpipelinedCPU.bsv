@@ -33,7 +33,7 @@ typedef enum
 `define MODULE_NAME "mkCPU"
 module [HASim_Module] mkCPU
      //interface:
-                 (TModule#(Command, Response));
+                 ();
 
   
   //********* State Elements *********//
@@ -43,6 +43,9 @@ module [HASim_Module] mkCPU
   
   //Have we run the program or not?
   Reg#(Bool) ran <- mkReg(False);
+  
+  //Did the test pass or fail?
+  Reg#(Bool) passfail <- mkReg(False);
   
   //Have we made a req to FP and are waiting for a response?
   Reg#(Bool) madeReq <- mkReg(False);
@@ -57,7 +60,7 @@ module [HASim_Module] mkCPU
   Reg#(Inst)  cur_inst <- mkRegU();
   
   //The Program Counter
-  Reg#(Addr) pc <- mkReg(0);
+  Reg#(Addr) pc <- mkReg(32'h00001000);
   
   //The actual Clock Cycle, for debugging messages
   Reg#(Bit#(32)) hostCC <- mkReg(0);
@@ -65,7 +68,7 @@ module [HASim_Module] mkCPU
   //The simulation Clock Cycle, or "tick"
   Reg#(Tick) baseTick <- mkReg(0);
   
-  //********* Ports *********//
+  //********* Connections *********//
   
   Connection_Client#(Bit#(8), Token)
   //...
@@ -77,7 +80,7 @@ module [HASim_Module] mkCPU
   link_to_fet <- mkConnection_Client("fp_fet");
   
   Connection_Client#(Tuple2#(Token, void),
-                     Tuple2#(Token, DepInfo))
+                     Tuple2#(Token, TokDep))
   //...
   link_to_dec <- mkConnection_Client("fp_dec");
   
@@ -139,11 +142,13 @@ module [HASim_Module] mkCPU
   //...
         link_gco_kill <- mkConnection_Send("fp_gco_kill");
   
+  Connection_Server#(Command, Response)  link_controller <- mkConnection_Server("controller_to_tp");
+ 
   //Events
   
-  EventRecorder
+  //EventRecorder
   //...
-        event_com <- mkEventRecorder("com");
+        //event_com <- mkEventRecorder("com");
   
   //********* Rules *********//
 
@@ -169,7 +174,7 @@ module [HASim_Module] mkCPU
 	    debug_then("!madeReq");
 	    
 	    //Request a token
-	    debug(2, $display("[%d] Requesting a new token on model cycle %d.", hostCC, baseTick));
+	    debug(2, $display("[%d] Requesting a new token on model cycle %0d.", hostCC, baseTick));
 	    link_to_tok.makeReq(17);
 	    
 	    madeReq <= True;
@@ -198,7 +203,7 @@ module [HASim_Module] mkCPU
 	    debug_then("!madeReq");
 	    
 	    //Fetch next instruction
-	    debug(2, $display("[%d] Fetching token %0d at address %h.", hostCC, cur_tok.index, pc));
+	    debug(2, $display("[%d] Fetching token %0d at address 0x%h.", hostCC, cur_tok.index, pc));
             link_to_fet.makeReq(tuple2(cur_tok, pc));
 	    
 	    madeReq <= True;
@@ -209,9 +214,9 @@ module [HASim_Module] mkCPU
 	    
 	    //Get the response
             match {.tok, .inst} <- link_to_fet.getResp();
-	    debug(2, $display("[%d] FET Responded with token %0d.", hostCC, tok));
+	    debug(2, $display("[%d] FET Responded with token %0d.", hostCC, tok.index));
 	    
-	    if (tok != cur_tok) $display ("FET ERROR: Token Mismatch. Expected: %0d Received: %0d", cur_tok, tok);
+	    if (tok.index != cur_tok.index) $display ("FET ERROR: Token Mismatch. Expected: %0d Received: %0d", cur_tok.index, tok.index);
 	    
 	    stage <= DEC;
 	    madeReq <= False;
@@ -236,30 +241,9 @@ module [HASim_Module] mkCPU
 	    
  	    //Get the response
             match {.tok, .deps} <- link_to_dec.getResp();
-	    debug(2, $display("[%d] DEC Responded with token %0d.", hostCC, tok));
+	    debug(2, $display("[%d] DEC Responded with token %0d.", hostCC, tok.index));
 	    
-	    case (deps.dep_dest) matches
-	      tagged Valid {.rname, .prname}:
-	        debug(2, $display("Destination: (%d, %d)", rname, prname));
-	      tagged Invalid:
-	        debug(2, $display("No destination."));
-	    endcase
-	    
-	    case (deps.dep_src1) matches
-	      tagged Valid {.rname, .prname}:
-	        debug(2, $display("Source 1: (%d, %d)", rname, prname));
-	      tagged Invalid:
-	        debug(2, $display("No Source 1."));
-	    endcase
-	    
-	    case (deps.dep_src2) matches
-	      tagged Valid {.rname, .prname}:
-	        debug(2, $display("Source 2: (%d, %d)", rname, prname));
-	      tagged Invalid:
-	        debug(2, $display("No Source 2."));
-	    endcase
-	    
-	    if (tok != cur_tok) $display ("DEC ERROR: Token Mismatch. Expected: %0d Received: %0d", cur_tok, tok);
+	    if (tok.index != cur_tok.index) $display ("DEC ERROR: Token Mismatch. Expected: %0d Received: %0d", cur_tok.index, tok.index);
 	    
 	    stage <= EXE;
 	    madeReq <= False;
@@ -282,9 +266,9 @@ module [HASim_Module] mkCPU
 	    
  	    //Get the response
             match {.tok, .res} <- link_to_exe.getResp();
-	    debug(2, $display("[%d] EXE Responded with token %0d.", hostCC, tok));
+	    debug(2, $display("[%d] EXE Responded with token %0d.", hostCC, tok.index));
 	    
-	    if (tok != cur_tok) $display ("EXE ERROR: Token Mismatch. Expected: %0d Received: %0d", cur_tok, tok);
+	    if (tok.index != cur_tok.index) $display ("EXE ERROR: Token Mismatch. Expected: %0d Received: %0d", cur_tok.index, tok.index);
 	   	
 	    case (res) matches
 	      tagged RBranchTaken .addr:
@@ -295,17 +279,18 @@ module [HASim_Module] mkCPU
               tagged RBranchNotTaken:
 	      begin
 	        debug(2, $display("Branch not taken"));
-	   	pc <= pc + 1;
+	   	pc <= pc + 4;
 	      end
               tagged RNop:
 	      begin
 	        debug(2, $display("Nop"));
-	   	pc <= pc + 1;
+	   	pc <= pc + 4;
 	      end
-              tagged RTerminate:
+              tagged RTerminate .pf:
 	      begin
 	        debug(2, $display("Terminating Execution"));
 	   	running <= False;
+		passfail <= pf;
 	      end
 	    endcase
 	    
@@ -332,9 +317,9 @@ module [HASim_Module] mkCPU
 	    
  	    //Get the response
 	    match {.tok, .*} <- link_to_mem.getResp();
-	    debug(2, $display("[%d] MEM Responded with token %0d.", hostCC, tok));
+	    debug(2, $display("[%d] MEM Responded with token %0d.", hostCC, tok.index));
 	    
-	    if (tok != cur_tok) $display ("MEM ERROR: Token Mismatch. Expected: %0d Received: %0d", cur_tok, tok);
+	    if (tok.index != cur_tok.index) $display ("MEM ERROR: Token Mismatch. Expected: %0d Received: %0d", cur_tok.index, tok.index);
 	    
 	    stage <= LCO;
 	    madeReq <= False;
@@ -360,9 +345,9 @@ module [HASim_Module] mkCPU
  	    //Get the response
   
             match {.tok, .*} <- link_to_lco.getResp();
-	    debug(2, $display("[%d] LCO Responded with token %0d.", hostCC, tok));
+	    debug(2, $display("[%d] LCO Responded with token %0d.", hostCC, tok.index));
 	    
-	    if (tok != cur_tok) $display ("LCO ERROR: Token Mismatch. Expected: %0d Received: %0d", cur_tok, tok);
+	    if (tok.index != cur_tok.index) $display ("LCO ERROR: Token Mismatch. Expected: %0d Received: %0d", cur_tok.index, tok.index);
 	    
 	    stage <= GCO;
 	    madeReq <= False;
@@ -387,12 +372,12 @@ module [HASim_Module] mkCPU
 	    
  	    //Get the response
             match {.tok, .*} <- link_to_gco.getResp();
-	    debug(2, $display("[%d] GCO Responded with token %0d.", hostCC, tok));
+	    debug(2, $display("[%d] GCO Responded with token %0d.", hostCC, tok.index));
 	    
-	    if (tok != cur_tok) $display ("GCO ERROR: Token Mismatch. Expected: %0d Received: %0d", cur_tok, tok);
+	    if (tok.index != cur_tok.index) $display ("GCO ERROR: Token Mismatch. Expected: %0d Received: %0d", cur_tok.index, tok.index);
 	    
-	    debug(1, $display("Committed token %0d on model cycle %h.", cur_tok.index, baseTick));
-	    event_com.recordEvent(Valid zeroExtend(cur_tok.index));
+	    debug(1, $display("Committed token %0d on model cycle %0d.", cur_tok.index, baseTick));
+	    //event_com.recordEvent(tagged Valid zeroExtend(cur_tok.index));
 	    
 	    stage <= TOK;
 	    madeReq <= False;
@@ -402,18 +387,27 @@ module [HASim_Module] mkCPU
     endcase    
   endrule
 
-  method Action exec(Command c);
+  rule startExec(!ran && !running);
 
-    running <= True;
-    ran <= True;
+    let cmd <- link_controller.getReq();
     
-  endmethod
+    case (cmd) matches
+      tagged COM_RunProgram:
+      begin
+        running <= True;
+	ran <= True;
+      end
+      default:
+        noAction;
+    endcase
+  
+  endrule
 
-  method ActionValue#(Response) response() if (ran && !running);
+  rule finishExec (ran && !running);
+    link_controller.makeResp(tagged RESP_DoneRunning passfail);
     ran <= False;
-    return RESP_DoneRunning;
 
-  endmethod
+  endrule
 
   
 endmodule

@@ -9,9 +9,7 @@
 //                                                                           //
 ///////////////////////////////////////////////////////////////////////////////
 
-import GetPut::*;
-import ClientServer::*;
-import RegFile::*;
+import FIFO::*;
 
 import hasim_common::*;
 
@@ -356,6 +354,16 @@ typedef struct
     deriving
             (Eq, Bits);
 
+//FP Decode-->TP
+typedef struct 
+{
+  Maybe#(TokIndex) src1; 
+  Maybe#(TokIndex) src2;
+}
+  TokDep
+    deriving
+            (Eq, Bits);
+
 //Result of executing an instruction
 
 //FP Exec-->TP
@@ -371,60 +379,303 @@ typedef union tagged
             (Eq, Bits);
 
 //Timing model helper functions
-function Bool isShift(PackedInst inst);
+function Bool p_isShift(PackedInst inst);
     let op   = inst[31:26];
     let func = inst[5:0];
     return (inst != 32'b0) && (op == opFUNC) && (func == fcSLL || func == fcSRL || func == fcSRA || func == fcSLLV || func == fcSRLV || func == fcSRAV);
 endfunction
 
-function Bool isBranch(PackedInst inst);
+function Bool p_isBranch(PackedInst inst);
     let op = inst[31:26];
     let rt = inst[20:16];
     return (op == opBEQ || op == opBNE || op == opBLEZ || op == opBGTZ) || (op == opRT && (rt == rtBLTZ || rt == rtBGEZ));
 endfunction
 
-function Bool isJ(PackedInst inst);
+function Bool p_isJ(PackedInst inst);
     let op = inst[31:26];
     return op == opJ;
 endfunction
 
-function Bool isJAL(PackedInst inst);
+function Bool p_isJAL(PackedInst inst);
     let op = inst[31:26];
     return op == opJAL;
 endfunction
 
-function Bool isJR(PackedInst inst);
+function Bool p_isJR(PackedInst inst);
     let op   = inst[31:26];
     let func = inst[5:0];
     return op == opFUNC && func == fcJR;
 endfunction
 
-function Bool isJALR(PackedInst inst);
+function Bool p_isJALR(PackedInst inst);
     let op   = inst[31:26];
     let func = inst[5:0];
     return op == opFUNC && func == fcJALR;
 endfunction
 
-function Bool isLoad(PackedInst inst);
+function Bool p_isLoad(PackedInst inst);
     let op = inst[31:26];
     return op == opLW;  
 endfunction
 
-function Bool isStore(PackedInst inst);
+function Bool p_isStore(PackedInst inst);
     let op = inst[31:26];
     return op == opSW;  
 endfunction
 
-function Bool isALU(PackedInst inst);
+function Bool p_isALU(PackedInst inst);
     return !(inst == 32'b0) && !(isBranch(inst) || isJ(inst) || isJAL(inst) || isJR(inst) || isJALR(inst) || isLoad(inst) || isStore(inst));
 endfunction
 
-function Addr getJAddr(PackedInst inst, Addr pc);
+function Addr p_getJAddr(PackedInst inst, Addr pc);
     let addr = inst[25:0];
     let pcPlus4 = pc + 4;
     return {pcPlus4[31:28], {addr, 2'b0}};
 endfunction
 
-function Addr getJALAddr(PackedInst inst, Addr pc);
-    return getJAddr(inst, pc);
+function Addr p_getJALAddr(PackedInst inst, Addr pc);
+    return p_getJAddr(inst, pc);
 endfunction
+
+//Helper functions
+
+
+function Maybe#(RName) getOp1(Inst i);
+
+  return case ( i ) matches
+
+    // -- Memory Ops ------------------------------------------------      
+
+    tagged LW .it : return tagged Valid it.rbase;
+    tagged SW .it : return tagged Valid it.rbase;
+
+    // -- Simple Ops ------------------------------------------------      
+
+    tagged ADDIU .it : return tagged Valid it.rsrc;
+    tagged SLTI  .it : return tagged Valid it.rsrc;
+    tagged SLTIU .it : return tagged Valid it.rsrc;
+    tagged ANDI  .it : return tagged Valid it.rsrc;
+    tagged ORI   .it : return tagged Valid it.rsrc;
+    tagged XORI  .it : return tagged Valid it.rsrc;
+    tagged LUI   .it : return tagged Invalid;
+
+    tagged SLL   .it : return tagged Valid it.rsrc;
+    tagged SRL   .it : return tagged Valid it.rsrc;
+    tagged SRA   .it : return tagged Valid it.rsrc;
+    tagged SLLV  .it : return tagged Valid it.rsrc;
+    tagged SRLV  .it : return tagged Valid it.rsrc;
+    tagged SRAV  .it : return tagged Valid it.rsrc;
+    tagged ADDU  .it : return tagged Valid it.rsrc1;
+    tagged SUBU  .it : return tagged Valid it.rsrc1;
+    tagged AND   .it : return tagged Valid it.rsrc1;
+    tagged OR    .it : return tagged Valid it.rsrc1;
+    tagged XOR   .it : return tagged Valid it.rsrc1;
+    tagged NOR   .it : return tagged Valid it.rsrc1;
+    tagged SLT   .it : return tagged Valid it.rsrc1;
+    tagged SLTU  .it : return tagged Valid it.rsrc1;
+
+    tagged MTC0  .it : return tagged Valid it.rsrc;
+    tagged MFC0  .it : return tagged Invalid;
+
+    // -- Branches --------------------------------------------------
+
+    tagged BLEZ  .it : return tagged Valid it.rsrc;
+    tagged BGTZ  .it : return tagged Valid it.rsrc;
+    tagged BLTZ  .it : return tagged Valid it.rsrc;
+    tagged BGEZ  .it : return tagged Valid it.rsrc;
+    tagged BEQ   .it : return tagged Valid it.rsrc1;
+    tagged BNE   .it : return tagged Valid it.rsrc1;
+
+    // -- Jumps -----------------------------------------------------
+
+    tagged J     .it : return tagged Invalid;
+    tagged JR    .it : return tagged Valid it.rsrc;
+    tagged JAL   .it : return tagged Invalid;
+    tagged JALR  .it : return tagged Valid it.rsrc;
+
+    default:           return tagged Invalid;
+  endcase;
+
+endfunction
+  
+function Maybe#(RName) getSrc1(Inst i);
+
+  case (getOp1(i)) matches
+    tagged Invalid: return tagged Invalid;
+    tagged Valid .r: return (r == 0) ? tagged Invalid : tagged Valid r;
+  endcase 
+  
+endfunction
+
+function Maybe#(RName) getOp2(Inst i);
+
+  return case ( i ) matches
+
+    tagged SW    .it : return tagged Valid it.rsrc;
+    tagged ADDU  .it : return tagged Valid it.rsrc2;
+    tagged SUBU  .it : return tagged Valid it.rsrc2;
+    tagged AND   .it : return tagged Valid it.rsrc2;
+    tagged OR    .it : return tagged Valid it.rsrc2;
+    tagged XOR   .it : return tagged Valid it.rsrc2;
+    tagged NOR   .it : return tagged Valid it.rsrc2;
+    tagged SLT   .it : return tagged Valid it.rsrc2;
+    tagged SLTU  .it : return tagged Valid it.rsrc2;
+    tagged SLLV  .it : return tagged Valid it.rshamt;
+    tagged SRLV  .it : return tagged Valid it.rshamt;
+    tagged SRAV  .it : return tagged Valid it.rshamt;
+
+    tagged BEQ   .it : return tagged Valid it.rsrc2;
+
+    tagged BNE   .it : return tagged Valid it.rsrc2;
+    default:           return tagged Invalid;
+  endcase;
+
+endfunction
+
+function Maybe#(RName) getSrc2(Inst i);
+
+  case (getOp2(i)) matches
+    tagged Invalid:  return tagged Invalid;
+    tagged Valid .r: return (r == 0) ? tagged Invalid : tagged Valid r;
+  endcase
+  
+endfunction
+
+function Bool src1IsR0(Inst i);
+
+  case (getOp1(i)) matches
+    tagged Invalid: return False;
+    tagged Valid .r: return r == 0;
+  endcase
+
+endfunction
+
+function Bool src2IsR0(Inst i);
+  
+  case (getOp2(i)) matches
+    tagged Invalid: return False;
+    tagged Valid .r: return r == 0;
+  endcase
+  
+endfunction
+
+function Maybe#(RName) getRDest(Inst i);
+   return case ( i ) matches
+
+    // -- Memory Ops ------------------------------------------------      
+
+    tagged LW .it : return tagged Valid it.rdest;
+
+    tagged SW .it : return tagged Invalid;
+
+    // -- Simple Ops ------------------------------------------------      
+
+    tagged ADDIU .it : return tagged Valid it.rdest;
+    tagged SLTI  .it : return tagged Valid it.rdest;
+    tagged SLTIU .it : return tagged Valid it.rdest;
+    tagged ANDI  .it : return tagged Valid it.rdest;
+    tagged ORI   .it : return tagged Valid it.rdest;
+    tagged XORI  .it : return tagged Valid it.rdest;
+    tagged LUI   .it : return tagged Valid it.rdest;
+
+    tagged SLL   .it : return tagged Valid it.rdest;
+    tagged SRL   .it : return tagged Valid it.rdest;
+    tagged SRA   .it : return tagged Valid it.rdest;
+    tagged SLLV  .it : return tagged Valid it.rdest;
+    tagged SRLV  .it : return tagged Valid it.rdest;
+    tagged SRAV  .it : return tagged Valid it.rdest;
+    tagged ADDU  .it : return tagged Valid it.rdest;
+    tagged SUBU  .it : return tagged Valid it.rdest;
+    tagged AND   .it : return tagged Valid it.rdest;
+    tagged OR    .it : return tagged Valid it.rdest;
+    tagged XOR   .it : return tagged Valid it.rdest;
+    tagged NOR   .it : return tagged Valid it.rdest;
+    tagged SLT   .it : return tagged Valid it.rdest;
+    tagged SLTU  .it : return tagged Valid it.rdest;
+
+    tagged MTC0  .it : return tagged Invalid;
+    tagged MFC0  .it : return tagged Valid it.rdest;
+
+    // -- Branches --------------------------------------------------
+
+    tagged BLEZ  .it : return tagged Invalid;
+
+    tagged BGTZ  .it : return tagged Invalid;
+
+    tagged BLTZ  .it : return tagged Invalid;
+
+    tagged BGEZ  .it : return tagged Invalid;
+
+    tagged BEQ   .it : return tagged Invalid;
+
+    tagged BNE   .it : return tagged Invalid;
+
+    // -- Jumps -----------------------------------------------------
+
+    tagged J     .it : return tagged Invalid;
+
+    tagged JR    .it : return tagged Invalid;
+
+    tagged JAL   .it : return tagged Valid 5'd31;
+
+    tagged JALR  .it : return tagged Valid it.rdest;
+    default:           return tagged Invalid;
+  endcase;
+endfunction
+
+function Maybe#(RName) getDest(Inst i);
+
+   return case (getRDest(i)) matches
+     tagged Invalid: return tagged Invalid;
+     tagged Valid .d: return (d == 0) ? tagged Invalid : tagged Valid d;
+    endcase;
+    
+endfunction
+
+
+function Bool isBranch(Inst i);
+   return case ( i ) matches
+
+    tagged BLEZ  .it : return True;
+
+    tagged BGTZ  .it : return True;
+
+    tagged BLTZ  .it : return True;
+
+    tagged BGEZ  .it : return True;
+
+    tagged BEQ   .it : return True;
+
+    tagged BNE   .it : return True;
+
+    // -- Jumps -----------------------------------------------------
+
+    tagged J     .it : return True;
+
+    tagged JR    .it : return True;
+
+    tagged JAL   .it : return False; //Don't snapshot JAL instructions
+
+    tagged JALR  .it : return False;
+    default:           return False;
+  endcase;
+endfunction
+
+function Bool isLoad(Inst i);
+  return case ( i ) matches
+
+    tagged LW .it : return True;
+    default: return False;
+    
+  endcase;
+endfunction
+
+function Bool isStore(Inst i);
+  return case ( i ) matches
+
+    tagged SW .it : return True;
+    default: return False;
+    
+  endcase;
+endfunction
+

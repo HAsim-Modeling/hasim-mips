@@ -336,7 +336,7 @@ module [HASim_Module] mkFUNCP_ExecuteAlg ();
           done  = isJust(mva);
 	  res   = tagged RNop;
 	  wbval = unJust(mva) << sha;
-	  dbg = $display("EXE: [%d] DSLL PR%d <= 0x%h = 0x%h << 0x%h", tok.index, rd, wbval, mva, sha);
+	  dbg = $display("EXE: [%d] DSLL PR%d <= 0x%h = 0x%h << 0x%h", tok.index, rd, wbval, unJust(mva), sha);
           einst = EWB
                   {
 		    pdest:  rd
@@ -350,7 +350,7 @@ module [HASim_Module] mkFUNCP_ExecuteAlg ();
           done  = isJust(mva);
 	  res   = tagged RNop;
 	  wbval = unJust(mva) >> sha;
-	  dbg = $display("EXE: [%d] DSRL PR%d <= 0x%h = 0x%h >> 0x%h", tok.index, rd, wbval, mva, sha);
+	  dbg = $display("EXE: [%d] DSRL PR%d <= 0x%h = 0x%h >> 0x%h", tok.index, rd, wbval, unJust(mva), sha);
           einst = EWB
                   {
 		    pdest:  rd
@@ -364,7 +364,7 @@ module [HASim_Module] mkFUNCP_ExecuteAlg ();
           done  = isJust(mva);
 	  res   = tagged RNop;
 	  wbval = signedShiftRight(unJust(mva), sha);
-	  dbg = $display("EXE: [%d] DSRA PR%d <= 0x%h = 0x%h <<a 0x%h", tok.index, rd, wbval, mva, sha);
+	  dbg = $display("EXE: [%d] DSRA PR%d <= 0x%h = 0x%h <<a 0x%h", tok.index, rd, wbval, unJust(mva), sha);
           einst = EWB
                   {
 		    pdest:  rd
@@ -690,7 +690,7 @@ module [HASim_Module] mkFUNCP_ExecuteAlg ();
 	  Bool pf = unJust(mva) == 1; //Equal to 1 means we passed
 	  //A Non-Zero value to "fromHost" is equivalent to a terminate for our purposes
 	  res   = (unJust(mva) == 0) ? tagged RNop : (cd == 21) ? tagged RTerminate pf : tagged RNop;
-	  dbg = $display("EXE: [%d] DMTC0 COP0 R%d <= 0x%h", tok.index, cd, rs);
+	  dbg = $display("EXE: [%d] DMTC0 COP0 R%d <= 0x%h", tok.index, cd, unJust(mva));
           einst = ENop;
 	end
 

@@ -2088,3 +2088,33 @@ Directory config/pm/hasim-mips/s10k
  s10k.apm                  Locally Modified          111 
 
 Passes all v1 tests, and all v2 tests except branches and loads
+
+----------
+mpellaue    Date: Thu Jun 21 18:14:58 EDT 2007  CSN: CSN-hasim-mips-114
+                  Thu Jun 21 22:14:58 UTC 2007
+
+
+Directory config/pm/hasim-mips
+ semantic-model/           Locally Added               0 
+
+Directory config/pm/hasim-mips/semantic-model
+ semantic_model.apm        Locally Added               0 
+ 5stage_semantic.apm       Locally Added               0 
+
+Directory modules/functional/smips
+ FUNCP_ExecuteAlg.bsv      Locally Modified          113 
+
+Directory modules/cpu/mips
+ UnpipelinedCPU.bsv        Locally Modified          113 
+
+Directory modules/isa/smips
+ ISA.bsv                   Locally Modified          113 
+ SMIPS_Datapath.bsv        Locally Added               0 
+ hasim_smips_datapath.awb  Locally Added               0 
+
+
+Changes to the "semantic model" - Unpipelined CPU with simple funcp.
+
+First cut at adding an SMIPS datapath.
+
+Michael P.
