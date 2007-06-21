@@ -182,9 +182,6 @@ hasim_issue_alg=Simple time-based priority issue queue
 File=modules/cpu/mips/s10k/Types.awb
 Packagehint=hasim-mips
 
-[Infinite Entry Branch Stack]
-File=modules/cpu/mips/branch/stack/infinite/BranchStack.awb
-Packagehint=hasim-mips
 
 [Always not taken Branch Predictor]
 File=modules/cpu/mips/branch/predictor/notTaken/BranchPred.awb
@@ -197,7 +194,7 @@ Packagehint=hasim-mips
 [SMIPS R10K Superscalar Decode Stage/Requires]
 hasim_branch_pred=Always not taken Branch Predictor
 hasim_rob=Superscalar ROB model
-hasim_branch_stack=Infinite Entry Branch Stack
+hasim_branch_stack=One Entry Branch Stack
 hasim_branch_target_buffer=Multi entry Target Buffer
 
 [Superscalar ROB model]
@@ -206,4 +203,8 @@ Packagehint=hasim-mips
 
 [Multi entry Target Buffer]
 File=modules/cpu/mips/branch/target_buffer/multiEntry/TargetBuffer.awb
+Packagehint=hasim-mips
+
+[One Entry Branch Stack]
+File=modules/cpu/mips/branch/stack/one-entry/BranchStack.awb
 Packagehint=hasim-mips

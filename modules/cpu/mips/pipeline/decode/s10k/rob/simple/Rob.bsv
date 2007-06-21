@@ -22,9 +22,9 @@ typedef struct {
 } RobEntry deriving (Bits, Eq);
 
 interface Rob;
-    method Maybe#(RobEntry) read(RobTag robTag);
+    method ActionValue#(Maybe#(RobEntry)) read(RobTag robTag);
     method Action write(RobTag robTag, RobEntry robEntry);
-    method Maybe#(RobEntry) readHead();
+    method ActionValue#(Maybe#(RobEntry)) readHead();
     method Action incrementHead();
     method Action updateTail(RobTag robTab);
     method Action writeTail(RobEntry robEntry); //and increment
@@ -49,10 +49,11 @@ module mkRob(Rob);
         inc <= False;
     endrule
 
-    method Maybe#(RobEntry) read(RobTag robTag);
+    method ActionValue#(Maybe#(RobEntry)) read(RobTag robTag);
         let valid = head < tail && robTag >= head && robTag < tail ||
                     head > tail && (robTag >= head || robTag < tail) ||
-                    !empty;
+                    head == tail && !empty;
+        $display("Read ROB: %0d Head: %0d, tail:%0d Valid: %0d", robTag, head, tail, valid);
         if(valid)
             return tagged Valid robFile.sub(truncate(robTag));
         else
@@ -68,7 +69,7 @@ module mkRob(Rob);
         incrementHeadEn.send();
     endmethod
 
-    method Maybe#(RobEntry) readHead();
+    method ActionValue#(Maybe#(RobEntry)) readHead();
         if(!empty)
             return tagged Valid(robFile.sub(truncate(head)));
         else

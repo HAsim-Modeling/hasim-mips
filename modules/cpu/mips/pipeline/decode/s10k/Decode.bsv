@@ -51,6 +51,7 @@ module [HASim_Module] mkPipe_Decode();
     Port_Receive#(MemQCountType)                                    memQCountPort <- mkPort_Receive("issueToDecodeMemQ", 1);
 
     Vector#(FetchWidth, Port_Send#(IssueEntry))                         issuePort <- genWithM(sendFunctionM("decodeToIssue"));
+    Vector#(NumFuncUnits, Port_Send#(PRName))                         killRegPort <- genWithM(sendFunctionM("decodeToIssueKill"));
 
     Vector#(NumFuncUnits, Port_Receive#(Tuple2#(ExecEntry, InstResult)))
                                                                    execResultPort <- genWithM(receiveFunctionM("execToDecodeResult"));
@@ -72,17 +73,18 @@ module [HASim_Module] mkPipe_Decode();
 
     Reg#(FetchCount)                                                   fetchCount <- mkReg(?);
     Reg#(FetchCount)                                                  decodeCount <- mkReg(fromInteger(valueOf(FetchWidth)));
-    Reg#(FetchCount)                                              instBufferCount <- mkReg(0);
+    Reg#(Bit#(TLog#(TAdd#(TMul#(FetchWidth,2),1))))               instBufferCount <- mkReg(0);
     Reg#(FuncUnitPos)                                              robUpdateCount <- mkReg(?);
     Reg#(CommitCount)                                                 commitCount <- mkReg(?);
     Reg#(Maybe#(Addr))                                                predictedPC <- mkReg(tagged Invalid);
     Reg#(Maybe#(Addr))                                               mispredictPC <- mkReg(tagged Invalid);
 
     Rob                                                                       rob <- mkRob();
-    Reg#(Vector#(PRNum, Bool))                                           pRegFile <- mkReg(replicate(False));
     BranchStack                                                       branchStack <- mkBranchStack();
     BranchPred                                                         branchPred <- mkBranchPred();
     FIFOF#(Addr)                                                     targetBuffer <- mkTargetBuffer(pcStart);
+
+    Reg#(Bool)                                                    modelCycleBegin <- mkReg(True);
 
     Reg#(Bool)                                                              birth <- mkReg(True);
 
@@ -106,11 +108,16 @@ module [HASim_Module] mkPipe_Decode();
     rule synchronize(fetchState == FetchDone && robUpdateState == RobUpdateDone && decodeState == DecodeDone && commitState == CommitDone);
         modelCounter           <= modelCounter + 1;
 
-        FetchCount sendSize = (instBufferCount < fromInteger(valueOf(FetchWidth)))? fromInteger(valueOf(FetchWidth)) - instBufferCount: 0;
+        FetchCount sendSize = (instBufferCount < fromInteger(valueOf(FetchWidth)))? truncate(fromInteger(valueOf(FetchWidth)) - instBufferCount): 0;
 
-        decodeNumPort.send(tagged Valid sendSize);
-        predictedTakenPort.send(predictedPC);
-        mispredictPort.send(mispredictPC);
+        if(!modelCycleBegin)
+        begin
+            decodeNumPort.send(tagged Valid sendSize);
+            predictedTakenPort.send(predictedPC);
+            mispredictPort.send(mispredictPC);
+        end
+
+        modelCycleBegin <= False;
 
         $display("Decode synchronize: instBufferCount %0d, sendSize: %0d, decodeCount: %0d @ Model: %0d", instBufferCount, sendSize, decodeCount, modelCounter);
 
@@ -148,8 +155,8 @@ module [HASim_Module] mkPipe_Decode();
     endrule
 
     rule commit(commitState == Commit);
-        Maybe#(RobEntry) robEntryMaybe  = rob.readHead();
-        commitCount            <= commitCount + 1;
+        Maybe#(RobEntry) robEntryMaybe <- rob.readHead();
+        commitCount                    <= commitCount + 1;
         if(robEntryMaybe matches tagged Valid .robEntry &&& robEntry.done)
         begin
             commitTokenPort[commitCount].send(tagged Valid robEntry.token);
@@ -179,12 +186,16 @@ module [HASim_Module] mkPipe_Decode();
         case (execResultMaybe) matches
             tagged Valid .execResult:
             begin
-                Tuple2#(Token, void) memAck   <- fpMemoryResp.receive();
-                match {.exec, .res}            = execResult;
-                Maybe#(RobEntry) robEntryMaybe = rob.read(exec.robTag);
+                Tuple2#(Token, void) memAck    <- fpMemoryResp.receive();
+                match {.exec, .res}             = execResult;
+                Maybe#(RobEntry) robEntryMaybe <- rob.read(exec.robTag);
+                if(exec.pRName != 0)
+                begin
+                    freeListFreeCount     <= freeListFreeCount + 1;
+                end
                 if(robEntryMaybe matches tagged Valid .robEntry &&& robEntry.token == exec.token)
                 begin
-                    $display("Done: Token: %0d, index: %0d @ Model: %0d", exec.token.index, exec.robTag, modelCounter-1);
+                    $display("Done: Token: %0d, index: %0d @ Model: %0d %0d", exec.token.index, exec.robTag, modelCounter-1, rob.getTail());
                     RobEntry newRobEntry  = robEntry;
                     newRobEntry.done = True;
                     newRobEntry.taken = case (res) matches
@@ -202,8 +213,6 @@ module [HASim_Module] mkPipe_Decode();
                     Addr newAddr = case (res) matches
                                        tagged RBranchTaken .addr: return addr;
                                    endcase;
-                    pRegFile[exec.pRName] <= False;
-                    freeListFreeCount     <= freeListFreeCount + 1;
                     rob.write(exec.robTag, newRobEntry);
 
                     if(robEntry.isBranch && robEntry.prediction != newRobEntry.taken || robEntry.isJR && robEntry.predAddr != newAddr)
@@ -211,22 +220,27 @@ module [HASim_Module] mkPipe_Decode();
                         branchStack.resolveWrong(robEntry.branchIndex);
                         fpRewindToToken.send(exec.token);
                         rob.updateTail(exec.robTag);
-                        killCount          <= fromInteger(2);
+                        killCount          <= 2;
                         mispredictPC       <= tagged Valid newAddr;
-                        decodeCount        <= fromInteger(valueOf(FetchWidth));
                         $display("Branch mispredicted @ Model: %0d. Correct address: %x, rob index: %0d", modelCounter-1, newAddr, exec.robTag);
                     end
                     else if(robEntry.isBranch || robEntry.isJR)
+                    begin
                         branchStack.resolveRight(robEntry.branchIndex);
+                        $display("branch correctly predicted @ Model: %0d", modelCounter-1);
+                    end
+                    killRegPort[robUpdateCount].send(tagged Invalid);
                 end
                 else
                 begin
+                    killRegPort[robUpdateCount].send(tagged Valid exec.pRName);
                     fpTokKill.send(exec.token);
                     fpLocalCommitKill.send(exec.token);
                     fpMemStateKill.send(exec.token);
                     $display("ReceiveWrong: Token: %0d @ Model: %0d, pos: %0d, tail: %0d", exec.token.index, modelCounter-1, exec.robTag, rob.getTail());
                 end
             end
+            default: killRegPort[robUpdateCount].send(tagged Invalid);
         endcase
 
         robUpdateCount <= robUpdateCount + 1;
@@ -241,12 +255,12 @@ module [HASim_Module] mkPipe_Decode();
 
     function Action finishDecode();
     action
-        decodeState    <= DecodeDone;
-        for(FetchCount i = 0; i != fromInteger(valueOf(FetchWidth)); i=i+1)
+        for(Integer i = 0; i < valueOf(FetchWidth); i=i+1)
         begin
-            if(i > decodeCount)
+            if(fromInteger(i) >= decodeCount)
                 issuePort[i].send(tagged Invalid);
         end
+        decodeState <= DecodeDone;
     endaction
     endfunction
 
@@ -264,10 +278,10 @@ module [HASim_Module] mkPipe_Decode();
         PRName src1                 = tpl_2(validValue(currDepInfo.dep_src1));
         Bool src2Valid              = isValid(currDepInfo.dep_src2);
         PRName src2                 = tpl_2(validValue(currDepInfo.dep_src2));
-        PRName dest                 = tpl_2(validValue(currDepInfo.dep_dest));
+        PRName dest                 = tpl_2(fromMaybe(unpack(0),currDepInfo.dep_dest));
 
-        Bool src1Ready              = src1Valid? !pRegFile[src1]: True;
-        Bool src2Ready              = src2Valid? !pRegFile[src2]: True;
+        Bool src1Ready              = !src1Valid;
+        Bool src2Ready              = !src2Valid;
 
         Bool doCommonDecode = False;
 
@@ -283,6 +297,7 @@ module [HASim_Module] mkPipe_Decode();
                                           src1Ready: src1Ready, src1: src1,
                                           src2Ready: src2Ready, src2: src2,
                                           dest: dest};
+
             let doDecode = rob.notFull() &&
                           !(regFileUpd && freeListFreeCount == 0) &&
                           !(intQ && intQFreeCount == 0) &&
@@ -290,6 +305,9 @@ module [HASim_Module] mkPipe_Decode();
                           !((branch || jr) && !branchStack.notFull()) &&
                           !(tbEnq && !targetBuffer.notFull()) &&
                           !(tbDeq && !targetBuffer.notEmpty());
+
+            $display("branchStack: doDecode:%0d branch:%0d branchNotFull:%0d", doDecode, branch, !branchStack.notFull());
+
             if(doDecode)
             begin
                 if(regFileUpd) freeListFreeCount <= freeListFreeCount - 1;
@@ -297,7 +315,6 @@ module [HASim_Module] mkPipe_Decode();
                 if(memQ)           memQFreeCount <= memQFreeCount - 1;
                 if(tbEnq)          targetBuffer.enq(currAddr + 4);
                 if(tbDeq)          targetBuffer.deq();
-                if(regFileUpd)    pRegFile[dest] <= True;
 
                 if(branch || jr)
                 begin
@@ -313,19 +330,15 @@ module [HASim_Module] mkPipe_Decode();
 
                 instBuffer.deq();
                 decodeBuffer.deq();
-                $display("Decode : Token: %0d, addr: %x, type: %0d @ Model: %0d, res.isBranch: %0d, gettail: %0d", currToken.index, currAddr, issue.issueType, modelCounter-1, res.isBranch, rob.getTail());
+                $display("Decode : Token: %0d, addr: %x, type: %0d @ Model: %0d, res.isBranch: %0d, gettail: %0d, src1Valid: %b, src2Valid: %b", currToken.index, currAddr, issue.issueType, modelCounter-1, res.isBranch, rob.getTail(), src1Ready, src2Ready);
 
                 if(kill)
-                    killCount      <= 2;
-
-                if(kill || decodeCount == fromInteger(valueOf(TSub#(FetchWidth,1))))
-                    finishDecode();
+                    killCount <= 2;
+                else if(decodeCount == fromInteger(valueOf(TSub#(FetchWidth,1))))
+                    decodeState <= DecodeDone;
             end
             else
-            begin
-                issuePort[decodeCount].send(tagged Invalid);
                 finishDecode();
-            end
         endaction
         endfunction
 
@@ -363,17 +376,19 @@ module [HASim_Module] mkPipe_Decode();
     endrule
 
     rule prematureFinishDecode(decodeState == Decoding && killCount == 0 && !instBuffer.notEmpty() && fetchState == FetchDone);
-        issuePort[decodeCount].send(tagged Invalid);
         finishDecode();
     endrule
 
     rule decodeKillInstBuffer(decodeState == Decoding && killCount != 0);
+        $display("killCount:%0d", killCount);
         if(!instBuffer.notEmpty())
         begin
+            $display("instBuffer.empty");
             if(fetchState == FetchDone)
             begin
                 killCount   <= killCount - 1;
-                decodeState <= DecodeDone;
+                finishDecode();
+                decodeCount <= fromInteger(valueOf(FetchWidth));
             end
         end
         else

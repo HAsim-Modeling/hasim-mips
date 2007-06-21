@@ -23,6 +23,8 @@ module [HASim_Module] mkPipe_Issue();
 
     Vector#(FetchWidth, Port_Receive#(IssueEntry)) issuePort <- genWithM(receiveFunctionM("decodeToIssue"));
 
+    Vector#(NumFuncUnits, Port_Receive#(PRName)) killRegPort <- genWithM(receiveFunctionM("decodeToIssueKill"));
+
     Vector#(NumFuncUnits, Port_Send#(ExecEntry))    execPort <- genWithM(sendFunctionM("issueToExec"));
 
     Reg#(IssueState)                              issueState <- mkReg(IssueDone);
@@ -32,6 +34,8 @@ module [HASim_Module] mkPipe_Issue();
     Reg#(FuncUnitPos)                            funcUnitPos <- mkReg(?);
 
     IssueAlg                                        issueAlg <- mkIssueAlg();
+
+    Reg#(Bool)                               modelCycleBegin <- mkReg(True);
 
     Reg#(ClockCounter)                          modelCounter <- mkReg(0);
 
@@ -43,15 +47,25 @@ module [HASim_Module] mkPipe_Issue();
         let pseudoMemIssueFreeCount = fromInteger(valueOf(TSub#(MemQCount, FetchWidth)));
         let freeIntQ = pseudoIntIssueFreeCount > issueAlg.getIntQCount()? pseudoIntIssueFreeCount - issueAlg.getIntQCount() : 0;
         let freeMemQ = pseudoMemIssueFreeCount > issueAlg.getMemQCount()? pseudoMemIssueFreeCount - issueAlg.getMemQCount() : 0;
-        intQCountPort.send(tagged Valid freeIntQ);
-        memQCountPort.send(tagged Valid freeMemQ);
+
+        if(!modelCycleBegin)
+        begin
+            intQCountPort.send(tagged Valid freeIntQ);
+            memQCountPort.send(tagged Valid freeMemQ);
+        end
+
+        modelCycleBegin <= False;
 
         issueState    <= Issue;
         dispatchState <= Dispatch;
         funcUnitPos   <= 0;
         dispatchCount <= 0;
 
-        issueAlg.reqIssueVals();
+
+        Vector#(NumFuncUnits, Maybe#(PRName)) freeVec = newVector();
+        for(Integer i = 0; i < valueOf(NumFuncUnits); i=i+1)
+            freeVec[i] <- killRegPort[i].receive();
+        issueAlg.reqIssueVals(freeVec);
     endrule
 
     rule issue(issueState == Issue && issueAlg.canIssue());

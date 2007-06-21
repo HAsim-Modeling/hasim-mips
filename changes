@@ -2063,3 +2063,28 @@ Directory modules/isa/smips
  ISA.bsv                   Locally Modified          111 
 
 Had a bug where I didnt handle nops. Only now I am handling nops
+
+----------
+mvijayar    Date: Thu Jun 21 17:43:39 EDT 2007  CSN: CSN-hasim-mips-113
+                  Thu Jun 21 21:43:39 UTC 2007
+
+
+Directory modules/cpu/mips/pipeline/decode/s10k/rob/simple
+ Rob.bsv                   Locally Modified          111 
+
+Directory modules/cpu/mips/pipeline/decode/s10k
+ Decode.bsv                Locally Modified          112 
+
+Directory modules/cpu/mips/pipeline/issue/issue_alg/simple/priorityAlgo
+ IssueAlg.bsv              Locally Modified          111 
+
+Directory modules/cpu/mips/pipeline/issue/s10k
+ Issue.bsv                 Locally Modified          111 
+
+Directory modules/cpu/mips/pipeline/execute/superscalar
+ Execute.bsv               Locally Modified          111 
+
+Directory config/pm/hasim-mips/s10k
+ s10k.apm                  Locally Modified          111 
+
+Passes all v1 tests, and all v2 tests except branches and loads

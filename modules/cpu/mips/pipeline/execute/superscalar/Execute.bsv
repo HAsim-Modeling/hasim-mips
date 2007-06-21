@@ -36,6 +36,7 @@ module [HASim_Module] mkPipe_Execute();
                 match {.token, .res} <- fpExeResponse.receive();
                 fpMemReq.send(tuple2(token, ?));
                 execResultPort[funcUnitPos].send(tagged Valid tuple2(recv, res));
+                $display("exec: %0d", token.index);
             end
             default:
                 execResultPort[funcUnitPos].send(tagged Invalid);
