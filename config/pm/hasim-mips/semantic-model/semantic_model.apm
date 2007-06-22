@@ -1,10 +1,7 @@
 
-
-
 [Hasim functional partition memstate software]
 Packagehint=hasim
 File=modules/functional/common/hasim_funcp_memstate.awb
-
 
 [Hasim simple controller]
 Packagehint=hasim
@@ -19,20 +16,14 @@ Name=Unpipelined SMIPS Model
 Type=HAsim
 Class=Asim::Model
 
-
-
 [Hasim - Hardware (fpga) based system/Requires]
 hasim_funcp=Hasim functional partition semantic model
 hasim_chip=Uniprocessor chip
 hasim_isa=Hasim - SMIPS ISA
 
-
 [Model]
 DefaultAttributes=hasim smips simple
 model=HAsim Model Foundation
-
-
-
 
 [Hasim - Hardware (fpga) based system]
 Packagehint=hasim
@@ -42,13 +33,10 @@ File=modules/system/single_chip_system/hasim_system.awb
 Packagehint=hasim
 File=modules/model/hasim_model.awb
 
-
-
 [HAsim Model Foundation/Requires]
 hasim_system=Hasim - Hardware (fpga) based system
 hasim_controller=Hasim simple controller
 hasim_common=Hasim Common Library
-
 
 [Hasim functional partition storebuffer software]
 Packagehint=hasim
@@ -109,3 +97,8 @@ hasim_isa_datapath=Hasim - SMIPS Simple Datapath
 hasim_funcp_memstate_ifc=Hasim functional partition memstate interface
 hasim_funcp_memstate=Hasim functional partition memstate software
 hasim_funcp_tokstate=Hasim functional partition token state
+hasim_funcp_freelist=Hasim functional partition freelist
+
+[Hasim functional partition freelist]
+File=modules/functional/common/hasim_funcp_freelist.awb
+Packagehint=hasim

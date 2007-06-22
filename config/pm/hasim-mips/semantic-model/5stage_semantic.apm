@@ -56,7 +56,6 @@ hasim_fpgaenv=Hasim FPGA Environment
 hasim_cpu=5-stage pipeline CPU
 hasim_memory=magic memory
 
-
 [Hasim Common Library]
 File=modules/common/hasim_common.awb
 Packagehint=hasim
@@ -94,6 +93,7 @@ hasim_isa_datapath=Hasim - SMIPS Simple Datapath
 hasim_funcp_memstate_ifc=Hasim functional partition memstate interface
 hasim_funcp_memstate=Hasim functional partition memstate software
 hasim_funcp_tokstate=Hasim functional partition token state
+hasim_funcp_freelist=Hasim functional partition freelist
 
 [5-stage pipeline Command Center]
 File=modules/cpu/mips/command_center/hasim_command_center.awb
@@ -137,3 +137,7 @@ Packagehint=hasim-mips
 [5-stage pipeline Execute]
 File=modules/cpu/mips/pipeline/execute/simple/hasim_simple_execute.awb
 Packagehint=hasim-mips
+
+[Hasim functional partition freelist]
+File=modules/functional/common/hasim_funcp_freelist.awb
+Packagehint=hasim

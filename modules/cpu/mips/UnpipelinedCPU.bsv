@@ -80,7 +80,7 @@ module [HASim_Module] mkCPU
   link_to_fet <- mkConnection_Client("fp_fet");
   
   Connection_Client#(Tuple2#(Token, void),
-                     Tuple2#(Token, TokDep))
+                     Tuple2#(Token, DepInfo))
   //...
   link_to_dec <- mkConnection_Client("fp_dec");
   

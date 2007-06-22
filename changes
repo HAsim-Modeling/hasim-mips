@@ -2142,3 +2142,21 @@ Directory modules/isa/smips
 
 added new branch stack. changed decode to compile with michael's changed ISA. kindof complete now, as I think the fault
 is in functional partition now.
+
+----------
+pellauer    Date: Fri Jun 22 18:00:45 EDT 2007  CSN: CSN-hasim-mips-116
+                  Fri Jun 22 22:00:45 UTC 2007
+
+
+Directory config/pm/hasim-mips/semantic-model
+ semantic_model.apm        Locally Modified          115 
+ 5stage_semantic.apm       Locally Modified          115 
+
+Directory modules/cpu/mips
+ UnpipelinedCPU.bsv        Locally Modified          115 
+
+
+Bugfixes for new funcp.
+
+Michael P.
+
