@@ -2118,3 +2118,27 @@ Changes to the "semantic model" - Unpipelined CPU with simple funcp.
 First cut at adding an SMIPS datapath.
 
 Michael P.
+
+----------
+vmurali     Date: Fri Jun 22 01:42:04 EDT 2007  CSN: CSN-hasim-mips-115
+                  Fri Jun 22 05:42:04 UTC 2007
+
+
+Directory config/pm/hasim-mips/s10k
+ s10k.apm                  Locally Modified          114 
+
+Directory modules/cpu/mips/pipeline/decode/s10k
+ Decode.bsv                Locally Modified          114 
+
+Directory modules/cpu/mips/branch/stack
+ 1entry/                   Locally Added               0 
+
+Directory modules/cpu/mips/branch/stack/1entry
+ BranchStack.awb           Locally Added               0 
+ BranchStack.bsv           Locally Added               0 
+
+Directory modules/isa/smips
+ ISA.bsv                   Locally Modified          114 
+
+added new branch stack. changed decode to compile with michael's changed ISA. kindof complete now, as I think the fault
+is in functional partition now.

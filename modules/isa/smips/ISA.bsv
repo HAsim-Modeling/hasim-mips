@@ -424,7 +424,7 @@ function Bool p_isStore(PackedInst inst);
 endfunction
 
 function Bool p_isALU(PackedInst inst);
-    return !(inst == 32'b0) && !(isBranch(inst) || isJ(inst) || isJAL(inst) || isJR(inst) || isJALR(inst) || isLoad(inst) || isStore(inst));
+    return !(inst == 32'b0) && !(p_isBranch(inst) || p_isJ(inst) || p_isJAL(inst) || p_isJR(inst) || p_isJALR(inst) || p_isLoad(inst) || p_isStore(inst));
 endfunction
 
 function Addr p_getJAddr(PackedInst inst, Addr pc);

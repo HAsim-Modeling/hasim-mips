@@ -264,7 +264,7 @@ module [HASim_Module] mkPipe_Decode();
     endaction
     endfunction
 
-    rule decodeInst(decodeState == Decoding && killCount == 0 && instBuffer.notEmpty());
+    rule decodeInst(decodeState == Decoding && killCount == 0 && instBuffer.notEmpty() && decodeBuffer.notEmpty());
         InstInfo currInstBuffer     = instBuffer.first();
         DepInfo currDepInfo         = decodeBuffer.first();
         Addr currAddr               = currInstBuffer.addr;
@@ -342,25 +342,25 @@ module [HASim_Module] mkPipe_Decode();
         endaction
         endfunction
 
-        IssueType intIssue = (isShift(currInst))? Shift: Normal;
+        IssueType intIssue = (p_isShift(currInst))? Shift: Normal;
 
-        //               IssueType, intQ,  memQ,  regF,  branch, jr,    predPC,                                      tbEnq, tbDeq, kill
-        if(isALU(currInst))
-            commonDecode(intIssue,  True,  False, True,  False,  False, tagged Invalid,                              False, False, False);
-        else if(isLoad(currInst))
-            commonDecode(Load,      False, True,  True,  False,  False, tagged Invalid,                              False, False, False);
-        else if(isStore(currInst))
-            commonDecode(Store,     False, True,  False, False,  False, tagged Invalid,                              False, False, False);
-        else if(isBranch(currInst))
-            commonDecode(Branch,    True,  False, False, True,   False, branchPredAddr,                              False, False, isValid(branchPredAddr));
-        else if(isJ(currInst))
-            commonDecode(J,         False, False, False, False,  False, tagged Valid getJAddr(currInst, currAddr),   False, False, True);
-        else if(isJAL(currInst))
-            commonDecode(JAL,       False, False, True,  False,  False, tagged Valid getJALAddr(currInst, currAddr), True,  False, True);
-        else if(isJR(currInst))
-            commonDecode(JR,        True,  False, False, False,  True,  tagged Valid targetBuffer.first(),           False, True,  True);
-        else if(isJALR(currInst))
-            commonDecode(JALR,      True,  False, True,  False,  True,  tagged Valid targetBuffer.first(),           True,  True,  True);
+        //               IssueType, intQ,  memQ,  regF,  branch, jr,    predPC,                                        tbEnq, tbDeq, kill
+        if(p_isALU(currInst))
+            commonDecode(intIssue,  True,  False, True,  False,  False, tagged Invalid,                                False, False, False);
+        else if(p_isLoad(currInst))
+            commonDecode(Load,      False, True,  True,  False,  False, tagged Invalid,                                False, False, False);
+        else if(p_isStore(currInst))
+            commonDecode(Store,     False, True,  False, False,  False, tagged Invalid,                                False, False, False);
+        else if(p_isBranch(currInst))
+            commonDecode(Branch,    True,  False, False, True,   False, branchPredAddr,                                False, False, isValid(branchPredAddr));
+        else if(p_isJ(currInst))
+            commonDecode(J,         False, False, False, False,  False, tagged Valid p_getJAddr(currInst, currAddr),   False, False, True);
+        else if(p_isJAL(currInst))
+            commonDecode(JAL,       False, False, True,  False,  False, tagged Valid p_getJALAddr(currInst, currAddr), True,  False, True);
+        else if(p_isJR(currInst))
+            commonDecode(JR,        True,  False, False, False,  True,  tagged Valid targetBuffer.first(),             False, True,  True);
+        else if(p_isJALR(currInst))
+            commonDecode(JALR,      True,  False, True,  False,  True,  tagged Valid targetBuffer.first(),             True,  True,  True);
         else
         begin
             decodeCount     <= decodeCount + 1;
@@ -375,15 +375,13 @@ module [HASim_Module] mkPipe_Decode();
         end
     endrule
 
-    rule prematureFinishDecode(decodeState == Decoding && killCount == 0 && !instBuffer.notEmpty() && fetchState == FetchDone);
+    rule prematureFinishDecode(decodeState == Decoding && killCount == 0 && !instBuffer.notEmpty() && !decodeBuffer.notEmpty() && fetchState == FetchDone);
         finishDecode();
     endrule
 
     rule decodeKillInstBuffer(decodeState == Decoding && killCount != 0);
-        $display("killCount:%0d", killCount);
-        if(!instBuffer.notEmpty())
+        if(!instBuffer.notEmpty() && !decodeBuffer.notEmpty)
         begin
-            $display("instBuffer.empty");
             if(fetchState == FetchDone)
             begin
                 killCount   <= killCount - 1;
