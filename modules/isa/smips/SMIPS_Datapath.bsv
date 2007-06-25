@@ -8,7 +8,7 @@ module [HASim_Module] mkISA_Datapath
               ();
 
   Connection_Server#(Tuple4#(Inst, Addr, Value, Value),
-                     Tuple3#(InstResult, Addr, Value)) link_fp <- mkConnection_Server("isa_datapath");
+                     Tuple3#(InstResult, Addr, Maybe#(Value))) link_fp <- mkConnection_Server("isa_datapath");
 
   rule isa_exec (True);
   
@@ -22,6 +22,7 @@ module [HASim_Module] mkISA_Datapath
     InstResult res = ?;
     Addr eaddr = ?;
     Value wbval = ?;
+    Bool  wb    = True;
     Action dbg   = noAction;
 
     case (inst) matches
@@ -34,6 +35,7 @@ module [HASim_Module] mkISA_Datapath
 	  Addr extimm = signExtend(info.offset);
 	  eaddr = src1 + extimm;
 	  res   = tagged RNop;
+	  wb    = False;
 	  dbg   = $display("DP: LW EADDR 0x%h = 0x%h + 0x%h", eaddr, src1, extimm);
 
 	end
@@ -283,6 +285,7 @@ module [HASim_Module] mkISA_Datapath
 	  Addr extimm = signExtend(info.offset) << 2;
 	  Addr dest  = addr_plus_4 + extimm;
 
+	  wb    = False;
 	  res   = taken ? (tagged RBranchTaken dest) : tagged RBranchNotTaken;
 	  dbg   = $display("DP: BLEZ PC <= 0x%h (offset 0x%h) if (0x%h <= 0)", dest, extimm, src1);
 	  
@@ -296,6 +299,7 @@ module [HASim_Module] mkISA_Datapath
 	  Addr extimm = signExtend(info.offset) << 2;
 	  Addr dest  = addr_plus_4 + extimm;
 
+	  wb    = False;
 	  res   = taken ? (tagged RBranchTaken dest) : tagged RBranchNotTaken;
 	  dbg   = $display("DP: BGTZ PC <= 0x%h (offset 0x%h) if (0x%h > 0)", dest, extimm, src1);
 	  
@@ -309,6 +313,7 @@ module [HASim_Module] mkISA_Datapath
 	  Addr extimm = signExtend(info.offset) << 2;
 	  Addr dest  = addr_plus_4 + extimm;
 
+	  wb    = False;
 	  res   = taken ? (tagged RBranchTaken dest) : tagged RBranchNotTaken;
 	  dbg   = $display("DP: BLTZ PC <= 0x%h (offset 0x%h) if (0x%h < 0)", dest, extimm, src1);
 
@@ -322,6 +327,7 @@ module [HASim_Module] mkISA_Datapath
 	  Addr extimm = signExtend(info.offset) << 2;
 	  Addr dest  = addr_plus_4 + extimm;
 
+	  wb    = False;
 	  res   = taken ? (tagged RBranchTaken dest) : tagged RBranchNotTaken;
 	  dbg   = $display("DP: BGEZ PC <= 0x%h (offset 0x%h) if (0x%h > 0)", dest, extimm, src1);
 
@@ -335,6 +341,7 @@ module [HASim_Module] mkISA_Datapath
 	  Addr extimm = signExtend(info.offset) << 2;
 	  Addr dest  = addr_plus_4 + extimm;
 
+	  wb    = False;
 	  res   = taken ? (tagged RBranchTaken dest) : tagged RBranchNotTaken;
 	  dbg   = $display("DP: BEQ PC <= 0x%h (offset 0x%h) if (0x%h == 0x%h)", dest, extimm, src1, src2);
 
@@ -348,6 +355,7 @@ module [HASim_Module] mkISA_Datapath
 	  Addr extimm = signExtend(info.offset) << 2;
 	  Addr dest  = addr_plus_4 + extimm;
 
+	  wb    = False;
 	  res   = taken ? (tagged RBranchTaken dest) : tagged RBranchNotTaken;
 	  dbg   = $display("DP: BNE PC <= 0x%h (offset 0x%h) if (0x%h != 0x%h)", dest, extimm, src1, src2);
 
@@ -361,6 +369,7 @@ module [HASim_Module] mkISA_Datapath
 
 	  Addr dest  = {addr_plus_4[31:28], info.target, 2'b00};
 
+	  wb    = False;
 	  res   = tagged RBranchTaken dest;
 	  dbg   = $display("DP: J PC <= 0x%h = {%0h, %0h, 00}", dest, addr_plus_4[31:26], info.target);
 
@@ -372,6 +381,7 @@ module [HASim_Module] mkISA_Datapath
 
           Addr dest = src1;
 
+	  wb    = False;
 	  res   = tagged RBranchTaken dest;
 	  dbg   = $display("DP: JR PC <= 0x%h ", dest);
 	
@@ -412,6 +422,7 @@ module [HASim_Module] mkISA_Datapath
 	  //A Non-Zero value to "fromHost" is equivalent to a terminate for our purposes
 	  res   = (src1 == 0) ? tagged RNop : (info.cop0dest == 21) ? tagged RTerminate pf : tagged RNop;
 	  dbg   = $display("DP: MTC0 COP0 R%d <= 0x%h", info.cop0dest, src1);
+	  wb    = False;
 
 	end
 
@@ -433,6 +444,7 @@ module [HASim_Module] mkISA_Datapath
         begin
 	
 	  res = tagged RTerminate True;
+	  wb    = False;
 	  dbg   = $display("DP: TERMINATE");
 	  	  
         end
@@ -441,6 +453,7 @@ module [HASim_Module] mkISA_Datapath
         begin
 	
 	  res = tagged RNop;
+	  wb  = False;
 	  
 	  $display("DP: ERROR: EXECUTING ILLEGAL INSTRUCTION");
 	  
@@ -448,7 +461,8 @@ module [HASim_Module] mkISA_Datapath
     endcase
     
     dbg;
-    link_fp.makeResp(tuple3(res, eaddr, wbval));
+    let fval = wb ? tagged Valid wbval : tagged Invalid;
+    link_fp.makeResp(tuple3(res, eaddr, fval));
 
   endrule
   
