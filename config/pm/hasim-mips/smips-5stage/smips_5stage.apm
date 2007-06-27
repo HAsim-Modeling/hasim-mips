@@ -22,7 +22,7 @@ File=modules/controller/simple/hasim_simple_controller.awb
 [Global]
 SaveParameters=0
 Description=5-Stage HASim SMIPS Model
-File=hasim_smips_5stage_ports_reorg
+File=smips_5stage
 Version=2.1
 Name=5-Stage HASim SMIPS Model
 Type=HAsim

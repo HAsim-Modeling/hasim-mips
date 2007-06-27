@@ -18,7 +18,7 @@ typedef enum
   MEM_State
     deriving (Eq, Bits);
 
-module [HASim_Module] mkPipe_Mem#(CommandCenter cc)
+module [HASim_Module] mkPipe_Mem#(CommandCenter cc, File debug_file, Tick curTick)
     //interface:
                 ();
   
@@ -38,7 +38,7 @@ module [HASim_Module] mkPipe_Mem#(CommandCenter cc)
   Connection_Send#(Token)     fp_mem_kill <- mkConnection_Send("fp_mem_kill");
 
   //Events
-  //EventRecorder event_mem <- mkEventRecorder("MemOps");
+  EventRecorder event_mem <- mkEventRecorder("4       MEM");
   
   //Incoming Ports
   Port_Receive#(Token) port_from_exe <- mkPort_Receive("exe_to_mem", 1);
@@ -55,12 +55,14 @@ module [HASim_Module] mkPipe_Mem#(CommandCenter cc)
 	if (stall_count == 0)
 	  begin
             port_to_wb.send(tagged Valid stall_tok);
+            event_mem.recordEvent(tagged Valid zeroExtend(stall_tok.index));
 	    stalling <= False;
 	  end
 	else
 	  begin
 	    stall_count <= stall_count - 1;
 	    port_to_wb.send(tagged Invalid);
+            event_mem.recordEvent(tagged Invalid);
 	  end
       end
     else
@@ -70,11 +72,11 @@ module [HASim_Module] mkPipe_Mem#(CommandCenter cc)
 	  tagged Invalid:
 	  begin
             port_to_wb.send(tagged Invalid);
-            //event_mem.recordEvent(tagged Invalid);
+            event_mem.recordEvent(tagged Invalid);
 	  end
 	  tagged Valid .tok:
 	  begin
-            $display("REQ:MEM:%d", tok.index);
+            $fdisplay(debug_file, "[%d]:REQ:MEM: %0d", curTick, tok.index);
             fp_mem_req.send(tuple2(tok, ?));
 	    state <= MEM_Finish;
 	  end
@@ -87,6 +89,7 @@ module [HASim_Module] mkPipe_Mem#(CommandCenter cc)
   rule finishMem (cc.running && state == MEM_Finish);
   
     match {.tok, .*} <- fp_mem_resp.receive();
+    $fdisplay(debug_file, "[%d]:RSP:MEM: %0d", curTick, tok.index);
     
     let isHit = (lfsr.value < `MEM_Hit_Chance);
     lfsr.next();
@@ -95,13 +98,13 @@ module [HASim_Module] mkPipe_Mem#(CommandCenter cc)
       begin
 
 	port_to_wb.send(tagged Valid tok);
-	//event_mem.recordEvent(tagged Valid zeroExtend(tok.index));
+	event_mem.recordEvent(tagged Valid zeroExtend(tok.index));
 
       end
     else
       begin
 	port_to_wb.send(tagged Invalid);
-	//event_mem.recordEvent(tagged Invalid);
+	event_mem.recordEvent(tagged Invalid);
 	stall_count <= `MEM_Miss_Penalty;
 	stall_tok   <= tok;
 	stalling    <= True;

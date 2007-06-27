@@ -4,7 +4,7 @@ import hasim_isa::*;
 
 import hasim_command_center::*;
 
-module [HASim_Module] mkPipe_Writeback#(CommandCenter cc)
+module [HASim_Module] mkPipe_Writeback#(CommandCenter cc, File debug_file, Tick curTick)
     //interface:
                 ();
 
@@ -25,8 +25,11 @@ module [HASim_Module] mkPipe_Writeback#(CommandCenter cc)
   Connection_Send#(Token) link_memstate_kill <- mkConnection_Send("fp_memstate_kill");
 
   //Events
-  //EventRecorder event_wb <- mkEventRecorder("Writeback");
+  EventRecorder event_wb <- mkEventRecorder("5          WB");
   
+  //Stats
+  Stat stat_wb <- mkStatCounter("Instructions Committed");
+
   //Incoming Ports
   Port_Receive#(Token) port_from_mem <- mkPort_Receive("mem_to_wb", 1);
   
@@ -38,11 +41,11 @@ module [HASim_Module] mkPipe_Writeback#(CommandCenter cc)
       tagged Invalid:
       begin
         noAction;
-	//event_wb.recordEvent(tagged Invalid);
+	event_wb.recordEvent(tagged Invalid);
       end
       tagged Valid .tok:
       begin
-        $display("REQ:LCO:%d", tok.index);
+        $fdisplay(debug_file, "[%d]:LCO:REQ: %0d", curTick, tok.index);
         fp_lco_req.send(tuple2(tok, ?));
 	in_flight <= True;
       end
@@ -53,14 +56,19 @@ module [HASim_Module] mkPipe_Writeback#(CommandCenter cc)
   rule gcoReq (cc.running && in_flight);
   
     match {.tok, .*} <- fp_lco_resp.receive();
-    $display("REQ:GCO:%d", tok.index);
+    $fdisplay(debug_file, "[%d]:LCO:RSP: %0d", curTick, tok.index);
+    $fdisplay(debug_file, "[%d]:GCO:REQ: %0d", curTick, tok.index);
     fp_gco_req.send(tuple2(tok, ?));
   endrule
   
   rule gcoResp (cc.running && in_flight);
   
     match {.tok, .*}  <- fp_gco_resp.receive();
-    //event_wb.recordEvent(Valid zeroExtend(tok.index));
+    $fdisplay(debug_file, "[%d]:GCO:RSP: %0d", curTick, tok.index);
+    
+    event_wb.recordEvent(tagged Valid zeroExtend(tok.index));
+    stat_wb.incr();
+    
     in_flight <= False;
     
     case (cc.getStopToken) matches

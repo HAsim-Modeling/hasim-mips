@@ -7,7 +7,7 @@ import hasim_command_center::*;
 
 typedef TokEpoch Epoch;
 
-module [HASim_Module] mkPipe_Execute#(CommandCenter cc)
+module [HASim_Module] mkPipe_Execute#(CommandCenter cc, File debug_file, Tick curTick)
     //interface:
                 ();
   
@@ -25,7 +25,7 @@ module [HASim_Module] mkPipe_Execute#(CommandCenter cc)
   Connection_Send#(Token)     fp_rewindToToken <- mkConnection_Send("fp_rewindToToken");
 
   //Events
-  //EventRecorder event_exe <- mkEventRecorder("Execute");
+  EventRecorder event_exe <- mkEventRecorder("3     EXE");
   
   //Incoming Ports
   Port_Receive#(Token) port_from_dec <- mkPort_Receive("dec_to_exe", 1);
@@ -42,21 +42,22 @@ module [HASim_Module] mkPipe_Execute#(CommandCenter cc)
       tagged Invalid:
       begin
         port_to_mem.send(tagged Invalid);
-	//event_exe.recordEvent(tagged Invalid);
+	event_exe.recordEvent(tagged Invalid);
 	port_to_ic.send(tagged Invalid);
       end
       tagged Valid .tok:
       begin
 	if (tok.info.epoch != epoch) //kill it
 	begin
+          $fdisplay(debug_file, "[%d]:EXE: Killing: %0d", curTick, tok.index);
 	  fp_exe_kill.send(tok);
-          //event_exe.recordEvent(tagged Invalid);
+          event_exe.recordEvent(tagged Invalid);
           port_to_mem.send(tagged Invalid);
 	  port_to_ic.send(tagged Invalid);
 	end
 	else //continue to execute it
 	begin
-          $display("REQ:EXE:%d", tok.index);
+          $fdisplay(debug_file, "[%d]:EXE:REQ: %0d", curTick, tok.index);
           fp_exe_req.send(tuple2(tok, ?));
 	  in_flight <= True;
         end
@@ -68,11 +69,12 @@ module [HASim_Module] mkPipe_Execute#(CommandCenter cc)
   rule executeResp (cc.running && in_flight);
   
     match {.tok, .res} <- fp_exe_resp.receive();
+    $fdisplay(debug_file, "[%d]:EXE:RSP: %0d", curTick, tok.index);
 
     case (res) matches
       tagged RBranchTaken .addr:
 	begin
-	  $display("Branch taken!");
+	  $fdisplay(debug_file, "[%d]:EXE: Branch taken!", curTick);
 	  epoch <= epoch + 1;
 	  fp_rewindToToken.send(tok);
 	  port_to_ic.send(tagged Valid tuple2(tok, addr));
@@ -80,14 +82,14 @@ module [HASim_Module] mkPipe_Execute#(CommandCenter cc)
       tagged RBranchNotTaken:
 	begin
 	  port_to_ic.send(tagged Invalid);
-	  $display("Branch not taken!");
+	  $fdisplay(debug_file, "[%d]:EXE: Branch not taken!", curTick);
 	end
       tagged RNop:
 	port_to_ic.send(tagged Invalid);
       tagged RTerminate .pf:
       begin
 	port_to_ic.send(tagged Invalid);
-	$display("Setting Termination!");
+	$fdisplay(debug_file, "[%d]:EXE: Setting Termination!", curTick);
 	cc.setPassFail(pf);
         case (cc.getStopToken) matches
 	  tagged Invalid:
@@ -99,7 +101,7 @@ module [HASim_Module] mkPipe_Execute#(CommandCenter cc)
     endcase
 
     port_to_mem.send(tagged Valid tok);
-    //event_exe.recordEvent(tagged Valid zeroExtend(tok.index));
+    event_exe.recordEvent(tagged Valid zeroExtend(tok.index));
     in_flight <= False;
     
   endrule

@@ -2173,3 +2173,34 @@ Directory modules/isa/smips
 Small change to datapath.
 
 Michael P.
+
+----------
+mpellaue    Date: Wed Jun 27 12:50:27 EDT 2007  CSN: CSN-hasim-mips-118
+                  Wed Jun 27 16:50:27 UTC 2007
+
+
+Directory config/pm/hasim-mips/smips-5stage
+ smips_5stage.apm          Locally Modified          117 
+
+Directory modules/cpu/mips
+ CPU.bsv                   Locally Modified          117 
+
+Directory modules/cpu/mips/pipeline/execute/simple
+ Execute.bsv               Locally Modified          117 
+
+Directory modules/cpu/mips/pipeline/decode/simple
+ Decode.bsv                Locally Modified          117 
+
+Directory modules/cpu/mips/pipeline/fetch/simple
+ Fetch.bsv                 Locally Modified          117 
+
+Directory modules/cpu/mips/pipeline/writeback/simple
+ Writeback.bsv             Locally Modified          117 
+
+Directory modules/cpu/mips/pipeline/mem/simple
+ Mem.bsv                   Locally Modified          117 
+
+
+In-Order model now outputs all debugging statements to a separate file.
+
+Michael P.

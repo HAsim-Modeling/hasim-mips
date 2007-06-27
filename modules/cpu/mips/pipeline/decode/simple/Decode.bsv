@@ -6,7 +6,7 @@ import hasim_command_center::*;
 
 `define DEC_Is_Bypassed True
 
-module [HASim_Module] mkPipe_Decode#(CommandCenter cc)
+module [HASim_Module] mkPipe_Decode#(CommandCenter cc, File debug_file, Tick curTick)
     //interface:
                 ();
 
@@ -27,7 +27,7 @@ module [HASim_Module] mkPipe_Decode#(CommandCenter cc)
   Connection_Receive#(Tuple2#(Token, DepInfo))  fp_dec_resp <- mkConnection_Receive("fp_dec_resp");
   
   //Events
-  //EventRecorder event_dec <- mkEventRecorder("Decode");
+  EventRecorder event_dec <- mkEventRecorder("2   DEC");
   
   //Incoming Ports
   Port_Receive#(Token) port_from_fet <- mkPort_Receive("fet_to_dec", 1);
@@ -118,12 +118,12 @@ module [HASim_Module] mkPipe_Decode#(CommandCenter cc)
       tagged Invalid: //Pass-through
       begin
         port_to_exe.send(tagged Invalid);
-	//event_dec.recordEvent(tagged Invalid);
+	event_dec.recordEvent(tagged Invalid);
 	shiftStalls(tagged Invalid);
       end
       tagged Valid .tok:
       begin
-        $display("REQ:DEC:%d", tok.index);
+        $fdisplay(debug_file, "[%d]:DEC:REQ: %0d", curTick, tok.index);
         fp_dec_req.send(tuple2(tok, ?));
 	in_flight <= True;
       end
@@ -134,13 +134,14 @@ module [HASim_Module] mkPipe_Decode#(CommandCenter cc)
   rule decodeResp (cc.running && stall_count == 0 && in_flight);
   
     match {.tok, .deps} <- fp_dec_resp.receive();
+    $fdisplay(debug_file, "[%d]:DEC:RSP: %0d", curTick, tok.index);
 
     Bit#(2) new_stall = stallLength(deps);
 
     if (new_stall != 0) //We're stalling
     begin
       port_to_exe.send(tagged Invalid);
-      //event_dec.recordEvent(tagged Invalid);
+      event_dec.recordEvent(tagged Invalid);
       shiftStalls(tagged Invalid);
       stall_tok <= tok;
       stall_deps <= deps;
@@ -148,7 +149,7 @@ module [HASim_Module] mkPipe_Decode#(CommandCenter cc)
     else
     begin
       port_to_exe.send(tagged Valid tok);
-      //event_dec.recordEvent(tagged Valid zeroExtend(tok.index));
+      event_dec.recordEvent(tagged Valid zeroExtend(tok.index));
       shiftStalls(tagged Valid deps);
       in_flight <= False;
     end
@@ -161,7 +162,7 @@ module [HASim_Module] mkPipe_Decode#(CommandCenter cc)
   
     stall_count <= stall_count - 1;
     port_to_exe.send(tagged Invalid);
-    //event_dec.recordEvent(tagged Invalid);
+    event_dec.recordEvent(tagged Invalid);
     shiftStalls(tagged Invalid);
 
   endrule

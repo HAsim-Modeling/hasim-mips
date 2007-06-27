@@ -20,7 +20,7 @@ typedef enum
   FET_State
     deriving (Eq, Bits);
 
-module [HASim_Module] mkPipe_Fetch#(CommandCenter cc)
+module [HASim_Module] mkPipe_Fetch#(CommandCenter cc, File debug_file, Tick curTick)
     //interface:
                 ();
 
@@ -48,10 +48,10 @@ module [HASim_Module] mkPipe_Fetch#(CommandCenter cc)
   Connection_Send#(Token)     fp_dec_kill <- mkConnection_Send("fp_dec_kill");
       
   //Events
-  //EventRecorder event_fet <- mkEventRecorder("Fetch");
+  EventRecorder event_fet <- mkEventRecorder("1 FET");
   
   //Stats
-  //Stat stat_fet <- mkStatCounter("Fetch");
+  Stat stat_fet <- mkStatCounter("Instructions Fetched");
     
   //Incoming Ports
   Port_Receive#(Tuple2#(Token, Addr)) port_from_ic <- mkPort_Receive("fet_setPC", 1);
@@ -77,7 +77,7 @@ module [HASim_Module] mkPipe_Fetch#(CommandCenter cc)
     
     if (!stalling)
       begin
-        $display("REQ:TOK");
+        $fdisplay(debug_file, "[%d]:TOK:REQ", curTick);
 	fp_tok_req.send(17); //17 is arbitrarily-chosen bug workaround
 	state <= FET_GetInst;
 
@@ -88,14 +88,14 @@ module [HASim_Module] mkPipe_Fetch#(CommandCenter cc)
         if (stall_count == 0)
 	  begin
             port_to_dec.send(tagged Valid stall_tok);
-            //event_fet.recordEvent(tagged Valid zeroExtend(stall_tok.index));
-            //stat_fet.incr();
+            event_fet.recordEvent(tagged Valid zeroExtend(stall_tok.index));
+            stat_fet.incr();
 	    stalling <= False;
 	  end
 	else
 	  begin
             port_to_dec.send(tagged Invalid);
-            //event_fet.recordEvent(tagged Invalid);
+            event_fet.recordEvent(tagged Invalid);
             stall_count <= stall_count - 1;
 	  end
       end
@@ -106,10 +106,12 @@ module [HASim_Module] mkPipe_Fetch#(CommandCenter cc)
 
      let tok <- fp_tok_resp.receive();
 
+     $fdisplay(debug_file, "[%d]:TOK:RSP: %0d", curTick, tok.index);
+     
      let inf = TokInfo {epoch: epoch, ctxt: ?};
      let tok2 = Token {index: tok.index, info: inf};
       
-     $display("REQ:FET:%d:0x%h", tok.index, pc);
+     $fdisplay(debug_file, "[%d]:FET:REQ: %0d:0x%h", curTick, tok.index, pc);
      fp_fet_req.send(tuple2(tok2, pc));
       
      pc <= pc + 4;
@@ -122,6 +124,7 @@ module [HASim_Module] mkPipe_Fetch#(CommandCenter cc)
    rule finishFetch (state == FET_Finish);
    
      match {.tok, .inst} <- fp_fet_resp.receive();
+     $fdisplay(debug_file, "[%d]:FET:RSP: %0d:0x%h", curTick, tok.index, inst);
 
      let isHit = lfsr.value < `FET_Hit_Chance;
      lfsr.next();
@@ -130,14 +133,14 @@ module [HASim_Module] mkPipe_Fetch#(CommandCenter cc)
      begin
      
        port_to_dec.send(tagged Valid tok);
-       //event_fet.recordEvent(tagged Valid zeroExtend(tok.index));
-       //stat_fet.incr();
+       event_fet.recordEvent(tagged Valid zeroExtend(tok.index));
+       stat_fet.incr();
 
      end
      else
      begin
        port_to_dec.send(tagged Invalid);
-       //event_fet.recordEvent(tagged Invalid);
+       event_fet.recordEvent(tagged Invalid);
        stall_count <= `FET_Miss_Penalty;
        stall_tok   <= tok;
        stalling    <= True;
