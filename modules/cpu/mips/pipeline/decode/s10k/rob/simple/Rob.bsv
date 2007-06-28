@@ -7,20 +7,6 @@ import RWire::*;
 import hasim_cpu_types::*;
 import hasim_cpu_parameters::*;
 
-typedef struct {
-    Token token;
-    Addr addr;
-    Bool finished;
-    Bool status;
-    Bool done;
-    BranchStackIndex branchIndex;
-    Bool isBranch;
-    Bool prediction;
-    Bool taken;
-    Bool isJR;
-    Addr predAddr;
-} RobEntry deriving (Bits, Eq);
-
 interface Rob;
     method ActionValue#(Maybe#(RobEntry)) read(RobTag robTag);
     method Action write(RobTag robTag, RobEntry robEntry);

@@ -20,25 +20,80 @@ typedef enum {J, JAL, JR, JALR, Branch, Shift, Normal, Load, Store} IssueType de
 
 typedef Bit#(64) ClockCounter;
 
+typedef Bit#(TLog#(TAdd#(FreeListCount,1))) FreeListFreeCount;
+
 typedef struct {
+    Token token;
     IssueType issueType;
+    Addr addr;
+    Bool done;
+    Bool pred;
+    Bool taken;
+    Bool finished;
+    Bool status;
+} RobEntry deriving (Bits, Eq);
+
+typedef struct {
+    Token token;
+    IssueType issueType;
+    RobTag robTag;
+    FreeListFreeCount freeCount;
+    BranchStackIndex branchIndex;
+    Bool pred;
+    Addr predAddr;
+} IssuePort deriving (Bits, Eq);
+
+typedef struct {
     Token     token;
+    IssueType issueType;
     RobTag    robTag;
+    FreeListFreeCount freeCount;
     Bool      src1Ready;
     PRName    src1;
     Bool      src2Ready;
     PRName    src2;
     PRName    dest;
+    BranchStackIndex branchIndex;
+    Bool      pred;
+    Addr      predAddr;
 } IssueEntry deriving (Bits, Eq);
 
 typedef struct {
     Token token;
-    PRName pRName;
+    IssueType issueType;
     RobTag robTag;
+    FreeListFreeCount freeCount;
+    PRName pRName;
+    BranchStackIndex branchIndex;
+    Bool pred;
+    Addr predAddr;
 } ExecEntry deriving (Bits, Eq);
+
+typedef struct {
+    Token token;
+    IssueType issueType;
+    RobTag robTag;
+    FreeListFreeCount freeCount;
+    PRName pRName;
+    BranchStackIndex branchIndex;
+    Bool pred;
+    Addr predAddr;
+    Bool taken;
+    Addr takenAddr;
+    Bool finished;
+    Bool status;
+} ExecResult deriving (Bits, Eq);
 
 typedef struct {
     Token token;
     Addr addr;
     PackedInst inst;
 } InstInfo deriving (Bits, Eq);
+
+typedef struct {
+    Token token;
+    RobTag robTag;
+    FreeListFreeCount freeCount;
+    Addr mispredictPC;
+    BranchStackIndex branchIndex;
+} KillData deriving (Bits, Eq);

@@ -28,7 +28,7 @@ module [HASim_Module] mkPipe_Fetch();
     Reg#(FetchCount)                        totalCount <- mkReg(?);
     Reg#(FetchCount)                          fetchPos <- mkReg(?);
 
-    Reg#(TokEpoch)                               epoch <- mkReg(0);
+    Reg#(TIMEP_Epoch)                            epoch <- mkReg(0);
 
     Reg#(ClockCounter)                    modelCounter <- mkReg(0);
 
@@ -43,6 +43,7 @@ module [HASim_Module] mkPipe_Fetch();
     endfunction
 
     rule synchronize(fetchState == FetchDone);
+        $display("Fetch synchronize @ Model: %0d", modelCounter);
         modelCounter <= modelCounter + 1;
 
         let predictedTaken <- predictedTakenPort.receive();
@@ -74,7 +75,7 @@ module [HASim_Module] mkPipe_Fetch();
 
     rule fetch(fetchState == Fetch);
         let token <- fpTokenResp.receive();
-        token.info = TokInfo{epoch: epoch, ctxt: ?};
+        token.timep_info = TIMEP_TokInfo{epoch: epoch, scratchpad: 0};
         fpFetchReq.send(tuple2(token, pc));
         addrPort[fetchPos].send(tagged Valid pc);
         $display("Fetch: @ Model: %0d PC: %x Token: %0d ", modelCounter-1, pc, token.index);

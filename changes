@@ -2252,3 +2252,38 @@ Five-stage model now has nice stats and knobs.
 The setup scripts reflect the fact that many files are produced as output.
 
 Michael P.
+
+----------
+mvijayar    Date: Thu Jun 28 16:15:46 EDT 2007  CSN: CSN-hasim-mips-120
+                  Thu Jun 28 20:15:46 UTC 2007
+
+
+Directory modules/cpu/mips/pipeline/execute/superscalar
+ Execute.bsv               Locally Modified          119 
+
+Directory modules/cpu/mips/pipeline/decode/s10k/rob/simple
+ Rob.bsv                   Locally Modified          119 
+
+Directory modules/cpu/mips/pipeline/decode/s10k
+ Decode.bsv                Locally Modified          119 
+
+Directory modules/cpu/mips/pipeline/issue/issue_alg/simple/priorityAlgo
+ IssueAlg.bsv              Locally Modified          119 
+
+Directory modules/cpu/mips/pipeline/issue/s10k
+ Issue.bsv                 Locally Modified          119 
+
+Directory modules/cpu/mips/pipeline/fetch/superscalar
+ Fetch.bsv                 Locally Modified          119 
+
+Directory modules/cpu/mips/branch/target_buffer/multiEntry
+ TargetBuffer.bsv          Locally Modified          119 
+
+Directory modules/cpu/mips/branch/predictor/notTaken
+ BranchPred.bsv            Locally Modified          119 
+
+Directory modules/cpu/mips/s10k
+ Types.bsv                 Locally Modified          119 
+
+Long set of changes to finally get every test working. Currently the branch predictor assumes no latency. Also have to clean up some code, which I will do in the next checkin.
+The current check in compiles and passes the tests, so it is still "usable"

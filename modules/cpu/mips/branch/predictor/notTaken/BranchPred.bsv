@@ -11,19 +11,15 @@ interface BranchPred;
 endinterface
 
 module mkBranchPred(BranchPred);
-    
-    FIFO#(Bit#(0)) q <- mkFIFO();
-
     method Action upd(Token token, Addr addr, Bool pred, Bool actual);
         noAction;
     endmethod
 
     method Action  getPredReq(Token token, Addr addr);
-        q.enq(?);
+        noAction;
     endmethod
 
     method ActionValue#(Bool) getPredResp();
-        q.deq();
         return False;
     endmethod
     

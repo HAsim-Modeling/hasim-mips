@@ -31,11 +31,11 @@ module mkTargetBuffer#(Addr startAddr)(FIFOF#(Addr));
     endmethod
 
     method Bool notEmpty();
-        return addrFifo.notEmpty();
+        return True;
     endmethod
 
     method Bool notFull();
-        return addrFifo.notFull();
+        return True;
     endmethod
 endmodule
 
