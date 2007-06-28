@@ -24,7 +24,7 @@ import hasim_isa::*;
 //-------------------------------------------------------------------------//
 
 `define MODULE_NAME "mkFUNCP_FetchAlg"
-module [HASim_Module] mkFUNCP_FetchAlg ();
+module [HASim_Module] mkFUNCP_FetchAlg#(File debug_log, Tick curCC) ();
 
   FIFO#(Tuple2#(Token, Addr)) waitingQ <- mkFIFO();
 

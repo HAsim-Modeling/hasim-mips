@@ -27,7 +27,7 @@ import hasim_funcp_memstate_ifc::*;
 
 
 `define MODULE_NAME "mkMem"
-module [HASim_Module] mkFUNCP_MemAlg ();
+module [HASim_Module] mkFUNCP_MemAlg#(File debug_log, Tick curCC) ();
 
   
   //Links
@@ -65,7 +65,7 @@ module [HASim_Module] mkFUNCP_MemAlg ();
        
         link_to_dmem.makeReq(Ld {addr: a, token: t});
 	  
-        debug(2, $display("MEM: [%d] Load Request: 0x%h", t.index, a));
+        $fdisplay(debug_log, "MEM: [%d] Load Request: 0x%h", t.index, a);
 	
         waitingQ.enq(tuple2(t, i));
       end
@@ -76,7 +76,7 @@ module [HASim_Module] mkFUNCP_MemAlg ();
 	
         link_to_dmem.makeReq(St {val: v, addr: a, token: t});
 	  
-        debug(2, $display("MEM: [%d] Store Request: 0x%h := %d", t.index, a, v));
+        $fdisplay(debug_log, "MEM: [%d] Store Request: 0x%h := %d", t.index, a, v);
 	
 	
         waitingQ.enq(tuple2(t, i));
@@ -88,7 +88,7 @@ module [HASim_Module] mkFUNCP_MemAlg ();
 
         link_mem.makeResp(tuple3(t, ?, WWB));
 
-        debug(2, $display("MEM: [%d] Passing through Nop", t.index));
+        $fdisplay(debug_log, "MEM: [%d] Passing through Nop", t.index);
 	
       end
       tagged ENop:
@@ -98,7 +98,7 @@ module [HASim_Module] mkFUNCP_MemAlg ();
 
         link_mem.makeResp(tuple3(t, ?, WNop));
 
-        debug(2, $display("MEM: [%d] Passing through Nop", t.index));
+        $fdisplay(debug_log, "MEM: [%d] Passing through Nop", t.index);
 	
       end
     endcase

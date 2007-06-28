@@ -24,7 +24,7 @@ import hasim_isa::*;
 
 // Also lookup physical register from BypassUnit
 
-module [HASim_Module] mkFUNCP_DecodeAlg ();
+module [HASim_Module] mkFUNCP_DecodeAlg#(File debug_log, Tick curCC) ();
   
   //Ports
   Connection_Server#(Tuple3#(Token, Tuple2#(Addr, PackedInst), void), 
@@ -280,7 +280,7 @@ module [HASim_Module] mkFUNCP_DecodeAlg ();
 		      pdest:   prd, 
 		      offset: off
 		    };
-          dbg = $display("DEC: [%d] LW dest:(R%0d/PR%0d) base: (R%0d/PR%0d) offset: 0x%h", tok.index, rd, prd, rb, pra, off);
+          dbg = $fdisplay(debug_log, "[%d]: DEC: [%d] LW dest:(R%0d/PR%0d) base: (R%0d/PR%0d) offset: 0x%h", curCC,  tok.index, rd, prd, rb, pra, off);
 
           depinfo = DepInfo 
 	            {
@@ -302,7 +302,7 @@ module [HASim_Module] mkFUNCP_DecodeAlg ();
 		      offset: off
 		    };
 		    
-          dbg = $display("DEC: [%d] SW src:(R%0d/PR%0d) base: (R%0d/PR%0d) offset: 0x%h", tok.index, rs, prb, rb, pra, off);
+          dbg = $fdisplay(debug_log, "[%d]: DEC: [%d] SW src:(R%0d/PR%0d) base: (R%0d/PR%0d) offset: 0x%h", curCC,  tok.index, rs, prb, rb, pra, off);
 	  
           depinfo = DepInfo 
 	            {
@@ -325,7 +325,7 @@ module [HASim_Module] mkFUNCP_DecodeAlg ();
 		      imm:   simm
 		    };
 
-          dbg = $display("DEC: [%d] ADDIU dest:(R%0d/PR%0d) src1: (R%0d/PR%0d) imm: 0x%h", tok.index, rd, prd, rs, pra, simm);
+          dbg = $fdisplay(debug_log, "[%d]: DEC: [%d] ADDIU dest:(R%0d/PR%0d) src1: (R%0d/PR%0d) imm: 0x%h", curCC,  tok.index, rd, prd, rs, pra, simm);
 		    
           depinfo = DepInfo 
 	            {
@@ -346,7 +346,7 @@ module [HASim_Module] mkFUNCP_DecodeAlg ();
 		      imm:   simm
 		    };
 		    
-          dbg = $display("DEC: [%d] SLTI dest:(R%0d/PR%0d) src: (R%0d/PR%0d) imm: 0x%h", tok.index, rd, prd, rs, pra, simm);
+          dbg = $fdisplay(debug_log, "[%d]: DEC: [%d] SLTI dest:(R%0d/PR%0d) src: (R%0d/PR%0d) imm: 0x%h", curCC,  tok.index, rd, prd, rs, pra, simm);
 
           depinfo = DepInfo 
 	            {
@@ -368,7 +368,7 @@ module [HASim_Module] mkFUNCP_DecodeAlg ();
 		                  //Not a typo: Exec handles it differently
 		    };
 		    
-          dbg = $display("DEC: [%d] SLTIU dest:(R%0d/PR%0d) src: (R%0d/PR%0d) imm: 0x%h", tok.index, rd, prd, rs, pra, simm);
+          dbg = $fdisplay(debug_log, "[%d]: DEC: [%d] SLTIU dest:(R%0d/PR%0d) src: (R%0d/PR%0d) imm: 0x%h", curCC,  tok.index, rd, prd, rs, pra, simm);
 
           depinfo = DepInfo 
 	            {
@@ -389,7 +389,7 @@ module [HASim_Module] mkFUNCP_DecodeAlg ();
 		      imm:   zimm
 		    };
 		
-          dbg = $display("DEC: [%d] ANDI dest:(R%0d/PR%0d) src: (R%0d/PR%0d) imm: 0x%h", tok.index, rd, prd, rs, pra, zimm);
+          dbg = $fdisplay(debug_log, "[%d]: DEC: [%d] ANDI dest:(R%0d/PR%0d) src: (R%0d/PR%0d) imm: 0x%h", curCC,  tok.index, rd, prd, rs, pra, zimm);
     
           depinfo = DepInfo 
 	            {
@@ -410,7 +410,7 @@ module [HASim_Module] mkFUNCP_DecodeAlg ();
 		      imm:   zimm
 		    };
 		    
-          dbg = $display("DEC: [%d] ORI dest:(R%0d/PR%0d) src: (R%0d/PR%0d) imm: 0x%h", tok.index, rd, prd, rs, pra, zimm);
+          dbg = $fdisplay(debug_log, "[%d]: DEC: [%d] ORI dest:(R%0d/PR%0d) src: (R%0d/PR%0d) imm: 0x%h", curCC,  tok.index, rd, prd, rs, pra, zimm);
 
           depinfo = DepInfo 
 	            {
@@ -431,7 +431,7 @@ module [HASim_Module] mkFUNCP_DecodeAlg ();
 		      imm:   zimm
 		    };
 		    
-          dbg = $display("DEC: [%d] XORI dest:(R%0d/PR%0d) src: (R%0d/PR%0d) imm: 0x%h", tok.index, rd, prd, rs, pra, zimm);
+          dbg = $fdisplay(debug_log, "[%d]: DEC: [%d] XORI dest:(R%0d/PR%0d) src: (R%0d/PR%0d) imm: 0x%h", curCC,  tok.index, rd, prd, rs, pra, zimm);
 
           depinfo = DepInfo 
 	            {
@@ -451,7 +451,7 @@ module [HASim_Module] mkFUNCP_DecodeAlg ();
 		      imm:   zimm
 		    };
 		    
-          dbg = $display("DEC: [%d] LUI dest:(R%0d/PR%0d) imm: 0x%h", tok.index, rd, prd, zimm);
+          dbg = $fdisplay(debug_log, "[%d]: DEC: [%d] LUI dest:(R%0d/PR%0d) imm: 0x%h", curCC,  tok.index, rd, prd, zimm);
 
           depinfo = DepInfo 
 	            {
@@ -472,7 +472,7 @@ module [HASim_Module] mkFUNCP_DecodeAlg ();
 		      shamt: sha
 		    };
 		    
-          dbg = $display("DEC: [%d] SLL dest:(R%0d/PR%0d) src: (R%0d/PR%0d) sha: 0x%h", tok.index, rd, prd, rs, pra, sha);
+          dbg = $fdisplay(debug_log, "[%d]: DEC: [%d] SLL dest:(R%0d/PR%0d) src: (R%0d/PR%0d) sha: 0x%h", curCC,  tok.index, rd, prd, rs, pra, sha);
 
           depinfo = DepInfo 
 	            {
@@ -493,7 +493,7 @@ module [HASim_Module] mkFUNCP_DecodeAlg ();
 		      shamt: sha
 		    };
 		    
-          dbg = $display("DEC: [%d] SRL dest:(R%0d/PR%0d) src: (R%0d/PR%0d) sha: 0x%h", tok.index, rd, prd, rs, pra, sha);
+          dbg = $fdisplay(debug_log, "[%d]: DEC: [%d] SRL dest:(R%0d/PR%0d) src: (R%0d/PR%0d) sha: 0x%h", curCC,  tok.index, rd, prd, rs, pra, sha);
 
           depinfo = DepInfo 
 	            {
@@ -514,7 +514,7 @@ module [HASim_Module] mkFUNCP_DecodeAlg ();
 		      shamt: sha
 		    };
 		    
-          dbg = $display("DEC: [%d] SRA dest:(R%0d/PR%0d) src: (R%0d/PR%0d) sha: 0x%h", tok.index, rd, prd, rs, pra, sha);
+          dbg = $fdisplay(debug_log, "[%d]: DEC: [%d] SRA dest:(R%0d/PR%0d) src: (R%0d/PR%0d) sha: 0x%h", curCC,  tok.index, rd, prd, rs, pra, sha);
 
           depinfo = DepInfo 
 	            {
@@ -535,7 +535,7 @@ module [HASim_Module] mkFUNCP_DecodeAlg ();
 		      pshamt: prb
 		    };
 		    
-          dbg = $display("DEC: [%d] SLLV dest:(R%0d/PR%0d) src: (R%0d/PR%0d) rsha: (R%0d/PR%0d)", tok.index, rd, prd, rs, pra, rsha, prb);
+          dbg = $fdisplay(debug_log, "[%d]: DEC: [%d] SLLV dest:(R%0d/PR%0d) src: (R%0d/PR%0d) rsha: (R%0d/PR%0d)", curCC,  tok.index, rd, prd, rs, pra, rsha, prb);
 
           depinfo = DepInfo 
 	            {
@@ -556,7 +556,7 @@ module [HASim_Module] mkFUNCP_DecodeAlg ();
 		      pshamt: prb
 		    };
 		    
-          dbg = $display("DEC: [%d] SRLV dest:(R%0d/PR%0d) src: (R%0d/PR%0d) rsha: (R%0d/PR%0d)", tok.index, rd, prd, rs, pra, rsha, prb);
+          dbg = $fdisplay(debug_log, "[%d]: DEC: [%d] SRLV dest:(R%0d/PR%0d) src: (R%0d/PR%0d) rsha: (R%0d/PR%0d)", curCC,  tok.index, rd, prd, rs, pra, rsha, prb);
 
           depinfo = DepInfo 
 	            {
@@ -577,7 +577,7 @@ module [HASim_Module] mkFUNCP_DecodeAlg ();
 		      pshamt: prb
 		    };
 		    
-          dbg = $display("DEC: [%d] SRAV dest:(R%0d/PR%0d) src: (R%0d/PR%0d) rsha: (R%0d/PR%0d)", tok.index, rd, prd, rs, pra, rsha, prb);
+          dbg = $fdisplay(debug_log, "[%d]: DEC: [%d] SRAV dest:(R%0d/PR%0d) src: (R%0d/PR%0d) rsha: (R%0d/PR%0d)", curCC,  tok.index, rd, prd, rs, pra, rsha, prb);
 
           depinfo = DepInfo 
 	            {
@@ -598,7 +598,7 @@ module [HASim_Module] mkFUNCP_DecodeAlg ();
 		      psrc2:  prb
 		    };
 		    
-          dbg = $display("DEC: [%d] ADDU dest:(R%0d/PR%0d) src1: (R%0d/PR%0d) src2: (R%0d/PR%0d)", tok.index, rd, prd, rs1, pra, rs2, prb);
+          dbg = $fdisplay(debug_log, "[%d]: DEC: [%d] ADDU dest:(R%0d/PR%0d) src1: (R%0d/PR%0d) src2: (R%0d/PR%0d)", curCC,  tok.index, rd, prd, rs1, pra, rs2, prb);
 
           depinfo = DepInfo 
 	            {
@@ -619,7 +619,7 @@ module [HASim_Module] mkFUNCP_DecodeAlg ();
 		      psrc2:  prb
 		    };
 		    
-          dbg = $display("DEC: [%d] SUBU dest:(R%0d/PR%0d) src1: (R%0d/PR%0d) src2: (R%0d/PR%0d)", tok.index, rd, prd, rs1, pra, rs2, prb);
+          dbg = $fdisplay(debug_log, "[%d]: DEC: [%d] SUBU dest:(R%0d/PR%0d) src1: (R%0d/PR%0d) src2: (R%0d/PR%0d)", curCC,  tok.index, rd, prd, rs1, pra, rs2, prb);
 
           depinfo = DepInfo 
 	            {
@@ -640,7 +640,7 @@ module [HASim_Module] mkFUNCP_DecodeAlg ();
 		      psrc2:  prb
 		    };
 		    
-          dbg = $display("DEC: [%d] AND dest:(R%0d/PR%0d) src1: (R%0d/PR%0d) src2: (R%0d/PR%0d)", tok.index, rd, prd, rs1, pra, rs2, prb);
+          dbg = $fdisplay(debug_log, "[%d]: DEC: [%d] AND dest:(R%0d/PR%0d) src1: (R%0d/PR%0d) src2: (R%0d/PR%0d)", curCC,  tok.index, rd, prd, rs1, pra, rs2, prb);
 
           depinfo = DepInfo 
 	            {
@@ -661,7 +661,7 @@ module [HASim_Module] mkFUNCP_DecodeAlg ();
 		      psrc2:  prb
 		    };
 		    
-          dbg = $display("DEC: [%d] OR dest:(R%0d/PR%0d) src1: (R%0d/PR%0d) src2: (R%0d/PR%0d)", tok.index, rd, prd, rs1, pra, rs2, prb);
+          dbg = $fdisplay(debug_log, "[%d]: DEC: [%d] OR dest:(R%0d/PR%0d) src1: (R%0d/PR%0d) src2: (R%0d/PR%0d)", curCC,  tok.index, rd, prd, rs1, pra, rs2, prb);
 
           depinfo = DepInfo 
 	            {
@@ -682,7 +682,7 @@ module [HASim_Module] mkFUNCP_DecodeAlg ();
 		      psrc2:  prb
 		    };
 		    
-          dbg = $display("DEC: [%d] XOR dest:(R%0d/PR%0d) src1: (R%0d/PR%0d) src2: (R%0d/PR%0d)", tok.index, rd, prd, rs1, pra, rs2, prb);
+          dbg = $fdisplay(debug_log, "[%d]: DEC: [%d] XOR dest:(R%0d/PR%0d) src1: (R%0d/PR%0d) src2: (R%0d/PR%0d)", curCC,  tok.index, rd, prd, rs1, pra, rs2, prb);
 
           depinfo = DepInfo 
 	            {
@@ -703,7 +703,7 @@ module [HASim_Module] mkFUNCP_DecodeAlg ();
 		      psrc2:  prb
 		    };
 		    
-          dbg = $display("DEC: [%d] NOR dest:(R%0d/PR%0d) src1: (R%0d/PR%0d) src2: (R%0d/PR%0d)", tok.index, rd, prd, rs1, pra, rs2, prb);
+          dbg = $fdisplay(debug_log, "[%d]: DEC: [%d] NOR dest:(R%0d/PR%0d) src1: (R%0d/PR%0d) src2: (R%0d/PR%0d)", curCC,  tok.index, rd, prd, rs1, pra, rs2, prb);
 
           depinfo = DepInfo 
 	            {
@@ -724,7 +724,7 @@ module [HASim_Module] mkFUNCP_DecodeAlg ();
 		      psrc2:  prb
 		    };
 		    
-          dbg = $display("DEC: [%d] SLT dest:(R%0d/PR%0d) src1: (R%0d/PR%0d) src2: (R%0d/PR%0d)", tok.index, rd, prd, rs1, pra, rs2, prb);
+          dbg = $fdisplay(debug_log, "[%d]: DEC: [%d] SLT dest:(R%0d/PR%0d) src1: (R%0d/PR%0d) src2: (R%0d/PR%0d)", curCC,  tok.index, rd, prd, rs1, pra, rs2, prb);
           depinfo = DepInfo 
 	            {
 		      dep_dest: tagged Valid tuple2(rd,  prd), 
@@ -744,7 +744,7 @@ module [HASim_Module] mkFUNCP_DecodeAlg ();
 		      psrc2:  prb
 		    };
 		    
-          dbg = $display("DEC: [%d] SLTU dest:(R%0d/PR%0d) src1: (R%0d/PR%0d) src2: (R%0d/PR%0d)", tok.index, rd, prd, rs1, pra, rs2, prb);
+          dbg = $fdisplay(debug_log, "[%d]: DEC: [%d] SLTU dest:(R%0d/PR%0d) src1: (R%0d/PR%0d) src2: (R%0d/PR%0d)", curCC,  tok.index, rd, prd, rs1, pra, rs2, prb);
           depinfo = DepInfo 
 	            {
 		      dep_dest: tagged Valid tuple2(rd,  prd), 
@@ -763,7 +763,7 @@ module [HASim_Module] mkFUNCP_DecodeAlg ();
 		      cop0dest: op
 		    };
 		    
-          dbg = $display("DEC: [%d] MTC0 src: (R%0d/PR%0d) cop0dest: %0d", tok.index, rs, pra, op);
+          dbg = $fdisplay(debug_log, "[%d]: DEC: [%d] MTC0 src: (R%0d/PR%0d) cop0dest: %0d", curCC,  tok.index, rs, pra, op);
           depinfo = DepInfo 
 	            {
 		      dep_dest: tagged Invalid, 
@@ -782,7 +782,7 @@ module [HASim_Module] mkFUNCP_DecodeAlg ();
 		      cop0src: op
 		    };
 		    
-          dbg = $display("DEC: [%d] MFC0 dest: (R%0d/PR%0d) cop0src: %0d", tok.index, rd, prd, op);
+          dbg = $fdisplay(debug_log, "[%d]: DEC: [%d] MFC0 dest: (R%0d/PR%0d) cop0src: %0d", curCC,  tok.index, rd, prd, op);
           depinfo = DepInfo 
 	            {
 		      dep_dest: tagged Valid tuple2(rd, prd), 
@@ -804,7 +804,7 @@ module [HASim_Module] mkFUNCP_DecodeAlg ();
 		      offset: off
 		    };
 		    
-          dbg = $display("DEC: [%d] BLEZ src: (R%0d/PR%0d) off: 0x%h", tok.index, rs, pra, off);
+          dbg = $fdisplay(debug_log, "[%d]: DEC: [%d] BLEZ src: (R%0d/PR%0d) off: 0x%h", curCC,  tok.index, rs, pra, off);
 
           depinfo = DepInfo 
 	            {
@@ -824,7 +824,7 @@ module [HASim_Module] mkFUNCP_DecodeAlg ();
 		      offset: off
 		    };
 		    
-          dbg = $display("DEC: [%d] BGTZ src: (R%0d/PR%0d) off: 0x%h", tok.index, rs, pra, off);
+          dbg = $fdisplay(debug_log, "[%d]: DEC: [%d] BGTZ src: (R%0d/PR%0d) off: 0x%h", curCC,  tok.index, rs, pra, off);
 
           depinfo = DepInfo 
 	            {
@@ -844,7 +844,7 @@ module [HASim_Module] mkFUNCP_DecodeAlg ();
 		      offset: off
 		    };
 		    
-          dbg = $display("DEC: [%d] BLTZ src: (R%0d/PR%0d) off: 0x%h", tok.index, rs, pra, off);
+          dbg = $fdisplay(debug_log, "[%d]: DEC: [%d] BLTZ src: (R%0d/PR%0d) off: 0x%h", curCC,  tok.index, rs, pra, off);
 
           depinfo = DepInfo 
 	            {
@@ -864,7 +864,7 @@ module [HASim_Module] mkFUNCP_DecodeAlg ();
 		      offset: off
 		    };
 		    
-          dbg = $display("DEC: [%d] BGEZ src: (R%0d/PR%0d) off: 0x%h", tok.index, rs, pra, off);
+          dbg = $fdisplay(debug_log, "[%d]: DEC: [%d] BGEZ src: (R%0d/PR%0d) off: 0x%h", curCC,  tok.index, rs, pra, off);
 
           depinfo = DepInfo 
 	            {
@@ -885,7 +885,7 @@ module [HASim_Module] mkFUNCP_DecodeAlg ();
 		      offset: off
 		    };
 		    
-          dbg = $display("DEC: [%d] BEQ src1: (R%0d/PR%0d) src2: (R%0d/PR%0d) off: 0x%h", tok.index, rs1, pra, rs2, prb, off);
+          dbg = $fdisplay(debug_log, "[%d]: DEC: [%d] BEQ src1: (R%0d/PR%0d) src2: (R%0d/PR%0d) off: 0x%h", curCC,  tok.index, rs1, pra, rs2, prb, off);
 
           depinfo = DepInfo 
 	            {
@@ -906,7 +906,7 @@ module [HASim_Module] mkFUNCP_DecodeAlg ();
 		      offset: off
 		    };
 		    
-          dbg = $display("DEC: [%d] BNE src1: (R%0d/PR%0d) src2: (R%0d/PR%0d) off: 0x%h", tok.index, rs1, pra, rs2, prb, off);
+          dbg = $fdisplay(debug_log, "[%d]: DEC: [%d] BNE src1: (R%0d/PR%0d) src2: (R%0d/PR%0d) off: 0x%h", curCC,  tok.index, rs1, pra, rs2, prb, off);
 		    
           depinfo = DepInfo 
 	            {
@@ -927,7 +927,7 @@ module [HASim_Module] mkFUNCP_DecodeAlg ();
 		      target: targ
 		    };
 		    
-          dbg = $display("DEC: [%d] J target: 0x%h", tok.index, targ);
+          dbg = $fdisplay(debug_log, "[%d]: DEC: [%d] J target: 0x%h", curCC,  tok.index, targ);
 
           depinfo = DepInfo 
 	            {
@@ -946,7 +946,7 @@ module [HASim_Module] mkFUNCP_DecodeAlg ();
 		      psrc:   pra
 		    };
 		    		    
-          dbg = $display("DEC: [%d] JR src: (R%0d/PR%0d) ", tok.index, rs, pra);
+          dbg = $fdisplay(debug_log, "[%d]: DEC: [%d] JR src: (R%0d/PR%0d) ", curCC,  tok.index, rs, pra);
 
           depinfo = DepInfo 
 	            {
@@ -965,7 +965,7 @@ module [HASim_Module] mkFUNCP_DecodeAlg ();
 		      target: targ
 		    };
 		 		    
-          dbg = $display("DEC: [%d] JAL dest: (R31/PR%0d) target: 0x%h", tok.index, prd, targ);
+          dbg = $fdisplay(debug_log, "[%d]: DEC: [%d] JAL dest: (R31/PR%0d) target: 0x%h", curCC,  tok.index, prd, targ);
     
           depinfo = DepInfo 
 	            {
@@ -985,7 +985,7 @@ module [HASim_Module] mkFUNCP_DecodeAlg ();
 		      psrc:   pra
 		    };
 		    
-          dbg = $display("DEC: [%d] JALR dest: (R%0d/PR%0d) src: (R%0d/PR%0d)", tok.index, rd, prd, rs, pra);
+          dbg = $fdisplay(debug_log, "[%d]: DEC: [%d] JALR dest: (R%0d/PR%0d) src: (R%0d/PR%0d)", curCC,  tok.index, rd, prd, rs, pra);
 
           depinfo = DepInfo 
 	            {
@@ -1001,7 +1001,7 @@ module [HASim_Module] mkFUNCP_DecodeAlg ();
         begin
           decinst = DTERMINATE;
    
-          dbg = $display("DEC: [%d] TERMINATE", tok.index);
+          dbg = $fdisplay(debug_log, "[%d]: DEC: [%d] TERMINATE", curCC,  tok.index);
 
           depinfo = DepInfo 
 	            {
@@ -1015,7 +1015,7 @@ module [HASim_Module] mkFUNCP_DecodeAlg ();
         begin
           decinst = DILLEGAL;
 		    
-          dbg = $display("DEC: [%d] ILLEGAL", tok.index);
+          dbg = $fdisplay(debug_log, "[%d]: DEC: [%d] ILLEGAL", curCC,  tok.index);
 	  
           depinfo = DepInfo 
 	            {
@@ -1029,7 +1029,7 @@ module [HASim_Module] mkFUNCP_DecodeAlg ();
     
     debug(2, dbg);
     if (prd == 0)
-      $display("WARNING: Got assigned PR0 as destination!");
+      $fdisplay(debug_log, "[%d]: DEC: WARNING [%d]: Got assigned PR0 as destination!", curCC, tok.index);
       
     link_dec.makeResp(tuple3(tok, depinfo, tuple2(a, decinst)));
     

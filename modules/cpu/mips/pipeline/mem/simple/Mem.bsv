@@ -5,9 +5,9 @@ import hasim_isa::*;
 
 import hasim_command_center::*;
 
-
-`define MEM_Hit_Chance 64
-`define MEM_Miss_Penalty 10
+//AWB Parameters          default:
+//MEM_DCACHE_HIT_CHANCE     50
+//MEM_DCACHE_MISS_PENALTY   10
 
 
 typedef enum 
@@ -17,6 +17,8 @@ typedef enum
 }
   MEM_State
     deriving (Eq, Bits);
+
+Integer mem_hit_chance = `MEM_DCACHE_HIT_CHANCE / 100 * 128;
 
 module [HASim_Module] mkPipe_Mem#(CommandCenter cc, File debug_file, Tick curTick)
     //interface:
@@ -39,6 +41,9 @@ module [HASim_Module] mkPipe_Mem#(CommandCenter cc, File debug_file, Tick curTic
 
   //Events
   EventRecorder event_mem <- mkEventRecorder("4       MEM");
+  
+  //Stats
+  Stat stat_dmisses <- mkStatCounter("DCache Misses");
   
   //Incoming Ports
   Port_Receive#(Token) port_from_exe <- mkPort_Receive("exe_to_mem", 1);
@@ -91,7 +96,7 @@ module [HASim_Module] mkPipe_Mem#(CommandCenter cc, File debug_file, Tick curTic
     match {.tok, .*} <- fp_mem_resp.receive();
     $fdisplay(debug_file, "[%d]:RSP:MEM: %0d", curTick, tok.index);
     
-    let isHit = (lfsr.value < `MEM_Hit_Chance);
+    let isHit = (lfsr.value < fromInteger(mem_hit_chance));
     lfsr.next();
     
     if (isHit)
@@ -105,7 +110,8 @@ module [HASim_Module] mkPipe_Mem#(CommandCenter cc, File debug_file, Tick curTic
       begin
 	port_to_wb.send(tagged Invalid);
 	event_mem.recordEvent(tagged Invalid);
-	stall_count <= `MEM_Miss_Penalty;
+	stat_dmisses.incr();
+	stall_count <= `MEM_DCACHE_MISS_PENALTY;
 	stall_tok   <= tok;
 	stalling    <= True;
       end

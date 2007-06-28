@@ -2204,3 +2204,51 @@ Directory modules/cpu/mips/pipeline/mem/simple
 In-Order model now outputs all debugging statements to a separate file.
 
 Michael P.
+
+----------
+mpellaue    Date: Wed Jun 27 20:07:03 EDT 2007  CSN: CSN-hasim-mips-119
+                  Thu Jun 28 00:07:03 UTC 2007
+
+
+Directory modules/cpu/mips/pipeline/execute/simple
+ Execute.bsv               Locally Modified          118 
+
+Directory modules/cpu/mips/pipeline/decode/simple
+ Decode.bsv                Locally Modified          118 
+ hasim_simple_decode.awb   Locally Modified          117 
+
+Directory modules/cpu/mips/pipeline/fetch/simple
+ Fetch.bsv                 Locally Modified          118 
+ hasim_simple_fetch.awb    Locally Modified          117 
+
+Directory modules/cpu/mips/pipeline/mem/simple
+ hasim_simple_mem.awb      Locally Modified          117 
+ Mem.bsv                   Locally Modified          118 
+
+Directory modules/cpu/mips/branch/predictor/notTaken
+ BranchPred.bsv            Locally Modified          117 
+
+Directory modules/isa/smips
+ ISA.bsv                   Locally Modified          117 
+
+Directory modules/functional/mips
+ FUNCP_FetchAlg.bsv        Locally Modified          117 
+ FUNCP_GlobalCommitAlg.bsv Locally Modified          117 
+ FUNCP_MemAlg.bsv          Locally Modified          117 
+ FUNCP_LocalCommitAlg.bsv  Locally Modified          117 
+
+Directory modules/functional/smips
+ FUNCP_ExecuteAlg.bsv      Locally Modified          117 
+ FUNCP_DecodeAlg.bsv       Locally Modified          117 
+
+Directory tools/scripts/smips
+ setup-all-tests           Locally Modified          117 
+ setup-bmark               Locally Modified          117 
+ setup-test                Locally Modified          117 
+
+
+Five-stage model now has nice stats and knobs.
+
+The setup scripts reflect the fact that many files are produced as output.
+
+Michael P.

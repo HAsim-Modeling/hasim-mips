@@ -26,7 +26,7 @@ import hasim_isa::*;
 //mkLocalCommit :: BypassUnit -> FP_Unit
 
 `define MODULE_NAME "mkLocalCommit"
-module [HASim_Module] mkFUNCP_LocalCommitAlg ();
+module [HASim_Module] mkFUNCP_LocalCommitAlg#(File debug_log, Tick curCC) ();
   
    
   Connection_Server#(Tuple3#(Token, InstWBInfo, void),

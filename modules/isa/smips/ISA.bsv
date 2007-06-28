@@ -370,7 +370,7 @@ typedef struct
 typedef union tagged
 {
   Addr     RBranchTaken;
-  void     RBranchNotTaken; // Possibly should also include address. 
+  Addr     RBranchNotTaken;
   void     RNop;
   Bool     RTerminate; //Bool is pass/fail
 }

@@ -1,10 +1,12 @@
+import FIFO::*;
 
 import hasim_common::*;
 import hasim_isa::*;
 
 import hasim_command_center::*;
 
-`define DEC_Is_Bypassed True
+//AWB Parameters           default:
+//DEC_PIPELINE_IS_BYPASSED   True
 
 module [HASim_Module] mkPipe_Decode#(CommandCenter cc, File debug_file, Tick curTick)
     //interface:
@@ -16,6 +18,7 @@ module [HASim_Module] mkPipe_Decode#(CommandCenter cc, File debug_file, Tick cur
   Reg#(DepInfo)   stall_deps  <- mkRegU();
   Reg#(Token)     stall_tok   <- mkRegU();
   Reg#(Bool)      in_flight   <- mkReg(False);
+  FIFO#(Maybe#(Addr)) addrQ   <- mkFIFO();
   
   //Scoreboard
   Reg#(Maybe#(DepInfo)) exe_stall_info <- mkReg(tagged Invalid);
@@ -30,10 +33,10 @@ module [HASim_Module] mkPipe_Decode#(CommandCenter cc, File debug_file, Tick cur
   EventRecorder event_dec <- mkEventRecorder("2   DEC");
   
   //Incoming Ports
-  Port_Receive#(Token) port_from_fet <- mkPort_Receive("fet_to_dec", 1);
+  Port_Receive#(Tuple2#(Token, Maybe#(Addr))) port_from_fet <- mkPort_Receive("fet_to_dec", 1);
 
   //Outgoing Ports
-  Port_Send#(Token)      port_to_exe <- mkPort_Send("dec_to_exe");
+  Port_Send#(Tuple2#(Token, Maybe#(Addr)))      port_to_exe <- mkPort_Send("dec_to_exe");
 
   //Stall functions
 
@@ -81,7 +84,7 @@ module [HASim_Module] mkPipe_Decode#(CommandCenter cc, File debug_file, Tick cur
 
   function Bit#(2) stallLength(DepInfo deps);
   
-    if (`DEC_Is_Bypassed) 
+    if (`DEC_PIPELINE_IS_BYPASSED) 
       return 0;
     else
     begin
@@ -112,19 +115,20 @@ module [HASim_Module] mkPipe_Decode#(CommandCenter cc, File debug_file, Tick cur
 
   rule decodeReq (cc.running && !in_flight);
   
-    let mtok <- port_from_fet.receive();
+    let mtup <- port_from_fet.receive();
     
-    case (mtok) matches
+    case (mtup) matches
       tagged Invalid: //Pass-through
       begin
         port_to_exe.send(tagged Invalid);
 	event_dec.recordEvent(tagged Invalid);
 	shiftStalls(tagged Invalid);
       end
-      tagged Valid .tok:
+      tagged Valid {.tok, .maddr}:
       begin
         $fdisplay(debug_file, "[%d]:DEC:REQ: %0d", curTick, tok.index);
         fp_dec_req.send(tuple2(tok, ?));
+	addrQ.enq(maddr);
 	in_flight <= True;
       end
     endcase
@@ -148,7 +152,8 @@ module [HASim_Module] mkPipe_Decode#(CommandCenter cc, File debug_file, Tick cur
     end
     else
     begin
-      port_to_exe.send(tagged Valid tok);
+      port_to_exe.send(tagged Valid tuple2(tok, addrQ.first()));
+      addrQ.deq();
       event_dec.recordEvent(tagged Valid zeroExtend(tok.index));
       shiftStalls(tagged Valid deps);
       in_flight <= False;

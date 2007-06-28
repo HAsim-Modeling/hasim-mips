@@ -1,3 +1,4 @@
+import FIFO::*;
 
 import hasim_common::*;
 import hasim_isa::*;
@@ -5,15 +6,14 @@ import hasim_isa::*;
 import hasim_command_center::*;
 
 
-typedef TokEpoch Epoch;
-
 module [HASim_Module] mkPipe_Execute#(CommandCenter cc, File debug_file, Tick curTick)
     //interface:
                 ();
   
   //Local State
-  Reg#(Epoch)  epoch     <- mkReg(0);
+  Reg#(TIMEP_Epoch)  epoch     <- mkReg(0);
   Reg#(Bool)   in_flight <- mkReg(False);
+  FIFO#(Maybe#(Addr)) addrQ   <- mkFIFO();
 
   //Connections to FP
   
@@ -27,38 +27,42 @@ module [HASim_Module] mkPipe_Execute#(CommandCenter cc, File debug_file, Tick cu
   //Events
   EventRecorder event_exe <- mkEventRecorder("3     EXE");
   
+  //Stats
+  Stat stat_mpred <- mkStatCounter("Branch Mispredicts");
+  
   //Incoming Ports
-  Port_Receive#(Token) port_from_dec <- mkPort_Receive("dec_to_exe", 1);
+  Port_Receive#(Tuple2#(Token, Maybe#(Addr))) port_from_dec <- mkPort_Receive("dec_to_exe", 1);
 
   //Outgoing Ports
-  Port_Send#(Token)               port_to_mem <- mkPort_Send("exe_to_mem");
-  Port_Send#(Tuple2#(Token, Addr)) port_to_ic <- mkPort_Send("fet_setPC");
+  Port_Send#(Token)                        port_to_mem <- mkPort_Send("exe_to_mem");
+  Port_Send#(Tuple2#(Token, Maybe#(Addr))) port_to_fet <- mkPort_Send("fet_branchResolve");
 
   rule executeReq (cc.running && !in_flight);
   
-    let mtok <- port_from_dec.receive();
+    let mtup <- port_from_dec.receive();
     
-    case (mtok) matches
+    case (mtup) matches
       tagged Invalid:
       begin
         port_to_mem.send(tagged Invalid);
 	event_exe.recordEvent(tagged Invalid);
-	port_to_ic.send(tagged Invalid);
+	port_to_fet.send(tagged Invalid);
       end
-      tagged Valid .tok:
+      tagged Valid {.tok, .maddr}:
       begin
-	if (tok.info.epoch != epoch) //kill it
+	if (tok.timep_info.epoch != epoch) //kill it
 	begin
           $fdisplay(debug_file, "[%d]:EXE: Killing: %0d", curTick, tok.index);
 	  fp_exe_kill.send(tok);
           event_exe.recordEvent(tagged Invalid);
           port_to_mem.send(tagged Invalid);
-	  port_to_ic.send(tagged Invalid);
+	  port_to_fet.send(tagged Invalid);
 	end
 	else //continue to execute it
 	begin
           $fdisplay(debug_file, "[%d]:EXE:REQ: %0d", curTick, tok.index);
           fp_exe_req.send(tuple2(tok, ?));
+	  addrQ.enq(maddr);
 	  in_flight <= True;
         end
       end
@@ -70,25 +74,50 @@ module [HASim_Module] mkPipe_Execute#(CommandCenter cc, File debug_file, Tick cu
   
     match {.tok, .res} <- fp_exe_resp.receive();
     $fdisplay(debug_file, "[%d]:EXE:RSP: %0d", curTick, tok.index);
+    
+    let pred_taken = tok.timep_info.scratchpad[0];
 
     case (res) matches
       tagged RBranchTaken .addr:
 	begin
-	  $fdisplay(debug_file, "[%d]:EXE: Branch taken!", curTick);
-	  epoch <= epoch + 1;
-	  fp_rewindToToken.send(tok);
-	  port_to_ic.send(tagged Valid tuple2(tok, addr));
+	  $fdisplay(debug_file, "[%d]:EXE: Branch taken", curTick);
+	  Bool mispredict = case (addrQ.first()) matches
+	                 tagged Valid .pred: (pred != addr);
+			 tagged Invalid: True;
+		       endcase;
+          if (mispredict)
+	  begin
+	    $fdisplay(debug_file, "[%d]:EXE: Branch mispredicted!", curTick);
+	    stat_mpred.incr();
+            epoch <= epoch + 1;
+            fp_rewindToToken.send(tok);
+	    port_to_fet.send(tagged Valid tuple2(tok, tagged Valid addr));  
+	  end
+	  else
+	    port_to_fet.send(tagged Valid tuple2(tok, tagged Invalid));
+	  
 	end
-      tagged RBranchNotTaken:
+      tagged RBranchNotTaken .addr:
 	begin
-	  port_to_ic.send(tagged Invalid);
-	  $fdisplay(debug_file, "[%d]:EXE: Branch not taken!", curTick);
+	  
+	  $fdisplay(debug_file, "[%d]:EXE: Branch not taken", curTick);
+	  if (pred_taken == 1)
+	  begin
+	    $fdisplay(debug_file, "[%d]:EXE: Branch mispredicted!", curTick);
+	    stat_mpred.incr();
+            epoch <= epoch + 1;
+            fp_rewindToToken.send(tok);
+	    port_to_fet.send(tagged Valid tuple2(tok, tagged Valid addr));
+	  end
+	  else
+	    port_to_fet.send(tagged Valid tuple2(tok, tagged Invalid));
+	    
 	end
       tagged RNop:
-	port_to_ic.send(tagged Invalid);
+	port_to_fet.send(tagged Invalid);
       tagged RTerminate .pf:
       begin
-	port_to_ic.send(tagged Invalid);
+	port_to_fet.send(tagged Invalid);
 	$fdisplay(debug_file, "[%d]:EXE: Setting Termination!", curTick);
 	cc.setPassFail(pf);
         case (cc.getStopToken) matches
@@ -100,6 +129,7 @@ module [HASim_Module] mkPipe_Execute#(CommandCenter cc, File debug_file, Tick cu
       end
     endcase
 
+    addrQ.deq();
     port_to_mem.send(tagged Valid tok);
     event_exe.recordEvent(tagged Valid zeroExtend(tok.index));
     in_flight <= False;

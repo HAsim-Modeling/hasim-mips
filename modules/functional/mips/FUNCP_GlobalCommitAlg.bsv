@@ -26,7 +26,7 @@ import hasim_isa::*;
 //mkGlobalCommit :: Memory -> FP_Unit
 
 `define MODULE_NAME "mkGlobalCommit"
-module [HASim_Module] mkFUNCP_GlobalCommitAlg ();
+module [HASim_Module] mkFUNCP_GlobalCommitAlg#(File debug_log, Tick curCC) ();
 
   Connection_Send#(Token) link_mem_commit <- mkConnection_Send("mem_commit");
   
