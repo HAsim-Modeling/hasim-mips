@@ -2287,3 +2287,29 @@ Directory modules/cpu/mips/s10k
 
 Long set of changes to finally get every test working. Currently the branch predictor assumes no latency. Also have to clean up some code, which I will do in the next checkin.
 The current check in compiles and passes the tests, so it is still "usable"
+
+----------
+mpellaue    Date: Thu Jun 28 20:03:41 EDT 2007  CSN: CSN-hasim-mips-121
+                  Fri Jun 29 00:03:41 UTC 2007
+
+
+Directory config/pm/hasim-mips/smips-5stage
+ smips_5stage_simulation.apm Locally Added               0 
+
+Directory modules/functional/mips
+ FUNCP_MemAlg.bsv          Locally Modified          120 
+
+Directory modules/cpu/mips/pipeline/fetch/simple
+ Fetch.bsv                 Locally Modified          120 
+
+Directory modules/cpu/mips/pipeline/mem/simple
+ Mem.bsv                   Locally Modified          120 
+
+
+Added a 5-stage bluesim model.
+
+Fixed a bug in the Fetch/Mem cache models
+
+Fixed a display bug in MemAlg.
+
+Michael P.

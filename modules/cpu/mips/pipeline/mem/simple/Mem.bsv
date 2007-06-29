@@ -18,7 +18,7 @@ typedef enum
   MEM_State
     deriving (Eq, Bits);
 
-Integer mem_hit_chance = `MEM_DCACHE_HIT_CHANCE / 100 * 128;
+Integer mem_hit_chance = (`MEM_DCACHE_HIT_CHANCE * 128) / 100;
 
 module [HASim_Module] mkPipe_Mem#(CommandCenter cc, File debug_file, Tick curTick)
     //interface:

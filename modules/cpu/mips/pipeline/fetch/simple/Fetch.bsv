@@ -14,7 +14,7 @@ import hasim_branch_pred::*;
 //FET_ICACHE_MISS_PENALTY     10
 //FET_BTB_HASH_BITS           8
 
-Integer fet_hit_chance = `FET_ICACHE_HIT_CHANCE / 100 * 128;
+Integer fet_hit_chance = (`FET_ICACHE_HIT_CHANCE * 128)/ 100;
 
 typedef enum 
 {
