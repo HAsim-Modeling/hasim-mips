@@ -1,15 +1,14 @@
 import hasim_common::*;
 
-import FIFO::*;
 import Vector::*;
 
 import hasim_cpu_parameters::*;
 import hasim_cpu_types::*;
 
 module [HASim_Module] mkPipe_Writeback();
-    function sendFunctionM(String str, Integer i) = mkPort_Send(strConcat(str, fromInteger(i)));
+    function sendFunctionM(String str, Integer i) = mkPort_Send(strConcat(str, integerToString(i)));
 
-    function receiveFunctionM(String str, Integer i) = mkPort_Receive(strConcat(str, fromInteger(i)), 1);
+    function receiveFunctionM(String str, Integer i) = mkPort_Receive(strConcat(str, integerToString(i)), 1);
 
     Vector#(CommitWidth, Port_Receive#(Token))        commitPort <- genWithM(receiveFunctionM("decodeToCommit"));
 
@@ -21,23 +20,17 @@ module [HASim_Module] mkPipe_Writeback();
 
     Reg#(CommitCount)                             localCommitPos <- mkReg(0);
 
-    FIFO#(Token)                                globalCommitFIFO <- mkFIFO();
-
     rule localCommit(True);
-        localCommitPos <= (localCommitPos + 1)%fromInteger(valueOf(CommitWidth));
-        let tokenMaybe <- commitPort[localCommitPos].receive();
+        Maybe#(Token) tokenMaybe <- commitPort[localCommitPos].receive();
         case (tokenMaybe) matches
             tagged Valid .token:
-            begin
-                globalCommitFIFO.enq(token);
                 fpLocalCommitReq.send(tuple2(token, ?));
-            end
         endcase
+        localCommitPos <= (localCommitPos == fromInteger(valueOf(TSub#(CommitWidth,1))))? 0: localCommitPos + 1;
     endrule
 
     rule globalCommit(True);
         let token <- fpLocalCommitResp.receive();
-        globalCommitFIFO.deq();
         fpGlobalCommitReq.send(token);
     endrule
 

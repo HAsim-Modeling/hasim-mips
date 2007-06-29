@@ -2364,3 +2364,44 @@ The 5-Stage DCache is bugged and so is disabled until I can fix it.
 Fetch's default ICAche hit rate is now 80%.
 
 Michael P.
+
+----------
+mvijayar    Date: Fri Jun 29 16:31:58 EDT 2007  CSN: CSN-hasim-mips-124
+                  Fri Jun 29 20:31:58 UTC 2007
+
+
+Directory config/pm/hasim-mips/s10k
+ s10k.apm                  Locally Modified          123 
+
+Directory modules/cpu/mips/pipeline/execute/superscalar
+ Execute.bsv               Locally Modified          123 
+
+Directory modules/cpu/mips/pipeline/decode/s10k/rob/simple
+ Rob.bsv                   Locally Modified          123 
+
+Directory modules/cpu/mips/pipeline/decode/s10k
+ Decode.bsv                Locally Modified          123 
+
+Directory modules/cpu/mips/pipeline/issue/issue_alg/simple/priorityAlgo
+ IssueAlg.bsv              Locally Modified          123 
+
+Directory modules/cpu/mips/pipeline/issue/s10k
+ Issue.bsv                 Locally Modified          123 
+
+Directory modules/cpu/mips/pipeline/fetch/superscalar
+ Fetch.bsv                 Locally Modified          123 
+
+Directory modules/cpu/mips/pipeline/writeback/superscalar
+ Commit.bsv                Locally Modified          123 
+
+Directory modules/cpu/mips/branch/target_buffer/multiEntry
+ TargetBuffer.bsv          Locally Modified          123 
+
+Directory modules/cpu/mips/branch/stack/1entry
+ BranchStack.bsv           Locally Modified          123 
+
+Directory modules/cpu/mips/s10k
+ Parameters.bsv            Locally Modified          123 
+ Types.bsv                 Locally Modified          123 
+
+issue with free list count not yet taken care of

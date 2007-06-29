@@ -19,7 +19,7 @@ interface Rob;
 endinterface
 
 module mkRob(Rob);
-    RegFile#(Bit#(TLog#(RobCount)), RobEntry) robFile <- mkRegFileFull();
+    RegFile#(Bit#(TLog#(RobNum)), RobEntry) robFile <- mkRegFileFull();
     Reg#(RobTag) head <- mkReg(0);
     Reg#(RobTag) tail <- mkReg(0);
 
@@ -39,7 +39,6 @@ module mkRob(Rob);
         let valid = head < tail && robTag >= head && robTag < tail ||
                     head > tail && (robTag >= head || robTag < tail) ||
                     head == tail && !empty;
-        $display("Read ROB: %0d Head: %0d, tail:%0d Valid: %0d", robTag, head, tail, valid);
         if(valid)
             return tagged Valid robFile.sub(truncate(robTag));
         else
@@ -51,7 +50,7 @@ module mkRob(Rob);
     endmethod
 
     method Action incrementHead();
-        head <= (head + 1)%fromInteger(valueOf(RobCount));
+        head <= (head + 1)%fromInteger(valueOf(RobNum));
         incrementHeadEn.send();
     endmethod
 
@@ -63,13 +62,13 @@ module mkRob(Rob);
     endmethod
 
     method Action updateTail(RobTag robTab);
-        tail <= (robTab + 1)%fromInteger(valueOf(RobCount));
+        tail <= (robTab + 1)%fromInteger(valueOf(RobNum));
         updateTailEn.send();
     endmethod
 
     method Action writeTail(RobEntry robEntry); //and increment
         robFile.upd(truncate(tail), robEntry);
-        tail <= (tail + 1)%fromInteger(valueOf(RobCount));
+        tail <= (tail + 1)%fromInteger(valueOf(RobNum));
         inc  <= True;
     endmethod
 

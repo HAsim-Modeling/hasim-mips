@@ -207,3 +207,7 @@ Packagehint=hasim-mips
 [One Entry Branch Stack]
 File=modules/cpu/mips/branch/stack/1entry/BranchStack.awb
 Packagehint=hasim-mips
+
+[Hasim Common Library/Params]
+HASIM_STATS_ENABLED=False
+HASIM_EVENTS_ENABLED=False

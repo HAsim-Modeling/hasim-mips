@@ -4,23 +4,23 @@ import hasim_isa::*;
 import hasim_cpu_parameters::*;
 
 typedef Bit#(TLog#(TAdd#(FetchWidth,1))) FetchCount;
-typedef Bit#(TLog#(TAdd#(1,TMul#(FetchWidth,2)))) InstCount;
 typedef Bit#(TLog#(TAdd#(CommitWidth,1))) CommitCount;
+typedef Bit#(TLog#(TAdd#(RobNum,1))) RobCount;
+typedef Bit#(TLog#(TAdd#(IntQNum,1))) IntQCount;
+typedef Bit#(TLog#(TAdd#(MemQNum,1))) MemQCount;
+typedef Bit#(TLog#(TAdd#(FreeListNum,1))) FreeListCount;
+typedef Bit#(TLog#(TAdd#(BranchNum,1))) BranchCount;
+typedef Bit#(TLog#(TAdd#(KillNum,1))) KillCount;
 
-typedef Bit#(TLog#(TAdd#(RobCount,1))) RobTag;
+typedef Bit#(TLog#(TAdd#(1,TMul#(FetchWidth,2)))) InstCount;
 
-typedef Bit#(TLog#(TAdd#(IntQCount,1))) IntQCountType;
-typedef Bit#(TLog#(TAdd#(MemQCount,1))) MemQCountType;
+typedef Bit#(TLog#(TAdd#(RobNum,1))) RobTag;
 
-typedef Bit#(TLog#(TAdd#(NumFuncUnits,1))) FuncUnitPos;
-
-typedef Bit#(TLog#(TAdd#(BranchCount,1))) BranchStackIndex;
+typedef Bit#(TLog#(TAdd#(FuncUnitNum,1))) FuncUnitCount;
 
 typedef enum {J, JAL, JR, JALR, Branch, Shift, Normal, Load, Store} IssueType deriving (Bits, Eq);
 
 typedef Bit#(64) ClockCounter;
-
-typedef Bit#(TLog#(TAdd#(FreeListCount,1))) FreeListFreeCount;
 
 typedef struct {
     Token token;
@@ -37,8 +37,8 @@ typedef struct {
     Token token;
     IssueType issueType;
     RobTag robTag;
-    FreeListFreeCount freeCount;
-    BranchStackIndex branchIndex;
+    FreeListCount freeCount;
+    BranchCount branchIndex;
     Bool pred;
     Addr predAddr;
 } IssuePort deriving (Bits, Eq);
@@ -47,13 +47,13 @@ typedef struct {
     Token     token;
     IssueType issueType;
     RobTag    robTag;
-    FreeListFreeCount freeCount;
+    FreeListCount freeCount;
     Bool      src1Ready;
     PRName    src1;
     Bool      src2Ready;
     PRName    src2;
     PRName    dest;
-    BranchStackIndex branchIndex;
+    BranchCount branchIndex;
     Bool      pred;
     Addr      predAddr;
 } IssueEntry deriving (Bits, Eq);
@@ -62,9 +62,9 @@ typedef struct {
     Token token;
     IssueType issueType;
     RobTag robTag;
-    FreeListFreeCount freeCount;
+    FreeListCount freeCount;
     PRName pRName;
-    BranchStackIndex branchIndex;
+    BranchCount branchIndex;
     Bool pred;
     Addr predAddr;
 } ExecEntry deriving (Bits, Eq);
@@ -73,9 +73,9 @@ typedef struct {
     Token token;
     IssueType issueType;
     RobTag robTag;
-    FreeListFreeCount freeCount;
+    FreeListCount freeCount;
     PRName pRName;
-    BranchStackIndex branchIndex;
+    BranchCount branchIndex;
     Bool pred;
     Addr predAddr;
     Bool taken;
@@ -93,7 +93,7 @@ typedef struct {
 typedef struct {
     Token token;
     RobTag robTag;
-    FreeListFreeCount freeCount;
+    FreeListCount freeCount;
     Addr mispredictPC;
-    BranchStackIndex branchIndex;
+    BranchCount branchIndex;
 } KillData deriving (Bits, Eq);

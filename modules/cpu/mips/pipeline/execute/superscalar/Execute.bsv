@@ -9,37 +9,36 @@ import hasim_cpu_types::*;
 typedef enum {Exec, Done} State deriving (Bits, Eq);
 
 module [HASim_Module] mkPipe_Execute();
-    function sendFunctionM(String str, Integer i) = mkPort_Send(strConcat(str, fromInteger(i)));
+    function sendFunctionM(String str, Integer i) = mkPort_Send(strConcat(str, integerToString(i)));
 
-    function receiveFunctionM(String str, Integer i) = mkPort_Receive(strConcat(str, fromInteger(i)), 1);
+    function receiveFunctionM(String str, Integer i) = mkPort_Receive(strConcat(str, integerToString(i)), 1);
 
-    Connection_Receive#(Tuple2#(Token, InstResult))           fpExeResponse <- mkConnection_Receive("fp_exe_resp");
-    Connection_Send#(Tuple2#(Token, void))                         fpMemReq <- mkConnection_Send("fp_mem_req");
+    Connection_Receive#(Tuple2#(Token, InstResult)) fpExeResponse <- mkConnection_Receive("fp_exe_resp");
+    Connection_Send#(Tuple2#(Token, void))               fpMemReq <- mkConnection_Send("fp_mem_req");
 
-    Vector#(NumFuncUnits, Port_Receive#(ExecEntry))                execPort  = newVector();
-    for(Integer i = 0; i < valueOf(TSub#(NumFuncUnits,1)); i=i+1)
-        execPort[i] <- mkPort_Receive(strConcat("issueToExec", fromInteger(i)), 1);
-    execPort[valueOf(TSub#(NumFuncUnits,1))] <- mkPort_Receive(strConcat("issueToExec", fromInteger(valueOf(TSub#(NumFuncUnits,1)))), 2);
+    Vector#(FuncUnitNum, Port_Receive#(ExecEntry))      execPort  = newVector();
+    for(Integer i = 0; i < valueOf(TSub#(FuncUnitNum,1)); i=i+1)
+        execPort[i] <- mkPort_Receive(strConcat("issueToExec", integerToString(i)), 1);
+    execPort[valueOf(TSub#(FuncUnitNum,1))] <- mkPort_Receive(strConcat("issueToExec", integerToString(valueOf(TSub#(FuncUnitNum,1)))), 2);
+    Port_Send#(Token)                               killIssuePort <- mkPort_Send("execToIssueKill");
 
-    Vector#(NumFuncUnits, Port_Send#(ExecResult))            execResultPort <- genWithM(sendFunctionM("execToDecodeResult"));
+    Vector#(FuncUnitNum, Port_Send#(ExecResult))   execResultPort <- genWithM(sendFunctionM("execToDecodeResult"));
+    Port_Send#(KillData)                           killDecodePort <- mkPort_Send("execToDecodeKill");
 
-    Port_Send#(KillData)                                         killDecode <- mkPort_Send("execToDecodeKill");
-    Port_Send#(Token)                                             killIssue <- mkPort_Send("execToIssueKill");
+    Reg#(FuncUnitCount)                             funcUnitCount <- mkReg(0);
 
-    Reg#(FuncUnitPos)                                           funcUnitPos <- mkReg(0);
-
-    Reg#(Maybe#(KillData))                                        killToken <- mkReg(tagged Invalid);
+    Reg#(Maybe#(KillData))                            killDataReg <- mkReg(tagged Invalid);
 
     rule execute(True);
-        Maybe#(KillData) newKillToken = tagged Invalid;
-
-        let recvMaybe <- execPort[funcUnitPos].receive();
+        Maybe#(KillData) newKillData = tagged Invalid;
+        let recvMaybe <- execPort[funcUnitCount].receive();
 
         case (recvMaybe) matches
             tagged Valid .recv:
             begin
                 match {.token, .res} <- fpExeResponse.receive();
                 fpMemReq.send(tuple2(token, ?));
+
                 Bool finished = case (res) matches
                                     tagged RTerminate .status: return True;
                                     default: return False;
@@ -51,55 +50,71 @@ module [HASim_Module] mkPipe_Execute();
                                     tagged RBranchTaken .addr: True;
                                     default: False;
                                 endcase;
-                Addr takeAddr = case (res) matches
-                                    tagged RBranchTaken .addr: addr;
-                                    default: 0;
-                                endcase;
-                ExecResult execResult = ExecResult{token: recv.token, pRName: recv.pRName, robTag: recv.robTag, freeCount: recv.freeCount, issueType: recv.issueType, branchIndex: recv.branchIndex, pred: recv.pred, predAddr: recv.predAddr, taken: taken, takenAddr: takeAddr, finished: finished, status: status};
-                KillData killDataVal = KillData{token: recv.token, robTag: recv.robTag, freeCount: recv.freeCount, mispredictPC: takeAddr, branchIndex: recv.branchIndex};
+                Addr takenAddr = case (res) matches
+                                     tagged RBranchTaken .addr: addr;
+                                     default: 0;
+                                 endcase;
 
-                if(recv.issueType == Branch && taken != recv.pred || (recv.issueType == JR || recv.issueType == JALR) && recv.predAddr != takeAddr)
+                ExecResult execResult = ExecResult{token: recv.token,
+                                                   pRName: recv.pRName,
+                                                   robTag: recv.robTag,
+                                                   freeCount: recv.freeCount,
+                                                   issueType: recv.issueType,
+                                                   branchIndex: recv.branchIndex,
+                                                   pred: recv.pred,
+                                                   predAddr: recv.predAddr,
+                                                   taken: taken,
+                                                   takenAddr: takenAddr,
+                                                   finished: finished,
+                                                   status: status};
+
+                KillData killDataVal = KillData{token: recv.token,
+                                                robTag: recv.robTag,
+                                                freeCount: recv.freeCount,
+                                                mispredictPC: takenAddr,
+                                                branchIndex: recv.branchIndex};
+
+                if(recv.issueType == Branch && taken != recv.pred || (recv.issueType == JR || recv.issueType == JALR) && recv.predAddr != takenAddr)
                 begin
-                    case (killToken) matches
+                    case (killDataReg) matches
                         tagged Valid .killData:
                         begin
                             TokIndex diff = killData.token.index - recv.token.index;
                             if(diff[7] == 1)
-                                newKillToken = tagged Valid killDataVal;
+                                newKillData = tagged Valid killDataVal;
                             else
-                                newKillToken = killToken;
+                                newKillData = killDataReg;
                         end
                         tagged Invalid:
-                            newKillToken = tagged Valid killDataVal;
+                            newKillData = tagged Valid killDataVal;
                     endcase
                 end
                 else
-                    newKillToken = killToken;
+                    newKillData = killDataReg;
 
-                execResultPort[funcUnitPos].send(tagged Valid execResult);
-                $display("exec: %0d", token.index);
+                execResultPort[funcUnitCount].send(tagged Valid execResult);
             end
             tagged Invalid:
             begin
-                execResultPort[funcUnitPos].send(tagged Invalid);
-                newKillToken = killToken;
+                execResultPort[funcUnitCount].send(tagged Invalid);
+                newKillData = killDataReg;
             end
         endcase
 
-        if(funcUnitPos == fromInteger(valueOf(TSub#(NumFuncUnits, 1))))
+        if(funcUnitCount == fromInteger(valueOf(TSub#(FuncUnitNum, 1))))
         begin
-            funcUnitPos <= 0;
-            killToken <= tagged Invalid;
-            killDecode.send(newKillToken);
-            case (newKillToken) matches
-                tagged Valid .data: killIssue.send(tagged Valid data.token);
-                tagged Invalid: killIssue.send(tagged Invalid);
+            funcUnitCount <= 0;
+            killDataReg   <= tagged Invalid;
+            killDecodePort.send(newKillData);
+            case (newKillData) matches
+                tagged Valid .data: killIssuePort.send(tagged Valid data.token);
+                tagged Invalid: killIssuePort.send(tagged Invalid);
             endcase
         end
         else
         begin
-            funcUnitPos <= funcUnitPos + 1;
-            killToken <= newKillToken;
+            funcUnitCount <= funcUnitCount + 1;
+            killDataReg   <= newKillData;
         end
     endrule
 endmodule
