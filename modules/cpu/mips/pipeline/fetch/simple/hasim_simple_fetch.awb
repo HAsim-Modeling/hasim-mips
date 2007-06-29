@@ -15,7 +15,7 @@
 # %attributes 5stage mips hasim
 #
 # %public Fetch.bsv
-# %param FET_ICACHE_HIT_CHANCE 50 "Chance to hit in our simple ICache (0-100)"
+# %param FET_ICACHE_HIT_CHANCE 80 "Chance to hit in our simple ICache (0-100)"
 # %param FET_ICACHE_MISS_PENALTY 10 "Number of cycles to stall on a miss (0-65535)"
 # %param FET_BTB_HASH_BITS 8 "Number of bits to use in BTB hash (0-32)"
 #

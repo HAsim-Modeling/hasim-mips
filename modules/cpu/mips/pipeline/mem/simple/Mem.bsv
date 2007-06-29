@@ -18,7 +18,7 @@ typedef enum
   MEM_State
     deriving (Eq, Bits);
 
-Integer mem_hit_chance = (`MEM_DCACHE_HIT_CHANCE * 128) / 100;
+Integer mem_hit_chance = (`MEM_DCACHE_HIT_CHANCE * 127) / 100;
 
 module [HASim_Module] mkPipe_Mem#(CommandCenter cc, File debug_file, Tick curTick)
     //interface:
@@ -96,7 +96,7 @@ module [HASim_Module] mkPipe_Mem#(CommandCenter cc, File debug_file, Tick curTic
     match {.tok, .*} <- fp_mem_resp.receive();
     $fdisplay(debug_file, "[%d]:RSP:MEM: %0d", curTick, tok.index);
     
-    let isHit = (lfsr.value < fromInteger(mem_hit_chance));
+    let isHit = True; //(lfsr.value < fromInteger(mem_hit_chance)); //Currently bugged
     lfsr.next();
     
     if (isHit)

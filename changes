@@ -2345,3 +2345,22 @@ Fixed a bug in Fetch BTB.
 Mem DCache LFSR seed sinked with Fetch. Still some weirdness there.
 
 Michael P.
+
+----------
+mpellaue    Date: Fri Jun 29 16:02:38 EDT 2007  CSN: CSN-hasim-mips-123
+                  Fri Jun 29 20:02:38 UTC 2007
+
+
+Directory modules/cpu/mips/pipeline/fetch/simple
+ Fetch.bsv                 Locally Modified          122 
+ hasim_simple_fetch.awb    Locally Modified          121 
+
+Directory modules/cpu/mips/pipeline/mem/simple
+ Mem.bsv                   Locally Modified          122 
+
+
+The 5-Stage DCache is bugged and so is disabled until I can fix it.
+
+Fetch's default ICAche hit rate is now 80%.
+
+Michael P.
