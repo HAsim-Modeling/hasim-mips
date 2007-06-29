@@ -176,6 +176,7 @@ module [HASim_Module] mkPipe_Fetch#(CommandCenter cc, File debug_file, Tick curT
      tok.timep_info.scratchpad[0] = pack(pred_taken);
 
      pc <= pred_taken && isValid(btb_resp) ? validValue(btb_resp) : pc + 4;
+     let pred_addr = pred_taken && isValid(btb_resp) ? btb_resp : tagged Invalid;
 
      let isHit = lfsr.value < fromInteger(fet_hit_chance);
      lfsr.next();
@@ -183,7 +184,7 @@ module [HASim_Module] mkPipe_Fetch#(CommandCenter cc, File debug_file, Tick curT
      if (isHit)
      begin
      
-       port_to_dec.send(tagged Valid tuple2(tok, btb_resp));
+       port_to_dec.send(tagged Valid tuple2(tok, pred_addr));
        event_fet.recordEvent(tagged Valid zeroExtend(tok.index));
        stat_fet.incr();
 
@@ -195,7 +196,7 @@ module [HASim_Module] mkPipe_Fetch#(CommandCenter cc, File debug_file, Tick curT
        stat_imisses.incr();
        stall_count <= `FET_ICACHE_MISS_PENALTY;
        stall_tok   <= tok;
-       stall_addr  <= btb_resp;
+       stall_addr  <= pred_addr;
        stalling    <= True;
      end
      

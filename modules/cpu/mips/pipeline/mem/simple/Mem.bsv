@@ -31,7 +31,7 @@ module [HASim_Module] mkPipe_Mem#(CommandCenter cc, File debug_file, Tick curTic
   Reg#(MEM_State) state       <- mkReg(MEM_Ready);
   
   //Pseudo-randomness
-  LFSR#(Bit#(7)) lfsr <- mkFeedLFSR(7'b0011011);
+  LFSR#(Bit#(7)) lfsr <- mkFeedLFSR(7'b1001110);
 
   //Connections to FP
   Connection_Send#(Tuple2#(Token, void))     fp_mem_req  <- mkConnection_Send("fp_mem_req");

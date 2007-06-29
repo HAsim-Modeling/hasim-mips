@@ -2,17 +2,22 @@ import hasim_common::*;
 import hasim_isa::*;
 
 import RegFile::*;
+import FIFO::*;
 
 typedef Bit#(`BRANCH_TABLE_SIZE) BranchIndex;
 
 interface BranchPred;
     method Action upd(Token token, Addr addr, Bool pred, Bool actual);
-    method ActionValue#(Bool) getPred(Token token, Addr addr);
+    method Action getPredReq(Token token, Addr addr);
+    method ActionValue#(Bool) getPredResp();
     method Action abort(Token token);
 endinterface
 
+
 module mkBranchPred(BranchPred);
+
     RegFile#(BranchIndex, Bit#(2)) branchRegFile <- mkRegFileFull();
+    FIFO#(Bool) respQ <- mkFIFO();
 
     method Action upd(Token token, Addr addr, Bool pred, Bool actual);
         let counter = branchRegFile(truncate(addr));
@@ -24,9 +29,14 @@ module mkBranchPred(BranchPred);
         branchRegFile.upd(truncate(addr), newCounter);
     endmethod
 
-    method ActionValue#(Bool) getPred(Token token, Addr addr);
+    method Action getPredReq(Token token, Addr addr);
         let counter = branchRegFile.sub(truncate(addr));
-        return counter > 1;
+        respQ.enq(counter > 1);
+    endmethod
+    
+    method ActionValue#(Bool) getPredResp();
+        respQ.deq();
+        return respQ.first();
     endmethod
 
     method Action abort(Token token);

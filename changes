@@ -2313,3 +2313,35 @@ Fixed a bug in the Fetch/Mem cache models
 Fixed a display bug in MemAlg.
 
 Michael P.
+
+----------
+mpellaue    Date: Fri Jun 29 11:52:45 EDT 2007  CSN: CSN-hasim-mips-122
+                  Fri Jun 29 15:52:45 UTC 2007
+
+
+Directory modules/cpu/mips/pipeline/fetch/simple
+ Fetch.bsv                 Locally Modified          121 
+
+Directory modules/cpu/mips/pipeline/mem/simple
+ Mem.bsv                   Locally Modified          121 
+
+Directory modules/cpu/mips/branch/predictor/2bit
+ BranchPred.bsv            Locally Modified          120 
+
+Directory modules/cpu/mips/branch/predictor/notTaken
+ BranchPred.bsv            Locally Modified          120 
+
+Directory modules/cpu/mips/branch/predictor/globHistory
+ BranchPred.bsv            Locally Modified          120 
+
+Directory modules/cpu/mips/branch/predictor/simple
+ BranchPred.bsv            Locally Modified          120 
+
+
+All branch predictors now use the new interface.
+
+Fixed a bug in Fetch BTB.
+
+Mem DCache LFSR seed sinked with Fetch. Still some weirdness there.
+
+Michael P.
