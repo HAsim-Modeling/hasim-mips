@@ -2405,3 +2405,37 @@ Directory modules/cpu/mips/s10k
  Types.bsv                 Locally Modified          123 
 
 issue with free list count not yet taken care of
+
+----------
+mpellaue    Date: Thu Jul  5 15:31:41 EDT 2007  CSN: CSN-hasim-mips-125
+                  Thu Jul  5 19:31:41 UTC 2007
+
+
+Directory config/pm/hasim-mips/smips-5stage
+ smips_5stage_simulation.apm Locally Modified          124 
+
+Directory modules/cpu/mips
+ CPU.bsv                   Locally Modified          124 
+
+Directory modules/cpu/mips/pipeline/execute/simple
+ Execute.bsv               Locally Modified          124 
+
+Directory modules/cpu/mips/pipeline/decode/simple
+ Decode.bsv                Locally Modified          124 
+
+Directory modules/cpu/mips/pipeline/fetch/simple
+ Fetch.bsv                 Locally Modified          124 
+
+Directory modules/cpu/mips/pipeline/writeback/simple
+ Writeback.bsv             Locally Modified          124 
+
+Directory modules/cpu/mips/pipeline/mem/simple
+ Mem.bsv                   Locally Modified          124 
+
+Directory modules/cpu/mips
+ 5stage_cpu.awb            Locally Modified          124 
+
+
+5-stage model updated to work with new Local Controllers.
+
+Michael P.

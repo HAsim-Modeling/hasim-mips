@@ -1,9 +1,10 @@
 import LFSR::*;
+import Vector::*;
 
 import hasim_common::*;
 import hasim_isa::*;
 
-import hasim_command_center::*;
+import hasim_local_controller::*;
 
 //AWB Parameters          default:
 //MEM_DCACHE_HIT_CHANCE     50
@@ -20,7 +21,7 @@ typedef enum
 
 Integer mem_hit_chance = (`MEM_DCACHE_HIT_CHANCE * 127) / 100;
 
-module [HASim_Module] mkPipe_Mem#(CommandCenter cc, File debug_file, Tick curTick)
+module [HASim_Module] mkPipe_Mem#(File debug_file, Tick curTick)
     //interface:
                 ();
   
@@ -51,8 +52,18 @@ module [HASim_Module] mkPipe_Mem#(CommandCenter cc, File debug_file, Tick curTic
   //Outgoing Ports
   Port_Send#(Token) port_to_wb <- mkPort_Send("mem_to_wb");
 
-  rule beginMem (cc.running && state == MEM_Ready);
-  
+  //Local Controller
+  Vector#(1, Port_Control) inports  = newVector();
+  Vector#(1, Port_Control) outports = newVector();
+  inports[0]  = port_from_exe.ctrl;
+  outports[0] = port_to_wb.ctrl;
+  LocalController local_ctrl <- mkLocalController(inports, outports);
+
+
+  rule beginMem (state == MEM_Ready);
+    
+    local_ctrl.startModelCC();
+     
     let mtok <- port_from_exe.receive();
 
     if (stalling)
@@ -91,7 +102,7 @@ module [HASim_Module] mkPipe_Mem#(CommandCenter cc, File debug_file, Tick curTic
   
   endrule
 
-  rule finishMem (cc.running && state == MEM_Finish);
+  rule finishMem (state == MEM_Finish);
   
     match {.tok, .*} <- fp_mem_resp.receive();
     $fdisplay(debug_file, "[%d]:RSP:MEM: %0d", curTick, tok.index);

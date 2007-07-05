@@ -10,7 +10,6 @@
 # %name 5-stage pipeline CPU
 # %desc 5-stage pipeline CPU
 # %provides hasim_cpu
-# %requires hasim_command_center
 # %requires hasim_pipe_fetch
 # %requires hasim_pipe_decode
 # %requires hasim_pipe_execute

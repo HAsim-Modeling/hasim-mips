@@ -1,12 +1,13 @@
 
 import LFSR::*;
 import RegFile::*;
+import Vector::*;
 
 
 import hasim_common::*;
 import hasim_isa::*;
 
-import hasim_command_center::*;
+import hasim_local_controller::*;
 import hasim_branch_pred::*;
 
 //AWB Parameters            default:
@@ -33,7 +34,7 @@ function AddrHash btbHash(Addr a);
 
 endfunction
 
-module [HASim_Module] mkPipe_Fetch#(CommandCenter cc, File debug_file, Tick curTick)
+module [HASim_Module] mkPipe_Fetch#(File debug_file, Tick curTick)
     //interface:
                 ();
 
@@ -82,8 +83,16 @@ module [HASim_Module] mkPipe_Fetch#(CommandCenter cc, File debug_file, Tick curT
   //Outgoing Ports
   Port_Send#(Tuple2#(Token, Maybe#(Addr))) port_to_dec <- mkPort_Send("fet_to_dec");
 
+  //Local Controller
+  Vector#(1, Port_Control) inports  = newVector();
+  Vector#(1, Port_Control) outports = newVector();
+  inports[0]  = port_from_exe.ctrl;
+  outports[0] = port_to_dec.ctrl;
+  LocalController local_ctrl <- mkLocalController(inports, outports);
 
-  rule beginFetch (cc.running && state == FET_Ready);
+  rule beginFetch (state == FET_Ready);
+  
+    local_ctrl.startModelCC();
     
     let mtup <- port_from_exe.receive();
     stat_cycles.incr();

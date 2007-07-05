@@ -1,14 +1,15 @@
 import FIFO::*;
+import Vector::*;
 
 import hasim_common::*;
 import hasim_isa::*;
 
-import hasim_command_center::*;
+import hasim_local_controller::*;
 
 //AWB Parameters           default:
 //DEC_PIPELINE_IS_BYPASSED   True
 
-module [HASim_Module] mkPipe_Decode#(CommandCenter cc, File debug_file, Tick curTick)
+module [HASim_Module] mkPipe_Decode#(File debug_file, Tick curTick)
     //interface:
                 ();
 
@@ -37,6 +38,14 @@ module [HASim_Module] mkPipe_Decode#(CommandCenter cc, File debug_file, Tick cur
 
   //Outgoing Ports
   Port_Send#(Tuple2#(Token, Maybe#(Addr)))      port_to_exe <- mkPort_Send("dec_to_exe");
+
+  //Local Controller
+  Vector#(1, Port_Control) inports  = newVector();
+  Vector#(1, Port_Control) outports = newVector();
+  inports[0]  = port_from_fet.ctrl;
+  outports[0] = port_to_exe.ctrl;
+  LocalController local_ctrl <- mkLocalController(inports, outports);
+
 
   //Stall functions
 
@@ -113,7 +122,9 @@ module [HASim_Module] mkPipe_Decode#(CommandCenter cc, File debug_file, Tick cur
   
   //Rules
 
-  rule decodeReq (cc.running && !in_flight);
+  rule decodeReq (!in_flight);
+  
+    local_ctrl.startModelCC();
   
     let mtup <- port_from_fet.receive();
     
@@ -135,7 +146,7 @@ module [HASim_Module] mkPipe_Decode#(CommandCenter cc, File debug_file, Tick cur
     
   endrule
 
-  rule decodeResp (cc.running && stall_count == 0 && in_flight);
+  rule decodeResp (stall_count == 0 && in_flight);
   
     match {.tok, .deps} <- fp_dec_resp.receive();
     $fdisplay(debug_file, "[%d]:DEC:RSP: %0d", curTick, tok.index);
@@ -163,7 +174,7 @@ module [HASim_Module] mkPipe_Decode#(CommandCenter cc, File debug_file, Tick cur
     
   endrule
 
-  rule decode_stall (cc.running && stall_count > 0 && in_flight);
+  rule decode_stall (stall_count > 0 && in_flight);
   
     stall_count <= stall_count - 1;
     port_to_exe.send(tagged Invalid);

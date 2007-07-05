@@ -1,10 +1,12 @@
 
+import Vector::*;
+
 import hasim_common::*;
 import hasim_isa::*;
 
-import hasim_command_center::*;
+import hasim_local_controller::*;
 
-module [HASim_Module] mkPipe_Writeback#(CommandCenter cc, File debug_file, Tick curTick)
+module [HASim_Module] mkPipe_Writeback#(File debug_file, Tick curTick)
     //interface:
                 ();
 
@@ -32,8 +34,14 @@ module [HASim_Module] mkPipe_Writeback#(CommandCenter cc, File debug_file, Tick 
 
   //Incoming Ports
   Port_Receive#(Token) port_from_mem <- mkPort_Receive("mem_to_wb", 1);
-  
-  rule lcoReq (cc.running && !in_flight);
+
+  //Local Controller
+  Vector#(1, Port_Control) inports = newVector();
+  Vector#(0, Port_Control) outports = newVector();
+  inports[0] = port_from_mem.ctrl;
+  LocalController local_ctrl <- mkLocalController(inports, outports);
+
+  rule lcoReq (!in_flight);
   
     let mtok <- port_from_mem.receive();
     
@@ -53,7 +61,7 @@ module [HASim_Module] mkPipe_Writeback#(CommandCenter cc, File debug_file, Tick 
   
   endrule
    
-  rule gcoReq (cc.running && in_flight);
+  rule gcoReq (in_flight);
   
     match {.tok, .*} <- fp_lco_resp.receive();
     $fdisplay(debug_file, "[%d]:LCO:RSP: %0d", curTick, tok.index);
@@ -61,7 +69,7 @@ module [HASim_Module] mkPipe_Writeback#(CommandCenter cc, File debug_file, Tick 
     fp_gco_req.send(tuple2(tok, ?));
   endrule
   
-  rule gcoResp (cc.running && in_flight);
+  rule gcoResp (in_flight);
   
     match {.tok, .*}  <- fp_gco_resp.receive();
     $fdisplay(debug_file, "[%d]:GCO:RSP: %0d", curTick, tok.index);
@@ -70,14 +78,9 @@ module [HASim_Module] mkPipe_Writeback#(CommandCenter cc, File debug_file, Tick 
     stat_wb.incr();
     
     in_flight <= False;
-    
-    case (cc.getStopToken) matches
-      tagged Valid .t:
-        if (t == tok)
-	  cc.stop();
-      default:
-        noAction;
-    endcase
+
+    if (tok.timep_info.scratchpad[1] == 1)
+       local_ctrl.endProgram(unpack(tok.timep_info.scratchpad[2]));
     
   endrule
 

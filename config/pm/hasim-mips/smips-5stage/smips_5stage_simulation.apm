@@ -136,16 +136,12 @@ hasim_pipe_mem=5-stage pipeline Mem
 hasim_pipe_writeback=5-stage pipeline Writeback
 hasim_pipe_execute=5-stage pipeline Execute
 hasim_pipe_decode=5-stage pipeline Decode
-hasim_command_center=5-stage pipeline Command Center
 hasim_pipe_fetch=5-stage pipeline Fetch
 
 [5-stage pipeline CPU]
 File=modules/cpu/mips/5stage_cpu.awb
 Packagehint=hasim-mips
 
-[5-stage pipeline Command Center]
-File=modules/cpu/mips/command_center/hasim_command_center.awb
-Packagehint=hasim-mips
 
 [5-stage pipeline Writeback]
 File=modules/cpu/mips/pipeline/writeback/simple/hasim_simple_writeback.awb
@@ -175,12 +171,9 @@ File=modules/memory/magic_memory.awb
 Packagehint=hasim-mips
 
 
+[Hasim local controller]
+File=modules/controller/local/hasim_local_controller.awb
+Packagehint=hasim
 
-
-
-
-
-
-
-
-
+[Hasim simple controller/Requires]
+hasim_local_controller=Hasim local controller

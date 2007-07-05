@@ -1,12 +1,13 @@
 import FIFO::*;
+import Vector::*;
 
 import hasim_common::*;
 import hasim_isa::*;
 
-import hasim_command_center::*;
+import hasim_local_controller::*;
 
 
-module [HASim_Module] mkPipe_Execute#(CommandCenter cc, File debug_file, Tick curTick)
+module [HASim_Module] mkPipe_Execute#(File debug_file, Tick curTick)
     //interface:
                 ();
   
@@ -37,8 +38,18 @@ module [HASim_Module] mkPipe_Execute#(CommandCenter cc, File debug_file, Tick cu
   Port_Send#(Token)                        port_to_mem <- mkPort_Send("exe_to_mem");
   Port_Send#(Tuple2#(Token, Maybe#(Addr))) port_to_fet <- mkPort_Send("fet_branchResolve");
 
-  rule executeReq (cc.running && !in_flight);
+  //Local Controller
+  Vector#(1, Port_Control) inports  = newVector();
+  Vector#(2, Port_Control) outports = newVector();
+  inports[0]  = port_from_dec.ctrl;
+  outports[0] = port_to_mem.ctrl;
+  outports[1] = port_to_fet.ctrl;
+  LocalController local_ctrl <- mkLocalController(inports, outports);
+
+  rule executeReq (!in_flight);
   
+    local_ctrl.startModelCC();
+    
     let mtup <- port_from_dec.receive();
     
     case (mtup) matches
@@ -70,7 +81,7 @@ module [HASim_Module] mkPipe_Execute#(CommandCenter cc, File debug_file, Tick cu
   
   endrule
 
-  rule executeResp (cc.running && in_flight);
+  rule executeResp (in_flight);
   
     match {.tok, .res} <- fp_exe_resp.receive();
     $fdisplay(debug_file, "[%d]:EXE:RSP: %0d", curTick, tok.index);
@@ -119,13 +130,8 @@ module [HASim_Module] mkPipe_Execute#(CommandCenter cc, File debug_file, Tick cu
       begin
 	port_to_fet.send(tagged Invalid);
 	$fdisplay(debug_file, "[%d]:EXE: Setting Termination!", curTick);
-	cc.setPassFail(pf);
-        case (cc.getStopToken) matches
-	  tagged Invalid:
-  	    cc.setStopToken(tok);
-	  default:
-	    noAction;
-	endcase
+	tok.timep_info.scratchpad[1] = 1; //[1] is termination
+	tok.timep_info.scratchpad[2] = pack(pf); //[2] is passfail
       end
     endcase
 
