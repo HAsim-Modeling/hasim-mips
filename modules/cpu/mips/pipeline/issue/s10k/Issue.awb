@@ -17,5 +17,7 @@
 #
 # %public Issue.bsv
 #
+# %param SYNTH_BOUNDARY mkPipe_Issue "Name of synthesis boundary"
+#
 # %AWB_END
 # */

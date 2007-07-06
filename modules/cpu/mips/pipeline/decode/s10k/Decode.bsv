@@ -1,5 +1,6 @@
 import hasim_common::*;
 import hasim_isa::*;
+import hasim_local_controller::*;
 
 import FIFOF::*;
 import FIFO::*;
@@ -49,6 +50,7 @@ module [HASim_Module] mkPipe_Decode();
 
     Port_Receive#(IntQCount)                         intQCountPort <- mkPort_Receive("issueToDecodeIntQ", 1);
     Port_Receive#(MemQCount)                         memQCountPort <- mkPort_Receive("issueToDecodeMemQ", 1);
+    Port_Receive#(FreeListCount)                   freeListAddPort <- mkPort_Receive("issueToDecodeFreeListAdd", 1);
 
     Vector#(FetchWidth, Port_Send#(IssuePort))           issuePort <- genWithM(sendFunctionM("decodeToIssue"));
 
@@ -112,7 +114,9 @@ module [HASim_Module] mkPipe_Decode();
                 killCount <= 2;
                 mispredictPC <= tagged Valid killData.mispredictPC;
                 branchStack.resolveWrong(killData.branchIndex);
-                freeListCount <= killData.freeCount;
+                
+                $display("Rewind to token: %0d", killData.token.index);
+                //freeListCount <= killData.freeCount;
             end
             tagged Invalid:
                 mispredictPC <= tagged Invalid;
@@ -127,10 +131,12 @@ module [HASim_Module] mkPipe_Decode();
 
         modelCycleBegin <= False;
 
-        let intQCountLocal <- intQCountPort.receive();
-        let memQCountLocal <- memQCountPort.receive();
-        intQCount          <= fromMaybe(fromInteger(valueOf(IntQNum)), intQCountLocal);
-        memQCount          <= fromMaybe(fromInteger(valueOf(MemQNum)), memQCountLocal);
+        let intQCountLocal     <- intQCountPort.receive();
+        let memQCountLocal     <- memQCountPort.receive();
+        let freeListCountLocal <- freeListAddPort.receive();
+        intQCount              <= fromMaybe(fromInteger(valueOf(IntQNum)), intQCountLocal);
+        memQCount              <= fromMaybe(fromInteger(valueOf(MemQNum)), memQCountLocal);
+        freeListCount          <= freeListCount + fromMaybe(0, freeListCountLocal);
 
         fetchState             <= Fetch;
         fetchCount             <= 0;
@@ -163,11 +169,12 @@ module [HASim_Module] mkPipe_Decode();
         commitCount                    <= commitCount + 1;
         if(robEntryMaybe matches tagged Valid .robEntry &&& robEntry.done)
         begin
+            $display("Commit Token: %0d", robEntry.token.index);
             commitTokenPort[commitCount].send(tagged Valid robEntry.token);
             if(robEntry.issueType == Branch)
                 branchPred.upd(robEntry.token, robEntry.addr, robEntry.pred, robEntry.taken);
             if(robEntry.finished)
-                local_ctrl.endProgram(tagged RESP_DoneRunning robEntry.status);
+                local_ctrl.endProgram(robEntry.status);
             if(commitCount == fromInteger(valueOf(TSub#(CommitWidth,1))))
                 commitState <= CommitDone;
             rob.incrementHead();
@@ -187,10 +194,9 @@ module [HASim_Module] mkPipe_Decode();
         Maybe#(ExecResult) execResultMaybe  <- execResultPort[robUpdateCount].receive();
 
         case (execResultMaybe) matches
-            tagged Valid .execResult:
+            tagged Valid .exec:
             begin
                 Tuple2#(Token, void) memAck    <- fpMemoryResp.receive();
-                ExecResult exec                 = execResult;
                 Maybe#(RobEntry) robEntryMaybe <- rob.read(exec.robTag);
                 if(robEntryMaybe matches tagged Valid .robEntry &&& robEntry.token == exec.token)
                 begin
@@ -203,8 +209,6 @@ module [HASim_Module] mkPipe_Decode();
 
                     if(exec.issueType == Branch || exec.issueType == JR || exec.issueType == JALR)
                         branchStack.resolveRight(exec.branchIndex);
-                    if(exec.pRName != 0)
-                        freeListCount <= freeListCount + 1;
                 end
                 else
                 begin
@@ -212,6 +216,8 @@ module [HASim_Module] mkPipe_Decode();
                     fpLocalCommitKill.send(exec.token);
                     fpMemStateKill.send(exec.token);
                 end
+                if(!(exec.issueType == Branch || exec.issueType == J || exec.issueType == JR || exec.issueType == Store))
+                    freeListCount <= freeListCount + 1;
             end
         endcase
 
@@ -277,7 +283,7 @@ module [HASim_Module] mkPipe_Decode();
                                             pred: pred,
                                             predAddr: validValue(predPC)};
 
-                if(regFileUpd && !(currInst[31:26] == 0 && currInst[15:11] == 0 || currInst[20:16] == 0))
+                if(regFileUpd)
                     freeListCount <= freeListCount - 1;
                 if(intQ)           intQCount <= intQCount - 1;
                 if(memQ)           memQCount <= memQCount - 1;
@@ -287,10 +293,11 @@ module [HASim_Module] mkPipe_Decode();
                     predictedPC       <= branchPredAddr;
                     issue.branchIndex <- branchStack.add();
                 end
-                else if(jr)
+                else if(isValid(predPC))
                 begin
                     predictedPC       <= predPC;
-                    issue.branchIndex <- branchStack.add();
+                    if(jr)
+                        issue.branchIndex <- branchStack.add();
                 end
 
                 decodeCount     <= decodeCount + 1;

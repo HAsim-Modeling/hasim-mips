@@ -17,6 +17,7 @@ interface IssueAlg;
     method MemQCount getMemQCount();
     method Action reqIssueVals();
     method Bool canIssue();
+    method FreeListCount getFreeListAdd();
     interface Vector#(FuncUnitNum, Get#(Maybe#(ExecEntry))) respIssueVals;
 endinterface
 
@@ -35,6 +36,8 @@ module mkIssueAlg(IssueAlg);
 
     Reg#(Vector#(PRNum, BusyState))               busyState <- mkReg(replicate(Free));
     Reg#(Vector#(PRNum, Bit#(32)))              regWaitTime <- mkReg(replicate(0));
+
+    Reg#(FreeListCount)                       freeListCount <- mkReg(0);
 
     Reg#(Token)                                   killToken <- mkReg(?);
     Reg#(KillState)                               killState <- mkReg(KillDone);
@@ -150,6 +153,7 @@ module mkIssueAlg(IssueAlg);
     method Action killInitialize(Token token);
         killState <= Kill;
         killToken <= token;
+        freeListCount <= 0;
         intQ.start();
         memQ.start();
     endmethod
@@ -168,6 +172,7 @@ module mkIssueAlg(IssueAlg);
                         busyState[validEntry.dest] <= Free;
                         regWaitTime[validEntry.dest] <= 0;
                         issueQ.write(tagged Invalid);
+                        freeListCount <= freeListCount + 1;
                         return tagged Valid validEntry.token;
                     end
                     else
@@ -200,6 +205,10 @@ module mkIssueAlg(IssueAlg);
             killState <= KillDone;
             return tagged Invalid;
         end
+    endmethod
+
+    method FreeListCount getFreeListAdd();
+        return freeListCount;
     endmethod
 
     method Bool doneKill();

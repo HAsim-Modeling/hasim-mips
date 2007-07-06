@@ -2473,3 +2473,35 @@ Directory modules/isa/smips
 Updated various models to work with Local Controller.
 
 Michael P.
+
+----------
+mvijayar    Date: Fri Jul  6 18:17:11 EDT 2007  CSN: CSN-hasim-mips-128
+                  Fri Jul  6 22:17:11 UTC 2007
+
+
+Directory modules/functional/mips
+ FUNCP_MemAlg.bsv          Locally Modified          127 
+
+Directory modules/cpu/mips/pipeline/execute/superscalar
+ Execute.bsv               Locally Modified          127 
+
+Directory modules/cpu/mips/pipeline/decode/s10k
+ Decode.bsv                Locally Modified          127 
+
+Directory modules/cpu/mips/pipeline/issue/issue_alg/simple/priorityAlgo
+ IssueAlg.bsv              Locally Modified          127 
+
+Directory modules/cpu/mips/pipeline/issue/s10k
+ Issue.awb                 Locally Modified          127 
+ Issue.bsv                 Locally Modified          127 
+
+Directory modules/cpu/mips/branch/predictor/notTaken
+ BranchPred.bsv            Locally Modified          127 
+
+Directory modules/isa/smips
+ ISA.bsv                   Locally Modified          127 
+
+The functional partition had a bug in regstate/freelist, where it rewinds to a token before servicing all existing requests that exist before rewind. This made it go to 
+a dirty state, leading to errors. I fixed that here. So it passed all the tests after that. But then, Michael found a bug in the functional partition's store buffer
+where it didnt get initialized in the beginning. So he added an initialization state, but this broke something else in the store buffer, so it doesnt pass the store test now.
+I am currently debugging it. All the tests pass in svn version 203

@@ -65,7 +65,7 @@ module [HASim_Module] mkFUNCP_MemAlg#(File debug_log, Tick curCC) ();
        
         link_to_dmem.makeReq(Ld {addr: a, token: t});
 	  
-        $fdisplay(debug_log, "MEM: [%d] Load Request: 0x%h", t.index, a);
+        $fdisplay(debug_log, "[%d] MEM: [%0d] Load Request: 0x%h", curCC, t.index, a);
 	
         waitingQ.enq(tuple2(t, i));
       end
@@ -76,7 +76,7 @@ module [HASim_Module] mkFUNCP_MemAlg#(File debug_log, Tick curCC) ();
 	
         link_to_dmem.makeReq(St {val: v, addr: a, token: t});
 	  
-        $fdisplay(debug_log, "MEM: [%d] Store Request: 0x%h := %d", t.index, a, v);
+        $fdisplay(debug_log, "[%d] MEM: [%0d] Store Request: 0x%h := %d", curCC, t.index, a, v);
 	
 	
         waitingQ.enq(tuple2(t, i));
@@ -88,7 +88,7 @@ module [HASim_Module] mkFUNCP_MemAlg#(File debug_log, Tick curCC) ();
 
         link_mem.makeResp(tuple3(t, ?, WWB));
 
-        $fdisplay(debug_log, "MEM: [%d] Passing through Nop", t.index);
+        $fdisplay(debug_log, "[%d] MEM: [%0d] Passing through Nop", curCC, t.index);
 	
       end
       tagged ENop:
@@ -98,7 +98,7 @@ module [HASim_Module] mkFUNCP_MemAlg#(File debug_log, Tick curCC) ();
 
         link_mem.makeResp(tuple3(t, ?, WNop));
 
-        $fdisplay(debug_log, "MEM: [%d] Passing through Nop", t.index);
+        $fdisplay(debug_log, "[%d] MEM: [%0d] Passing through Nop", curCC, t.index);
 	
       end
     endcase
@@ -130,7 +130,7 @@ module [HASim_Module] mkFUNCP_MemAlg#(File debug_log, Tick curCC) ();
           link_mem.makeResp(tuple3(tok,?, WWB));
           link_write2.send(tuple2(prd, v));
 	  
-          debug(2, $fdisplay(debug_log, "MEM: [%d] LdResp: PR%d <= 0x%h", tok, prd, v));
+          debug(2, $fdisplay(debug_log, "[%d] MEM: [%0d] LdResp: PR%d <= 0x%h", curCC, tok.index, prd, v));
 	  
         end
       tagged EStore {val: .*, addr: .*}:
@@ -142,7 +142,7 @@ module [HASim_Module] mkFUNCP_MemAlg#(File debug_log, Tick curCC) ();
           waitingQ.deq();
           link_mem.makeResp(tuple3(tok, ?, WStore));
 	  
-          debug(2, $fdisplay(debug_log, "MEM: [%d] StResp", tok));
+          debug(2, $fdisplay(debug_log, "[%d] MEM: [%0d] StResp", curCC, tok.index));
         end
       default:
         begin
@@ -152,7 +152,7 @@ module [HASim_Module] mkFUNCP_MemAlg#(File debug_log, Tick curCC) ();
           waitingQ.deq();
           link_mem.makeResp(tuple3(tok, ?, WNop));
 	  
-          $display("MEM: [%d] ERROR NON-MEMORY OP IN QUEUE", tok);
+          $display("[%d] MEM: [%0d] ERROR NON-MEMORY OP IN QUEUE", curCC, tok.index);
         end
     endcase
   endrule

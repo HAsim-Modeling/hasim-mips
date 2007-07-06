@@ -37,6 +37,7 @@ module [HASim_Module] mkPipe_Execute();
             tagged Valid .recv:
             begin
                 match {.token, .res} <- fpExeResponse.receive();
+                $display("Mem Req: %0d", token.index);
                 fpMemReq.send(tuple2(token, ?));
 
                 Bool finished = case (res) matches

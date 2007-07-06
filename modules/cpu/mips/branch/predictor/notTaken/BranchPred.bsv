@@ -19,11 +19,12 @@ module mkBranchPred(BranchPred);
     endmethod
 
     method Action  getPredReq(Token token, Addr addr);
-        respQ.enq(?);
+        noAction;
+        //respQ.enq(?);
     endmethod
 
     method ActionValue#(Bool) getPredResp();
-        respQ.deq();
+        //respQ.deq();
         return False;
     endmethod
     

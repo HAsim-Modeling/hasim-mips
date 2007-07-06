@@ -24,6 +24,7 @@ module [HASim_Module] mkPipe_Issue();
 
     Port_Send#(IntQCount)                       intQCountPort <- mkPort_Send("issueToDecodeIntQ");
     Port_Send#(MemQCount)                       memQCountPort <- mkPort_Send("issueToDecodeMemQ");
+    Port_Send#(FreeListCount)                 freeListAddPort <- mkPort_Send("issueToDecodeFreeListAdd");
 
     Vector#(FetchWidth, Port_Receive#(IssuePort))   issuePort <- genWithM(receiveFunctionM("decodeToIssue"));
 
@@ -36,6 +37,8 @@ module [HASim_Module] mkPipe_Issue();
 
     Reg#(FetchCount)                            dispatchCount <- mkReg(?);
     Reg#(FuncUnitCount)                           funcUnitPos <- mkReg(?);
+
+    Reg#(FreeListCount)                         freeListCount <- mkReg(?);
 
     IssueAlg                                         issueAlg <- mkIssueAlg();
 
@@ -51,6 +54,7 @@ module [HASim_Module] mkPipe_Issue();
         begin
             intQCountPort.send(tagged Valid freeIntQ);
             memQCountPort.send(tagged Valid freeMemQ);
+            freeListAddPort.send(tagged Valid freeListCount);
         end
 
         modelCycleBegin <= False;
@@ -64,6 +68,7 @@ module [HASim_Module] mkPipe_Issue();
         end
         else
         begin
+            freeListCount <= 0;
             issueState    <= Issue;
             dispatchState <= Dispatch;
             funcUnitPos   <= 0;
@@ -82,6 +87,7 @@ module [HASim_Module] mkPipe_Issue();
         end
         else
         begin
+            freeListCount <= issueAlg.getFreeListAdd();
             killState     <= KillContinue;
             issueState    <= Issue;
             dispatchState <= Dispatch;
@@ -129,7 +135,14 @@ module [HASim_Module] mkPipe_Issue();
                                                    predAddr: recv.predAddr};
 
                 if(killState == KillContinue)
+                begin
                     fpExeKill.send(token);
+                    case (dep.dep_dest) matches
+                        tagged Valid {.regDest, .dest}:
+                            if(dest != 0)
+                                freeListCount <= freeListCount + 1;
+                    endcase
+                end
                 else
                     issueAlg.dispatch(issueEntry);
             end

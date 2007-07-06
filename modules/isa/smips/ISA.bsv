@@ -424,7 +424,11 @@ function Bool p_isStore(PackedInst inst);
 endfunction
 
 function Bool p_isALU(PackedInst inst);
-    return !(inst == 32'b0) && !(p_isBranch(inst) || p_isJ(inst) || p_isJAL(inst) || p_isJR(inst) || p_isJALR(inst) || p_isLoad(inst) || p_isStore(inst));
+    let op = inst[31:26];
+    let rt = inst[20:16];
+    let rd = inst[15:11];
+    return !(inst == 32'b0) && !(p_isBranch(inst) || p_isJ(inst) || p_isJAL(inst) || p_isJR(inst) || p_isJALR(inst) || p_isLoad(inst) || p_isStore(inst))
+         && !(op == 0 && rd == 0 || op != 0 && rt == 0);
 endfunction
 
 function Addr p_getJAddr(PackedInst inst, Addr pc);
