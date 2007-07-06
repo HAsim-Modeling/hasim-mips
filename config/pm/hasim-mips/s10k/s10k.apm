@@ -211,3 +211,10 @@ Packagehint=hasim-mips
 [Hasim Common Library/Params]
 HASIM_STATS_ENABLED=False
 HASIM_EVENTS_ENABLED=False
+
+[Hasim local controller]
+File=modules/controller/local/hasim_local_controller.awb
+Packagehint=hasim
+
+[Hasim simple controller/Requires]
+hasim_local_controller=Hasim local controller

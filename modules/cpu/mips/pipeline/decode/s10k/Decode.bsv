@@ -23,7 +23,9 @@ module [HASim_Module] mkPipe_Decode();
     function sendFunctionM(String str, Integer i) = mkPort_Send(strConcat(str, integerToString(i)));
 
     function receiveFunctionM(String str, Integer i) = mkPort_Receive(strConcat(str, integerToString(i)), 1);
-
+    
+    //Connections
+    
     Connection_Receive#(Tuple2#(Token, PackedInst))    fpFetchResp <- mkConnection_Receive("fp_fet_resp");
     Connection_Send#(Tuple2#(Token, void))             fpDecodeReq <- mkConnection_Send("fp_dec_req");
     Connection_Receive#(Tuple2#(Token, void))         fpMemoryResp <- mkConnection_Receive("fp_mem_resp");
@@ -36,9 +38,9 @@ module [HASim_Module] mkPipe_Decode();
     Connection_Send#(Token)                      fpLocalCommitKill <- mkConnection_Send("fp_lco_kill");
     Connection_Send#(Token)                     fpGlobalCommitKill <- mkConnection_Send("fp_gco_kill");
     Connection_Send#(Token)                        fpRewindToToken <- mkConnection_Send("fp_rewindToToken");
-
-    Connection_Server#(Command, Response)             finishServer <- mkConnection_Server("controller_to_tp");
-
+    
+    //Ports
+    
     Vector#(FetchWidth, Port_Receive#(Addr))              addrPort <- genWithM(receiveFunctionM("fetchToDecode"));
 
     Port_Send#(FetchCount)                          fetchCountPort <- mkPort_Send("decodeToFetchDecodeNum");
@@ -54,6 +56,14 @@ module [HASim_Module] mkPipe_Decode();
     Port_Receive#(KillData)                         killDecodePort <- mkPort_Receive("execToDecodeKill", 1);
 
     Vector#(CommitWidth, Port_Send#(Token))        commitTokenPort <- genWithM(sendFunctionM("decodeToCommit"));
+
+    //Local Controller
+    
+    //Someday these should be real
+    Vector#(0, Port_Control) inports = newVector();
+    Vector#(0, Port_Control) outports = newVector();
+    
+    LocalController local_ctrl <- mkLocalController(inports, outports);
 
     FIFOF#(InstInfo)                                    instBuffer <- mkSizedFIFOF(2*fromInteger(valueOf(FetchWidth)));
 
@@ -82,18 +92,11 @@ module [HASim_Module] mkPipe_Decode();
 
     Reg#(Bool)                                     modelCycleBegin <- mkReg(True);
 
-    Reg#(Bool)                                               start <- mkReg(True);
-
     Reg#(ClockCounter)                                clockCounter <- mkReg(0);
     Reg#(ClockCounter)                                modelCounter <- mkReg(0);
 
     rule clockCount(True);
         clockCounter <= clockCounter + 1;
-    endrule
-
-    rule startOfModel(start);
-        Command req <- finishServer.getReq();
-        start       <= False;
     endrule
 
     rule synchronize(fetchState == FetchDone && robUpdateState == RobUpdateDone && decodeState == DecodeDone && commitState == CommitDone);
@@ -164,7 +167,7 @@ module [HASim_Module] mkPipe_Decode();
             if(robEntry.issueType == Branch)
                 branchPred.upd(robEntry.token, robEntry.addr, robEntry.pred, robEntry.taken);
             if(robEntry.finished)
-                finishServer.makeResp(tagged RESP_DoneRunning robEntry.status);
+                local_ctrl.endProgram(tagged RESP_DoneRunning robEntry.status);
             if(commitCount == fromInteger(valueOf(TSub#(CommitWidth,1))))
                 commitState <= CommitDone;
             rob.incrementHead();

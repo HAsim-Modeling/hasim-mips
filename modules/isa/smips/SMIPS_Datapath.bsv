@@ -10,6 +10,22 @@ module [HASim_Module] mkISA_Datapath
   Connection_Server#(Tuple4#(Inst, Addr, Value, Value),
                      Tuple3#(InstResult, Addr, Maybe#(Value))) link_fp <- mkConnection_Server("isa_datapath");
 
+  let debug_log <- mkReg(InvalidFile);
+  
+  rule open_log (debug_log == InvalidFile);
+  
+    let fd <- $fopen(`HASIM_ISA_DP_LOGFILE, "w");
+    
+    if (fd == InvalidFile)
+    begin
+      $display("ERROR: ISA: DP: Could not create logfile %s", `HASIM_ISA_DP_LOGFILE);
+      $finish(1);
+    end
+    
+    debug_log <= fd;
+  
+  endrule
+
   rule isa_exec (True);
   
     match {.inst, .addr, .v1, .v2} <- link_fp.getReq();
@@ -36,7 +52,7 @@ module [HASim_Module] mkISA_Datapath
 	  eaddr = src1 + extimm;
 	  res   = tagged RNop;
 	  wb    = False;
-	  dbg   = $display("DP: LW EADDR 0x%h = 0x%h + 0x%h", eaddr, src1, extimm);
+	  dbg   = $fdisplay(debug_log, "LW EADDR 0x%h = 0x%h + 0x%h", eaddr, src1, extimm);
 
 	end
 	
@@ -48,7 +64,7 @@ module [HASim_Module] mkISA_Datapath
 	  eaddr = src1 + extimm;
 	  res   = tagged RNop;
 	  wbval = src2;
-	  dbg   = $display("DP: SW EADDR 0x%h = 0x%h + 0x%h <= 0x%h", eaddr, src1, extimm, src2);
+	  dbg   = $fdisplay(debug_log, "SW EADDR 0x%h = 0x%h + 0x%h <= 0x%h", eaddr, src1, extimm, src2);
 
 	end
 
@@ -62,7 +78,7 @@ module [HASim_Module] mkISA_Datapath
 	  res   = tagged RNop;
 	  Value extimm = signExtend(info.imm);
 	  wbval = src1 + extimm;
-	  dbg   = $display("DP: ADDIU 0x%h = 0x%h + 0x%h]", wbval, src1, extimm);
+	  dbg   = $fdisplay(debug_log, "ADDIU 0x%h = 0x%h + 0x%h]", wbval, src1, extimm);
 
 	end
 	
@@ -73,7 +89,7 @@ module [HASim_Module] mkISA_Datapath
 	  res   = tagged RNop;
 	  Value extimm = signExtend(info.imm);
 	  wbval = zeroExtend(pack(signedLT(src1, extimm)));
-	  dbg   = $display("DP: SLTI 0x%h = slt(0x%h, 0x%h)", wbval, src1, extimm);
+	  dbg   = $fdisplay(debug_log, "SLTI 0x%h = slt(0x%h, 0x%h)", wbval, src1, extimm);
 	  
 	end
 	
@@ -84,7 +100,7 @@ module [HASim_Module] mkISA_Datapath
 	  res   = tagged RNop;
 	  Value extimm = signExtend(info.imm);
 	  wbval = zeroExtend(pack(src1 < extimm));
-	  dbg   = $display("DP: SLTIU 0x%h = sltu(0x%h, 0x%h)", wbval, src1, extimm);
+	  dbg   = $fdisplay(debug_log, "SLTIU 0x%h = sltu(0x%h, 0x%h)", wbval, src1, extimm);
 
 	end
 	
@@ -95,7 +111,7 @@ module [HASim_Module] mkISA_Datapath
 	  res   = tagged RNop;
 	  Value zimm = zeroExtend(info.imm);
 	  wbval = src1 & zimm;
-	  dbg   = $display("DP: ANDI 0x%h = 0x%h & 0x%h", wbval, src1, zimm);
+	  dbg   = $fdisplay(debug_log, "ANDI 0x%h = 0x%h & 0x%h", wbval, src1, zimm);
 
 	end
 	
@@ -106,7 +122,7 @@ module [HASim_Module] mkISA_Datapath
 	  res   = tagged RNop;
 	  Value zimm = zeroExtend(info.imm);
 	  wbval = src1 | zimm;
-	  dbg   = $display("DP: ORI 0x%h = 0x%h | 0x%h", wbval, src1, zimm);
+	  dbg   = $fdisplay(debug_log, "ORI 0x%h = 0x%h | 0x%h", wbval, src1, zimm);
 
 	end
 	
@@ -117,7 +133,7 @@ module [HASim_Module] mkISA_Datapath
 	  res   = tagged RNop;
 	  Value zimm = zeroExtend(info.imm);
 	  wbval = src1 ^ zimm;
-	  dbg   = $display("DP: XORI 0x%h = 0x%h ^ 0x%h", wbval, src1, zimm);
+	  dbg   = $fdisplay(debug_log, "XORI 0x%h = 0x%h ^ 0x%h", wbval, src1, zimm);
           
 	end
 	
@@ -129,7 +145,7 @@ module [HASim_Module] mkISA_Datapath
 	  res   = tagged RNop;
 	  Value zimm = zeroExtend(info.imm);
 	  wbval = zimm << 16;
-	  dbg   = $display("DP: LUI 0x%h = 0x%h << 16", wbval, zimm);
+	  dbg   = $fdisplay(debug_log, "LUI 0x%h = 0x%h << 16", wbval, zimm);
 
 	end
 	
@@ -140,7 +156,7 @@ module [HASim_Module] mkISA_Datapath
 
 	  res   = tagged RNop;
 	  wbval = src1 << info.shamt;
-	  dbg   = $display("DP: SLL 0x%h = 0x%h << 0x%h", wbval, src1, info.shamt);
+	  dbg   = $fdisplay(debug_log, "SLL 0x%h = 0x%h << 0x%h", wbval, src1, info.shamt);
 
 	end
 	
@@ -150,7 +166,7 @@ module [HASim_Module] mkISA_Datapath
 
 	  res   = tagged RNop;
 	  wbval = src1 >> info.shamt;
-	  dbg   = $display("DP: SRL 0x%h = 0x%h >> 0x%h", wbval, src1, info.shamt);
+	  dbg   = $fdisplay(debug_log, "SRL 0x%h = 0x%h >> 0x%h", wbval, src1, info.shamt);
 
 	end
 	
@@ -160,7 +176,7 @@ module [HASim_Module] mkISA_Datapath
 
 	  res   = tagged RNop;
 	  wbval = signedShiftRight(src1, info.shamt);
-	  dbg   = $display("DP: SRA 0x%h = 0x%h <<a 0x%h", wbval, src1, info.shamt);
+	  dbg   = $fdisplay(debug_log, "SRA 0x%h = 0x%h <<a 0x%h", wbval, src1, info.shamt);
 
 	end
 	
@@ -170,7 +186,7 @@ module [HASim_Module] mkISA_Datapath
 
 	  res   = tagged RNop;
 	  wbval = src1 << src2[4:0];
-	  dbg   = $display("DP: SLLV 0x%h = 0x%h << 0x%h", wbval, src1, src2[4:0]);
+	  dbg   = $fdisplay(debug_log, "SLLV 0x%h = 0x%h << 0x%h", wbval, src1, src2[4:0]);
 
 	end
 	
@@ -180,7 +196,7 @@ module [HASim_Module] mkISA_Datapath
 
 	  res   = tagged RNop;
 	  wbval = src1 >> src2[4:0];
-	  dbg   = $display("DP: SRLV 0x%h = 0x%h >> 0x%h", wbval, src1, src2[4:0]);
+	  dbg   = $fdisplay(debug_log, "SRLV 0x%h = 0x%h >> 0x%h", wbval, src1, src2[4:0]);
 
 	end
 	
@@ -190,7 +206,7 @@ module [HASim_Module] mkISA_Datapath
 
 	  res   = tagged RNop;
 	  wbval = signedShiftRight(src1, src2[4:0]);
-	  dbg   = $display("DP: SRAV 0x%h = 0x%h >>a 0x%h", wbval, src1, src2[4:0]);
+	  dbg   = $fdisplay(debug_log, "SRAV 0x%h = 0x%h >>a 0x%h", wbval, src1, src2[4:0]);
 
 	end
 	
@@ -200,7 +216,7 @@ module [HASim_Module] mkISA_Datapath
 	  
 	  res   = tagged RNop;
 	  wbval = src1 + src2;
-	  dbg   = $display("DP: ADDU %0h = %0h + %0h", wbval, src1, src2);
+	  dbg   = $fdisplay(debug_log, "ADDU %0h = %0h + %0h", wbval, src1, src2);
 	    
 	end
 
@@ -210,7 +226,7 @@ module [HASim_Module] mkISA_Datapath
 
 	  res   = tagged RNop;
 	  wbval = src1 - src2;
-	  dbg   = $display("DP: SUBU 0h = %0h - %0h", wbval, src1, src2);
+	  dbg   = $fdisplay(debug_log, "SUBU 0h = %0h - %0h", wbval, src1, src2);
 
 	end
 	
@@ -220,7 +236,7 @@ module [HASim_Module] mkISA_Datapath
 
 	  res   = tagged RNop;
 	  wbval = src1 & src2;
-	  dbg   = $display("DP: AND %0h = %0h & %0h", wbval, src1, src2);
+	  dbg   = $fdisplay(debug_log, "AND %0h = %0h & %0h", wbval, src1, src2);
 
 	end
       
@@ -230,7 +246,7 @@ module [HASim_Module] mkISA_Datapath
 
 	  res   = tagged RNop;
 	  wbval = src1 | src2;
-	  dbg   = $display("DP: OR %0h = %0h | %0h", wbval, src1, src2);
+	  dbg   = $fdisplay(debug_log, "OR %0h = %0h | %0h", wbval, src1, src2);
 
 	end
 	
@@ -240,7 +256,7 @@ module [HASim_Module] mkISA_Datapath
 
 	  res   = tagged RNop;
 	  wbval = src1 ^ src2;
-	  dbg   = $display("DP: XOR %0h = %0h ^ %0h", wbval, src1, src2);
+	  dbg   = $fdisplay(debug_log, "XOR %0h = %0h ^ %0h", wbval, src1, src2);
 
 	end
 
@@ -250,7 +266,7 @@ module [HASim_Module] mkISA_Datapath
 
 	  res   = tagged RNop;
 	  wbval = ~(src1 | src2);
-	  dbg   = $display("DP: NOR %0h = %0h nor %0h", wbval, src1, src2);
+	  dbg   = $fdisplay(debug_log, "NOR %0h = %0h nor %0h", wbval, src1, src2);
 
 	end
 
@@ -260,7 +276,7 @@ module [HASim_Module] mkISA_Datapath
 
 	  res   = tagged RNop;
 	  wbval = zeroExtend(pack(signedLT(src1, src2)));
-	  dbg   = $display("DP: SLT %0h = slt(%0h, %0h)", wbval, src1, src2);
+	  dbg   = $fdisplay(debug_log, "SLT %0h = slt(%0h, %0h)", wbval, src1, src2);
 
 	end
       
@@ -270,7 +286,7 @@ module [HASim_Module] mkISA_Datapath
 
 	  res   = tagged RNop;
 	  wbval = zeroExtend(pack(src1 < src2));
-	  dbg   = $display("DP: SLTU %0h = sltu(%0h, %0h)", wbval, src1, src2);
+	  dbg   = $fdisplay(debug_log, "SLTU %0h = sltu(%0h, %0h)", wbval, src1, src2);
 
 	end
 
@@ -286,8 +302,8 @@ module [HASim_Module] mkISA_Datapath
 	  Addr dest  = addr_plus_4 + extimm;
 
 	  wb    = False;
-	  res   = taken ? (tagged RBranchTaken dest) : tagged RBranchNotTaken;
-	  dbg   = $display("DP: BLEZ PC <= 0x%h (offset 0x%h) if (0x%h <= 0)", dest, extimm, src1);
+	  res   = taken ? (tagged RBranchTaken dest) : (tagged RBranchNotTaken addr_plus_4);
+	  dbg   = $fdisplay(debug_log, "BLEZ PC <= 0x%h (offset 0x%h) if (0x%h <= 0)", dest, extimm, src1);
 	  
 	end
 
@@ -300,8 +316,8 @@ module [HASim_Module] mkISA_Datapath
 	  Addr dest  = addr_plus_4 + extimm;
 
 	  wb    = False;
-	  res   = taken ? (tagged RBranchTaken dest) : tagged RBranchNotTaken;
-	  dbg   = $display("DP: BGTZ PC <= 0x%h (offset 0x%h) if (0x%h > 0)", dest, extimm, src1);
+	  res   = taken ? (tagged RBranchTaken dest) : (tagged RBranchNotTaken addr_plus_4);
+	  dbg   = $fdisplay(debug_log, "BGTZ PC <= 0x%h (offset 0x%h) if (0x%h > 0)", dest, extimm, src1);
 	  
 	end
 
@@ -314,8 +330,8 @@ module [HASim_Module] mkISA_Datapath
 	  Addr dest  = addr_plus_4 + extimm;
 
 	  wb    = False;
-	  res   = taken ? (tagged RBranchTaken dest) : tagged RBranchNotTaken;
-	  dbg   = $display("DP: BLTZ PC <= 0x%h (offset 0x%h) if (0x%h < 0)", dest, extimm, src1);
+	  res   = taken ? (tagged RBranchTaken dest) : (tagged RBranchNotTaken addr_plus_4);
+	  dbg   = $fdisplay(debug_log, "BLTZ PC <= 0x%h (offset 0x%h) if (0x%h < 0)", dest, extimm, src1);
 
 	end
 
@@ -328,8 +344,8 @@ module [HASim_Module] mkISA_Datapath
 	  Addr dest  = addr_plus_4 + extimm;
 
 	  wb    = False;
-	  res   = taken ? (tagged RBranchTaken dest) : tagged RBranchNotTaken;
-	  dbg   = $display("DP: BGEZ PC <= 0x%h (offset 0x%h) if (0x%h > 0)", dest, extimm, src1);
+	  res   = taken ? (tagged RBranchTaken dest) : (tagged RBranchNotTaken addr_plus_4);
+	  dbg   = $fdisplay(debug_log, "BGEZ PC <= 0x%h (offset 0x%h) if (0x%h > 0)", dest, extimm, src1);
 
 	end
 
@@ -342,8 +358,8 @@ module [HASim_Module] mkISA_Datapath
 	  Addr dest  = addr_plus_4 + extimm;
 
 	  wb    = False;
-	  res   = taken ? (tagged RBranchTaken dest) : tagged RBranchNotTaken;
-	  dbg   = $display("DP: BEQ PC <= 0x%h (offset 0x%h) if (0x%h == 0x%h)", dest, extimm, src1, src2);
+	  res   = taken ? (tagged RBranchTaken dest) : (tagged RBranchNotTaken addr_plus_4);
+	  dbg   = $fdisplay(debug_log, "BEQ PC <= 0x%h (offset 0x%h) if (0x%h == 0x%h)", dest, extimm, src1, src2);
 
 	end
 
@@ -356,8 +372,8 @@ module [HASim_Module] mkISA_Datapath
 	  Addr dest  = addr_plus_4 + extimm;
 
 	  wb    = False;
-	  res   = taken ? (tagged RBranchTaken dest) : tagged RBranchNotTaken;
-	  dbg   = $display("DP: BNE PC <= 0x%h (offset 0x%h) if (0x%h != 0x%h)", dest, extimm, src1, src2);
+	  res   = taken ? (tagged RBranchTaken dest) : (tagged RBranchNotTaken addr_plus_4);
+	  dbg   = $fdisplay(debug_log, "BNE PC <= 0x%h (offset 0x%h) if (0x%h != 0x%h)", dest, extimm, src1, src2);
 
 	end
       
@@ -371,7 +387,7 @@ module [HASim_Module] mkISA_Datapath
 
 	  wb    = False;
 	  res   = tagged RBranchTaken dest;
-	  dbg   = $display("DP: J PC <= 0x%h = {%0h, %0h, 00}", dest, addr_plus_4[31:26], info.target);
+	  dbg   = $fdisplay(debug_log, "J PC <= 0x%h = {%0h, %0h, 00}", dest, addr_plus_4[31:26], info.target);
 
 	end
       
@@ -383,7 +399,7 @@ module [HASim_Module] mkISA_Datapath
 
 	  wb    = False;
 	  res   = tagged RBranchTaken dest;
-	  dbg   = $display("DP: JR PC <= 0x%h ", dest);
+	  dbg   = $fdisplay(debug_log, "JR PC <= 0x%h ", dest);
 	
 	end
 
@@ -395,7 +411,7 @@ module [HASim_Module] mkISA_Datapath
 	  
 	  res   = tagged RBranchTaken dest;
 	  wbval = addr_plus_4;
-	  dbg   = $display("DP: JAL PC <= 0x%h = {%0h, %0h, 00}, (Old PC: 0x%h)", dest, addr_plus_4[31:28], info.target, addr_plus_4);
+	  dbg   = $fdisplay(debug_log, "JAL PC <= 0x%h = {%0h, %0h, 00}, (Old PC: 0x%h)", dest, addr_plus_4[31:28], info.target, addr_plus_4);
 
 	end
 
@@ -408,7 +424,7 @@ module [HASim_Module] mkISA_Datapath
 	  
 	  res   = tagged RBranchTaken dest;
 	  wbval = addr_plus_4;
-	  dbg   = $display("DP: JALR PC <= 0x%h, (Old PC: 0x%h)", dest, addr_plus_4);
+	  dbg   = $fdisplay(debug_log, "JALR PC <= 0x%h, (Old PC: 0x%h)", dest, addr_plus_4);
 
 	end
 
@@ -421,7 +437,7 @@ module [HASim_Module] mkISA_Datapath
 	  Bool pf = src1 == 1; //Equal to 1 means we passed
 	  //A Non-Zero value to "fromHost" is equivalent to a terminate for our purposes
 	  res   = (src1 == 0) ? tagged RNop : (info.cop0dest == 21) ? tagged RTerminate pf : tagged RNop;
-	  dbg   = $display("DP: MTC0 COP0 R%d <= 0x%h", info.cop0dest, src1);
+	  dbg   = $fdisplay(debug_log, "MTC0 COP0 R%d <= 0x%h", info.cop0dest, src1);
 	  wb    = False;
 
 	end
@@ -434,7 +450,7 @@ module [HASim_Module] mkISA_Datapath
           
 	  res   = tagged RNop;
 	  wbval = 1;
-	  dbg   = $display("DP: MFC0 R%d <= COP0 R%0d (Hardwired to 1)", info.rdest, info.cop0src);
+	  dbg   = $fdisplay(debug_log, "MFC0 R%d <= COP0 R%0d (Hardwired to 1)", info.rdest, info.cop0src);
           
 	end
 
@@ -445,7 +461,7 @@ module [HASim_Module] mkISA_Datapath
 	
 	  res = tagged RTerminate True;
 	  wb    = False;
-	  dbg   = $display("DP: TERMINATE");
+	  dbg   = $fdisplay(debug_log, "TERMINATE");
 	  	  
         end
 	
@@ -455,7 +471,7 @@ module [HASim_Module] mkISA_Datapath
 	  res = tagged RNop;
 	  wb  = False;
 	  
-	  $display("DP: ERROR: EXECUTING ILLEGAL INSTRUCTION");
+	  $fdisplay(debug_log, "WARNING: EXECUTING ILLEGAL INSTRUCTION");
 	  
         end
     endcase

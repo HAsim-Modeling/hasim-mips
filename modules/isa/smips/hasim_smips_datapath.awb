@@ -16,6 +16,7 @@
 # %public SMIPS_Datapath.bsv
 #
 # %param SYNTH_BOUNDARY mkISA_Datapath "Name of synthesis boundary"
+# %param HASIM_ISA_DP_LOGFILE "hasim_isa_dp.out" "Name of ISA Datapath logfile"
 #
 # %AWB_END
 # */

@@ -2439,3 +2439,37 @@ Directory modules/cpu/mips
 5-stage model updated to work with new Local Controllers.
 
 Michael P.
+
+----------
+mpellaue    Date: Fri Jul  6 13:38:48 EDT 2007  CSN: CSN-hasim-mips-126
+                  Fri Jul  6 17:38:48 UTC 2007
+
+
+Directory config/pm/hasim-mips/semantic-model
+ semantic_model.apm        Locally Modified          125 
+ 5stage_semantic.apm       Locally Modified          125 
+
+Directory config/pm/hasim-mips/smips-5stage
+ smips_5stage.apm          Locally Modified          125 
+
+Directory config/pm/hasim-mips/smips-unpipelined
+ smips_unpipelined.apm     Locally Modified          125 
+
+Directory config/pm/hasim-mips/s10k
+ s10k_funcp.apm            Locally Modified          125 
+ s10k.apm                  Locally Modified          125 
+
+Directory modules/cpu/mips/pipeline/decode/s10k
+ Decode.bsv                Locally Modified          125 
+
+Directory modules/cpu/mips
+ UnpipelinedCPU.bsv        Locally Modified          125 
+
+Directory modules/isa/smips
+ SMIPS_Datapath.bsv        Locally Modified          125 
+ hasim_smips_datapath.awb  Locally Modified          125 
+
+
+Updated various models to work with Local Controller.
+
+Michael P.

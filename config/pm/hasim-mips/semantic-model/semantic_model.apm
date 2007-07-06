@@ -65,7 +65,7 @@ File=modules/common/hasim_common.awb
 Packagehint=hasim
 
 [Hasim FPGA Environment]
-File=config/pm/hasim/submodels/fpgaenv/hasim-fpgaenv-xup.apm
+File=config/pm/hasim/submodels/fpgaenv/hasim-fpgaenv-null.apm
 Packagehint=hasim
 
 [Uniprocessor chip]
@@ -102,3 +102,10 @@ hasim_funcp_freelist=Hasim functional partition freelist
 [Hasim functional partition freelist]
 File=modules/functional/common/hasim_funcp_freelist.awb
 Packagehint=hasim
+
+[Hasim local controller]
+File=modules/controller/local/hasim_local_controller.awb
+Packagehint=hasim
+
+[Hasim simple controller/Requires]
+hasim_local_controller=Hasim local controller

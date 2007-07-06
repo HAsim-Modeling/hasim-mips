@@ -1,5 +1,8 @@
+import Vector::*;
+
 //HASim library imports
 import hasim_common::*;
+import hasim_local_controller::*;
 
 //Model-specific imports
 import hasim_isa::*;
@@ -37,15 +40,6 @@ module [HASim_Module] mkCPU
 
   
   //********* State Elements *********//
-  
-  //Are we running the program or not?
-  Reg#(Bool) running <- mkReg(False);
-  
-  //Have we run the program or not?
-  Reg#(Bool) ran <- mkReg(False);
-  
-  //Did the test pass or fail?
-  Reg#(Bool) passfail <- mkReg(False);
   
   //Have we made a req to FP and are waiting for a response?
   Reg#(Bool) madeReq <- mkReg(False);
@@ -142,13 +136,16 @@ module [HASim_Module] mkCPU
   //...
         link_gco_kill <- mkConnection_Send("fp_gco_kill");
   
-  Connection_Server#(Command, Response)  link_controller <- mkConnection_Server("controller_to_tp");
+  
  
   //Events
   
-  //EventRecorder
-  //...
-        //event_com <- mkEventRecorder("com");
+  EventRecorder event_com <- mkEventRecorder("com");
+  
+  Vector#(0, Port_Control) inports = newVector();
+  Vector#(0, Port_Control) outports = newVector();
+  
+  LocalController local_ctrl <- mkLocalController(inports, outports);
   
   //********* Rules *********//
 
@@ -161,7 +158,7 @@ module [HASim_Module] mkCPU
   
   //process
   
-  rule process (running);
+  rule process (local_ctrl.running());
     debug_rule("process");
     
     case (stage)
@@ -276,7 +273,7 @@ module [HASim_Module] mkCPU
 	        debug(2, $display("Branch taken to address %h", addr));
 	   	pc <= addr;
 	      end
-              tagged RBranchNotTaken:
+              tagged RBranchNotTaken .addr:
 	      begin
 	        debug(2, $display("Branch not taken"));
 	   	pc <= pc + 4;
@@ -289,8 +286,7 @@ module [HASim_Module] mkCPU
               tagged RTerminate .pf:
 	      begin
 	        debug(2, $display("Terminating Execution"));
-	   	running <= False;
-		passfail <= pf;
+                local_ctrl.endProgram(pf);
 	      end
 	    endcase
 	    
@@ -386,29 +382,6 @@ module [HASim_Module] mkCPU
       end
     endcase    
   endrule
-
-  rule startExec(!ran && !running);
-
-    let cmd <- link_controller.getReq();
-    
-    case (cmd) matches
-      tagged COM_RunProgram:
-      begin
-        running <= True;
-	ran <= True;
-      end
-      default:
-        noAction;
-    endcase
-  
-  endrule
-
-  rule finishExec (ran && !running);
-    link_controller.makeResp(tagged RESP_DoneRunning passfail);
-    ran <= False;
-
-  endrule
-
   
 endmodule
 `undef MODULE_NAME

@@ -7,18 +7,16 @@ File=modules/controller/simple/hasim_simple_controller.awb
 SaveParameters=0
 Description=SMIPS R10K Core w/ functional partition submodel
 File=s10k_funcp
-Version=2.0
+Version=2.1
 Name=SMIPS R10K Core
 Type=HAsim
+Class=Asim::Model
 
 [Hasim - Hardware (fpga) based system/Requires]
 hasim_funcp=Hasim functional partition
 hasim_chip=Uniprocessor chip
 hasim_isa=Hasim - SMIPS ISA
 
-[Hasim base library]
-Packagehint=hasim
-File=modules/common/hasim_common.awb
 
 [Model]
 DefaultAttributes=s10k smips hasim
@@ -39,90 +37,131 @@ File=config/pm/hasim-mips/submodels/funcp/smips-funcp-fpga.apm
 [HAsim Model Foundation/Requires]
 hasim_system=Hasim - Hardware (fpga) based system
 hasim_controller=Hasim simple controller
-hasim_common=Hasim base library
+hasim_common=Hasim Common Library
 
 [Hasim - SMIPS ISA]
 Packagehint=hasim-mips
 File=modules/isa/smips/hasim_smips_isa.awb
 
-[Hasim base library/Requires]
-hasim_fpgalib=Hasim FPGA library software
-hasim_base=Hasim base module
 
-[Hasim base module]
-File=modules/common/base/hasim_base.awb
-Packagehint=hasim
 
 [Uniprocessor chip/Requires]
 hasim_memory=magic memory
-hasim_cpu=SMIPS R10K-like cpu
+hasim_cpu=Superscalar CPU
 
 [Uniprocessor chip]
 File=modules/chip/mips/uniprocessor/uniprocessor.awb
 Packagehint=hasim-mips
 
-[SMIPS R10K-like cpu]
-File=modules/cpu/mips/s10k/s10k_cpu.awb
-Packagehint=hasim-mips
 
 [magic memory]
 File=modules/memory/magic_memory.awb
 Packagehint=hasim-mips
 
-[Hasim FPGA library software]
-File=modules/common/fpgalib/fpgalib_software.awb
+
+
+
+
+
+
+
+
+
+
+
+
+
+[Simple unguarded queue, which supports out-of-order issue]
+File=modules/cpu/mips/pipeline/issue/issue_alg/simple/unguardedQ/IssueQ.awb
+Packagehint=hasim-mips
+
+[SMIPS R10K Parameters]
+File=modules/cpu/mips/s10k/Parameters.awb
+Packagehint=hasim-mips
+
+[Hasim Common Library/Requires]
+hasim_fpgaenv=Hasim FPGA Environment
+
+[Superscalar Writeback Stage]
+File=modules/cpu/mips/pipeline/writeback/superscalar/Commit.awb
+Packagehint=hasim-mips
+
+[Always not taken Branch Predictor]
+File=modules/cpu/mips/branch/predictor/notTaken/BranchPred.awb
+Packagehint=hasim-mips
+
+[SMIPS R10K Superscalar Decode Stage]
+File=modules/cpu/mips/pipeline/decode/s10k/Decode.awb
+Packagehint=hasim-mips
+
+[SMIPS R10K Superscalar Decode Stage/Requires]
+hasim_branch_pred=Always not taken Branch Predictor
+hasim_rob=Superscalar ROB model
+hasim_branch_stack=One Entry Branch Stack
+hasim_branch_target_buffer=One Entry Target Buffer
+
+[Simple time-based priority issue queue/Requires]
+hasim_issueQ=Simple unguarded queue, which supports out-of-order issue
+
+[Simple time-based priority issue queue]
+File=modules/cpu/mips/pipeline/issue/issue_alg/simple/priorityAlgo/IssueAlg.awb
+Packagehint=hasim-mips
+
+[Hasim Common Library]
+File=modules/common/hasim_common.awb
 Packagehint=hasim
 
-[SMIPS R10K Parameters files]
-File=modules/cpu/mips/s10k/s10k_parameters.awb
+[One Entry Branch Stack]
+File=modules/cpu/mips/branch/stack/1entry/BranchStack.awb
 Packagehint=hasim-mips
 
-[SMIPS R10K-like cpu/Requires]
-hasim_parameters=SMIPS R10K Parameters files
-hasim_types=SMIPS R10K Typess files
-hasim_commit=Local Commit Module
-hasim_decode=SMIPS R10K-like simple decode unit
-hasim_execute=SMIPS R10K-like simple execute unit
-hasim_issue=SMIPS R10K-like simple issue unit
-hasim_fetch=SMIPS R10K-like simple fetch unit
+[Hasim FPGA Environment]
+File=config/pm/hasim/submodels/fpgaenv/hasim-fpgaenv-null.apm
+Packagehint=hasim
 
-[SMIPS R10K Typess files]
-File=modules/cpu/mips/s10k/s10k_types.awb
+[One Entry Target Buffer]
+File=modules/cpu/mips/branch/target_buffer/oneEntry/TargetBuffer.awb
 Packagehint=hasim-mips
 
-[SMIPS R10K-like simple decode unit/Requires]
-target_buffer=Target Buffer
-branch_pred=Branch Predictor
-s10k_rob=ROB
+[Hasim local controller]
+File=modules/controller/local/hasim_local_controller.awb
+Packagehint=hasim
 
-[SMIPS R10K-like simple fetch unit]
-File=modules/cpu/mips/s10k/fetch/simple/s10k_simple_fetch.awb
+[SMIPS R10K Superscalar Issue Stage]
+File=modules/cpu/mips/pipeline/issue/s10k/Issue.awb
 Packagehint=hasim-mips
 
-[SMIPS R10K-like simple execute unit]
-File=modules/cpu/mips/s10k/execute/simple/s10k_simple_execute.awb
+[Superscalar CPU]
+File=modules/cpu/mips/superscalar_cpu.awb
 Packagehint=hasim-mips
 
-[ROB]
-File=modules/cpu/mips/s10k/rob/simple/s10k_simple_rob.awb
+[Superscalar Execute Stage]
+File=modules/cpu/mips/pipeline/execute/superscalar/Execute.awb
 Packagehint=hasim-mips
 
-[Local Commit Module]
-File=modules/cpu/mips/s10k/commit/simple/s10k_simple_commit.awb
+[Superscalar Fetch Stage]
+File=modules/cpu/mips/pipeline/fetch/superscalar/Fetch.awb
 Packagehint=hasim-mips
 
-[SMIPS R10K-like simple decode unit]
-File=modules/cpu/mips/s10k/decode/simple/s10k_simple_decode.awb
+[Superscalar ROB model]
+File=modules/cpu/mips/pipeline/decode/s10k/rob/simple/Rob.awb
 Packagehint=hasim-mips
 
-[Target Buffer]
-File=modules/cpu/mips/target_buffer/target_buffer.awb
+[SMIPS R10K Superscalar Issue Stage/Requires]
+hasim_issue_alg=Simple time-based priority issue queue
+
+[SMIPS R10K Types]
+File=modules/cpu/mips/s10k/Types.awb
 Packagehint=hasim-mips
 
-[SMIPS R10K-like simple issue unit]
-File=modules/cpu/mips/s10k/issue/simple/s10k_simple_issue.awb
-Packagehint=hasim-mips
+[Hasim simple controller/Requires]
+hasim_local_controller=Hasim local controller
 
-[Branch Predictor]
-File=modules/cpu/mips/branch_pred/branch_pred.awb
-Packagehint=hasim-mips
+[Superscalar CPU/Requires]
+hasim_pipe_writeback=Superscalar Writeback Stage
+hasim_cpu_types=SMIPS R10K Types
+hasim_cpu_parameters=SMIPS R10K Parameters
+hasim_pipe_execute=Superscalar Execute Stage
+hasim_pipe_decode=SMIPS R10K Superscalar Decode Stage
+hasim_pipe_issue=SMIPS R10K Superscalar Issue Stage
+hasim_pipe_fetch=Superscalar Fetch Stage
