@@ -59,6 +59,7 @@ do
     /bin/ln -f -s ../../../pm/simv.daidir $rundir/simv.daidir
   fi
   echo "cd $rundir"                                              >> run
+  echo "echo $rundir"                                            >> run
   echo "./simv | tee $1.smips.out"                               >> run
   echo "sort hasim_events.out -o hasim_events.out"               >> run
   echo "cd .."                                                   >> run
