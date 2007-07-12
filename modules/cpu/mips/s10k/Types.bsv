@@ -37,7 +37,6 @@ typedef struct {
     Token token;
     IssueType issueType;
     RobTag robTag;
-    FreeListCount freeCount;
     BranchCount branchIndex;
     Bool pred;
     Addr predAddr;
@@ -47,7 +46,6 @@ typedef struct {
     Token     token;
     IssueType issueType;
     RobTag    robTag;
-    FreeListCount freeCount;
     Bool      src1Ready;
     PRName    src1;
     Bool      src2Ready;
@@ -62,7 +60,6 @@ typedef struct {
     Token token;
     IssueType issueType;
     RobTag robTag;
-    FreeListCount freeCount;
     PRName pRName;
     BranchCount branchIndex;
     Bool pred;
@@ -73,7 +70,6 @@ typedef struct {
     Token token;
     IssueType issueType;
     RobTag robTag;
-    FreeListCount freeCount;
     PRName pRName;
     BranchCount branchIndex;
     Bool pred;
@@ -93,7 +89,6 @@ typedef struct {
 typedef struct {
     Token token;
     RobTag robTag;
-    FreeListCount freeCount;
     Addr mispredictPC;
     BranchCount branchIndex;
 } KillData deriving (Bits, Eq);

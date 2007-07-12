@@ -105,7 +105,9 @@ module [HASim_Module] mkPipe_Issue();
         let recv <- (issueAlg.respIssueVals[funcUnitPos]).get();
         execPort[funcUnitPos].send(recv);
         if(isValid(recv))
+        begin
             fpExePort.send(tuple2((validValue(recv)).token, ?));
+        end
     endrule
 
     rule dispatch(dispatchState == Dispatch && issueAlg.canIssue());
@@ -124,7 +126,6 @@ module [HASim_Module] mkPipe_Issue();
                 IssueEntry issueEntry = IssueEntry{token: recv.token,
                                                    issueType: recv.issueType,
                                                    robTag: recv.robTag,
-                                                   freeCount: recv.freeCount,
                                                    src1Ready: !isValid(dep.dep_src1),
                                                    src1: tpl_2(validValue(dep.dep_src1)),
                                                    src2Ready: !isValid(dep.dep_src2),
@@ -144,7 +145,9 @@ module [HASim_Module] mkPipe_Issue();
                     endcase
                 end
                 else
+                begin
                     issueAlg.dispatch(issueEntry);
+                end
             end
         endcase
     endrule

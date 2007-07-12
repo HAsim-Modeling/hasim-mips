@@ -37,7 +37,6 @@ module [HASim_Module] mkPipe_Execute();
             tagged Valid .recv:
             begin
                 match {.token, .res} <- fpExeResponse.receive();
-                $display("Mem Req: %0d", token.index);
                 fpMemReq.send(tuple2(token, ?));
 
                 Bool finished = case (res) matches
@@ -59,7 +58,6 @@ module [HASim_Module] mkPipe_Execute();
                 ExecResult execResult = ExecResult{token: recv.token,
                                                    pRName: recv.pRName,
                                                    robTag: recv.robTag,
-                                                   freeCount: recv.freeCount,
                                                    issueType: recv.issueType,
                                                    branchIndex: recv.branchIndex,
                                                    pred: recv.pred,
@@ -71,7 +69,6 @@ module [HASim_Module] mkPipe_Execute();
 
                 KillData killDataVal = KillData{token: recv.token,
                                                 robTag: recv.robTag,
-                                                freeCount: recv.freeCount,
                                                 mispredictPC: takenAddr,
                                                 branchIndex: recv.branchIndex};
 

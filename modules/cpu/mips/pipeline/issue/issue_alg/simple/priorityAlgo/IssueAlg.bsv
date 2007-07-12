@@ -59,7 +59,7 @@ module mkIssueAlg(IssueAlg);
     function isAllReady(IssueEntry issue) = issue.src1Ready && issue.src2Ready;
 
     function ExecEntry getExecEntry(IssueEntry issue);
-        return ExecEntry{token: issue.token, robTag: issue.robTag, freeCount: issue.freeCount,
+        return ExecEntry{token: issue.token, robTag: issue.robTag,
                          pRName: issue.dest, issueType: issue.issueType, branchIndex: issue.branchIndex, pred: issue.pred, predAddr: issue.predAddr};
     endfunction
 
@@ -103,7 +103,9 @@ module mkIssueAlg(IssueAlg);
                         if(validEntry.issueType == JAL || validEntry.issueType == JALR || validEntry.issueType == Normal || validEntry.issueType == Shift)
                         begin
                             if(validEntry.dest != 0)
+                            begin
                                 busyState[validEntry.dest] <= Issued;
+                            end
                             regWaitTime[validEntry.dest] <= 0;
                         end
                     end

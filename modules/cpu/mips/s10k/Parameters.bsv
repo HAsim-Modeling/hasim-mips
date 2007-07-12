@@ -10,5 +10,5 @@ typedef 16 MemQNum;
 typedef 32 FreeListNum;
 typedef 4  BranchNum;
 typedef 5  FuncUnitNum;
-typedef 64 PRNum;
 typedef 2  KillNum;
+typedef 128 PRNum;

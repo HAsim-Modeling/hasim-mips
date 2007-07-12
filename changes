@@ -2505,3 +2505,36 @@ The functional partition had a bug in regstate/freelist, where it rewinds to a t
 a dirty state, leading to errors. I fixed that here. So it passed all the tests after that. But then, Michael found a bug in the functional partition's store buffer
 where it didnt get initialized in the beginning. So he added an initialization state, but this broke something else in the store buffer, so it doesnt pass the store test now.
 I am currently debugging it. All the tests pass in svn version 203
+
+----------
+vmurali     Date: Thu Jul 12 14:14:46 EDT 2007  CSN: CSN-hasim-mips-130
+                  Thu Jul 12 18:14:46 UTC 2007
+
+
+Directory config/pm/hasim-mips/s10k
+ s10k_sim.apm              Locally Modified          129 
+
+Directory modules/cpu/mips/pipeline/execute/superscalar
+ Execute.bsv               Locally Modified          129 
+
+Directory modules/cpu/mips/pipeline/decode/s10k
+ Decode.bsv                Locally Modified          129 
+
+Directory modules/cpu/mips/pipeline/issue/issue_alg/simple/priorityAlgo
+ IssueAlg.bsv              Locally Modified          129 
+
+Directory modules/cpu/mips/pipeline/issue/s10k
+ Issue.bsv                 Locally Modified          129 
+
+Directory modules/cpu/mips/branch/predictor/notTaken
+ BranchPred.bsv            Locally Modified          129 
+
+Directory modules/cpu/mips/s10k
+ Parameters.bsv            Locally Modified          129 
+ Types.bsv                 Locally Modified          129 
+
+Directory modules/isa/smips
+ ISA.bsv                   Locally Modified          129 
+
+Increased the number of physical registers in functional partition so that it doesnt deadlock
+

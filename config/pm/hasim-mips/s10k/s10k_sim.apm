@@ -208,10 +208,6 @@ Packagehint=hasim-mips
 File=modules/cpu/mips/branch/stack/1entry/BranchStack.awb
 Packagehint=hasim-mips
 
-[Hasim Common Library/Params]
-HASIM_STATS_ENABLED=False
-HASIM_EVENTS_ENABLED=False
-
 [Hasim local controller]
 File=modules/controller/local/hasim_local_controller.awb
 Packagehint=hasim

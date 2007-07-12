@@ -68,6 +68,7 @@ module [HASim_Module] mkPipe_Decode();
     LocalController local_ctrl <- mkLocalController(inports, outports);
 
     FIFOF#(InstInfo)                                    instBuffer <- mkSizedFIFOF(2*fromInteger(valueOf(FetchWidth)));
+    FIFOF#(Bool)                                      branchBuffer <- mkSizedFIFOF(2*fromInteger(valueOf(FetchWidth)));
 
     Reg#(CommitState)                                  commitState <- mkReg(CommitDone);
     Reg#(RobUpdateState)                            robUpdateState <- mkReg(RobUpdateDone);
@@ -94,15 +95,20 @@ module [HASim_Module] mkPipe_Decode();
 
     Reg#(Bool)                                     modelCycleBegin <- mkReg(True);
 
-    Reg#(ClockCounter)                                clockCounter <- mkReg(0);
-    Reg#(ClockCounter)                                modelCounter <- mkReg(0);
+    Stat                                              clockCounter <- mkStatCounter("FPGA cycles");
+    Stat                                              modelCounter <- mkStatCounter("Model cycles");
 
     rule clockCount(True);
-        clockCounter <= clockCounter + 1;
+        clockCounter.incr();
+    endrule
+
+    rule branchBufferFill(True);
+        Bool pred <- branchPred.getPredResp();
+        branchBuffer.enq(pred);
     endrule
 
     rule synchronize(fetchState == FetchDone && robUpdateState == RobUpdateDone && decodeState == DecodeDone && commitState == CommitDone);
-        modelCounter <= modelCounter + 1;
+        modelCounter.incr();
         FetchCount fetchCountSend = (instBufferCount < fromInteger(valueOf(FetchWidth)))? truncate(fromInteger(valueOf(FetchWidth)) - instBufferCount): 0;
 
         Maybe#(KillData) killTokenGet  <- killDecodePort.receive();
@@ -114,9 +120,6 @@ module [HASim_Module] mkPipe_Decode();
                 killCount <= 2;
                 mispredictPC <= tagged Valid killData.mispredictPC;
                 branchStack.resolveWrong(killData.branchIndex);
-                
-                $display("Rewind to token: %0d", killData.token.index);
-                //freeListCount <= killData.freeCount;
             end
             tagged Invalid:
                 mispredictPC <= tagged Invalid;
@@ -169,7 +172,6 @@ module [HASim_Module] mkPipe_Decode();
         commitCount                    <= commitCount + 1;
         if(robEntryMaybe matches tagged Valid .robEntry &&& robEntry.done)
         begin
-            $display("Commit Token: %0d", robEntry.token.index);
             commitTokenPort[commitCount].send(tagged Valid robEntry.token);
             if(robEntry.issueType == Branch)
                 branchPred.upd(robEntry.token, robEntry.addr, robEntry.pred, robEntry.taken);
@@ -178,6 +180,8 @@ module [HASim_Module] mkPipe_Decode();
             if(commitCount == fromInteger(valueOf(TSub#(CommitWidth,1))))
                 commitState <= CommitDone;
             rob.incrementHead();
+            if(!(robEntry.issueType == Branch || robEntry.issueType == J || robEntry.issueType == JR || robEntry.issueType == Store))
+                freeListCount <= freeListCount + 1;
         end
         else
         begin
@@ -215,9 +219,9 @@ module [HASim_Module] mkPipe_Decode();
                     fpTokKill.send(exec.token);
                     fpLocalCommitKill.send(exec.token);
                     fpMemStateKill.send(exec.token);
+                    if(!(exec.issueType == Branch || exec.issueType == J || exec.issueType == JR || exec.issueType == Store))
+                        freeListCount <= freeListCount + 1;
                 end
-                if(!(exec.issueType == Branch || exec.issueType == J || exec.issueType == JR || exec.issueType == Store))
-                    freeListCount <= freeListCount + 1;
             end
         endcase
 
@@ -263,7 +267,8 @@ module [HASim_Module] mkPipe_Decode();
 
             if(doDecode)
             begin
-                Bool pred <- branchPred.getPredResp();
+                Bool pred = branchBuffer.first();
+                branchBuffer.deq();
                 Maybe#(Addr) branchPredAddr = pred? tagged Valid (currAddr + 4 + (signExtend(currInst[15:0]) << 2)) : tagged Invalid;
 
                 RobEntry res = RobEntry{token: currToken,
@@ -278,7 +283,6 @@ module [HASim_Module] mkPipe_Decode();
                 IssuePort issue = IssuePort{issueType: issueType,
                                             token: currToken,
                                             robTag: rob.getTail(),
-                                            freeCount: freeListCount,
                                             branchIndex: 0,
                                             pred: pred,
                                             predAddr: validValue(predPC)};
@@ -308,7 +312,6 @@ module [HASim_Module] mkPipe_Decode();
                 fpDecodeReq.send(tuple2(currToken, ?));
                 issuePort[decodeCount].send(tagged Valid issue);
 
-                $display("Decode Token: %0d Addr: %x Inst: %x @ Model: %0d", currToken.index, currAddr, currInst, modelCounter-1);
                 instBuffer.deq();
                 if(kill || branch && pred)
                     killCount <= 2;
@@ -343,12 +346,9 @@ module [HASim_Module] mkPipe_Decode();
         begin
             decodeCount     <= decodeCount + 1;
             instBufferCount <= instBufferCount - 1;
-
             issuePort[decodeCount].send(tagged Invalid);
-
-            $display("Decode NOP Token: %0d Addr: %x Inst: %x @ Model: %0d", (instBuffer.first()).token.index, (instBuffer.first()).addr, (instBuffer.first()).inst, modelCounter-1);
             instBuffer.deq();
-            Bool pred <- branchPred.getPredResp();
+            branchBuffer.deq();
             fpTokKill.send((instBuffer.first()).token);
             fpDecodeKill.send((instBuffer.first()).token);
             if(decodeCount == fromInteger(valueOf(TSub#(FetchWidth,1))))
@@ -373,9 +373,8 @@ module [HASim_Module] mkPipe_Decode();
         end
         else
         begin
-            $display("Decode Kill Token: %0d Addr: %x Inst: %x @ Model :%0d", (instBuffer.first()).token.index, (instBuffer.first()).addr, (instBuffer.first()).inst, modelCounter-1);
             instBuffer.deq();
-            Bool pred <- branchPred.getPredResp();
+            branchBuffer.deq();
             instBufferCount <= instBufferCount - 1;
             fpTokKill.send((instBuffer.first()).token);
             fpDecodeKill.send((instBuffer.first()).token);
