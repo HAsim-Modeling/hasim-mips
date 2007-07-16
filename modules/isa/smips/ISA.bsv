@@ -385,6 +385,12 @@ function Bool p_isShift(PackedInst inst);
     return (inst != 32'b0) && (op == opFUNC) && (func == fcSLL || func == fcSRL || func == fcSRA || func == fcSLLV || func == fcSRLV || func == fcSRAV);
 endfunction
 
+function Bool p_isMtc0(PackedInst inst);
+    let op   = inst[31:26];
+    let rs   = inst[25:21];
+    return op == opRS && rs == rsMTC0;
+endfunction
+
 function Bool p_isBranch(PackedInst inst);
     let op = inst[31:26];
     let rt = inst[20:16];

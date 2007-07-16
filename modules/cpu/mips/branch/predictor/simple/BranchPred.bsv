@@ -2,6 +2,7 @@ import hasim_common::*;
 import hasim_isa::*;
 
 import RegFile::*;
+import FIFO::*;
 
 typedef Bit#(`BRANCH_TABLE_SIZE) BranchIndex;
 
@@ -25,7 +26,7 @@ module mkBranchPred(BranchPred);
         respQ.enq(branchRegFile.sub(truncate(addr)));
     endmethod
 
-    method ActionValue#(Bool) getPred();
+    method ActionValue#(Bool) getPredResp();
         respQ.deq();
         return respQ.first();
     endmethod

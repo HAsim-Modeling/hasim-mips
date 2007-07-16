@@ -59,7 +59,7 @@ module mkIssueAlg(IssueAlg);
     function isAllReady(IssueEntry issue) = issue.src1Ready && issue.src2Ready;
 
     function ExecEntry getExecEntry(IssueEntry issue);
-        return ExecEntry{token: issue.token, robTag: issue.robTag,
+        return ExecEntry{token: issue.token, addr: issue.addr, robTag: issue.robTag,
                          pRName: issue.dest, issueType: issue.issueType, branchIndex: issue.branchIndex, pred: issue.pred, predAddr: issue.predAddr};
     endfunction
 
@@ -92,15 +92,16 @@ module mkIssueAlg(IssueAlg);
                                                           JALR   : 0;
                                                           Branch : 1;
                                                           Shift  : 1;
+                                                          Finish : ((isValid(issueVals[2]))? 1: 2); 
                                                           Normal : ((isValid(issueVals[2]))? 1: 2);
                                                       endcase;
-                    let aluOp = validEntry.issueType == Shift || validEntry.issueType == Normal;
+                    let aluOp = validEntry.issueType == Shift || validEntry.issueType == Normal || validEntry.issueType == Finish;
                     if(!isValid(issueVals[index]))
                     begin
                         issueVals[index] <= tagged Valid execEntry;
                         newWriteEntry     = tagged Invalid;
 
-                        if(validEntry.issueType == JAL || validEntry.issueType == JALR || validEntry.issueType == Normal || validEntry.issueType == Shift)
+                        if(validEntry.issueType == JAL || validEntry.issueType == JALR || validEntry.issueType == Normal || validEntry.issueType == Shift || validEntry.issueType == Finish)
                         begin
                             if(validEntry.dest != 0)
                             begin

@@ -18,7 +18,7 @@ typedef Bit#(TLog#(TAdd#(RobNum,1))) RobTag;
 
 typedef Bit#(TLog#(TAdd#(FuncUnitNum,1))) FuncUnitCount;
 
-typedef enum {J, JAL, JR, JALR, Branch, Shift, Normal, Load, Store} IssueType deriving (Bits, Eq);
+typedef enum {J, JAL, JR, JALR, Branch, Shift, Normal, Load, Store, Finish} IssueType deriving (Bits, Eq);
 
 typedef Bit#(64) ClockCounter;
 
@@ -35,6 +35,7 @@ typedef struct {
 
 typedef struct {
     Token token;
+    Addr addr;
     IssueType issueType;
     RobTag robTag;
     BranchCount branchIndex;
@@ -44,6 +45,7 @@ typedef struct {
 
 typedef struct {
     Token     token;
+    Addr      addr;
     IssueType issueType;
     RobTag    robTag;
     Bool      src1Ready;
@@ -58,6 +60,7 @@ typedef struct {
 
 typedef struct {
     Token token;
+    Addr addr;
     IssueType issueType;
     RobTag robTag;
     PRName pRName;

@@ -97,6 +97,10 @@ module [HASim_Module] mkPipe_Decode();
 
     Stat                                              clockCounter <- mkStatCounter("FPGA cycles");
     Stat                                              modelCounter <- mkStatCounter("Model cycles");
+    Stat                                                   rewinds <- mkStatCounter("Rewinds");
+    Stat                                                   decodes <- mkStatCounter("Decodes");
+    Stat                                                   fetches <- mkStatCounter("Fetches");
+    Stat                                                   commits <- mkStatCounter("Commits");
 
     rule clockCount(True);
         clockCounter.incr();
@@ -120,6 +124,7 @@ module [HASim_Module] mkPipe_Decode();
                 killCount <= 2;
                 mispredictPC <= tagged Valid killData.mispredictPC;
                 branchStack.resolveWrong(killData.branchIndex);
+                rewinds.incr();
             end
             tagged Invalid:
                 mispredictPC <= tagged Invalid;
@@ -160,6 +165,7 @@ module [HASim_Module] mkPipe_Decode();
                 instBufferCount       <= instBufferCount + 1;
                 instBuffer.enq(InstInfo{token: token, addr: addr, inst: inst});
                 branchPred.getPredReq(token, addr);
+                fetches.incr();
             end
         endcase
         fetchCount     <= fetchCount + 1;
@@ -172,11 +178,14 @@ module [HASim_Module] mkPipe_Decode();
         commitCount                    <= commitCount + 1;
         if(robEntryMaybe matches tagged Valid .robEntry &&& robEntry.done)
         begin
+            commits.incr();
             commitTokenPort[commitCount].send(tagged Valid robEntry.token);
             if(robEntry.issueType == Branch)
                 branchPred.upd(robEntry.token, robEntry.addr, robEntry.pred, robEntry.taken);
             if(robEntry.finished)
+            begin
                 local_ctrl.endProgram(robEntry.status);
+            end
             if(commitCount == fromInteger(valueOf(TSub#(CommitWidth,1))))
                 commitState <= CommitDone;
             rob.incrementHead();
@@ -272,8 +281,8 @@ module [HASim_Module] mkPipe_Decode();
                 Maybe#(Addr) branchPredAddr = pred? tagged Valid (currAddr + 4 + (signExtend(currInst[15:0]) << 2)) : tagged Invalid;
 
                 RobEntry res = RobEntry{token: currToken,
-                                        issueType: issueType,
                                         addr: currAddr,
+                                        issueType: issueType,
                                         done: False,
                                         finished: False,
                                         status: False,
@@ -281,6 +290,7 @@ module [HASim_Module] mkPipe_Decode();
                                         taken: False};
 
                 IssuePort issue = IssuePort{issueType: issueType,
+                                            addr: currAddr,
                                             token: currToken,
                                             robTag: rob.getTail(),
                                             branchIndex: 0,
@@ -317,13 +327,14 @@ module [HASim_Module] mkPipe_Decode();
                     killCount <= 2;
                 else if(decodeCount == fromInteger(valueOf(TSub#(FetchWidth,1))))
                     decodeState <= DecodeDone;
+
             end
             else
                 finishDecode();
         endaction
         endfunction
 
-        IssueType intIssue = (p_isShift(currInst))? Shift: Normal;
+        IssueType intIssue = (p_isShift(currInst))? Shift: (p_isMtc0(currInst)? Finish: Normal);
 
         //               IssueType, intQ,  memQ,  regF,  branch, jr,    predPC,                                        kill
         if(p_isALU(currInst))

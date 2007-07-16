@@ -2538,3 +2538,42 @@ Directory modules/isa/smips
 
 Increased the number of physical registers in functional partition so that it doesnt deadlock
 
+
+----------
+vmurali     Date: Sun Jul 15 22:17:02 EDT 2007  CSN: CSN-hasim-mips-132
+                  Mon Jul 16 02:17:02 UTC 2007
+
+
+Directory config/pm/hasim-mips/s10k
+ s10k_sim.apm              Locally Modified          131 
+
+Directory modules/cpu/mips/pipeline/execute/superscalar
+ Execute.bsv               Locally Modified          131 
+
+Directory modules/cpu/mips/pipeline/decode/s10k
+ Decode.bsv                Locally Modified          131 
+
+Directory modules/cpu/mips/pipeline/issue/issue_alg/simple/priorityAlgo
+ IssueAlg.bsv              Locally Modified          131 
+
+Directory modules/cpu/mips/pipeline/issue/s10k
+ Issue.bsv                 Locally Modified          131 
+
+Directory modules/cpu/mips/branch/predictor/2bit
+ BranchPred.bsv            Locally Modified          131 
+
+Directory modules/cpu/mips/branch/predictor/simple
+ BranchPred.bsv            Locally Modified          131 
+
+Directory modules/cpu/mips/s10k
+ Types.bsv                 Locally Modified          131 
+
+Directory modules/isa/smips
+ ISA.bsv                   Locally Modified          131 
+
+Checked if all branches work. Came across this issue where the functional partition doesn't differentiate between a not taken branch and a sequential instruction. So had to do some workaround for that ( carrying the current pc around)
+Also looks like the functional parittion has a bug with respect to finishing program. I kept getting finished programs from FP, even for non MTC0 instructions. So I made a change where I check for finished program only in MTC0 instructions. So now all branch predictors pass. ( Didnt check global history predictor)
+
+I think one more change is needed - changing the queues to use BRAM. Also the latency can be effectively hidden even in the case of BRAMs because the reads happen in order, so we can prefetch data in the head of the bram queue. I am writing a data structure which captures this. I will be checking that in shortly
+
+

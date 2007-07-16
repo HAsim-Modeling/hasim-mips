@@ -47,12 +47,12 @@ module [HASim_Module] mkPipe_Execute();
                                     tagged RTerminate .status: return status;
                                 endcase;
                 Bool taken    = case (res) matches
-                                    tagged RBranchTaken .addr: True;
-                                    default: False;
+                                    tagged RBranchTaken .addr: return True;
+                                    default: return False;
                                 endcase;
                 Addr takenAddr = case (res) matches
-                                     tagged RBranchTaken .addr: addr;
-                                     default: 0;
+                                     tagged RBranchTaken .addr: return addr;
+                                     default: return (recv.addr + 4);
                                  endcase;
 
                 ExecResult execResult = ExecResult{token: recv.token,
@@ -64,7 +64,7 @@ module [HASim_Module] mkPipe_Execute();
                                                    predAddr: recv.predAddr,
                                                    taken: taken,
                                                    takenAddr: takenAddr,
-                                                   finished: finished,
+                                                   finished: finished && recv.issueType == Finish,
                                                    status: status};
 
                 KillData killDataVal = KillData{token: recv.token,

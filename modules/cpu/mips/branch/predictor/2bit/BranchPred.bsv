@@ -20,7 +20,7 @@ module mkBranchPred(BranchPred);
     FIFO#(Bool) respQ <- mkFIFO();
 
     method Action upd(Token token, Addr addr, Bool pred, Bool actual);
-        let counter = branchRegFile(truncate(addr));
+        let counter = branchRegFile.sub(truncate(addr));
         let newCounter = 0;
         if(actual)
             newCounter = (counter == 3)? 3: counter + 1;

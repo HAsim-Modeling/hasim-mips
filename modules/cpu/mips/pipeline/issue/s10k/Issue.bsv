@@ -44,6 +44,8 @@ module [HASim_Module] mkPipe_Issue();
 
     Reg#(Bool)                                modelCycleBegin <- mkReg(True);
 
+    Stat                                               issues <- mkStatCounter("Issues");
+
     rule synchronize(killState == KillDone && issueState == IssueDone && dispatchState == DispatchDone);
         let pseudoIntIssueCount = fromInteger(valueOf(TSub#(IntQNum, FetchWidth)));
         let pseudoMemIssueCount = fromInteger(valueOf(TSub#(MemQNum, FetchWidth)));
@@ -106,6 +108,7 @@ module [HASim_Module] mkPipe_Issue();
         execPort[funcUnitPos].send(recv);
         if(isValid(recv))
         begin
+            issues.incr();
             fpExePort.send(tuple2((validValue(recv)).token, ?));
         end
     endrule
@@ -124,6 +127,7 @@ module [HASim_Module] mkPipe_Issue();
             begin
                 match{.token, .dep} <- fpDecodeResp.receive();
                 IssueEntry issueEntry = IssueEntry{token: recv.token,
+                                                   addr: recv.addr,
                                                    issueType: recv.issueType,
                                                    robTag: recv.robTag,
                                                    src1Ready: !isValid(dep.dep_src1),
