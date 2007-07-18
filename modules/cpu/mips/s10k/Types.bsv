@@ -24,8 +24,8 @@ typedef Bit#(64) ClockCounter;
 
 typedef struct {
     Token token;
-    IssueType issueType;
     Addr addr;
+    IssueType issueType;
     Bool done;
     Bool pred;
     Bool taken;
@@ -71,6 +71,7 @@ typedef struct {
 
 typedef struct {
     Token token;
+    Addr addr;
     IssueType issueType;
     RobTag robTag;
     PRName pRName;

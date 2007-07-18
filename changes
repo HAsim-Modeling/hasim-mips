@@ -2577,3 +2577,37 @@ Also looks like the functional parittion has a bug with respect to finishing pro
 I think one more change is needed - changing the queues to use BRAM. Also the latency can be effectively hidden even in the case of BRAMs because the reads happen in order, so we can prefetch data in the head of the bram queue. I am writing a data structure which captures this. I will be checking that in shortly
 
 
+
+----------
+mvijayar    Date: Wed Jul 18 17:30:56 EDT 2007  CSN: CSN-hasim-mips-133
+                  Wed Jul 18 21:30:56 UTC 2007
+
+
+Directory config/pm/hasim-mips/s10k
+ s10k_sim.apm              Locally Modified          132 
+
+Directory modules/cpu/mips/pipeline/execute/superscalar
+ Execute.bsv               Locally Modified          132 
+
+Directory modules/cpu/mips/pipeline/decode/s10k/rob/simple
+ Rob.bsv                   Locally Modified          132 
+
+Directory modules/cpu/mips/pipeline/decode/s10k
+ Decode.bsv                Locally Modified          132 
+
+Directory modules/cpu/mips/pipeline/issue/s10k
+ Issue.bsv                 Locally Modified          132 
+
+Directory modules/cpu/mips/pipeline/fetch/superscalar
+ Fetch.bsv                 Locally Modified          132 
+
+Directory modules/cpu/mips/pipeline/writeback/superscalar
+ Commit.bsv                Locally Modified          132 
+
+Directory modules/cpu/mips/s10k
+ Types.bsv                 Locally Modified          132 
+
+Added display statements which will be post-processed to obtain the utilization graph of the simulator - the FPGA cycles used to model
+each stage of the system. Also created a linux-console based display program, but am not checking that in, as I do not know how useful it is
+going to be
+

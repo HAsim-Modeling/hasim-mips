@@ -28,6 +28,9 @@ module [HASim_Module] mkPipe_Fetch();
     Reg#(FetchCount)                       totalCount <- mkReg(?);
     Reg#(FetchCount)                         fetchPos <- mkReg(?);
 
+    Reg#(ClockCounter)                       clockReg <- mkReg(0);
+    Reg#(ClockCounter)                       modelReg <- mkReg(0);
+
     Reg#(TIMEP_Epoch)                           epoch <- mkReg(0);
 
     EventRecorder                            eventRec <- mkEventRecorder("Fetch");
@@ -42,7 +45,12 @@ module [HASim_Module] mkPipe_Fetch();
     endaction
     endfunction
 
+    rule clockCount(True);
+        clockReg <= clockReg + 1;
+    endrule
+
     rule synchronize(fetchState == FetchDone);
+        modelReg <= modelReg + 1;
         Maybe#(Addr)   predictedTaken <- predictedTakenPort.receive();
         Maybe#(Addr)       mispredict <- mispredictPort.receive();
         Maybe#(FetchCount) fetchCount <- fetchCountPort.receive();
@@ -72,6 +80,7 @@ module [HASim_Module] mkPipe_Fetch();
             fillAddrPort(0);
         else
         begin
+            $display("0 1 %0d %0d", clockReg, modelReg);
             fpTokenReq.send(17);
             fetchState <= Fetch;
         end
@@ -91,6 +100,7 @@ module [HASim_Module] mkPipe_Fetch();
             fpTokenReq.send(17);
         else
         begin
+            $display("0 0 %0d %0d", clockReg, modelReg-1);
             fillAddrPort(totalCount);
             fetchState <= FetchDone;
         end

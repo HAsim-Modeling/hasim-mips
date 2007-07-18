@@ -27,7 +27,14 @@ module [HASim_Module] mkPipe_Execute();
 
     Reg#(FuncUnitCount)                             funcUnitCount <- mkReg(0);
 
+    Reg#(ClockCounter)                                   clockReg <- mkReg(0);
+    Reg#(ClockCounter)                                   modelReg <- mkReg(0);
+
     Reg#(Maybe#(KillData))                            killDataReg <- mkReg(tagged Invalid);
+
+    rule clockCount(True);
+        clockReg <= clockReg + 1;
+    endrule
 
     rule execute(True);
         Maybe#(KillData) newKillData = tagged Invalid;
@@ -56,6 +63,7 @@ module [HASim_Module] mkPipe_Execute();
                                  endcase;
 
                 ExecResult execResult = ExecResult{token: recv.token,
+                                                   addr: recv.addr,
                                                    pRName: recv.pRName,
                                                    robTag: recv.robTag,
                                                    issueType: recv.issueType,
@@ -101,6 +109,8 @@ module [HASim_Module] mkPipe_Execute();
 
         if(funcUnitCount == fromInteger(valueOf(TSub#(FuncUnitNum, 1))))
         begin
+            modelReg <= modelReg + 1;
+            $display("5 0 %0d %0d", clockReg, modelReg);
             funcUnitCount <= 0;
             killDataReg   <= tagged Invalid;
             killDecodePort.send(newKillData);
@@ -111,6 +121,8 @@ module [HASim_Module] mkPipe_Execute();
         end
         else
         begin
+            if(funcUnitCount == 0)
+                $display("5 1 %0d %0d", clockReg, modelReg);
             funcUnitCount <= funcUnitCount + 1;
             killDataReg   <= newKillData;
         end

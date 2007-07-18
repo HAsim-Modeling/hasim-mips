@@ -59,6 +59,9 @@ module [HASim_Module] mkPipe_Decode();
 
     Vector#(CommitWidth, Port_Send#(Token))        commitTokenPort <- genWithM(sendFunctionM("decodeToCommit"));
 
+    Reg#(ClockCounter)                                    clockReg <- mkReg(0);
+    Reg#(ClockCounter)                                    modelReg <- mkReg(0);
+
     //Local Controller
     
     //Someday these should be real
@@ -95,8 +98,8 @@ module [HASim_Module] mkPipe_Decode();
 
     Reg#(Bool)                                     modelCycleBegin <- mkReg(True);
 
-    Stat                                              clockCounter <- mkStatCounter("FPGA cycles");
-    Stat                                              modelCounter <- mkStatCounter("Model cycles");
+    Stat                                              clockCounter <- mkStatCounter("FPGA_cycles");
+    Stat                                              modelCounter <- mkStatCounter("Model_cycles");
     Stat                                                   rewinds <- mkStatCounter("Rewinds");
     Stat                                                   decodes <- mkStatCounter("Decodes");
     Stat                                                   fetches <- mkStatCounter("Fetches");
@@ -104,6 +107,7 @@ module [HASim_Module] mkPipe_Decode();
 
     rule clockCount(True);
         clockCounter.incr();
+        clockReg <= clockReg + 1;
     endrule
 
     rule branchBufferFill(True);
@@ -112,6 +116,9 @@ module [HASim_Module] mkPipe_Decode();
     endrule
 
     rule synchronize(fetchState == FetchDone && robUpdateState == RobUpdateDone && decodeState == DecodeDone && commitState == CommitDone);
+        $display("1 1 %0d %0d", clockReg, modelReg);
+        $display("3 1 %0d %0d", clockReg, modelReg);
+        modelReg <= modelReg + 1;
         modelCounter.incr();
         FetchCount fetchCountSend = (instBufferCount < fromInteger(valueOf(FetchWidth)))? truncate(fromInteger(valueOf(FetchWidth)) - instBufferCount): 0;
 
@@ -170,7 +177,10 @@ module [HASim_Module] mkPipe_Decode();
         endcase
         fetchCount     <= fetchCount + 1;
         if(fetchCount == fromInteger(valueOf(TSub#(FetchWidth,1))))
+        begin
+            $display("1 0 %0d %0d", clockReg, modelReg-1);
             fetchState <= FetchDone;
+        end
     endrule
 
     rule commit(commitState == Commit);
@@ -187,7 +197,10 @@ module [HASim_Module] mkPipe_Decode();
                 local_ctrl.endProgram(robEntry.status);
             end
             if(commitCount == fromInteger(valueOf(TSub#(CommitWidth,1))))
+            begin
+                $display("2 0 %0d %0d", clockReg, modelReg-1);
                 commitState <= CommitDone;
+            end
             rob.incrementHead();
             if(!(robEntry.issueType == Branch || robEntry.issueType == J || robEntry.issueType == JR || robEntry.issueType == Store))
                 freeListCount <= freeListCount + 1;
@@ -200,6 +213,7 @@ module [HASim_Module] mkPipe_Decode();
                     commitTokenPort[i].send(tagged Invalid);
             end
             commitState <= CommitDone;
+            $display("2 0 %0d %0d", clockReg, modelReg-1);
         end
     endrule
 
@@ -210,14 +224,18 @@ module [HASim_Module] mkPipe_Decode();
             tagged Valid .exec:
             begin
                 Tuple2#(Token, void) memAck    <- fpMemoryResp.receive();
-                Maybe#(RobEntry) robEntryMaybe <- rob.read(exec.robTag);
-                if(robEntryMaybe matches tagged Valid .robEntry &&& robEntry.token == exec.token)
+                if(rob.isValidEntry(exec.robTag))
                 begin
-                    RobEntry newRobEntry  = robEntry;
-                    newRobEntry.done = True;
-                    newRobEntry.taken = exec.taken;
-                    newRobEntry.status = exec.status;
-                    newRobEntry.finished = exec.finished;
+                    RobEntry newRobEntry = RobEntry {
+                                               token: exec.token,
+                                               addr: exec.addr,
+                                               issueType: exec.issueType,
+                                               done: True,
+                                               pred: exec.pred,
+                                               taken: exec.taken,
+                                               finished: exec.finished,
+                                               status: exec.status
+                                           };
                     rob.write(exec.robTag, newRobEntry);
 
                     if(exec.issueType == Branch || exec.issueType == JR || exec.issueType == JALR)
@@ -237,6 +255,9 @@ module [HASim_Module] mkPipe_Decode();
         robUpdateCount <= robUpdateCount + 1;
         if(robUpdateCount == fromInteger(valueOf(TSub#(FuncUnitNum,1))))
         begin
+            $display("3 0 %0d %0d", clockReg, modelReg-1);
+            $display("2 1 %0d %0d", clockReg, modelReg-1);
+            $display("4 1 %0d %0d", clockReg, modelReg-1);
             robUpdateState <= RobUpdateDone;
             decodeState    <= Decoding;
             commitState    <= Commit;
@@ -246,6 +267,7 @@ module [HASim_Module] mkPipe_Decode();
 
     function Action finishDecode();
     action
+        $display("4 0 %0d %0d", clockReg, modelReg-1);
         for(Integer i = 0; i < valueOf(FetchWidth); i=i+1)
         begin
             if(fromInteger(i) >= decodeCount)
@@ -280,15 +302,7 @@ module [HASim_Module] mkPipe_Decode();
                 branchBuffer.deq();
                 Maybe#(Addr) branchPredAddr = pred? tagged Valid (currAddr + 4 + (signExtend(currInst[15:0]) << 2)) : tagged Invalid;
 
-                RobEntry res = RobEntry{token: currToken,
-                                        addr: currAddr,
-                                        issueType: issueType,
-                                        done: False,
-                                        finished: False,
-                                        status: False,
-                                        pred: pred,
-                                        taken: False};
-
+                RobEntry res = RobEntry{done: False};
                 IssuePort issue = IssuePort{issueType: issueType,
                                             addr: currAddr,
                                             token: currToken,
@@ -297,8 +311,7 @@ module [HASim_Module] mkPipe_Decode();
                                             pred: pred,
                                             predAddr: validValue(predPC)};
 
-                if(regFileUpd)
-                    freeListCount <= freeListCount - 1;
+                if(regFileUpd) freeListCount <= freeListCount - 1;
                 if(intQ)           intQCount <= intQCount - 1;
                 if(memQ)           memQCount <= memQCount - 1;
 
@@ -326,8 +339,10 @@ module [HASim_Module] mkPipe_Decode();
                 if(kill || branch && pred)
                     killCount <= 2;
                 else if(decodeCount == fromInteger(valueOf(TSub#(FetchWidth,1))))
+                begin
+                    $display("4 0 %0d %0d", clockReg, modelReg-1);
                     decodeState <= DecodeDone;
-
+                end
             end
             else
                 finishDecode();
@@ -363,7 +378,10 @@ module [HASim_Module] mkPipe_Decode();
             fpTokKill.send((instBuffer.first()).token);
             fpDecodeKill.send((instBuffer.first()).token);
             if(decodeCount == fromInteger(valueOf(TSub#(FetchWidth,1))))
+            begin
+                $display("4 0 %0d %0d", clockReg, modelReg-1);
                 decodeState <= DecodeDone;
+            end
         end
     endrule
 

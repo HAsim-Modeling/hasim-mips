@@ -44,7 +44,14 @@ module [HASim_Module] mkPipe_Issue();
 
     Reg#(Bool)                                modelCycleBegin <- mkReg(True);
 
+    Reg#(ClockCounter)                               clockReg <- mkReg(0);
+
     Stat                                               issues <- mkStatCounter("Issues");
+
+    rule clockCount(True);
+        clockReg <= clockReg + 1;
+        $display("clockReg: %0d", clockReg);
+    endrule
 
     rule synchronize(killState == KillDone && issueState == IssueDone && dispatchState == DispatchDone);
         let pseudoIntIssueCount = fromInteger(valueOf(TSub#(IntQNum, FetchWidth)));
@@ -67,6 +74,7 @@ module [HASim_Module] mkPipe_Issue();
         begin
             issueAlg.killInitialize(validValue(newKillToken));
             killState <= Kill;
+            $display("issue_kill_start: %0d", clockReg);
         end
         else
         begin
@@ -89,6 +97,7 @@ module [HASim_Module] mkPipe_Issue();
         end
         else
         begin
+            $display("issue_kill_finish: %0d", clockReg);
             freeListCount <= issueAlg.getFreeListAdd();
             killState     <= KillContinue;
             issueState    <= Issue;
@@ -100,9 +109,14 @@ module [HASim_Module] mkPipe_Issue();
     endrule
 
     rule issue(issueState == Issue && issueAlg.canIssue());
+        if(funcUnitPos == 0)
+            $display("issue_issue_start: %0d", clockReg);
         funcUnitPos    <= funcUnitPos + 1;
         if(funcUnitPos == fromInteger(valueOf(TSub#(FuncUnitNum,1))))
+        begin
+            $display("issue_issue_finish: %0d", clockReg);
             issueState <= IssueDone;
+        end
 
         let recv <- (issueAlg.respIssueVals[funcUnitPos]).get();
         execPort[funcUnitPos].send(recv);
@@ -115,8 +129,11 @@ module [HASim_Module] mkPipe_Issue();
 
     rule dispatch(dispatchState == Dispatch && issueAlg.canIssue());
         dispatchCount <= dispatchCount + 1;
+        if(dispatchCount == 0)
+            $display("issue_dispatch_start: %0d", clockReg);
         if(dispatchCount == fromInteger(valueOf(TSub#(FetchWidth,1))))
         begin
+            $display("issue_dispatch_finish: %0d", clockReg);
             dispatchState <= DispatchDone;
             killState <= KillDone;
         end

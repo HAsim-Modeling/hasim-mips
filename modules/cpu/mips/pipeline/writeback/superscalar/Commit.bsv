@@ -20,6 +20,13 @@ module [HASim_Module] mkPipe_Writeback();
 
     Reg#(CommitCount)                             localCommitPos <- mkReg(0);
 
+    Reg#(ClockCounter)                                  clockReg <- mkReg(0);
+    Reg#(ClockCounter)                                  modelReg <- mkReg(0);
+
+    rule clockCount(True);
+        clockReg <= clockReg + 1;
+    endrule
+
     rule localCommit(True);
         Maybe#(Token) tokenMaybe <- commitPort[localCommitPos].receive();
         case (tokenMaybe) matches
@@ -27,6 +34,13 @@ module [HASim_Module] mkPipe_Writeback();
                 fpLocalCommitReq.send(tuple2(token, ?));
         endcase
         localCommitPos <= (localCommitPos == fromInteger(valueOf(TSub#(CommitWidth,1))))? 0: localCommitPos + 1;
+        if(localCommitPos == fromInteger(valueOf(TSub#(CommitWidth,1))))
+        begin
+            modelReg <= modelReg + 1;
+            $display("6 0 %0d %0d", clockReg, modelReg);
+        end
+        if(localCommitPos == 0)
+            $display("6 1 %0d %0d", clockReg, modelReg);
     endrule
 
     rule globalCommit(True);
