@@ -12,6 +12,14 @@ typedef enum {Kill, KillContinue, KillDone} KillState deriving (Bits, Eq);
 typedef enum {Issue, IssueDone} IssueState deriving (Bits, Eq);
 typedef enum {Dispatch, DispatchDone} DispatchState deriving (Bits, Eq);
 
+/* Description of module
+ * rule synchronize fires first, and here we read all the control ports (and write all the control ports). We
+ * decide if we should go to kill state or not. If we go to kill state, then the rule kill keeps firing
+ * kill we get a doneKill() True, after which we go to Issue state. In Issue, we issue (<= 5) requests to the FuncP
+ * and send tokens and other info along execPorts. 
+ * Finally we go to Dispatch State and read the 4 issuePorts, and enqueue them in the issue queues.
+ * In case of no kill, then we skip the kill state
+ */
 module [HASim_Module] mkPipe_Issue();
     function sendFunctionM(String str, Integer i) = mkPort_Send(strConcat(str, integerToString(i)));
 

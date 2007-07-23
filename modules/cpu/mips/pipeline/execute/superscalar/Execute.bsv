@@ -8,6 +8,12 @@ import hasim_cpu_types::*;
 
 typedef enum {Exec, Done} State deriving (Bits, Eq);
 
+/* Description of the module
+ * rule execute reads the 5 execPorts, and writes the 5 execResultPorts.
+ * The value-add is the information about the results of the execution of the instruction
+ * like whether it is the end of the program, successful termination, and actual branch direction and address
+ */
+
 module [HASim_Module] mkPipe_Execute();
     function sendFunctionM(String str, Integer i) = mkPort_Send(strConcat(str, integerToString(i)));
 

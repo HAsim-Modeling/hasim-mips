@@ -7,8 +7,6 @@ import RWire::*;
 import hasim_cpu_types::*;
 import hasim_cpu_parameters::*;
 
-import CircularBuffer::*;
-
 interface Rob;
     method Bool isValidEntry(RobTag robTag);
     method Action write(RobTag robTag, RobEntry robEntry);
@@ -21,12 +19,9 @@ interface Rob;
 endinterface
 
 module mkRob(Rob);
-    //CircularBuffer#(TLog#(RobNum), RobEntry) robFile <- mkCircularBuffer(fromInteger(valueOf(TSub#(RobNum,1))));
     RegFile#(Bit#(TLog#(RobNum)), RobEntry) robFileDup <- mkRegFileFull();
     Reg#(RobTag) head <- mkReg(0);
     Reg#(RobTag) tail <- mkReg(0);
-
-    //RobTag head = robFile.getHead();
 
     Reg#(Bool)    inc <- mkReg(False);
 
@@ -47,29 +42,18 @@ module mkRob(Rob);
     endmethod
 
     method Action write(RobTag robTag, RobEntry robEntry);
-        //if(head != headDup)
-            //$display("Screwed %0d %0d", head, headDup);
-        //robFile.write(robTag, robEntry);
         robFileDup.upd(truncate(robTag), robEntry);
     endmethod
 
     method Action incrementHead();
-        //if(head != headDup)
-            //$display("Screwed %0d %0d", head, headDup);
-        //robFile.incrementHead();
         head <= (head + 1)%fromInteger(valueOf(RobNum));
         incrementHeadEn.send();
     endmethod
 
     method ActionValue#(Maybe#(RobEntry)) readHead();
-        //if(head != headDup)
-            //$display("Screwed %0d %0d", head, headDup);
         if(!empty)
         begin
             RobEntry robEntryDup = robFileDup.sub(truncate(head));
-            //RobEntry robEntry <- robFile.readHead();
-            //if(robEntryDup != robEntry)
-                //$display("ROB ENTRY SCREWED %0d %0d", head, headDup);
             return tagged Valid robEntryDup;
         end
         else
@@ -82,9 +66,6 @@ module mkRob(Rob);
     endmethod
 
     method Action writeTail(RobEntry robEntry); //and increment
-        //if(head != headDup)
-            //$display("Screwed %0d %0d", head, headDup);
-        //robFile.write(tail, robEntry);
         robFileDup.upd(truncate(tail), robEntry);
         tail <= (tail + 1)%fromInteger(valueOf(RobNum));
         inc  <= True;

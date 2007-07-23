@@ -5,6 +5,13 @@ import Vector::*;
 import hasim_cpu_parameters::*;
 import hasim_cpu_types::*;
 
+/*
+ * Description of module:
+ * rule localCommit happens first. It reads the 4 commitPorts and sends 4 requests to local commit of FuncP
+ * rule globalCommit happens next. It reads the 4 responses from local commit of FuncP and sends 4 requests
+ * to global commit of FuncP
+ * rule globalCommitAck happens next. It reads the 4 responses from the global commit of FuncP
+ */
 module [HASim_Module] mkPipe_Writeback();
     function sendFunctionM(String str, Integer i) = mkPort_Send(strConcat(str, integerToString(i)));
 

@@ -218,3 +218,6 @@ Packagehint=hasim
 
 [Hasim simple controller/Requires]
 hasim_local_controller=Hasim local controller
+
+[Hasim functional partition memstate software/Params]
+FUNCP_MEM_ADDR_BITS=8

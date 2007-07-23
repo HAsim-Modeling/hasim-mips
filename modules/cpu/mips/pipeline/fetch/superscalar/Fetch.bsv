@@ -8,6 +8,12 @@ import hasim_cpu_parameters::*;
 
 typedef enum {Fetch, FetchDone} FetchState deriving (Bits, Eq);
 
+/* Description of the module
+ * rule synchronize fires once after every 4 fetches. It basically reads the ports from Decode and
+ * maintains correct state in case of mispredict (by changing the epoch)
+ * rule fetch fires after synchronize. It requests tokens, gets token responses and sends instruction
+ * fetch request. All of this happens in parallel (pipelined parallel)
+ */
 module [HASim_Module] mkPipe_Fetch();
     function sendFunctionM(String str, Integer i) = mkPort_Send(strConcat(str, integerToString(i)));
 

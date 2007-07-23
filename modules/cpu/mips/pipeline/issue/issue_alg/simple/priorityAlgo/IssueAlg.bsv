@@ -26,6 +26,17 @@ typedef enum {IntIssue, IntIssueDone} IntIssueState deriving (Bits, Eq);
 typedef enum {MemIssue, MemIssueDone} MemIssueState deriving (Bits, Eq);
 typedef enum {Dispatched, Issued, Free} BusyState deriving (Bits, Eq);
 
+/* Description of module:
+ * It has two issue queues: intQ and memQ
+ * When killInitialize is called, it changes its state to a Kill state, in which whenever killNext is called,
+ * it issues the next instruction to be killed every cycle in the queues (or invalid of the instruction scanned at that cycle is not to be killed)
+ * It first scans intQ and then memQ
+ * After it ends scnaning, doneKill() returns True
+ * reqIssueVals is the triggering step for collecting instructions to be issued to the EXE unit (in timing model)
+ * Basically it changes state of intIssueState and memIssueState to IntIssue and MemIssue respectively.
+ * Now in these states, the rules intIssueCollect and memIssueCollect fire and fill up the issueBuffer, after which it 
+ * returns canIssue() as True
+ */
 module mkIssueAlg(IssueAlg);
     Vector#(FuncUnitNum, Reg#(Maybe#(ExecEntry))) issueVals <- replicateM(mkReg(tagged Invalid));
     IssueQ#(IntQNum)                                   intQ <- mkIssueQ();

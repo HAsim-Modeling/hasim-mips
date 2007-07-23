@@ -20,6 +20,18 @@ typedef enum {Read, Write}              RobOpState     deriving (Bits, Eq);
 typedef enum {Fetch, FetchDone}         FetchState     deriving (Bits, Eq);
 typedef enum {Decoding, DecodeDone}     DecodeState    deriving (Bits, Eq);
 
+/* Description of the module
+ * First synchronize fires and reads/writes all the control ports
+ * Now fetch and update fire simultaneously.
+ * Fetch fetches from the fetch part of timing model and the 4 fetch responses from the FuncP
+ * Update reads the execResult port from the execute part of the timing model ( and the memory responses from the 
+ * FuncP ). It then updates the Rob with the results it got from execute
+ * After update is finished, it fires rules commit and decode simiultaneously.
+ * Commit sends finished instructions from ROB to commit stage (in instruction order). It also detects end of program to stop
+ * Decode decodes the program. In case of mispredict of predicted-taken branches, decode goes into a decodeKillInstBuff rule
+ * which simply empties the instruction buffer and kills those instructions. A normal decode sends instructions along the issuePort
+ * and also requests to the decode part of FuncP.
+ */
 module [HASim_Module] mkPipe_Decode();
     function sendFunctionM(String str, Integer i) = mkPort_Send(strConcat(str, integerToString(i)));
 
@@ -183,40 +195,6 @@ module [HASim_Module] mkPipe_Decode();
         end
     endrule
 
-    rule commit(commitState == Commit);
-        Maybe#(RobEntry) robEntryMaybe <- rob.readHead();
-        commitCount                    <= commitCount + 1;
-        if(robEntryMaybe matches tagged Valid .robEntry &&& robEntry.done)
-        begin
-            commits.incr();
-            commitTokenPort[commitCount].send(tagged Valid robEntry.token);
-            if(robEntry.issueType == Branch)
-                branchPred.upd(robEntry.token, robEntry.addr, robEntry.pred, robEntry.taken);
-            if(robEntry.finished)
-            begin
-                local_ctrl.endProgram(robEntry.status);
-            end
-            if(commitCount == fromInteger(valueOf(TSub#(CommitWidth,1))))
-            begin
-                $display("2 0 %0d %0d", clockReg, modelReg-1);
-                commitState <= CommitDone;
-            end
-            rob.incrementHead();
-            if(!(robEntry.issueType == Branch || robEntry.issueType == J || robEntry.issueType == JR || robEntry.issueType == Store))
-                freeListCount <= freeListCount + 1;
-        end
-        else
-        begin
-            for(Integer i = 0; i < valueOf(CommitWidth); i=i+1)
-            begin
-                if(fromInteger(i) >= commitCount)
-                    commitTokenPort[i].send(tagged Invalid);
-            end
-            commitState <= CommitDone;
-            $display("2 0 %0d %0d", clockReg, modelReg-1);
-        end
-    endrule
-
     rule update(robUpdateState == RobUpdate);
         Maybe#(ExecResult) execResultMaybe  <- execResultPort[robUpdateCount].receive();
 
@@ -262,6 +240,40 @@ module [HASim_Module] mkPipe_Decode();
             decodeState    <= Decoding;
             commitState    <= Commit;
             commitCount    <= 0;
+        end
+    endrule
+
+    rule commit(commitState == Commit);
+        Maybe#(RobEntry) robEntryMaybe <- rob.readHead();
+        commitCount                    <= commitCount + 1;
+        if(robEntryMaybe matches tagged Valid .robEntry &&& robEntry.done)
+        begin
+            commits.incr();
+            commitTokenPort[commitCount].send(tagged Valid robEntry.token);
+            if(robEntry.issueType == Branch)
+                branchPred.upd(robEntry.token, robEntry.addr, robEntry.pred, robEntry.taken);
+            if(robEntry.finished)
+            begin
+                local_ctrl.endProgram(robEntry.status);
+            end
+            if(commitCount == fromInteger(valueOf(TSub#(CommitWidth,1))))
+            begin
+                $display("2 0 %0d %0d", clockReg, modelReg-1);
+                commitState <= CommitDone;
+            end
+            rob.incrementHead();
+            if(!(robEntry.issueType == Branch || robEntry.issueType == J || robEntry.issueType == JR || robEntry.issueType == Store))
+                freeListCount <= freeListCount + 1;
+        end
+        else
+        begin
+            for(Integer i = 0; i < valueOf(CommitWidth); i=i+1)
+            begin
+                if(fromInteger(i) >= commitCount)
+                    commitTokenPort[i].send(tagged Invalid);
+            end
+            commitState <= CommitDone;
+            $display("2 0 %0d %0d", clockReg, modelReg-1);
         end
     endrule
 

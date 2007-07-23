@@ -2611,3 +2611,35 @@ Added display statements which will be post-processed to obtain the utilization 
 each stage of the system. Also created a linux-console based display program, but am not checking that in, as I do not know how useful it is
 going to be
 
+
+----------
+vmurali     Date: Mon Jul 23 15:05:37 EDT 2007  CSN: CSN-hasim-mips-134
+                  Mon Jul 23 19:05:37 UTC 2007
+
+
+Directory config/pm/hasim-mips/s10k
+ s10k.apm                  Locally Modified          133 
+
+Directory modules/cpu/mips/pipeline/execute/superscalar
+ Execute.bsv               Locally Modified          133 
+
+Directory modules/cpu/mips/pipeline/decode/s10k/rob/simple
+ Rob.bsv                   Locally Modified          133 
+
+Directory modules/cpu/mips/pipeline/decode/s10k
+ Decode.bsv                Locally Modified          133 
+
+Directory modules/cpu/mips/pipeline/issue/issue_alg/simple/priorityAlgo
+ IssueAlg.bsv              Locally Modified          133 
+
+Directory modules/cpu/mips/pipeline/issue/s10k
+ Issue.bsv                 Locally Modified          133 
+
+Directory modules/cpu/mips/pipeline/fetch/superscalar
+ Fetch.bsv                 Locally Modified          133 
+
+Directory modules/cpu/mips/pipeline/writeback/superscalar
+ Commit.bsv                Locally Modified          133 
+
+Added comments to the modules and rearranged rules to show the actual high level ordering amongst rules
+
