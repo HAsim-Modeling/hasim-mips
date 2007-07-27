@@ -12,14 +12,6 @@ typedef enum {Kill, KillContinue, KillDone} KillState deriving (Bits, Eq);
 typedef enum {Issue, IssueDone} IssueState deriving (Bits, Eq);
 typedef enum {Dispatch, DispatchDone} DispatchState deriving (Bits, Eq);
 
-/* Description of module
- * rule synchronize fires first, and here we read all the control ports (and write all the control ports). We
- * decide if we should go to kill state or not. If we go to kill state, then the rule kill keeps firing
- * kill we get a doneKill() True, after which we go to Issue state. In Issue, we issue (<= 5) requests to the FuncP
- * and send tokens and other info along execPorts. 
- * Finally we go to Dispatch State and read the 4 issuePorts, and enqueue them in the issue queues.
- * In case of no kill, then we skip the kill state
- */
 module [HASim_Module] mkPipe_Issue();
     function sendFunctionM(String str, Integer i) = mkPort_Send(strConcat(str, integerToString(i)));
 
@@ -34,9 +26,10 @@ module [HASim_Module] mkPipe_Issue();
     Port_Send#(MemQCount)                       memQCountPort <- mkPort_Send("issueToDecodeMemQ");
     Port_Send#(FreeListCount)                 freeListAddPort <- mkPort_Send("issueToDecodeFreeListAdd");
 
-    Vector#(FetchWidth, Port_Receive#(IssuePort))   issuePort <- genWithM(receiveFunctionM("decodeToIssue"));
+    Port_Receive#(IssuePort)                        issuePort <- mkPort_Receive("decodeToIssue", valueOf(FetchWidth));
 
-    Vector#(FuncUnitNum, Port_Send#(ExecEntry))      execPort <- genWithM(sendFunctionM("issueToExec"));
+    Port_Send#(ExecEntry)                            execPort <- mkPort_Send("issueToExec");
+    Port_Send#(ExecEntry)                             memPort <- mkPort_Send("issueToExecMem");
     Port_Receive#(Token)                        killIssuePort <- mkPort_Receive("execToIssueKill", 1);
 
     Reg#(KillState)                                 killState <- mkReg(KillDone);
@@ -127,7 +120,10 @@ module [HASim_Module] mkPipe_Issue();
         end
 
         let recv <- (issueAlg.respIssueVals[funcUnitPos]).get();
-        execPort[funcUnitPos].send(recv);
+        if(funcUnitPos == fromInteger(valueOf(TSub#(FuncUnitNum,1))))
+            memPort.send(recv);
+        else
+            execPort.send(recv);
         if(isValid(recv))
         begin
             issues.incr();
@@ -146,7 +142,7 @@ module [HASim_Module] mkPipe_Issue();
             killState <= KillDone;
         end
 
-        Maybe#(IssuePort) recvMaybe <- issuePort[dispatchCount].receive();
+        Maybe#(IssuePort) recvMaybe <- issuePort.receive();
         case (recvMaybe) matches
             tagged Valid .recv:
             begin

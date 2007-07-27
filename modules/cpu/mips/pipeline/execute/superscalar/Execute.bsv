@@ -8,12 +8,6 @@ import hasim_cpu_types::*;
 
 typedef enum {Exec, Done} State deriving (Bits, Eq);
 
-/* Description of the module
- * rule execute reads the 5 execPorts, and writes the 5 execResultPorts.
- * The value-add is the information about the results of the execution of the instruction
- * like whether it is the end of the program, successful termination, and actual branch direction and address
- */
-
 module [HASim_Module] mkPipe_Execute();
     function sendFunctionM(String str, Integer i) = mkPort_Send(strConcat(str, integerToString(i)));
 
@@ -22,13 +16,11 @@ module [HASim_Module] mkPipe_Execute();
     Connection_Receive#(Tuple2#(Token, InstResult)) fpExeResponse <- mkConnection_Receive("fp_exe_resp");
     Connection_Send#(Tuple2#(Token, void))               fpMemReq <- mkConnection_Send("fp_mem_req");
 
-    Vector#(FuncUnitNum, Port_Receive#(ExecEntry))      execPort  = newVector();
-    for(Integer i = 0; i < valueOf(TSub#(FuncUnitNum,1)); i=i+1)
-        execPort[i] <- mkPort_Receive(strConcat("issueToExec", integerToString(i)), 1);
-    execPort[valueOf(TSub#(FuncUnitNum,1))] <- mkPort_Receive(strConcat("issueToExec", integerToString(valueOf(TSub#(FuncUnitNum,1)))), 2);
+    Port_Receive#(ExecEntry)                             execPort <- mkPort_Receive("issueToExec", valueOf(TSub#(FuncUnitNum,1)));
+    Port_Receive#(ExecEntry)                              memPort <- mkPort_Receive("issueToExecMem", 2);
     Port_Send#(Token)                               killIssuePort <- mkPort_Send("execToIssueKill");
 
-    Vector#(FuncUnitNum, Port_Send#(ExecResult))   execResultPort <- genWithM(sendFunctionM("execToDecodeResult"));
+    Port_Send#(ExecResult)                         execResultPort <- mkPort_Send("execToDecodeResult");
     Port_Send#(KillData)                           killDecodePort <- mkPort_Send("execToDecodeKill");
 
     Reg#(FuncUnitCount)                             funcUnitCount <- mkReg(0);
@@ -44,7 +36,11 @@ module [HASim_Module] mkPipe_Execute();
 
     rule execute(True);
         Maybe#(KillData) newKillData = tagged Invalid;
-        let recvMaybe <- execPort[funcUnitCount].receive();
+        Maybe#(ExecEntry) recvMaybe = tagged Invalid;
+        if(funcUnitCount == fromInteger(valueOf(TSub#(FuncUnitNum,1))))
+            recvMaybe <- memPort.receive();
+        else
+            recvMaybe <- execPort.receive();
 
         case (recvMaybe) matches
             tagged Valid .recv:
@@ -104,11 +100,11 @@ module [HASim_Module] mkPipe_Execute();
                 else
                     newKillData = killDataReg;
 
-                execResultPort[funcUnitCount].send(tagged Valid execResult);
+                execResultPort.send(tagged Valid execResult);
             end
             tagged Invalid:
             begin
-                execResultPort[funcUnitCount].send(tagged Invalid);
+                execResultPort.send(tagged Invalid);
                 newKillData = killDataReg;
             end
         endcase

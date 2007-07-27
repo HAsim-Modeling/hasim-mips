@@ -20,18 +20,6 @@ typedef enum {Read, Write}              RobOpState     deriving (Bits, Eq);
 typedef enum {Fetch, FetchDone}         FetchState     deriving (Bits, Eq);
 typedef enum {Decoding, DecodeDone}     DecodeState    deriving (Bits, Eq);
 
-/* Description of the module
- * First synchronize fires and reads/writes all the control ports
- * Now fetch and update fire simultaneously.
- * Fetch fetches from the fetch part of timing model and the 4 fetch responses from the FuncP
- * Update reads the execResult port from the execute part of the timing model ( and the memory responses from the 
- * FuncP ). It then updates the Rob with the results it got from execute
- * After update is finished, it fires rules commit and decode simiultaneously.
- * Commit sends finished instructions from ROB to commit stage (in instruction order). It also detects end of program to stop
- * Decode decodes the program. In case of mispredict of predicted-taken branches, decode goes into a decodeKillInstBuff rule
- * which simply empties the instruction buffer and kills those instructions. A normal decode sends instructions along the issuePort
- * and also requests to the decode part of FuncP.
- */
 module [HASim_Module] mkPipe_Decode();
     function sendFunctionM(String str, Integer i) = mkPort_Send(strConcat(str, integerToString(i)));
 
@@ -54,7 +42,7 @@ module [HASim_Module] mkPipe_Decode();
     
     //Ports
     
-    Vector#(FetchWidth, Port_Receive#(Addr))              addrPort <- genWithM(receiveFunctionM("fetchToDecode"));
+    Port_Receive#(Addr)                                   addrPort <- mkPort_Receive("fetchToDecode", valueOf(FetchWidth));
 
     Port_Send#(FetchCount)                          fetchCountPort <- mkPort_Send("decodeToFetchDecodeNum");
     Port_Send#(Addr)                            predictedTakenPort <- mkPort_Send("decodeToFetchPredictedTaken");
@@ -64,12 +52,15 @@ module [HASim_Module] mkPipe_Decode();
     Port_Receive#(MemQCount)                         memQCountPort <- mkPort_Receive("issueToDecodeMemQ", 1);
     Port_Receive#(FreeListCount)                   freeListAddPort <- mkPort_Receive("issueToDecodeFreeListAdd", 1);
 
-    Vector#(FetchWidth, Port_Send#(IssuePort))           issuePort <- genWithM(sendFunctionM("decodeToIssue"));
+    Port_Send#(IssuePort)                                issuePort <- mkPort_Send("decodeToIssue");
 
-    Vector#(FuncUnitNum, Port_Receive#(ExecResult)) execResultPort <- genWithM(receiveFunctionM("execToDecodeResult"));
+    Port_Receive#(ExecResult)                       execResultPort <- mkPort_Receive("execToDecodeResult", valueOf(FuncUnitNum));
     Port_Receive#(KillData)                         killDecodePort <- mkPort_Receive("execToDecodeKill", 1);
 
-    Vector#(CommitWidth, Port_Send#(Token))        commitTokenPort <- genWithM(sendFunctionM("decodeToCommit"));
+    Reg#(Bool)                                   fillCommitInvalid <- mkReg(?);
+    Reg#(Bool)                                   fillDecodeInvalid <- mkReg(?);
+
+    Port_Send#(Token)                              commitTokenPort <- mkPort_Send("decodeToCommit");
 
     Reg#(ClockCounter)                                    clockReg <- mkReg(0);
     Reg#(ClockCounter)                                    modelReg <- mkReg(0);
@@ -168,6 +159,8 @@ module [HASim_Module] mkPipe_Decode();
         fetchState             <= Fetch;
         fetchCount             <= 0;
 
+        fillCommitInvalid      <= False;
+
         robUpdateState         <= RobUpdate;
         robUpdateCount         <= 0;
 
@@ -176,7 +169,7 @@ module [HASim_Module] mkPipe_Decode();
     endrule
 
     rule fetch(fetchState == Fetch);
-        Maybe#(Addr) addrMaybe  <- addrPort[fetchCount].receive();
+        Maybe#(Addr) addrMaybe  <- addrPort.receive();
         case (addrMaybe) matches
             tagged Valid .addr:
             begin
@@ -195,8 +188,39 @@ module [HASim_Module] mkPipe_Decode();
         end
     endrule
 
+    rule commit(commitState == Commit);
+        Maybe#(RobEntry) robEntryMaybe <- rob.readHead();
+        commitCount                    <= commitCount + 1;
+        if(commitCount == fromInteger(valueOf(TSub#(CommitWidth,1))))
+            commitState <= CommitDone;
+        if(!fillCommitInvalid)
+        begin
+            if(robEntryMaybe matches tagged Valid .robEntry &&& robEntry.done)
+            begin
+                commits.incr();
+                commitTokenPort.send(tagged Valid robEntry.token);
+                if(robEntry.issueType == Branch)
+                    branchPred.upd(robEntry.token, robEntry.addr, robEntry.pred, robEntry.taken);
+                if(robEntry.finished)
+                    local_ctrl.endProgram(robEntry.status);
+                rob.incrementHead();
+                if(!(robEntry.issueType == Branch || robEntry.issueType == J || robEntry.issueType == JR || robEntry.issueType == Store))
+                    freeListCount <= freeListCount + 1;
+            end
+            else
+            begin
+                fillCommitInvalid <= True;
+                commitTokenPort.send(tagged Invalid);
+            end
+        end
+        else
+        begin
+            commitTokenPort.send(tagged Invalid);
+        end
+    endrule
+
     rule update(robUpdateState == RobUpdate);
-        Maybe#(ExecResult) execResultMaybe  <- execResultPort[robUpdateCount].receive();
+        Maybe#(ExecResult) execResultMaybe  <- execResultPort.receive();
 
         case (execResultMaybe) matches
             tagged Valid .exec:
@@ -240,56 +264,12 @@ module [HASim_Module] mkPipe_Decode();
             decodeState    <= Decoding;
             commitState    <= Commit;
             commitCount    <= 0;
+            fillDecodeInvalid <= killCount != 0;
         end
     endrule
 
-    rule commit(commitState == Commit);
-        Maybe#(RobEntry) robEntryMaybe <- rob.readHead();
-        commitCount                    <= commitCount + 1;
-        if(robEntryMaybe matches tagged Valid .robEntry &&& robEntry.done)
-        begin
-            commits.incr();
-            commitTokenPort[commitCount].send(tagged Valid robEntry.token);
-            if(robEntry.issueType == Branch)
-                branchPred.upd(robEntry.token, robEntry.addr, robEntry.pred, robEntry.taken);
-            if(robEntry.finished)
-            begin
-                local_ctrl.endProgram(robEntry.status);
-            end
-            if(commitCount == fromInteger(valueOf(TSub#(CommitWidth,1))))
-            begin
-                $display("2 0 %0d %0d", clockReg, modelReg-1);
-                commitState <= CommitDone;
-            end
-            rob.incrementHead();
-            if(!(robEntry.issueType == Branch || robEntry.issueType == J || robEntry.issueType == JR || robEntry.issueType == Store))
-                freeListCount <= freeListCount + 1;
-        end
-        else
-        begin
-            for(Integer i = 0; i < valueOf(CommitWidth); i=i+1)
-            begin
-                if(fromInteger(i) >= commitCount)
-                    commitTokenPort[i].send(tagged Invalid);
-            end
-            commitState <= CommitDone;
-            $display("2 0 %0d %0d", clockReg, modelReg-1);
-        end
-    endrule
-
-    function Action finishDecode();
-    action
-        $display("4 0 %0d %0d", clockReg, modelReg-1);
-        for(Integer i = 0; i < valueOf(FetchWidth); i=i+1)
-        begin
-            if(fromInteger(i) >= decodeCount)
-                issuePort[i].send(tagged Invalid);
-        end
-        decodeState <= DecodeDone;
-    endaction
-    endfunction
-
-    rule decodeInst(decodeState == Decoding && killCount == 0 && instBuffer.notEmpty());
+    rule decodeInst(decodeState == Decoding && killCount == 0 && instBuffer.notEmpty() && !fillDecodeInvalid);
+        decodeCount     <= decodeCount + 1;
         InstInfo currInstBuffer     = instBuffer.first();
         Addr currAddr               = currInstBuffer.addr;
         Token currToken             = currInstBuffer.token;
@@ -339,17 +319,19 @@ module [HASim_Module] mkPipe_Decode();
                         issue.branchIndex <- branchStack.add();
                 end
 
-                decodeCount     <= decodeCount + 1;
                 instBufferCount <= instBufferCount - 1;
 
                 rob.writeTail(res);
 
                 fpDecodeReq.send(tuple2(currToken, ?));
-                issuePort[decodeCount].send(tagged Valid issue);
+                issuePort.send(tagged Valid issue);
 
                 instBuffer.deq();
                 if(kill || branch && pred)
+                begin
                     killCount <= 2;
+                    fillDecodeInvalid <= True;
+                end
                 else if(decodeCount == fromInteger(valueOf(TSub#(FetchWidth,1))))
                 begin
                     $display("4 0 %0d %0d", clockReg, modelReg-1);
@@ -357,7 +339,10 @@ module [HASim_Module] mkPipe_Decode();
                 end
             end
             else
-                finishDecode();
+            begin
+                issuePort.send(tagged Invalid);
+                fillDecodeInvalid <= True;
+            end
         endaction
         endfunction
 
@@ -382,9 +367,8 @@ module [HASim_Module] mkPipe_Decode();
             commonDecode(JALR,      True,  False, True,  False,  True,  tagged Valid targetBuffer.first(),             True);
         else
         begin
-            decodeCount     <= decodeCount + 1;
             instBufferCount <= instBufferCount - 1;
-            issuePort[decodeCount].send(tagged Invalid);
+            issuePort.send(tagged Invalid);
             instBuffer.deq();
             branchBuffer.deq();
             fpTokKill.send((instBuffer.first()).token);
@@ -397,8 +381,22 @@ module [HASim_Module] mkPipe_Decode();
         end
     endrule
 
+    rule fillDecodeInvalidRule(decodeState == Decoding && fillDecodeInvalid);
+        decodeCount <= decodeCount + 1;
+        issuePort.send(tagged Invalid);
+        if(decodeCount == fromInteger(valueOf(TSub#(FetchWidth,1))))
+        begin
+            fillDecodeInvalid <= False;
+            if(killCount == 0)
+                decodeState <= DecodeDone;
+        end
+    endrule
+
     rule prematureFinishDecode(decodeState == Decoding && killCount == 0 && !instBuffer.notEmpty() && fetchState == FetchDone);
-        finishDecode();
+        decodeCount <= decodeCount + 1;
+        issuePort.send(tagged Invalid);
+        if(decodeCount == fromInteger(valueOf(TSub#(FetchWidth,1))))
+            decodeState <= DecodeDone;
     endrule
 
     (* descending_urgency = "fetch, prematureFinishDecode, decodeKillInstBuffer" *)
@@ -408,8 +406,7 @@ module [HASim_Module] mkPipe_Decode();
             if(fetchState == FetchDone)
             begin
                 killCount   <= killCount - 1;
-                finishDecode();
-                decodeCount <= fromInteger(valueOf(FetchWidth));
+                decodeState <= DecodeDone;
             end
         end
         else

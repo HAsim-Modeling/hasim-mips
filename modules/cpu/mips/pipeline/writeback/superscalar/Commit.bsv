@@ -17,7 +17,7 @@ module [HASim_Module] mkPipe_Writeback();
 
     function receiveFunctionM(String str, Integer i) = mkPort_Receive(strConcat(str, integerToString(i)), 1);
 
-    Vector#(CommitWidth, Port_Receive#(Token))        commitPort <- genWithM(receiveFunctionM("decodeToCommit"));
+    Port_Receive#(Token)                              commitPort <- mkPort_Receive("decodeToCommit", valueOf(CommitWidth));
 
     Connection_Send#(Tuple2#(Token, void))      fpLocalCommitReq <- mkConnection_Send("fp_lco_req");
     Connection_Receive#(Tuple2#(Token, void))  fpLocalCommitResp <- mkConnection_Receive("fp_lco_resp");
@@ -35,7 +35,7 @@ module [HASim_Module] mkPipe_Writeback();
     endrule
 
     rule localCommit(True);
-        Maybe#(Token) tokenMaybe <- commitPort[localCommitPos].receive();
+        Maybe#(Token) tokenMaybe <- commitPort.receive();
         case (tokenMaybe) matches
             tagged Valid .token:
                 fpLocalCommitReq.send(tuple2(token, ?));
