@@ -2643,3 +2643,16 @@ Directory modules/cpu/mips/pipeline/writeback/superscalar
 
 Added comments to the modules and rearranged rules to show the actual high level ordering amongst rules
 
+
+----------
+mvijayar    Date: Tue Jul 31 17:42:53 EDT 2007  CSN: CSN-hasim-mips-138
+                  Tue Jul 31 21:42:53 UTC 2007
+
+
+Directory modules/cpu/mips/pipeline/decode/s10k
+ Decode.bsv                Locally Modified          137 
+
+Directory modules/cpu/mips/pipeline/fetch/superscalar
+ Fetch.bsv                 Locally Modified          137 
+
+Changed some port names, more changes will follow

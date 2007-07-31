@@ -21,10 +21,6 @@ typedef enum {Fetch, FetchDone}         FetchState     deriving (Bits, Eq);
 typedef enum {Decoding, DecodeDone}     DecodeState    deriving (Bits, Eq);
 
 module [HASim_Module] mkPipe_Decode();
-    function sendFunctionM(String str, Integer i) = mkPort_Send(strConcat(str, integerToString(i)));
-
-    function receiveFunctionM(String str, Integer i) = mkPort_Receive(strConcat(str, integerToString(i)), 1);
-    
     //Connections
     
     Connection_Receive#(Tuple2#(Token, PackedInst))    fpFetchResp <- mkConnection_Receive("fp_fet_resp");
@@ -42,11 +38,11 @@ module [HASim_Module] mkPipe_Decode();
     
     //Ports
     
-    Port_Receive#(Addr)                                   addrPort <- mkPort_Receive("fetchToDecode", valueOf(FetchWidth));
+    Port_Receive#(Addr)                                   addrPort <- mkPort_Receive("instAddr", valueOf(FetchWidth));
 
-    Port_Send#(FetchCount)                          fetchCountPort <- mkPort_Send("decodeToFetchDecodeNum");
-    Port_Send#(Addr)                            predictedTakenPort <- mkPort_Send("decodeToFetchPredictedTaken");
-    Port_Send#(Addr)                                mispredictPort <- mkPort_Send("decodeToFetchMispredict");
+    Port_Send#(FetchCount)                          fetchCountPort <- mkPort_Send("fetchCount");
+    Port_Send#(Addr)                            predictedTakenPort <- mkPort_Send("predictedAddr");
+    Port_Send#(Addr)                                mispredictPort <- mkPort_Send("mispredictAddr");
 
     Port_Receive#(IntQCount)                         intQCountPort <- mkPort_Receive("issueToDecodeIntQ", 1);
     Port_Receive#(MemQCount)                         memQCountPort <- mkPort_Receive("issueToDecodeMemQ", 1);

@@ -9,33 +9,27 @@ import hasim_cpu_parameters::*;
 typedef enum {Fetch, FetchDone} FetchState deriving (Bits, Eq);
 
 module [HASim_Module] mkPipe_Fetch();
-    function sendFunctionM(String str, Integer i) = mkPort_Send(strConcat(str, integerToString(i)));
+    Connection_Send#(Bit#(8))              fpTokReq <- mkConnection_Send("fp_tok_req");
+    Connection_Receive#(Token)            fpTokResp <- mkConnection_Receive("fp_tok_resp");
+    Connection_Send#(Tuple2#(Token, Addr)) fpFetReq <- mkConnection_Send("fp_fet_req");
 
-    function receiveFunctionM(String str, Integer i) = mkPort_Receive(strConcat(str, integerToString(i)), 1);
+    Port_Receive#(FetchCount)        fetchCountPort <- mkPort_Receive("fetchCount", 1);
+    Port_Receive#(Addr)           predictedAddrPort <- mkPort_Receive("predictedAddr", 1);
+    Port_Receive#(Addr)          mispredictAddrPort <- mkPort_Receive("mispredictAddr", 1);
 
-    Connection_Send#(Bit#(8))              fpTokenReq <- mkConnection_Send("fp_tok_req");
-    Connection_Receive#(Token)            fpTokenResp <- mkConnection_Receive("fp_tok_resp");
-    Connection_Send#(Tuple2#(Token, Addr)) fpFetchReq <- mkConnection_Send("fp_fet_req");
+    Port_Send#(Addr)                   instAddrPort <- mkPort_Send("instAddr");
 
-    Port_Receive#(FetchCount)          fetchCountPort <- mkPort_Receive("decodeToFetchDecodeNum", 1);
-    Port_Receive#(Addr)            predictedTakenPort <- mkPort_Receive("decodeToFetchPredictedTaken", 1);
-    Port_Receive#(Addr)                mispredictPort <- mkPort_Receive("decodeToFetchMispredict", 1);
+    Reg#(FetchState)                     fetchState <- mkReg(FetchDone);
+    Reg#(Addr)                                   pc <- mkReg(pcStart);
+    Reg#(FetchCount)                     totalCount <- mkReg(?);
+    Reg#(FetchCount)                       fetchPos <- mkReg(?);
 
-    Port_Send#(Addr)                         addrPort <- mkPort_Send("fetchToDecode");
+    Reg#(Bool)                     fillFetchInvalid <- mkReg(False);
 
-    Reg#(FetchState)                       fetchState <- mkReg(FetchDone);
-    Reg#(Addr)                                     pc <- mkReg(pcStart);
-    Reg#(FetchCount)                       totalCount <- mkReg(?);
-    Reg#(FetchCount)                         fetchPos <- mkReg(?);
+    Reg#(ClockCounter)                     clockReg <- mkReg(0);
+    Reg#(ClockCounter)                     modelReg <- mkReg(0);
 
-    Reg#(Bool)                       fillFetchInvalid <- mkReg(False);
-
-    Reg#(ClockCounter)                       clockReg <- mkReg(0);
-    Reg#(ClockCounter)                       modelReg <- mkReg(0);
-
-    Reg#(TIMEP_Epoch)                           epoch <- mkReg(0);
-
-    EventRecorder                            eventRec <- mkEventRecorder("Fetch");
+    Reg#(TIMEP_Epoch)                         epoch <- mkReg(0);
 
     rule clockCount(True);
         clockReg <= clockReg + 1;
@@ -43,25 +37,22 @@ module [HASim_Module] mkPipe_Fetch();
 
     rule synchronize(fetchState == FetchDone);
         modelReg <= modelReg + 1;
-        Maybe#(Addr)   predictedTaken <- predictedTakenPort.receive();
-        Maybe#(Addr)       mispredict <- mispredictPort.receive();
+        Maybe#(Addr)    predictedAddr <- predictedAddrPort.receive();
+        Maybe#(Addr)   mispredictAddr <- mispredictAddrPort.receive();
         Maybe#(FetchCount) fetchCount <- fetchCountPort.receive();
 
-        if(isValid(mispredict))
+        if(isValid(mispredictAddr))
         begin
-            pc    <= validValue(mispredict);
+            pc    <= validValue(mispredictAddr);
             epoch <= epoch + 1;
-            eventRec.recordEvent(mispredict);
         end
-        else if(isValid(predictedTaken))
+        else if(isValid(predictedAddr))
         begin
-            pc <= validValue(predictedTaken);
-            eventRec.recordEvent(predictedTaken);
+            pc <= validValue(predictedAddr);
         end
         else
         begin
             pc <= pc;
-            eventRec.recordEvent(tagged Valid pc);
         end
 
         FetchCount newCount = fromMaybe(fromInteger(valueOf(FetchWidth)), fetchCount);
@@ -77,7 +68,7 @@ module [HASim_Module] mkPipe_Fetch();
         else
         begin
             $display("0 1 %0d %0d", clockReg, modelReg);
-            fpTokenReq.send(17);
+            fpTokReq.send(17);
             fillFetchInvalid <= False;
         end
     endrule
@@ -88,22 +79,22 @@ module [HASim_Module] mkPipe_Fetch();
             fetchState <= FetchDone;
         if(!fillFetchInvalid)
         begin
-            Token token <- fpTokenResp.receive();
+            Token token <- fpTokResp.receive();
             token.timep_info = TIMEP_TokInfo{epoch: epoch,
                                              scratchpad: 0};
 
-            fpFetchReq.send(tuple2(token, pc));
-            addrPort.send(tagged Valid pc);
+            fpFetReq.send(tuple2(token, pc));
+            instAddrPort.send(tagged Valid pc);
 
             pc        <= pc + 4;
             if(fetchPos + 1 != totalCount)
-                fpTokenReq.send(17);
+                fpTokReq.send(17);
             else
                 fillFetchInvalid <= True;
         end
         else
         begin
-            addrPort.send(tagged Invalid);
+            instAddrPort.send(tagged Invalid);
         end
     endrule
 endmodule
