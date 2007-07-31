@@ -57,9 +57,6 @@ module [HASim_Module] mkPipe_Decode();
     Port_Receive#(ExecResult)                       execResultPort <- mkPort_Receive("execToDecodeResult", valueOf(FuncUnitNum));
     Port_Receive#(KillData)                         killDecodePort <- mkPort_Receive("execToDecodeKill", 1);
 
-    Reg#(Bool)                                   fillCommitInvalid <- mkReg(?);
-    Reg#(Bool)                                   fillDecodeInvalid <- mkReg(?);
-
     Port_Send#(Token)                              commitTokenPort <- mkPort_Send("decodeToCommit");
 
     Reg#(ClockCounter)                                    clockReg <- mkReg(0);
@@ -93,6 +90,9 @@ module [HASim_Module] mkPipe_Decode();
     Reg#(CommitCount)                                  commitCount <- mkReg(?);
     Reg#(Maybe#(Addr))                                 predictedPC <- mkReg(?);
     Reg#(Maybe#(Addr))                                mispredictPC <- mkReg(?);
+
+    Reg#(Bool)                                   fillDecodeInvalid <- mkReg(?);
+    Reg#(Bool)                                   fillCommitInvalid <- mkReg(?);
 
     Rob                                                        rob <- mkRob();
     BranchStack                                        branchStack <- mkBranchStack();
@@ -129,6 +129,7 @@ module [HASim_Module] mkPipe_Decode();
         case (killTokenGet) matches
             tagged Valid .killData:
             begin
+                $display("killed %0d %0d", killData.token.index, modelReg);
                 fpRewindToToken.send(killData.token);
                 rob.updateTail(killData.robTag);
                 killCount <= 2;
@@ -324,13 +325,15 @@ module [HASim_Module] mkPipe_Decode();
                 rob.writeTail(res);
 
                 fpDecodeReq.send(tuple2(currToken, ?));
+                $display("decodeSend: %0d %0d %0d", currToken.index, decodeCount, modelReg-1);
                 issuePort.send(tagged Valid issue);
 
                 instBuffer.deq();
                 if(kill || branch && pred)
                 begin
                     killCount <= 2;
-                    fillDecodeInvalid <= True;
+                    if(decodeCount != fromInteger(valueOf(TSub#(FetchWidth,1))))
+                        fillDecodeInvalid <= True;
                 end
                 else if(decodeCount == fromInteger(valueOf(TSub#(FetchWidth,1))))
                 begin
@@ -340,8 +343,11 @@ module [HASim_Module] mkPipe_Decode();
             end
             else
             begin
+                $display("decodeSend Invalid finish %0d", modelReg-1);
                 issuePort.send(tagged Invalid);
-                fillDecodeInvalid <= True;
+                decodeState <= DecodeDone;
+                if(decodeCount != fromInteger(valueOf(TSub#(FetchWidth,1))))
+                    fillDecodeInvalid <= True;
             end
         endaction
         endfunction
@@ -368,6 +374,7 @@ module [HASim_Module] mkPipe_Decode();
         else
         begin
             instBufferCount <= instBufferCount - 1;
+            $display("decodeSend Invalid nop %0d", modelReg-1);
             issuePort.send(tagged Invalid);
             instBuffer.deq();
             branchBuffer.deq();
@@ -381,19 +388,19 @@ module [HASim_Module] mkPipe_Decode();
         end
     endrule
 
-    rule fillDecodeInvalidRule(decodeState == Decoding && fillDecodeInvalid);
+    rule fillDecodeInvalidRule(fillDecodeInvalid);
         decodeCount <= decodeCount + 1;
+        $display("decodeSend Invalid fill invalid %0d", modelReg-1);
         issuePort.send(tagged Invalid);
         if(decodeCount == fromInteger(valueOf(TSub#(FetchWidth,1))))
         begin
             fillDecodeInvalid <= False;
-            if(killCount == 0)
-                decodeState <= DecodeDone;
         end
     endrule
 
     rule prematureFinishDecode(decodeState == Decoding && killCount == 0 && !instBuffer.notEmpty() && fetchState == FetchDone);
         decodeCount <= decodeCount + 1;
+        $display("decodeSend Invalid empty %0d", modelReg-1);
         issuePort.send(tagged Invalid);
         if(decodeCount == fromInteger(valueOf(TSub#(FetchWidth,1))))
             decodeState <= DecodeDone;
