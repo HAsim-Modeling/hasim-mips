@@ -46,6 +46,7 @@ module [HASim_Module] mkPipe_Issue();
     Reg#(Bool)                                modelCycleBegin <- mkReg(True);
 
     Reg#(ClockCounter)                               clockReg <- mkReg(0);
+    Reg#(ClockCounter)                               modelReg <- mkReg(0);
 
     Stat                                               issues <- mkStatCounter("Issues");
 
@@ -55,6 +56,8 @@ module [HASim_Module] mkPipe_Issue();
     endrule
 
     rule synchronize(killState == KillDone && issueState == IssueDone && dispatchState == DispatchDone);
+        modelReg <= modelReg + 1;
+
         let pseudoIntIssueCount = fromInteger(valueOf(TSub#(IntQNum, FetchWidth)));
         let pseudoMemIssueCount = fromInteger(valueOf(TSub#(MemQNum, FetchWidth)));
         let freeIntQ = pseudoIntIssueCount > issueAlg.getIntQCount()? pseudoIntIssueCount - issueAlg.getIntQCount() : 0;
@@ -75,7 +78,7 @@ module [HASim_Module] mkPipe_Issue();
         begin
             issueAlg.killInitialize(validValue(newKillToken));
             killState <= Kill;
-            $display("issue_kill_start: %0d", clockReg);
+            $display("issue_kill_start: %0d %0d", (validValue(newKillToken)).index, clockReg);
         end
         else
         begin
@@ -147,6 +150,7 @@ module [HASim_Module] mkPipe_Issue();
             tagged Valid .recv:
             begin
                 match{.token, .dep} <- fpDecodeResp.receive();
+                $display("issue got : %0d %0d", token.index, modelReg-1);
                 IssueEntry issueEntry = IssueEntry{token: recv.token,
                                                    addr: recv.addr,
                                                    issueType: recv.issueType,
@@ -162,6 +166,7 @@ module [HASim_Module] mkPipe_Issue();
 
                 if(killState == KillContinue)
                 begin
+                    $display("killed now");
                     fpExeKill.send(token);
                     case (dep.dep_dest) matches
                         tagged Valid {.regDest, .dest}:
@@ -174,6 +179,8 @@ module [HASim_Module] mkPipe_Issue();
                     issueAlg.dispatch(issueEntry);
                 end
             end
+            tagged Invalid:
+                $display("issue got invalid %0d", modelReg-1);
         endcase
     endrule
 endmodule

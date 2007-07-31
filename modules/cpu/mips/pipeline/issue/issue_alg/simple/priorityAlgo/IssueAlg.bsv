@@ -96,6 +96,7 @@ module mkIssueAlg(IssueAlg);
             begin
                 if(isAllReady(newIssueEntry))
                 begin
+                    $display("Issue ready: %0d %0d %0d %0d %0d", newIssueEntry.dest, newIssueEntry.src1, newIssueEntry.src2, newIssueEntry.src1Ready, newIssueEntry.src2Ready);
                     Bit#(TLog#(FuncUnitNum)) index = case (validEntry.issueType) matches
                                                           J      : 3;
                                                           JAL    : 3;
