@@ -1,0 +1,140 @@
+
+[Hasim simple controller]
+Packagehint=hasim
+File=modules/controller/simple/hasim_simple_controller.awb
+
+[Global]
+SaveParameters=0
+Description=Unpipelined QEMU FAST Model
+File=smips_unpipelined_qemu
+Version=2.1
+Name=Unpipelined QEMU FAST Model
+Type=HAsim
+Class=Asim::Model
+
+[Hasim - Hardware (fpga) based system/Requires]
+hasim_funcp=Hasim to FAST functional partition wrapper
+hasim_chip=Uniprocessor chip
+hasim_isa=Hasim - SMIPS ISA
+
+[Model]
+DefaultAttributes= simple qemu fast hasim 
+model=HAsim Model Foundation
+
+[Hasim - Hardware (fpga) based system]
+Packagehint=hasim
+File=modules/system/single_chip_system/hasim_system.awb
+
+[HAsim Model Foundation]
+Packagehint=hasim
+File=modules/model/hasim_model.awb
+
+[HAsim Model Foundation/Requires]
+hasim_system=Hasim - Hardware (fpga) based system
+hasim_controller=Hasim simple controller
+hasim_common=Hasim Common Library
+
+[Hasim Common Library/Requires]
+hasim_fpgaenv=Hasim/FAST combined FPGA Environment
+
+[Uniprocessor chip/Requires]
+hasim_cpu=Hasim Unpipelined CPU
+hasim_memory=magic memory
+
+[Hasim Unpipelined CPU]
+File=modules/cpu/mips/unpipelined_cpu.awb
+Packagehint=hasim-mips
+
+[Hasim Common Library]
+File=modules/common/hasim_common.awb
+Packagehint=hasim
+
+[Uniprocessor chip]
+File=modules/chip/mips/uniprocessor/uniprocessor.awb
+Packagehint=hasim-mips
+
+[magic memory]
+File=modules/memory/magic_memory.awb
+Packagehint=hasim-mips
+
+[Hasim - SMIPS ISA]
+File=modules/isa/smips/hasim_smips_isa.awb
+Packagehint=hasim-mips
+
+[Hasim local controller]
+File=modules/controller/local/hasim_local_controller.awb
+Packagehint=hasim
+
+[Hasim simple controller/Requires]
+hasim_local_controller=Hasim local controller
+
+[Hasim to FAST functional partition wrapper/Requires]
+fast_funcp=FAST Functional Model
+
+[FAST Functional Model]
+File=modules/functional/fast/fast_funcp.awb
+Packagehint=fast
+
+[Hasim to FAST functional partition wrapper]
+File=modules/functional/qemu-fast/qemu-fast.awb
+Packagehint=hasim-mips
+
+[Software FPGA Components]
+File=modules/common/fpgaenv/fpga-components/software/software-fpga-components.awb
+Packagehint=hasim
+
+[FAST Utilities Library]
+File=modules/common/utils/fast/fast_utils.awb
+Packagehint=fast
+
+[Standard Virtual Devices]
+File=modules/common/fpgaenv/virtual-platform/virtual-devices/std-virtual-devices.awb
+Packagehint=hasim
+
+[Null Serial Console]
+File=modules/common/fpgaenv/virtual-platform/virtual-devices/console/null-serial/null-serial.awb
+Packagehint=hasim
+
+[Hasim/FAST combined FPGA Environment]
+File=modules/common/fpgaenv-fast/hasim-fast-fpga-environment.awb
+Packagehint=hasim
+
+[Hasim Platform Interface]
+File=modules/common/fpgaenv/platform-interface/hasim/hasim-platform-interface.awb
+Packagehint=hasim
+
+[Null TopLevel Wires]
+File=modules/common/fpgaenv/toplevel-wires/null/null-toplevel-wires.awb
+Packagehint=hasim
+
+[Standard Virtual Devices/Requires]
+console=Null Serial Console
+front_panel=Console Front Panel
+
+[Console Front Panel]
+File=modules/common/fpgaenv/virtual-platform/virtual-devices/front-panel/console/console-fp.awb
+Packagehint=hasim
+
+[Hasim/FAST Virtual Platform]
+File=modules/common/fpgaenv/virtual-platform/fast-virtual-platform.awb
+Packagehint=hasim
+
+[Hasim/FAST Virtual Platform/Requires]
+channelio=Null Channel IO Module
+fast_channelio=FAST ChannelIO - Bluesim
+virtual_devices=Standard Virtual Devices
+
+[FAST ChannelIO - Bluesim]
+File=modules/common/fpgaenv/virtual-platform/fast-channelio/bluesim/fast_channelio_bluesim.awb
+Packagehint=fast
+
+[Null Channel IO Module]
+File=modules/common/fpgaenv/virtual-platform/channelio/null/null-channelio.awb
+Packagehint=hasim
+
+[Hasim/FAST combined FPGA Environment/Requires]
+fast_utils=FAST Utilities Library
+virtual_platform=Hasim/FAST Virtual Platform
+toplevel_wires=Null TopLevel Wires
+platform_interface=Hasim Platform Interface
+fpga_components=Software FPGA Components

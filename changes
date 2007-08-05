@@ -2656,3 +2656,21 @@ Directory modules/cpu/mips/pipeline/fetch/superscalar
  Fetch.bsv                 Locally Modified          137 
 
 Changed some port names, more changes will follow
+
+----------
+nikhil      Date: Sun Aug  5 17:11:20 CDT 2007  CSN: CSN-hasim-mips-139
+                  Sun Aug  5 22:11:20 UTC 2007
+
+
+Directory config/pm/hasim-mips/smips-unpipelined
+ smips_unpipelined_qemu.apm Locally Added               0 
+
+Directory modules/functional
+ qemu-fast/                Locally Added               0 
+
+Directory modules/functional/qemu-fast
+ Hasim2FAST.bsv            Locally Added               0 
+ qemu-fast.awb             Locally Added               0 
+
+Created model that uses FAST functional partition and skeleton of module that wraps
+around the FAST functional partition
