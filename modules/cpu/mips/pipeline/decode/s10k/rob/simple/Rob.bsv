@@ -15,6 +15,7 @@ interface Rob;
     method Action updateTail(RobTag robTab);
     method Action writeTail(RobEntry robEntry); //and increment
     method RobTag getTail();
+    method RobTag getHead();
     method Bool notFull();
 endinterface
 
@@ -73,6 +74,10 @@ module mkRob(Rob);
 
     method RobTag getTail();
         return tail;
+    endmethod
+
+    method RobTag getHead();
+        return head;
     endmethod
 
     method Bool notFull();

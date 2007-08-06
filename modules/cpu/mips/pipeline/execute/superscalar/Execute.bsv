@@ -1,7 +1,9 @@
+import RegFile::*;
+import Vector::*;
+import FIFO::*;
+
 import hasim_common::*;
 import hasim_isa::*;
-
-import Vector::*;
 
 import hasim_cpu_parameters::*;
 import hasim_cpu_types::*;
@@ -9,44 +11,60 @@ import hasim_cpu_types::*;
 typedef enum {Exec, Done} State deriving (Bits, Eq);
 
 module [HASim_Module] mkPipe_Execute();
-    function sendFunctionM(String str, Integer i) = mkPort_Send(strConcat(str, integerToString(i)));
+    Connection_Receive#(Tuple2#(Token, InstResult)) fpExeResp <- mkConnection_Receive("fp_exe_resp");
+    Connection_Send#(Tuple2#(Token, void))           fpMemReq <- mkConnection_Send("fp_mem_req");
 
-    function receiveFunctionM(String str, Integer i) = mkPort_Receive(strConcat(str, integerToString(i)), 1);
+    Port_Receive#(ExecEntry)                         execPort <- mkPort_Receive("issueToExec", valueOf(TSub#(FuncUnitNum,1)));
+    Port_Receive#(ExecEntry)                          memPort <- mkPort_Receive("issueToExecMem", 2);
+    Port_Send#(Token)                           killIssuePort <- mkPort_Send("execToIssueKill");
 
-    Connection_Receive#(Tuple2#(Token, InstResult)) fpExeResponse <- mkConnection_Receive("fp_exe_resp");
-    Connection_Send#(Tuple2#(Token, void))               fpMemReq <- mkConnection_Send("fp_mem_req");
+    Port_Send#(ExecResult)                     execResultPort <- mkPort_Send("execToDecodeResult");
+    Port_Send#(KillData)                       killDecodePort <- mkPort_Send("execToDecodeKill");
 
-    Port_Receive#(ExecEntry)                             execPort <- mkPort_Receive("issueToExec", valueOf(TSub#(FuncUnitNum,1)));
-    Port_Receive#(ExecEntry)                              memPort <- mkPort_Receive("issueToExecMem", 2);
-    Port_Send#(Token)                               killIssuePort <- mkPort_Send("execToIssueKill");
+    Reg#(FuncUnitCount)                         funcUnitCount <- mkReg(0);
 
-    Port_Send#(ExecResult)                         execResultPort <- mkPort_Send("execToDecodeResult");
-    Port_Send#(KillData)                           killDecodePort <- mkPort_Send("execToDecodeKill");
+    Reg#(Maybe#(KillData))                        killDataReg <- mkReg(tagged Invalid);
 
-    Reg#(FuncUnitCount)                             funcUnitCount <- mkReg(0);
+    Reg#(Vector#(RobNum, Bool))                     execValid <- mkReg(replicate(False));
+    RegFile#(Bit#(TLog#(RobNum)), InstResult)      instResult <- mkRegFileFull();
 
-    Reg#(ClockCounter)                                   clockReg <- mkReg(0);
-    Reg#(ClockCounter)                                   modelReg <- mkReg(0);
+    FIFO#(Maybe#(ExecEntry))                        execEntry <- mkFIFO();
 
-    Reg#(Maybe#(KillData))                            killDataReg <- mkReg(tagged Invalid);
-
-    rule clockCount(True);
-        clockReg <= clockReg + 1;
+    rule fillInstResult(True);
+        match {.token, .res} <- fpExeResp.receive();
+        execValid[token.timep_info.scratchpad] <= True;
+        instResult.upd(token.timep_info.scratchpad, res);
+        $display("got something: %0d %0d", token.index, token.timep_info.scratchpad);
     endrule
 
-    rule execute(True);
-        Maybe#(KillData) newKillData = tagged Invalid;
-        Maybe#(ExecEntry) recvMaybe = tagged Invalid;
+    rule fillExecEntry(True);
         if(funcUnitCount == fromInteger(valueOf(TSub#(FuncUnitNum,1))))
-            recvMaybe <- memPort.receive();
+        begin
+            Maybe#(ExecEntry) recvMaybe <- memPort.receive();
+            execEntry.enq(recvMaybe);
+        end
         else
-            recvMaybe <- execPort.receive();
+        begin
+            Maybe#(ExecEntry) recvMaybe <- execPort.receive();
+            execEntry.enq(recvMaybe);
+        end
+        $display("fill something");
+    endrule
+
+    rule execute(!isValid(execEntry.first()) || execValid[(validValue(execEntry.first())).robTag]);
+        Maybe#(KillData) newKillData = tagged Invalid;
+        Maybe#(ExecEntry) recvMaybe = execEntry.first();
+        execEntry.deq();
 
         case (recvMaybe) matches
             tagged Valid .recv:
             begin
-                match {.token, .res} <- fpExeResponse.receive();
-                fpMemReq.send(tuple2(token, ?));
+                execValid[recv.robTag] <= False;
+                InstResult res = instResult.sub(truncate(recv.robTag));
+                // match {.token, .res} <- fpExeResp.receive();
+                $display("adding %0d %0d %0d %0d", recv.robTag, recv.token.index, funcUnitCount);
+                //token.timep_info.scratchpad = truncate(recv.robTag);
+                fpMemReq.send(tuple2(recv.token, ?));
 
                 Bool finished = case (res) matches
                                     tagged RTerminate .status: return True;
@@ -61,7 +79,7 @@ module [HASim_Module] mkPipe_Execute();
                                 endcase;
                 Addr takenAddr = case (res) matches
                                      tagged RBranchTaken .addr: return addr;
-                                     default: return (recv.addr + 4);
+                                     default: return recv.addr + 4;
                                  endcase;
 
                 ExecResult execResult = ExecResult{token: recv.token,
@@ -104,6 +122,7 @@ module [HASim_Module] mkPipe_Execute();
             end
             tagged Invalid:
             begin
+                
                 execResultPort.send(tagged Invalid);
                 newKillData = killDataReg;
             end
@@ -111,8 +130,6 @@ module [HASim_Module] mkPipe_Execute();
 
         if(funcUnitCount == fromInteger(valueOf(TSub#(FuncUnitNum, 1))))
         begin
-            modelReg <= modelReg + 1;
-            $display("5 0 %0d %0d", clockReg, modelReg);
             funcUnitCount <= 0;
             killDataReg   <= tagged Invalid;
             killDecodePort.send(newKillData);
@@ -124,7 +141,7 @@ module [HASim_Module] mkPipe_Execute();
         else
         begin
             if(funcUnitCount == 0)
-                $display("5 1 %0d %0d", clockReg, modelReg);
+                $display("3 %0d", $time);
             funcUnitCount <= funcUnitCount + 1;
             killDataReg   <= newKillData;
         end

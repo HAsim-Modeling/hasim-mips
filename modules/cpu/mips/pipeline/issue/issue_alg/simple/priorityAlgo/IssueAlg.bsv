@@ -26,17 +26,6 @@ typedef enum {IntIssue, IntIssueDone} IntIssueState deriving (Bits, Eq);
 typedef enum {MemIssue, MemIssueDone} MemIssueState deriving (Bits, Eq);
 typedef enum {Dispatched, Issued, Free} BusyState deriving (Bits, Eq);
 
-/* Description of module:
- * It has two issue queues: intQ and memQ
- * When killInitialize is called, it changes its state to a Kill state, in which whenever killNext is called,
- * it issues the next instruction to be killed every cycle in the queues (or invalid of the instruction scanned at that cycle is not to be killed)
- * It first scans intQ and then memQ
- * After it ends scnaning, doneKill() returns True
- * reqIssueVals is the triggering step for collecting instructions to be issued to the EXE unit (in timing model)
- * Basically it changes state of intIssueState and memIssueState to IntIssue and MemIssue respectively.
- * Now in these states, the rules intIssueCollect and memIssueCollect fire and fill up the issueBuffer, after which it 
- * returns canIssue() as True
- */
 module mkIssueAlg(IssueAlg);
     Vector#(FuncUnitNum, Reg#(Maybe#(ExecEntry))) issueVals <- replicateM(mkReg(tagged Invalid));
     IssueQ#(IntQNum)                                   intQ <- mkIssueQ();
@@ -70,7 +59,9 @@ module mkIssueAlg(IssueAlg);
     function isAllReady(IssueEntry issue) = issue.src1Ready && issue.src2Ready;
 
     function ExecEntry getExecEntry(IssueEntry issue);
-        return ExecEntry{token: issue.token, addr: issue.addr, robTag: issue.robTag,
+        TIMEP_TokInfo tokInfo = TIMEP_TokInfo{epoch: issue.token.timep_info.epoch, scratchpad: truncate(issue.robTag)};
+        Token newToken = Token{index: issue.token.index, timep_info: tokInfo, funcp_info: issue.token.funcp_info};
+        return ExecEntry{token: newToken, addr: issue.addr, robTag: issue.robTag,
                          pRName: issue.dest, issueType: issue.issueType, branchIndex: issue.branchIndex, pred: issue.pred, predAddr: issue.predAddr};
     endfunction
 
@@ -96,7 +87,6 @@ module mkIssueAlg(IssueAlg);
             begin
                 if(isAllReady(newIssueEntry))
                 begin
-                    $display("Issue ready: %0d %0d %0d %0d %0d", newIssueEntry.dest, newIssueEntry.src1, newIssueEntry.src2, newIssueEntry.src1Ready, newIssueEntry.src2Ready);
                     Bit#(TLog#(FuncUnitNum)) index = case (validEntry.issueType) matches
                                                           J      : 3;
                                                           JAL    : 3;

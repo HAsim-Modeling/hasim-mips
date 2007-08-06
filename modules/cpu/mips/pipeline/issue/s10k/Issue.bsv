@@ -45,18 +45,10 @@ module [HASim_Module] mkPipe_Issue();
 
     Reg#(Bool)                                modelCycleBegin <- mkReg(True);
 
-    Reg#(ClockCounter)                               clockReg <- mkReg(0);
-    Reg#(ClockCounter)                               modelReg <- mkReg(0);
-
     Stat                                               issues <- mkStatCounter("Issues");
 
-    rule clockCount(True);
-        clockReg <= clockReg + 1;
-        $display("clockReg: %0d", clockReg);
-    endrule
-
     rule synchronize(killState == KillDone && issueState == IssueDone && dispatchState == DispatchDone);
-        modelReg <= modelReg + 1;
+        $display("2 %0d", $time);
 
         let pseudoIntIssueCount = fromInteger(valueOf(TSub#(IntQNum, FetchWidth)));
         let pseudoMemIssueCount = fromInteger(valueOf(TSub#(MemQNum, FetchWidth)));
@@ -78,7 +70,6 @@ module [HASim_Module] mkPipe_Issue();
         begin
             issueAlg.killInitialize(validValue(newKillToken));
             killState <= Kill;
-            $display("issue_kill_start: %0d %0d", (validValue(newKillToken)).index, clockReg);
         end
         else
         begin
@@ -101,7 +92,6 @@ module [HASim_Module] mkPipe_Issue();
         end
         else
         begin
-            $display("issue_kill_finish: %0d", clockReg);
             freeListCount <= issueAlg.getFreeListAdd();
             killState     <= KillContinue;
             issueState    <= Issue;
@@ -113,34 +103,29 @@ module [HASim_Module] mkPipe_Issue();
     endrule
 
     rule issue(issueState == Issue && issueAlg.canIssue());
-        if(funcUnitPos == 0)
-            $display("issue_issue_start: %0d", clockReg);
         funcUnitPos    <= funcUnitPos + 1;
         if(funcUnitPos == fromInteger(valueOf(TSub#(FuncUnitNum,1))))
-        begin
-            $display("issue_issue_finish: %0d", clockReg);
             issueState <= IssueDone;
-        end
 
-        let recv <- (issueAlg.respIssueVals[funcUnitPos]).get();
+        let recvMaybe <- (issueAlg.respIssueVals[funcUnitPos]).get();
         if(funcUnitPos == fromInteger(valueOf(TSub#(FuncUnitNum,1))))
-            memPort.send(recv);
+            memPort.send(recvMaybe);
         else
-            execPort.send(recv);
-        if(isValid(recv))
-        begin
-            issues.incr();
-            fpExePort.send(tuple2((validValue(recv)).token, ?));
-        end
+            execPort.send(recvMaybe);
+        case (recvMaybe) matches
+            tagged Valid .recv:
+            begin
+                $display("issue: %0d %0d %0d", recv.robTag, recv.token.index, funcUnitPos);
+                issues.incr();
+                fpExePort.send(tuple2(recv.token, ?));
+            end
+        endcase
     endrule
 
     rule dispatch(dispatchState == Dispatch && issueAlg.canIssue());
         dispatchCount <= dispatchCount + 1;
-        if(dispatchCount == 0)
-            $display("issue_dispatch_start: %0d", clockReg);
         if(dispatchCount == fromInteger(valueOf(TSub#(FetchWidth,1))))
         begin
-            $display("issue_dispatch_finish: %0d", clockReg);
             dispatchState <= DispatchDone;
             killState <= KillDone;
         end
@@ -150,7 +135,6 @@ module [HASim_Module] mkPipe_Issue();
             tagged Valid .recv:
             begin
                 match{.token, .dep} <- fpDecodeResp.receive();
-                $display("issue got : %0d %0d", token.index, modelReg-1);
                 IssueEntry issueEntry = IssueEntry{token: recv.token,
                                                    addr: recv.addr,
                                                    issueType: recv.issueType,
@@ -166,7 +150,6 @@ module [HASim_Module] mkPipe_Issue();
 
                 if(killState == KillContinue)
                 begin
-                    $display("killed now");
                     fpExeKill.send(token);
                     case (dep.dep_dest) matches
                         tagged Valid {.regDest, .dest}:
@@ -179,8 +162,6 @@ module [HASim_Module] mkPipe_Issue();
                     issueAlg.dispatch(issueEntry);
                 end
             end
-            tagged Invalid:
-                $display("issue got invalid %0d", modelReg-1);
         endcase
     endrule
 endmodule

@@ -1,13 +1,15 @@
 import hasim_common::*;
 import hasim_isa::*;
 
-import Vector::*;
-
 import hasim_cpu_types::*;
 import hasim_cpu_parameters::*;
 
 typedef enum {Fetch, FetchDone} FetchState deriving (Bits, Eq);
 
+/*
+ * synchronize: initializes state for 1 model cycle and sends token request for the first instruction
+ * fetch: sends token requests for the other instructions in the model cycle and receives token responses; sends fetch requests
+ */
 module [HASim_Module] mkPipe_Fetch();
     Connection_Send#(Bit#(8))              fpTokReq <- mkConnection_Send("fp_tok_req");
     Connection_Receive#(Token)            fpTokResp <- mkConnection_Receive("fp_tok_resp");
@@ -23,20 +25,13 @@ module [HASim_Module] mkPipe_Fetch();
     Reg#(Addr)                                   pc <- mkReg(pcStart);
     Reg#(FetchCount)                     totalCount <- mkReg(?);
     Reg#(FetchCount)                       fetchPos <- mkReg(?);
-
     Reg#(Bool)                     fillFetchInvalid <- mkReg(False);
-
-    Reg#(ClockCounter)                     clockReg <- mkReg(0);
-    Reg#(ClockCounter)                     modelReg <- mkReg(0);
 
     Reg#(TIMEP_Epoch)                         epoch <- mkReg(0);
 
-    rule clockCount(True);
-        clockReg <= clockReg + 1;
-    endrule
-
     rule synchronize(fetchState == FetchDone);
-        modelReg <= modelReg + 1;
+        $display("0 %0d", $time);
+
         Maybe#(Addr)    predictedAddr <- predictedAddrPort.receive();
         Maybe#(Addr)   mispredictAddr <- mispredictAddrPort.receive();
         Maybe#(FetchCount) fetchCount <- fetchCountPort.receive();
@@ -47,13 +42,7 @@ module [HASim_Module] mkPipe_Fetch();
             epoch <= epoch + 1;
         end
         else if(isValid(predictedAddr))
-        begin
             pc <= validValue(predictedAddr);
-        end
-        else
-        begin
-            pc <= pc;
-        end
 
         FetchCount newCount = fromMaybe(fromInteger(valueOf(FetchWidth)), fetchCount);
         totalCount   <= newCount;
@@ -62,12 +51,9 @@ module [HASim_Module] mkPipe_Fetch();
         fetchState <= Fetch;
 
         if(newCount == 0)
-        begin
             fillFetchInvalid <= True;
-        end
         else
         begin
-            $display("0 1 %0d %0d", clockReg, modelReg);
             fpTokReq.send(17);
             fillFetchInvalid <= False;
         end
@@ -86,15 +72,13 @@ module [HASim_Module] mkPipe_Fetch();
             fpFetReq.send(tuple2(token, pc));
             instAddrPort.send(tagged Valid pc);
 
-            pc        <= pc + 4;
+            pc <= pc + 4;
             if(fetchPos + 1 != totalCount)
                 fpTokReq.send(17);
             else
                 fillFetchInvalid <= True;
         end
         else
-        begin
             instAddrPort.send(tagged Invalid);
-        end
     endrule
 endmodule
