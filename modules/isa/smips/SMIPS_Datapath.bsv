@@ -28,7 +28,8 @@ module [HASim_Module] mkISA_Datapath
 
   rule isa_exec (True);
   
-    match {.inst, .addr, .v1, .v2} <- link_fp.getReq();
+    match {.inst, .addr, .v1, .v2} = link_fp.getReq();
+    link_fp.deq();
 
     Value src1 = src1IsR0(inst) ? 0 : v1;
     Value src2 = src2IsR0(inst) ? 0 : v2;

@@ -148,7 +148,9 @@ module [HASim_Module] mkPipe_Decode#(File debug_file, Tick curTick)
 
   rule decodeResp (stall_count == 0 && in_flight);
   
-    match {.tok, .deps} <- fp_dec_resp.receive();
+    match {.tok, .deps} = fp_dec_resp.receive();
+    fp_dec_resp.deq();
+    
     $fdisplay(debug_file, "[%d]:DEC:RSP: %0d", curTick, tok.index);
 
     Bit#(2) new_stall = stallLength(deps);

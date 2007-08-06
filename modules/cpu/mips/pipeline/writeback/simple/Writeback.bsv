@@ -63,7 +63,9 @@ module [HASim_Module] mkPipe_Writeback#(File debug_file, Tick curTick)
    
   rule gcoReq (in_flight);
   
-    match {.tok, .*} <- fp_lco_resp.receive();
+    match {.tok, .*} = fp_lco_resp.receive();
+    fp_lco_resp.deq();
+    
     $fdisplay(debug_file, "[%d]:LCO:RSP: %0d", curTick, tok.index);
     $fdisplay(debug_file, "[%d]:GCO:REQ: %0d", curTick, tok.index);
     fp_gco_req.send(tuple2(tok, ?));
@@ -71,7 +73,9 @@ module [HASim_Module] mkPipe_Writeback#(File debug_file, Tick curTick)
   
   rule gcoResp (in_flight);
   
-    match {.tok, .*}  <- fp_gco_resp.receive();
+    match {.tok, .*}  = fp_gco_resp.receive();
+    fp_gco_resp.deq();
+    
     $fdisplay(debug_file, "[%d]:GCO:RSP: %0d", curTick, tok.index);
     
     event_wb.recordEvent(tagged Valid zeroExtend(tok.index));

@@ -83,7 +83,9 @@ module [HASim_Module] mkPipe_Execute#(File debug_file, Tick curTick)
 
   rule executeResp (in_flight);
   
-    match {.tok, .res} <- fp_exe_resp.receive();
+    match {.tok, .res} = fp_exe_resp.receive();
+    fp_exe_resp.deq();
+    
     $fdisplay(debug_file, "[%d]:EXE:RSP: %0d", curTick, tok.index);
     
     let pred_taken = tok.timep_info.scratchpad[0];

@@ -1,7 +1,4 @@
 
-[Hasim functional partition memstate software]
-Packagehint=hasim
-File=modules/functional/common/hasim_funcp_memstate.awb
 
 [Hasim simple controller]
 Packagehint=hasim
@@ -38,12 +35,7 @@ hasim_system=Hasim - Hardware (fpga) based system
 hasim_controller=Hasim simple controller
 hasim_common=Hasim Common Library
 
-[Hasim functional partition storebuffer software]
-Packagehint=hasim
-File=modules/functional/common/hasim_funcp_storebuffer.awb
 
-[Hasim functional partition memstate software/Requires]
-hasim_funcp_storebuffer=Hasim functional partition storebuffer software
 
 [Hasim functional partition memstate interface]
 File=modules/functional/common/hasim_funcp_memstate_ifc.awb
@@ -91,10 +83,9 @@ Packagehint=hasim
 [Hasim functional partition semantic model/Requires]
 hasim_isa_datapath=Hasim - SMIPS Simple Datapath
 hasim_funcp_memstate_ifc=Hasim functional partition memstate interface
-hasim_funcp_memstate=Hasim functional partition memstate software
+hasim_funcp_memstate=Hasim functional partition memstate sequenced
 hasim_funcp_tokstate=Hasim functional partition token state
 hasim_funcp_freelist=Hasim functional partition freelist
-
 
 [5-stage pipeline Writeback]
 File=modules/cpu/mips/pipeline/writeback/simple/hasim_simple_writeback.awb
@@ -144,3 +135,14 @@ Packagehint=hasim
 
 [Hasim simple controller/Requires]
 hasim_local_controller=Hasim local controller
+
+[Hasim functional partition storebuffer sequenced]
+File=modules/functional/common/hasim_funcp_storebuffer_sequenced.awb
+Packagehint=hasim
+
+[Hasim functional partition memstate sequenced]
+File=modules/functional/common/hasim_funcp_memstate_sequenced.awb
+Packagehint=hasim
+
+[Hasim functional partition memstate sequenced/Requires]
+hasim_funcp_storebuffer=Hasim functional partition storebuffer sequenced

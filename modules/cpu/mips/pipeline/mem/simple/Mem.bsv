@@ -104,7 +104,9 @@ module [HASim_Module] mkPipe_Mem#(File debug_file, Tick curTick)
 
   rule finishMem (state == MEM_Finish);
   
-    match {.tok, .*} <- fp_mem_resp.receive();
+    match {.tok, .*} = fp_mem_resp.receive();
+    fp_mem_resp.deq();
+    
     $fdisplay(debug_file, "[%d]:RSP:MEM: %0d", curTick, tok.index);
     
     let isHit = True; //(lfsr.value < fromInteger(mem_hit_chance)); //Currently bugged

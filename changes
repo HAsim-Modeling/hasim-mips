@@ -2703,3 +2703,39 @@ Directory modules/cpu/mips/pipeline/writeback/superscalar
  Commit.bsv                Locally Modified          139 
 
 Added a reorder buffer in the decode stage and the execute stage. The FuncP is not in-order at these stages ( and i was simply luck to have not been hit by this before. I caught this when I changed the schedule a bit, making commit go more in parallel ). Now commit goes in parallel with the decode, which is not much because commit was never in the critical path, but it sure helped me catch a bug where I assumed FuncP is completely in-order
+
+----------
+mpellaue    Date: Mon Aug  6 18:19:48 EDT 2007  CSN: CSN-hasim-mips-141
+                  Mon Aug  6 22:19:48 UTC 2007
+
+
+Directory config/pm/hasim-mips/semantic-model
+ 5stage_semantic.apm       Locally Modified          140 
+
+Directory modules/cpu/mips
+ CPU.bsv                   Locally Modified          140 
+
+Directory modules/cpu/mips/pipeline/execute/simple
+ Execute.bsv               Locally Modified          140 
+
+Directory modules/cpu/mips/pipeline/decode/simple
+ Decode.bsv                Locally Modified          140 
+
+Directory modules/cpu/mips/pipeline/fetch/simple
+ Fetch.bsv                 Locally Modified          140 
+
+Directory modules/cpu/mips/pipeline/writeback/simple
+ Writeback.bsv             Locally Modified          140 
+
+Directory modules/cpu/mips/pipeline/mem/simple
+ Mem.bsv                   Locally Modified          140 
+
+Directory modules/isa/smips
+ ISA.bsv                   Locally Modified          140 
+ SMIPS_Datapath.bsv        Locally Modified          140 
+
+
+Changed the 5-stage model to reflect the new Connections interface.
+
+Michael P.
+

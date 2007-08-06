@@ -3,7 +3,7 @@ import LFSR::*;
 import RegFile::*;
 import Vector::*;
 
-
+ 
 import hasim_common::*;
 import hasim_isa::*;
 
@@ -157,7 +157,8 @@ module [HASim_Module] mkPipe_Fetch#(File debug_file, Tick curTick)
    
    rule fetchInst (state == FET_GetInst);
 
-     let tok <- fp_tok_resp.receive();
+     let tok = fp_tok_resp.receive();
+     fp_tok_resp.deq();
 
      $fdisplay(debug_file, "[%d]:TOK:RSP: %0d", curTick, tok.index);
      
@@ -176,7 +177,9 @@ module [HASim_Module] mkPipe_Fetch#(File debug_file, Tick curTick)
 
    rule finishFetch (state == FET_Finish);
    
-     match {.tok, .inst} <- fp_fet_resp.receive();
+     match {.tok, .inst} = fp_fet_resp.receive();
+     fp_fet_resp.deq();
+     
      $fdisplay(debug_file, "[%d]:FET:RSP: %0d:0x%h", curTick, tok.index, inst);
      
      let pred_taken <- branch_pred.getPredResp();

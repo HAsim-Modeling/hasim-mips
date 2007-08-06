@@ -664,9 +664,9 @@ function Bool isBranch(Inst i);
 
     tagged JR    .it : return True;
 
-    tagged JAL   .it : return False; //Don't snapshot JAL instructions
+    tagged JAL   .it : return True;
 
-    tagged JALR  .it : return False;
+    tagged JALR  .it : return True;
     default:           return False;
   endcase;
 endfunction

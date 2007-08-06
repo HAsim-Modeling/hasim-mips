@@ -13,7 +13,7 @@ import hasim_pipe_writeback::*;
 module [HASim_Module] mkCPU 
     //interface:
                 ();
-  
+   
   let debug_file <- mkReg(InvalidFile);
   Reg#(Tick) curTick <- mkReg(0);
 
