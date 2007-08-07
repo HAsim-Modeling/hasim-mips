@@ -134,7 +134,8 @@ module [HASim_Module] mkPipe_Issue();
         case (recvMaybe) matches
             tagged Valid .recv:
             begin
-                match{.token, .dep} <- fpDecodeResp.receive();
+                match{.token, .dep} = fpDecodeResp.receive();
+		fpDecodeResp.deq();
                 IssueEntry issueEntry = IssueEntry{token: recv.token,
                                                    addr: recv.addr,
                                                    issueType: recv.issueType,

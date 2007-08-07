@@ -59,7 +59,9 @@ module [HASim_Module] mkFUNCP_ExecuteAlg ();
   
     debug_rule("handleExec");
 
-    let tup <- link_exe.getReq();
+    let tup = link_exe.getReq();
+    link_exe.deq();
+    
     match {.t, {.addr, .dec}, .*} = tup;
 
     PRName va = ?;
@@ -113,8 +115,11 @@ module [HASim_Module] mkFUNCP_ExecuteAlg ();
     Maybe#(Addr) branchResult = Nothing;
 
      //Try to get the values from the Bypass unit
-     Maybe#(Value) mva <- link_read1.getResp();
-     Maybe#(Value) mvb <- link_read2.getResp();
+     Maybe#(Value) mva = link_read1.getResp();
+     link_read1.deq();
+
+     Maybe#(Value) mvb = link_read2.getResp();
+     link_read2.deq();
 
      //Actually do the execute
      case (dec) matches

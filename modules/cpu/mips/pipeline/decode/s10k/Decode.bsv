@@ -97,7 +97,8 @@ module [HASim_Module] mkPipe_Decode();
     endrule
 
     rule memCompBuffFill(True);
-        match {.token, .empty} <- fpMemResp.receive();
+        match {.token, .empty} = fpMemResp.receive();
+	fpMemResp.deq();
         memCompBuff[token.timep_info.scratchpad] <= True;
     endrule
 
@@ -150,7 +151,8 @@ module [HASim_Module] mkPipe_Decode();
         case (addrMaybe) matches
             tagged Valid .addr:
             begin
-                match {.token, .inst} <- fpFetResp.receive();
+                match {.token, .inst} = fpFetResp.receive();
+		fpFetResp.deq();
                 instBufferCount       <= instBufferCount + 1;
                 instBuffer.enq(InstInfo{token: token, addr: addr, inst: inst});
                 branchPred.getPredReq(token, addr);

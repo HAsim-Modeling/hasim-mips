@@ -47,7 +47,9 @@ module [HASim_Module] mkFUNCP_FetchAlg#(File debug_log, Tick curCC) ();
   
     debug_rule("handleFetch");
     
-    Tuple3#(Token, void, Addr) tup <- link_fet.getReq();
+    Tuple3#(Token, void, Addr) tup = link_fet.getReq();
+    link_fet.deq();
+    
     match {.t, .*, .a} = tup;
     
     link_to_imem.makeReq(a);
@@ -63,7 +65,8 @@ module [HASim_Module] mkFUNCP_FetchAlg#(File debug_log, Tick curCC) ();
   
     debug_rule("getMemResp");
     
-    PackedInst resp <- link_to_imem.getResp();
+    PackedInst resp = link_to_imem.getResp();
+    link_to_imem.deq();
     
     match {.tok, .addr} = waitingQ.first();
     waitingQ.deq();

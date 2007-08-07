@@ -16,13 +16,15 @@ module [HASim_Module] mkPipe_Writeback();
         case (tokenMaybe) matches
             tagged Valid .token:
             begin
-                let tok <- fpLcoResp.receive();
+                let tok = fpLcoResp.receive();
+		fpLcoResp.deq();
                 fpGcoReq.send(tok);
             end
         endcase
     endrule
 
     rule globalCommitAck(True);
-        let ack <- fpGcoResp.receive();
+        let ack = fpGcoResp.receive();
+	fpGcoResp.deq();
     endrule
 endmodule

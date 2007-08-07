@@ -145,7 +145,8 @@ module [HASim_Module] mkFUNCP_ExecuteAlg#(File debug_log, Tick curCC) ();
   
     debug_rule("handleExec");
 
-    match {.tok, {.addr, .dec}, .*} <- link_exe.getReq();
+    match {.tok, {.addr, .dec}, .*} = link_exe.getReq();
+    link_exe.deq();
     
     //Might as well add 4 to PC now.
     Addr   addr_plus_4 = addr + 4;
@@ -178,8 +179,10 @@ module [HASim_Module] mkFUNCP_ExecuteAlg#(File debug_log, Tick curCC) ();
     match {.tok, {.addr_plus_4, .dec}, .*} = waitingQ.first();
 
     //Try to get the values from the Bypass unit
-    Maybe#(Value) mva <- link_read1.getResp();
-    Maybe#(Value) mvb <- link_read2.getResp();
+    Maybe#(Value) mva = link_read1.getResp();
+    link_read1.deq();
+    Maybe#(Value) mvb = link_read2.getResp();
+    link_read2.deq();
 
     InstResult res = ?;
     ExecedInst einst = ?;

@@ -61,7 +61,8 @@ module [HASim_Module] mkFUNCP_DecodeAlg ();
     
     Tuple3#(Token, Tuple2#(Addr, Inst), void) 
     //...
-    tup <- link_dec.getReq();
+    tup = link_dec.getReq();
+    link_dec.deq();
     
     match {.t, {.a, .inst}, .*} = tup;
     
@@ -103,11 +104,15 @@ module [HASim_Module] mkFUNCP_DecodeAlg ();
     DepInfo depinfo = ?;
     DecodedInst decinst = ?;
     
-    PRName pra <- link_lookup1.getResp();
-    PRName prb <- link_lookup2.getResp();
+    PRName pra = link_lookup1.getResp();
+    link_lookup1.deq();
+
+    PRName prb = link_lookup2.getResp();
+    link_lookup2.deq();
     
     
-    let prd <- link_mapping.getResp();
+    let prd = link_mapping.getResp();
+    link_mapping.deq();
     
     //Actually do the decode
     case (inst) matches

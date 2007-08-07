@@ -65,7 +65,8 @@ module [HASim_Module] mkPipe_Fetch();
             fetchState <= FetchDone;
         if(!fillFetchInvalid)
         begin
-            Token token <- fpTokResp.receive();
+            Token token = fpTokResp.receive();
+	    fpTokResp.deq();
             token.timep_info = TIMEP_TokInfo{epoch: epoch,
                                              scratchpad: 0};
 

@@ -31,7 +31,8 @@ module [HASim_Module] mkPipe_Execute();
     FIFO#(Maybe#(ExecEntry))                        execEntry <- mkFIFO();
 
     rule fillInstResult(True);
-        match {.token, .res} <- fpExeResp.receive();
+        match {.token, .res} = fpExeResp.receive();
+	fpExeResp.deq();
         execValid[token.timep_info.scratchpad] <= True;
         instResult.upd(token.timep_info.scratchpad, res);
         $display("got something: %0d %0d", token.index, token.timep_info.scratchpad);

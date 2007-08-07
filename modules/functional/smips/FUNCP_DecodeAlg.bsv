@@ -231,7 +231,8 @@ module [HASim_Module] mkFUNCP_DecodeAlg#(File debug_log, Tick curCC) ();
     
     Tuple3#(Token, Tuple2#(Addr, PackedInst), void) 
     //...
-    tup <- link_dec.getReq();
+    tup = link_dec.getReq();
+    link_dec.deq();
     
     match {.t, {.a, .pinst}, .*} = tup;
     
@@ -264,7 +265,8 @@ module [HASim_Module] mkFUNCP_DecodeAlg#(File debug_log, Tick curCC) ();
     DecodedInst decinst = ?;
     Action dbg = noAction;
     
-    match {.prd, .pra, .prb} <- link_mapping.getResp();
+    match {.prd, .pra, .prb} = link_mapping.getResp();
+    link_mapping.deq();
     
     //Actually do the decode
     case (inst) matches

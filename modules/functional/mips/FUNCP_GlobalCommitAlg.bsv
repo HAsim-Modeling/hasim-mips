@@ -39,7 +39,8 @@ module [HASim_Module] mkFUNCP_GlobalCommitAlg#(File debug_log, Tick curCC) ();
   
     debug_rule("handleGCO");
     
-    match {.tok, .inf, .*} <- link_gco.getReq();
+    match {.tok, .inf, .*} = link_gco.getReq();
+    link_gco.deq();
     
     case (inf)
       WStore:

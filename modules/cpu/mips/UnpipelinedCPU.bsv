@@ -182,7 +182,9 @@ module [HASim_Module] mkCPU
 	    debug_else("!madeReq");
 	    
 	    //Get the response
-	    let tok <- link_to_tok.getResp();
+	    let tok = link_to_tok.getResp();
+	    link_to_tok.deq();
+	    
 	    debug(2, $display("[%d] TOK Responded with token %0d.", hostCC, tok.index));
 	    
 	    cur_tok <= tok;
@@ -210,7 +212,9 @@ module [HASim_Module] mkCPU
 	    debug_else("!madeReq");
 	    
 	    //Get the response
-            match {.tok, .inst} <- link_to_fet.getResp();
+            match {.tok, .inst} = link_to_fet.getResp();
+	    link_to_fet.deq();
+
 	    debug(2, $display("[%d] FET Responded with token %0d.", hostCC, tok.index));
 	    
 	    if (tok.index != cur_tok.index) $display ("FET ERROR: Token Mismatch. Expected: %0d Received: %0d", cur_tok.index, tok.index);
@@ -237,7 +241,9 @@ module [HASim_Module] mkCPU
 	    debug_else("!madeReq");
 	    
  	    //Get the response
-            match {.tok, .deps} <- link_to_dec.getResp();
+            match {.tok, .deps} = link_to_dec.getResp();
+	    link_to_dec.deq();
+
 	    debug(2, $display("[%d] DEC Responded with token %0d.", hostCC, tok.index));
 	    
 	    if (tok.index != cur_tok.index) $display ("DEC ERROR: Token Mismatch. Expected: %0d Received: %0d", cur_tok.index, tok.index);
@@ -262,7 +268,9 @@ module [HASim_Module] mkCPU
 	    debug_else("!madeReq");
 	    
  	    //Get the response
-            match {.tok, .res} <- link_to_exe.getResp();
+            match {.tok, .res} = link_to_exe.getResp();
+	    link_to_exe.deq();
+
 	    debug(2, $display("[%d] EXE Responded with token %0d.", hostCC, tok.index));
 	    
 	    if (tok.index != cur_tok.index) $display ("EXE ERROR: Token Mismatch. Expected: %0d Received: %0d", cur_tok.index, tok.index);
@@ -312,7 +320,9 @@ module [HASim_Module] mkCPU
 	    debug_else("!madeReq");
 	    
  	    //Get the response
-	    match {.tok, .*} <- link_to_mem.getResp();
+	    match {.tok, .*} = link_to_mem.getResp();
+	    link_to_mem.deq();
+
 	    debug(2, $display("[%d] MEM Responded with token %0d.", hostCC, tok.index));
 	    
 	    if (tok.index != cur_tok.index) $display ("MEM ERROR: Token Mismatch. Expected: %0d Received: %0d", cur_tok.index, tok.index);
@@ -340,7 +350,9 @@ module [HASim_Module] mkCPU
 	    
  	    //Get the response
   
-            match {.tok, .*} <- link_to_lco.getResp();
+            match {.tok, .*} = link_to_lco.getResp();
+	    link_to_lco.deq();
+
 	    debug(2, $display("[%d] LCO Responded with token %0d.", hostCC, tok.index));
 	    
 	    if (tok.index != cur_tok.index) $display ("LCO ERROR: Token Mismatch. Expected: %0d Received: %0d", cur_tok.index, tok.index);
@@ -367,7 +379,9 @@ module [HASim_Module] mkCPU
 	    debug_else("!madeReq");
 	    
  	    //Get the response
-            match {.tok, .*} <- link_to_gco.getResp();
+            match {.tok, .*} = link_to_gco.getResp();
+	    link_to_gco.deq();
+
 	    debug(2, $display("[%d] GCO Responded with token %0d.", hostCC, tok.index));
 	    
 	    if (tok.index != cur_tok.index) $display ("GCO ERROR: Token Mismatch. Expected: %0d Received: %0d", cur_tok.index, tok.index);

@@ -42,7 +42,8 @@ module [HASim_Module] mkFUNCP_LocalCommitAlg#(File debug_log, Tick curCC) ();
   
     debug_rule("handleLCO");
     
-    match {.t, .wbinf, .*} <- link_lco.getReq();
+    match {.t, .wbinf, .*} = link_lco.getReq();
+    link_lco.deq();
     
     link_freePReg.send(t);
 

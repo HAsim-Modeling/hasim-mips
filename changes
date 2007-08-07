@@ -2739,3 +2739,45 @@ Changed the 5-stage model to reflect the new Connections interface.
 
 Michael P.
 
+
+----------
+pellauer    Date: Tue Aug  7 15:45:15 EDT 2007  CSN: CSN-hasim-mips-142
+                  Tue Aug  7 19:45:15 UTC 2007
+
+
+Directory modules/functional/toymips
+ FUNCP_ExecuteAlg.bsv      Locally Modified          141 
+ FUNCP_DecodeAlg.bsv       Locally Modified          141 
+
+Directory modules/functional/mips
+ FUNCP_FetchAlg.bsv        Locally Modified          141 
+ FUNCP_GlobalCommitAlg.bsv Locally Modified          141 
+ FUNCP_MemAlg.bsv          Locally Modified          141 
+ FUNCP_LocalCommitAlg.bsv  Locally Modified          141 
+
+Directory modules/functional/smips
+ FUNCP_ExecuteAlg.bsv      Locally Modified          141 
+ FUNCP_DecodeAlg.bsv       Locally Modified          141 
+
+Directory modules/cpu/mips/pipeline/execute/superscalar
+ Execute.bsv               Locally Modified          141 
+
+Directory modules/cpu/mips/pipeline/decode/s10k
+ Decode.bsv                Locally Modified          141 
+
+Directory modules/cpu/mips/pipeline/issue/s10k
+ Issue.bsv                 Locally Modified          141 
+
+Directory modules/cpu/mips/pipeline/fetch/superscalar
+ Fetch.bsv                 Locally Modified          141 
+
+Directory modules/cpu/mips/pipeline/writeback/superscalar
+ Commit.bsv                Locally Modified          141 
+
+Directory modules/cpu/mips
+ UnpipelinedCPU.bsv        Locally Modified          141 
+
+
+Changed everything over to the new connections interface.
+
+Michael P.

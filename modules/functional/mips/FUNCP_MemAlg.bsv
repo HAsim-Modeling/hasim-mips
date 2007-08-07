@@ -55,7 +55,8 @@ module [HASim_Module] mkFUNCP_MemAlg#(File debug_log, Tick curCC) ();
     
     debug_rule("doReq");
     
-    match {.t, .i, .*} <- link_mem.getReq();
+    match {.t, .i, .*} = link_mem.getReq();
+    link_mem.deq();
     
     case (i) matches
       tagged ELoad {addr: .a, pdest: .prd}:
@@ -119,7 +120,8 @@ module [HASim_Module] mkFUNCP_MemAlg#(File debug_log, Tick curCC) ();
 	
 	  debug_case("i", "ELoad");
 	  
-          let resp <- link_to_dmem.getResp();
+          let resp = link_to_dmem.getResp();
+	  link_to_dmem.deq();
 	  
           Value v = case (resp) matches
                       tagged LdResp .val: return val;
