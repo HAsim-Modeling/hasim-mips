@@ -2781,3 +2781,61 @@ Directory modules/cpu/mips
 Changed everything over to the new connections interface.
 
 Michael P.
+
+----------
+mpellaue    Date: Fri Aug 10 18:01:53 EDT 2007  CSN: CSN-hasim-mips-143
+                  Fri Aug 10 22:01:53 UTC 2007
+
+
+Directory config/pm/hasim-mips/smips-5stage
+ smips_5stage_barrier.apm  Locally Added               0 
+
+Directory config/pm/hasim-mips/submodels/funcp
+ smips_funcp_new.apm       Locally Added               0 
+
+Directory config/pm/hasim-mips/s10k
+ s10k_funcp.apm            Locally Modified          142 
+
+Directory modules/cpu/mips/pipeline/execute
+ simple_barrier/           Locally Added               0 
+
+Directory modules/cpu/mips/pipeline/execute/simple_barrier
+ hasim_execute_barrier.awb Locally Added               0 
+ Execute.bsv               Locally Added               0 
+
+Directory modules/cpu/mips/pipeline/decode
+ simple_barrier/           Locally Added               0 
+
+Directory modules/cpu/mips/pipeline/decode/simple_barrier
+ hasim_decode_barrier.awb  Locally Added               0 
+ Decode.bsv                Locally Added               0 
+
+Directory modules/cpu/mips/pipeline/fetch
+ simple_barrier/           Locally Added               0 
+
+Directory modules/cpu/mips/pipeline/fetch/simple_barrier
+ Fetch.bsv                 Locally Added               0 
+ hasim_fetch_barrier.awb   Locally Added               0 
+
+Directory modules/cpu/mips/pipeline/writeback
+ simple_barrier/           Locally Added               0 
+
+Directory modules/cpu/mips/pipeline/writeback/simple_barrier
+ Writeback.bsv             Locally Added               0 
+ hasim_writeback_barrier.awb Locally Added               0 
+
+Directory modules/cpu/mips/pipeline/mem
+ simple_barrier/           Locally Added               0 
+
+Directory modules/cpu/mips/pipeline/mem/simple_barrier
+ Mem.bsv                   Locally Added               0 
+ hasim_mem_barrier.awb     Locally Added               0 
+
+Directory modules/cpu/mips
+ barrier_5stage.awb        Locally Added               0 
+ BarrierCPU.bsv            Locally Added               0 
+
+
+A first crack at a barrier-synchronization 5-stage model.
+
+Michael P.

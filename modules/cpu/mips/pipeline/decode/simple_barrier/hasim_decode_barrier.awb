@@ -1,0 +1,20 @@
+#/********************************************************************
+# *
+# * Awb module specification
+# *
+# *******************************************************************/
+
+#/*
+# %AWB_START
+#
+# %name 5-stage pipeline Decode barrier sync
+# %desc 5-stage pipeline Decode barrier sync
+# %provides hasim_pipe_decode
+#
+# %attributes 5stage mips hasim
+#
+# %public Decode.bsv
+# %param DEC_PIPELINE_IS_BYPASSED True "Is the pipeline fully bypassed or must we stall? (True/False)"
+#
+# %AWB_END
+# */
