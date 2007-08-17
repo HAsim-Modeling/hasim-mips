@@ -140,7 +140,7 @@ module [HASim_Module] mkFUNCP_MemAlg#(File debug_log, Tick curCC) ();
 	
 	  debug_case("i", "EStore");
 	  
-          let resp <- link_to_dmem.getResp();
+          let resp = link_to_dmem.getResp();
           waitingQ.deq();
           link_mem.makeResp(tuple3(tok, ?, WStore));
 	  

@@ -2839,3 +2839,13 @@ Directory modules/cpu/mips
 A first crack at a barrier-synchronization 5-stage model.
 
 Michael P.
+
+----------
+mcadler     Date: Fri Aug 17 13:31:52 EDT 2007  CSN: CSN-hasim-mips-144
+                  Fri Aug 17 17:31:52 UTC 2007
+
+
+Directory modules/functional/mips
+ FUNCP_MemAlg.bsv          Locally Modified          143 
+
+Make 5-stage model compile.
