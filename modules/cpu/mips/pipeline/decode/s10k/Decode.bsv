@@ -21,89 +21,110 @@ typedef enum {Fetch, FetchDone}         FetchState     deriving (Bits, Eq);
 typedef enum {Decoding, DecodeDone}     DecodeState    deriving (Bits, Eq);
 
 module [HASim_Module] mkPipe_Decode();
-    Connection_Receive#(Tuple2#(Token, PackedInst)) fpFetResp <- mkConnection_Receive("fp_fet_resp");
-    Connection_Send#(Tuple2#(Token, void))           fpDecReq <- mkConnection_Send("fp_dec_req");
-    Connection_Receive#(Tuple2#(Token, void))       fpMemResp <- mkConnection_Receive("fp_mem_resp");
-    Connection_Send#(Tuple2#(Token, void))           fpLcoReq <- mkConnection_Send("fp_lco_req");
+    Connection_Receive#(Tuple2#(Token, Inst)) fpFetResp <- mkConnection_Receive("fp_fet_resp");
+    Connection_Send#(Tuple2#(Token, void))     fpDecReq <- mkConnection_Send("fp_dec_req");
+    Connection_Receive#(Tuple2#(Token, void)) fpMemResp <- mkConnection_Receive("fp_mem_resp");
+    Connection_Send#(Tuple2#(Token, void))     fpLcoReq <- mkConnection_Send("fp_lco_req");
 
-    Connection_Send#(Token)                         fpTokKill <- mkConnection_Send("fp_tok_kill");
-    Connection_Send#(Token)                         fpFetKill <- mkConnection_Send("fp_fet_kill");
-    Connection_Send#(Token)                         fpDecKill <- mkConnection_Send("fp_dec_kill");
-    Connection_Send#(Token)                         fpMemKill <- mkConnection_Send("fp_mem_kill");
-    Connection_Send#(Token)                    fpMemStateKill <- mkConnection_Send("fp_memstate_kill");
-    Connection_Send#(Token)                         fpLcoKill <- mkConnection_Send("fp_lco_kill");
-    Connection_Send#(Token)                         fpGcoKill <- mkConnection_Send("fp_gco_kill");
-    Connection_Send#(Token)                   fpRewindToToken <- mkConnection_Send("fp_rewindToToken");
+    Connection_Send#(Token)                   fpTokKill <- mkConnection_Send("fp_tok_kill");
+    Connection_Send#(Token)                   fpFetKill <- mkConnection_Send("fp_fet_kill");
+    Connection_Send#(Token)                   fpDecKill <- mkConnection_Send("fp_dec_kill");
+    Connection_Send#(Token)                   fpMemKill <- mkConnection_Send("fp_mem_kill");
+    Connection_Send#(Token)              fpMemStateKill <- mkConnection_Send("fp_memstate_kill");
+    Connection_Send#(Token)                   fpLcoKill <- mkConnection_Send("fp_lco_kill");
+    Connection_Send#(Token)                   fpGcoKill <- mkConnection_Send("fp_gco_kill");
+    Connection_Send#(Token)             fpRewindToToken <- mkConnection_Send("fp_rewindToToken");
 
-    Port_Receive#(Addr)                          instAddrPort <- mkPort_Receive("instAddr", valueOf(FetchWidth));
+    Port_Receive#(Addr)                    instAddrPort <- mkPort_Receive("instAddr", valueOf(FetchWidth));
 
-    Port_Send#(FetchCount)                     fetchCountPort <- mkPort_Send("fetchCount");
-    Port_Send#(Addr)                        predictedAddrPort <- mkPort_Send("predictedAddr");
-    Port_Send#(Addr)                       mispredictAddrPort <- mkPort_Send("mispredictAddr");
+    Port_Send#(FetchCount)                 fetchMaxPort <- mkPort_Send("fetchMax");
+    Port_Send#(Addr)                  predictedAddrPort <- mkPort_Send("predictedAddr");
+    Port_Send#(Addr)                 mispredictAddrPort <- mkPort_Send("mispredictAddr");
 
-    Port_Receive#(IntQCount)                    intQCountPort <- mkPort_Receive("issueToDecodeIntQ", 1);
-    Port_Receive#(MemQCount)                    memQCountPort <- mkPort_Receive("issueToDecodeMemQ", 1);
-    Port_Receive#(FreeListCount)              freeListAddPort <- mkPort_Receive("issueToDecodeFreeListAdd", 1);
+    Port_Receive#(IntQCount)              intQCountPort <- mkPort_Receive("issueToDecodeIntQ", 1);
+    Port_Receive#(MemQCount)              memQCountPort <- mkPort_Receive("issueToDecodeMemQ", 1);
+    Port_Receive#(FreeListCount)        freeListAddPort <- mkPort_Receive("issueToDecodeFreeListAdd", 1);
 
-    Port_Send#(IssuePort)                           issuePort <- mkPort_Send("decodeToIssue");
+    Port_Send#(IssuePort)                     issuePort <- mkPort_Send("decodeToIssue");
 
-    Port_Receive#(ExecResult)                  execResultPort <- mkPort_Receive("execToDecodeResult", valueOf(FuncUnitNum));
-    Port_Receive#(KillData)                    killDecodePort <- mkPort_Receive("execToDecodeKill", 1);
+    Port_Receive#(ExecResult)            execResultPort <- mkPort_Receive("execResult", valueOf(FuncUnitNum));
+    Port_Receive#(KillData)              killDecodePort <- mkPort_Receive("killDecode", 1);
 
-    Port_Send#(Token)                         commitTokenPort <- mkPort_Send("decodeToCommit");
+    Port_Send#(Token)                   commitTokenPort <- mkPort_Send("decodeToCommit");
 
     //Someday these should be real
     Vector#(0, Port_Control) inports = newVector();
     Vector#(0, Port_Control) outports = newVector();
 
-    LocalController                           localController <- mkLocalController(inports, outports);
+    LocalController                     localController <- mkLocalController(inports, outports);
 
-    FIFOF#(InstInfo)                               instBuffer <- mkSizedFIFOF(2*fromInteger(valueOf(FetchWidth)));
-    FIFOF#(Bool)                                 branchBuffer <- mkSizedFIFOF(2*fromInteger(valueOf(FetchWidth)));
+    FIFOF#(InstInfo)                         instBuffer <- mkSizedFIFOF(2*fromInteger(valueOf(FetchWidth)));
+    FIFOF#(Bool)                           branchBuffer <- mkSizedFIFOF(2*fromInteger(valueOf(FetchWidth)));
 
-    Reg#(CommitState)                             commitState <- mkReg(CommitDone);
-    Reg#(RobUpdateState)                       robUpdateState <- mkReg(RobUpdateDone);
-    Reg#(FetchState)                               fetchState <- mkReg(FetchDone);
-    Reg#(DecodeState)                             decodeState <- mkReg(DecodeDone);
-    Reg#(KillCount)                                 killCount <- mkReg(0);
+    Reg#(CommitState)                       commitState <- mkReg(CommitDone);
+    Reg#(RobUpdateState)                 robUpdateState <- mkReg(RobUpdateDone);
+    Reg#(FetchState)                         fetchState <- mkReg(FetchDone);
+    Reg#(DecodeState)                       decodeState <- mkReg(DecodeDone);
+    Reg#(KillCount)                           killCount <- mkReg(0);
 
-    Reg#(FreeListCount)                         freeListCount <- mkReg(fromInteger(valueOf(FreeListNum)));
-    Reg#(IntQCount)                                 intQCount <- mkReg(?);
-    Reg#(MemQCount)                                 memQCount <- mkReg(?);
+    Reg#(FreeListCount)                   freeListCount <- mkReg(fromInteger(valueOf(FreeListNum)));
+    Reg#(IntQCount)                           intQCount <- mkReg(?);
+    Reg#(MemQCount)                           memQCount <- mkReg(?);
 
-    Reg#(FetchCount)                               fetchCount <- mkReg(?);
-    Reg#(FetchCount)                              decodeCount <- mkReg(?);
-    Reg#(InstCount)                           instBufferCount <- mkReg(0);
-    Reg#(FuncUnitCount)                        robUpdateCount <- mkReg(?);
-    Reg#(CommitCount)                             commitCount <- mkReg(?);
-    Reg#(Maybe#(Addr))                            predictedPC <- mkReg(?);
-    Reg#(Maybe#(Addr))                           mispredictPC <- mkReg(?);
+    Reg#(FetchCount)                         fetchCount <- mkReg(?);
+    Reg#(FetchCount)                        decodeCount <- mkReg(?);
+    Reg#(InstCount)                     instBufferCount <- mkReg(0);
+    Reg#(FuncUnitCount)                  robUpdateCount <- mkReg(?);
+    Reg#(CommitCount)                       commitCount <- mkReg(?);
+    Reg#(Maybe#(Addr))                      predictedPC <- mkReg(?);
+    Reg#(Maybe#(Addr))                     mispredictPC <- mkReg(?);
 
-    Reg#(Bool)                              fillDecodeInvalid <- mkReg(?);
-    Reg#(Bool)                              fillCommitInvalid <- mkReg(?);
+    Reg#(Bool)                        fillDecodeInvalid <- mkReg(?);
+    Reg#(Bool)                        fillCommitInvalid <- mkReg(?);
 
-    Rob                                                   rob <- mkRob();
-    BranchStack                                   branchStack <- mkBranchStack();
-    BranchPred                                     branchPred <- mkBranchPred();
-    FIFO#(Addr)                                  targetBuffer <- mkTargetBuffer(pcStart);
+    Rob                                             rob <- mkRob();
+    BranchStack                             branchStack <- mkBranchStack();
+    BranchPred                               branchPred <- mkBranchPred();
+    FIFO#(Addr)                            targetBuffer <- mkTargetBuffer(pcStart);
 
-    Reg#(Vector#(RobNum, Bool))                   memCompBuff <- mkReg(replicate(False));
+    RegFile#(Bit#(TLog#(RobNum)), Bool)     memCompBuff <- mkRegFileFull();
+    Reg#(Bool)                             initializing <- mkReg(True);
+    Reg#(RobTag)                      initializingCount <- mkReg(0);
 
-    Reg#(Bool)                                modelCycleBegin <- mkReg(True);
+    Reg#(Bool)                          modelCycleBegin <- mkReg(True);
+
+    Reg#(ClockCounter)                       modelCycle <- mkReg(0);
+
+    rule initialize(initializing);
+        memCompBuff.upd(truncate(initializingCount), False);
+        initializingCount <= initializingCount + 1;
+        if(initializingCount == fromInteger(valueOf(TSub#(RobNum,1))))
+            initializing <= False;
+    endrule
 
     rule branchBufferFill(True);
         Bool pred <- branchPred.getPredResp();
         branchBuffer.enq(pred);
     endrule
 
-    rule memCompBuffFill(True);
+    rule memCompBuffFill(!initializing);
         match {.token, .empty} = fpMemResp.receive();
-	fpMemResp.deq();
-        memCompBuff[token.timep_info.scratchpad] <= True;
+        fpMemResp.deq();
+        memCompBuff.upd(token.timep_info.scratchpad, True);
     endrule
 
     rule synchronize(fetchState == FetchDone && robUpdateState == RobUpdateDone && decodeState == DecodeDone && commitState == CommitDone);
-        $display("1 %0d", $time);
+        modelCycle <= modelCycle + 1;
+
+        if(!modelCycleBegin)
+        begin
+            FetchCount fetchMax = (instBufferCount < fromInteger(valueOf(FetchWidth)))?
+                                      truncate(fromInteger(valueOf(FetchWidth)) - instBufferCount): 0;
+            fetchMaxPort.send(tagged Valid fetchMax);
+            predictedAddrPort.send(predictedPC);
+            mispredictAddrPort.send(mispredictPC);
+        end
+        modelCycleBegin <= False;
 
         Maybe#(KillData) killTokenGet  <- killDecodePort.receive();
         case (killTokenGet) matches
@@ -118,16 +139,6 @@ module [HASim_Module] mkPipe_Decode();
             tagged Invalid:
                 mispredictPC <= tagged Invalid;
         endcase
-
-        if(!modelCycleBegin)
-        begin
-            FetchCount fetchCountSend = (instBufferCount < fromInteger(valueOf(FetchWidth)))?
-                                             truncate(fromInteger(valueOf(FetchWidth)) - instBufferCount): 0;
-            fetchCountPort.send(tagged Valid fetchCountSend);
-            predictedAddrPort.send(predictedPC);
-            mispredictAddrPort.send(mispredictPC);
-        end
-        modelCycleBegin <= False;
 
         let intQCountLocal <- intQCountPort.receive();
         let memQCountLocal <- memQCountPort.receive();
@@ -151,10 +162,10 @@ module [HASim_Module] mkPipe_Decode();
         case (addrMaybe) matches
             tagged Valid .addr:
             begin
-                match {.token, .inst} = fpFetResp.receive();
-		fpFetResp.deq();
+                match {.token, .inst}  = fpFetResp.receive();
+                fpFetResp.deq();
                 instBufferCount       <= instBufferCount + 1;
-                instBuffer.enq(InstInfo{token: token, addr: addr, inst: inst});
+                instBuffer.enq(InstInfo{token: token, addr: addr, inst: instToBits(inst)});
                 branchPred.getPredReq(token, addr);
             end
         endcase
@@ -163,7 +174,7 @@ module [HASim_Module] mkPipe_Decode();
             fetchState <= FetchDone;
     endrule
 
-    rule commit(commitState == Commit);
+    rule commit(commitState == Commit && !initializing);
         commitCount <= commitCount + 1;
         if(commitCount == fromInteger(valueOf(TSub#(CommitWidth,1))))
         begin
@@ -180,15 +191,18 @@ module [HASim_Module] mkPipe_Decode();
         begin
             Maybe#(RobEntry) robEntryMaybe <- rob.readHead();
             RobTag robHead = rob.getHead();
-            if(robEntryMaybe matches tagged Valid .robEntry &&& (robEntry.done && memCompBuff[robHead]))
+            if(robEntryMaybe matches tagged Valid .robEntry &&& (robEntry.done && memCompBuff.sub(truncate(robHead))))
             begin
-                memCompBuff[robHead] <= False;
+                memCompBuff.upd(truncate(robHead), False);
                 commitTokenPort.send(tagged Valid robEntry.token);
                 fpLcoReq.send(tuple2(robEntry.token,?));
                 if(robEntry.issueType == Branch)
                     branchPred.upd(robEntry.token, robEntry.addr, robEntry.pred, robEntry.taken);
                 if(robEntry.finished)
+                begin
                     localController.endProgram(robEntry.status);
+                    $display("%0d %0d", $time, modelCycle);
+                end
                 rob.incrementHead();
                 if(!(robEntry.issueType == Branch || robEntry.issueType == J || robEntry.issueType == JR || robEntry.issueType == Store))
                     freeListCount <= freeListCount + 1;

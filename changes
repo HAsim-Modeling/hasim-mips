@@ -2849,3 +2849,32 @@ Directory modules/functional/mips
  FUNCP_MemAlg.bsv          Locally Modified          143 
 
 Make 5-stage model compile.
+
+----------
+vmurali     Date: Tue Aug 21 22:55:59 EDT 2007  CSN: CSN-hasim-mips-145
+                  Wed Aug 22 02:55:59 UTC 2007
+
+
+Directory config/pm/hasim-mips/s10k
+ s10k_sim.apm              Locally Modified          144 
+
+Directory modules/cpu/mips/pipeline/execute/superscalar
+ Execute.bsv               Locally Modified          144 
+
+Directory modules/cpu/mips/pipeline/decode/s10k
+ Decode.bsv                Locally Modified          144 
+
+Directory modules/cpu/mips/pipeline/issue/s10k
+ Issue.bsv                 Locally Modified          144 
+
+Directory modules/cpu/mips/pipeline/fetch/superscalar
+ Fetch.bsv                 Locally Modified          144 
+
+Directory modules/cpu/mips/pipeline/writeback/superscalar
+ Commit.bsv                Locally Modified          144 
+
+Directory modules/cpu/mips/s10k
+ Parameters.bsv            Locally Modified          144 
+
+Integrated s10k with the new functional partition. Had to fix a couple of issues in the new functional partition - 1) kill token rules should be able to fire always 2) decode response had a backward compatibility issue - was returning a PackedInst before, but returns an Inst now. Now it passes all tests, but fails all benchmarks. median fails by deadlocking, vvadd rolls over modelcycles and fails, but dont know the actual cause yet, and the rest fail by trying to deallocate an unknown token
+

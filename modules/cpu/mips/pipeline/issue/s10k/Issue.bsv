@@ -28,9 +28,9 @@ module [HASim_Module] mkPipe_Issue();
 
     Port_Receive#(IssuePort)                        issuePort <- mkPort_Receive("decodeToIssue", valueOf(FetchWidth));
 
-    Port_Send#(ExecEntry)                            execPort <- mkPort_Send("issueToExec");
-    Port_Send#(ExecEntry)                             memPort <- mkPort_Send("issueToExecMem");
-    Port_Receive#(Token)                        killIssuePort <- mkPort_Receive("execToIssueKill", 1);
+    Port_Send#(ExecEntry)                            execPort <- mkPort_Send("exec");
+    Port_Send#(ExecEntry)                             memPort <- mkPort_Send("mem");
+    Port_Receive#(Token)                        killIssuePort <- mkPort_Receive("killIssue", 1);
 
     Reg#(KillState)                                 killState <- mkReg(KillDone);
     Reg#(IssueState)                               issueState <- mkReg(IssueDone);
@@ -45,18 +45,14 @@ module [HASim_Module] mkPipe_Issue();
 
     Reg#(Bool)                                modelCycleBegin <- mkReg(True);
 
-    Stat                                               issues <- mkStatCounter("Issues");
-
     rule synchronize(killState == KillDone && issueState == IssueDone && dispatchState == DispatchDone);
-        $display("2 %0d", $time);
-
-        let pseudoIntIssueCount = fromInteger(valueOf(TSub#(IntQNum, FetchWidth)));
-        let pseudoMemIssueCount = fromInteger(valueOf(TSub#(MemQNum, FetchWidth)));
-        let freeIntQ = pseudoIntIssueCount > issueAlg.getIntQCount()? pseudoIntIssueCount - issueAlg.getIntQCount() : 0;
-        let freeMemQ = pseudoMemIssueCount > issueAlg.getMemQCount()? pseudoMemIssueCount - issueAlg.getMemQCount() : 0;
-
         if(!modelCycleBegin)
         begin
+            let pseudoIntIssueCount = fromInteger(valueOf(TSub#(IntQNum, FetchWidth)));
+            let pseudoMemIssueCount = fromInteger(valueOf(TSub#(MemQNum, FetchWidth)));
+            let freeIntQ = pseudoIntIssueCount > issueAlg.getIntQCount()? pseudoIntIssueCount - issueAlg.getIntQCount() : 0;
+            let freeMemQ = pseudoMemIssueCount > issueAlg.getMemQCount()? pseudoMemIssueCount - issueAlg.getMemQCount() : 0;
+
             intQCountPort.send(tagged Valid freeIntQ);
             memQCountPort.send(tagged Valid freeMemQ);
             freeListAddPort.send(tagged Valid freeListCount);
@@ -114,11 +110,7 @@ module [HASim_Module] mkPipe_Issue();
             execPort.send(recvMaybe);
         case (recvMaybe) matches
             tagged Valid .recv:
-            begin
-                $display("issue: %0d %0d %0d", recv.robTag, recv.token.index, funcUnitPos);
-                issues.incr();
                 fpExePort.send(tuple2(recv.token, ?));
-            end
         endcase
     endrule
 
@@ -135,7 +127,7 @@ module [HASim_Module] mkPipe_Issue();
             tagged Valid .recv:
             begin
                 match{.token, .dep} = fpDecodeResp.receive();
-		fpDecodeResp.deq();
+                fpDecodeResp.deq();
                 IssueEntry issueEntry = IssueEntry{token: recv.token,
                                                    addr: recv.addr,
                                                    issueType: recv.issueType,

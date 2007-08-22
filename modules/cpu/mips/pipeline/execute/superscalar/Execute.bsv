@@ -1,5 +1,4 @@
 import RegFile::*;
-import Vector::*;
 import FIFO::*;
 
 import hasim_common::*;
@@ -14,45 +13,56 @@ module [HASim_Module] mkPipe_Execute();
     Connection_Receive#(Tuple2#(Token, InstResult)) fpExeResp <- mkConnection_Receive("fp_exe_resp");
     Connection_Send#(Tuple2#(Token, void))           fpMemReq <- mkConnection_Send("fp_mem_req");
 
-    Port_Receive#(ExecEntry)                         execPort <- mkPort_Receive("issueToExec", valueOf(TSub#(FuncUnitNum,1)));
-    Port_Receive#(ExecEntry)                          memPort <- mkPort_Receive("issueToExecMem", 2);
-    Port_Send#(Token)                           killIssuePort <- mkPort_Send("execToIssueKill");
+    Port_Receive#(ExecEntry)                         execPort <- mkPort_Receive("exec", valueOf(TSub#(FuncUnitNum,1)));
+    Port_Receive#(ExecEntry)                          memPort <- mkPort_Receive("mem", 2);
+    Port_Send#(Token)                           killIssuePort <- mkPort_Send("killIssue");
 
-    Port_Send#(ExecResult)                     execResultPort <- mkPort_Send("execToDecodeResult");
-    Port_Send#(KillData)                       killDecodePort <- mkPort_Send("execToDecodeKill");
+    Port_Send#(ExecResult)                     execResultPort <- mkPort_Send("execResult");
+    Port_Send#(KillData)                       killDecodePort <- mkPort_Send("killDecode");
 
     Reg#(FuncUnitCount)                         funcUnitCount <- mkReg(0);
+    Reg#(FuncUnitCount)                        execEntryCount <- mkReg(0);
 
     Reg#(Maybe#(KillData))                        killDataReg <- mkReg(tagged Invalid);
 
-    Reg#(Vector#(RobNum, Bool))                     execValid <- mkReg(replicate(False));
+    RegFile#(Bit#(TLog#(RobNum)), Bool)             execValid <- mkRegFileFull();
     RegFile#(Bit#(TLog#(RobNum)), InstResult)      instResult <- mkRegFileFull();
 
     FIFO#(Maybe#(ExecEntry))                        execEntry <- mkFIFO();
 
-    rule fillInstResult(True);
+    Reg#(Bool)                                   initializing <- mkReg(False);
+    Reg#(RobTag)                            initializingCount <- mkReg(0);
+
+    rule initialize(initializing);
+        execValid.upd(truncate(initializingCount), False);
+        initializingCount <= initializingCount + 1;
+        if(initializingCount == fromInteger(valueOf(TSub#(RobNum,1))))
+            initializing <= False;
+    endrule
+
+    rule fillInstResult(!initializing);
         match {.token, .res} = fpExeResp.receive();
-	fpExeResp.deq();
-        execValid[token.timep_info.scratchpad] <= True;
+        fpExeResp.deq();
+        execValid.upd(token.timep_info.scratchpad, True);
         instResult.upd(token.timep_info.scratchpad, res);
-        $display("got something: %0d %0d", token.index, token.timep_info.scratchpad);
     endrule
 
     rule fillExecEntry(True);
-        if(funcUnitCount == fromInteger(valueOf(TSub#(FuncUnitNum,1))))
+        if(execEntryCount == fromInteger(valueOf(TSub#(FuncUnitNum,1))))
         begin
+            execEntryCount <= 0;
             Maybe#(ExecEntry) recvMaybe <- memPort.receive();
             execEntry.enq(recvMaybe);
         end
         else
         begin
+            execEntryCount <= execEntryCount + 1;
             Maybe#(ExecEntry) recvMaybe <- execPort.receive();
             execEntry.enq(recvMaybe);
         end
-        $display("fill something");
     endrule
 
-    rule execute(!isValid(execEntry.first()) || execValid[(validValue(execEntry.first())).robTag]);
+    rule execute(!initializing && (!isValid(execEntry.first()) || execValid.sub(truncate(validValue(execEntry.first()).robTag))));
         Maybe#(KillData) newKillData = tagged Invalid;
         Maybe#(ExecEntry) recvMaybe = execEntry.first();
         execEntry.deq();
@@ -60,11 +70,8 @@ module [HASim_Module] mkPipe_Execute();
         case (recvMaybe) matches
             tagged Valid .recv:
             begin
-                execValid[recv.robTag] <= False;
+                execValid.upd(truncate(recv.robTag), False);
                 InstResult res = instResult.sub(truncate(recv.robTag));
-                // match {.token, .res} <- fpExeResp.receive();
-                $display("adding %0d %0d %0d %0d", recv.robTag, recv.token.index, funcUnitCount);
-                //token.timep_info.scratchpad = truncate(recv.robTag);
                 fpMemReq.send(tuple2(recv.token, ?));
 
                 Bool finished = case (res) matches
@@ -141,8 +148,6 @@ module [HASim_Module] mkPipe_Execute();
         end
         else
         begin
-            if(funcUnitCount == 0)
-                $display("3 %0d", $time);
             funcUnitCount <= funcUnitCount + 1;
             killDataReg   <= newKillData;
         end

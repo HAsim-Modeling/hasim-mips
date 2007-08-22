@@ -2,6 +2,7 @@ import hasim_isa::*;
 
 Addr pcStart = 32'h00001000;
 
+typedef 8  TokenSize;
 typedef 4  FetchWidth;
 typedef 4  CommitWidth;
 typedef 32 RobNum;

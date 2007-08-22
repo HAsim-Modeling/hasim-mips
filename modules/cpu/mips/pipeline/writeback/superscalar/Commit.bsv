@@ -1,7 +1,5 @@
 import hasim_common::*;
-
 import hasim_cpu_parameters::*;
-import hasim_cpu_types::*;
 
 module [HASim_Module] mkPipe_Writeback();
     Port_Receive#(Token)                     commitPort <- mkPort_Receive("decodeToCommit", valueOf(CommitWidth));
@@ -17,7 +15,7 @@ module [HASim_Module] mkPipe_Writeback();
             tagged Valid .token:
             begin
                 let tok = fpLcoResp.receive();
-		fpLcoResp.deq();
+                fpLcoResp.deq();
                 fpGcoReq.send(tok);
             end
         endcase
@@ -25,6 +23,6 @@ module [HASim_Module] mkPipe_Writeback();
 
     rule globalCommitAck(True);
         let ack = fpGcoResp.receive();
-	fpGcoResp.deq();
+        fpGcoResp.deq();
     endrule
 endmodule
