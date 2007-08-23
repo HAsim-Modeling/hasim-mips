@@ -177,7 +177,8 @@ module mkIssueAlg(IssueAlg);
                         busyState[validEntry.dest] <= Free;
                         regWaitTime[validEntry.dest] <= 0;
                         issueQ.write(tagged Invalid);
-                        freeListCount <= freeListCount + 1;
+                        if(!(validEntry.issueType == Branch || validEntry.issueType == J || validEntry.issueType == JR || validEntry.issueType == Store))
+                            freeListCount <= freeListCount + 1;
                         return tagged Valid validEntry.token;
                     end
                     else

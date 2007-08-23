@@ -24,10 +24,7 @@ module [HASim_Module] mkPipe_Fetch();
 
     Reg#(TIMEP_Epoch)                         epoch <- mkReg(0);
 
-    EventRecorder                          eventFet <- mkEventRecorder("Fetch");
-
     rule synchronize(fetchState == FetchDone);
-        eventFet.recordEvent(tagged Invalid);
         Maybe#(Addr)  predictedAddr <- predictedAddrPort.receive();
         Maybe#(Addr) mispredictAddr <- mispredictAddrPort.receive();
         Maybe#(FetchCount) fetchMax <- fetchMaxPort.receive();

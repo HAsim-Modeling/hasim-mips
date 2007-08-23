@@ -45,6 +45,8 @@ module [HASim_Module] mkPipe_Issue();
 
     Reg#(Bool)                                modelCycleBegin <- mkReg(True);
 
+    EventRecorder                                    eventFet <- mkEventRecorder("Issue");
+
     rule synchronize(killState == KillDone && issueState == IssueDone && dispatchState == DispatchDone);
         if(!modelCycleBegin)
         begin
@@ -56,6 +58,7 @@ module [HASim_Module] mkPipe_Issue();
             intQCountPort.send(tagged Valid freeIntQ);
             memQCountPort.send(tagged Valid freeMemQ);
             freeListAddPort.send(tagged Valid freeListCount);
+            eventFet.recordEvent(tagged Valid zeroExtend(freeListCount));
         end
 
         modelCycleBegin <= False;

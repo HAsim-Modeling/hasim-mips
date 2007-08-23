@@ -223,7 +223,7 @@ module [HASim_Module] mkPipe_Decode();
         case (execResultMaybe) matches
             tagged Valid .exec:
             begin
-                if(rob.isValidEntry(exec.robTag))
+                if(rob.isValidEntry(exec.robTag) && exec.token.index == (rob.read(exec.robTag)).token.index)
                 begin
                     RobEntry newRobEntry = RobEntry {
                                                token: exec.token,
@@ -282,7 +282,7 @@ module [HASim_Module] mkPipe_Decode();
                 branchBuffer.deq();
                 Maybe#(Addr) branchPredAddr = pred? tagged Valid (currAddr + 4 + (signExtend(currInst[15:0]) << 2)) : tagged Invalid;
 
-                RobEntry res = RobEntry{done: False};
+                RobEntry res = RobEntry{token: currToken, done: False};
                 IssuePort issue = IssuePort{issueType: issueType,
                                             addr: currAddr,
                                             token: currToken,

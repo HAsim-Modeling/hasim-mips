@@ -11,6 +11,7 @@ interface Rob;
     method Bool isValidEntry(RobTag robTag);
     method Action write(RobTag robTag, RobEntry robEntry);
     method ActionValue#(Maybe#(RobEntry)) readHead();
+    method RobEntry read(RobTag robTag);
     method Action incrementHead();
     method Action updateTail(RobTag robTab);
     method Action writeTail(RobEntry robEntry); //and increment
@@ -59,6 +60,10 @@ module mkRob(Rob);
         end
         else
             return tagged Invalid;
+    endmethod
+
+    method RobEntry read(RobTag robTag);
+        return robFileDup.sub(truncate(robTag));
     endmethod
 
     method Action updateTail(RobTag robTab);

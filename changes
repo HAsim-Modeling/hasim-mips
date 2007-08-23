@@ -2878,3 +2878,29 @@ Directory modules/cpu/mips/s10k
 
 Integrated s10k with the new functional partition. Had to fix a couple of issues in the new functional partition - 1) kill token rules should be able to fire always 2) decode response had a backward compatibility issue - was returning a PackedInst before, but returns an Inst now. Now it passes all tests, but fails all benchmarks. median fails by deadlocking, vvadd rolls over modelcycles and fails, but dont know the actual cause yet, and the rest fail by trying to deallocate an unknown token
 
+
+----------
+vmurali     Date: Thu Aug 23 17:18:19 EDT 2007  CSN: CSN-hasim-mips-147
+                  Thu Aug 23 21:18:19 UTC 2007
+
+
+Directory modules/cpu/mips/pipeline/execute/simple
+ Execute.bsv               Locally Modified          146 
+
+Directory modules/cpu/mips/pipeline/decode/s10k/rob/simple
+ Rob.bsv                   Locally Modified          146 
+
+Directory modules/cpu/mips/pipeline/decode/s10k
+ Decode.bsv                Locally Modified          146 
+
+Directory modules/cpu/mips/pipeline/issue/issue_alg/simple/priorityAlgo
+ IssueAlg.bsv              Locally Modified          146 
+
+Directory modules/cpu/mips/pipeline/issue/s10k
+ Issue.bsv                 Locally Modified          146 
+
+Directory modules/cpu/mips/pipeline/fetch/superscalar
+ Fetch.bsv                 Locally Modified          146 
+
+Fully integrated the s10k model with the new functional partion. Michael found a bug in the execute stage of the functional partion and he fixed it temporarily in this code. So now this passes all benchmarks except qsort and towers. Michael identified the problem with the store buffer which lead to infinite traversals...
+
