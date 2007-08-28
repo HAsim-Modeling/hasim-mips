@@ -1,7 +1,4 @@
 
-
-
-
 [Hasim simple controller]
 Packagehint=hasim
 File=modules/controller/simple/hasim_simple_controller.awb
@@ -15,19 +12,14 @@ Name=5-Stage HASim SMIPS Model
 Type=HAsim
 Class=Asim::Model
 
-
 [Hasim - Hardware (fpga) based system/Requires]
 hasim_funcp=Hasim functional partition semantic model
 hasim_chip=Uniprocessor chip
 hasim_isa=Hasim - SMIPS ISA
 
-
 [Model]
 DefaultAttributes=hasim smips 5-stage
 model=HAsim Model Foundation
-
-
-
 
 [Hasim - Hardware (fpga) based system]
 Packagehint=hasim
@@ -37,28 +29,19 @@ File=modules/system/single_chip_system/hasim_system.awb
 Packagehint=hasim
 File=modules/model/hasim_model.awb
 
-
-
 [HAsim Model Foundation/Requires]
 hasim_system=Hasim - Hardware (fpga) based system
 hasim_controller=Hasim simple controller
 hasim_common=Hasim Common Library
-
-
-
-
-
+hasim_fpgaenv=Hasim FPGA Environment
 
 [Hasim - SMIPS ISA]
 Packagehint=hasim-mips
 File=modules/isa/smips/hasim_smips_isa.awb
 
 
-[Hasim Common Library/Requires]
-hasim_fpgaenv=Hasim FPGA Environment
-
 [Hasim Common Library]
-File=modules/common/hasim_common.awb
+File=config/pm/hasim/submodels/hasim_common.apm
 Packagehint=hasim
 
 [Hasim FPGA Environment]

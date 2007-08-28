@@ -2,6 +2,8 @@ import Vector::*;
 
 //HASim library imports
 import hasim_common::*;
+import soft_connections::*;
+import hasim_modellib::*;
 import hasim_local_controller::*;
 
 //Model-specific imports
@@ -185,6 +187,8 @@ module [HASim_Module] mkCPU
 	    let tok = link_to_tok.getResp();
 	    link_to_tok.deq();
 	    
+            tok.timep_info = TIMEP_TokInfo{epoch: 0, scratchpad: 0};
+
 	    debug(2, $display("[%d] TOK Responded with token %0d.", hostCC, tok.index));
 	    
 	    cur_tok <= tok;

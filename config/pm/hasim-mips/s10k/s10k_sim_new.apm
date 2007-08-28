@@ -1,5 +1,4 @@
 
-
 [Hasim simple controller]
 Packagehint=hasim
 File=modules/controller/simple/hasim_simple_controller.awb
@@ -7,7 +6,7 @@ File=modules/controller/simple/hasim_simple_controller.awb
 [Global]
 SaveParameters=0
 Description=SMIPS R10K Core
-File=s10k_sim
+File=s10k_sim_new
 Version=2.1
 Name=SMIPS R10K Core
 Type=HAsim
@@ -34,8 +33,7 @@ File=modules/model/hasim_model.awb
 hasim_system=Hasim - Hardware (fpga) based system
 hasim_controller=Hasim simple controller
 hasim_common=Hasim Common Library
-
-
+hasim_fpgaenv=Hasim FPGA Environment
 
 [Hasim - SMIPS ISA]
 Packagehint=hasim-mips
@@ -68,11 +66,9 @@ hasim_issueQ=Simple unguarded queue, which supports out-of-order issue
 File=modules/cpu/mips/pipeline/issue/issue_alg/simple/unguardedQ/IssueQ.awb
 Packagehint=hasim-mips
 
-[Hasim Common Library/Requires]
-hasim_fpgaenv=Hasim FPGA Environment
 
 [Hasim Common Library]
-File=modules/common/hasim_common.awb
+File=config/pm/hasim/submodels/hasim_common.apm
 Packagehint=hasim
 
 [Hasim FPGA Environment]

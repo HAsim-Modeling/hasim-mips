@@ -1,4 +1,6 @@
 import hasim_common::*;
+import soft_connections::*;
+import hasim_modellib::*;
 import hasim_cpu_parameters::*;
 
 module [HASim_Module] mkPipe_Writeback();

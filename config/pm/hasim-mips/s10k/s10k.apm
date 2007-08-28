@@ -80,6 +80,7 @@ File=modules/functional/common/hasim_funcp.awb
 hasim_system=Hasim - Hardware (fpga) based system
 hasim_controller=Hasim simple controller
 hasim_common=Hasim Common Library
+hasim_fpgaenv=Hasim FPGA Environment
 
 [Hasim mips funcp local commit algorithm]
 Packagehint=hasim-mips
@@ -131,15 +132,13 @@ hasim_issueQ=Simple unguarded queue, which supports out-of-order issue
 File=modules/cpu/mips/pipeline/issue/issue_alg/simple/unguardedQ/IssueQ.awb
 Packagehint=hasim-mips
 
-[Hasim Common Library/Requires]
-hasim_fpgaenv=Hasim FPGA Environment
 
 [Hasim Common Library]
-File=modules/common/hasim_common.awb
+File=config/pm/hasim/submodels/hasim_common.apm
 Packagehint=hasim
 
 [Hasim FPGA Environment]
-File=config/pm/hasim/submodels/fpgaenv/hasim-fpgaenv-xup.apm
+File=config/pm/hasim/submodels/fpgaenv/hasim-fpgaenv-null.apm
 Packagehint=hasim
 
 [Superscalar CPU]
@@ -208,9 +207,6 @@ Packagehint=hasim-mips
 File=modules/cpu/mips/branch/stack/1entry/BranchStack.awb
 Packagehint=hasim-mips
 
-[Hasim Common Library/Params]
-HASIM_STATS_ENABLED=False
-HASIM_EVENTS_ENABLED=False
 
 [Hasim local controller]
 File=modules/controller/local/hasim_local_controller.awb

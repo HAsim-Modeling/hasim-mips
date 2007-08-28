@@ -2,6 +2,8 @@ import RegFile::*;
 import FIFO::*;
 
 import hasim_common::*;
+import soft_connections::*;
+import hasim_modellib::*;
 import hasim_isa::*;
 
 import hasim_cpu_parameters::*;

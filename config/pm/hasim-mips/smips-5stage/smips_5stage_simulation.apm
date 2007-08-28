@@ -80,6 +80,7 @@ File=modules/functional/common/hasim_funcp.awb
 hasim_system=Hasim - Hardware (fpga) based system
 hasim_controller=Hasim simple controller
 hasim_common=Hasim Common Library
+hasim_fpgaenv=Hasim FPGA Environment
 
 [Hasim mips funcp local commit algorithm]
 Packagehint=hasim-mips
@@ -108,11 +109,9 @@ File=modules/isa/smips/hasim_smips_isa.awb
 File=modules/functional/common/hasim_funcp_memstate_ifc.awb
 Packagehint=hasim
 
-[Hasim Common Library/Requires]
-hasim_fpgaenv=Hasim FPGA Environment
 
 [Hasim Common Library]
-File=modules/common/hasim_common.awb
+File=config/pm/hasim/submodels/hasim_common.apm
 Packagehint=hasim
 
 [Hasim FPGA Environment]
@@ -142,7 +141,6 @@ hasim_pipe_fetch=5-stage pipeline Fetch
 File=modules/cpu/mips/5stage_cpu.awb
 Packagehint=hasim-mips
 
-
 [5-stage pipeline Writeback]
 File=modules/cpu/mips/pipeline/writeback/simple/hasim_simple_writeback.awb
 Packagehint=hasim-mips
@@ -169,7 +167,6 @@ Packagehint=hasim-mips
 [magic memory]
 File=modules/memory/magic_memory.awb
 Packagehint=hasim-mips
-
 
 [Hasim local controller]
 File=modules/controller/local/hasim_local_controller.awb

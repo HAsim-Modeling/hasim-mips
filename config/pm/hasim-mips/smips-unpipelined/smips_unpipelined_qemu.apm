@@ -18,7 +18,7 @@ hasim_chip=Uniprocessor chip
 hasim_isa=Hasim - SMIPS ISA
 
 [Model]
-DefaultAttributes= simple qemu fast hasim 
+DefaultAttributes=simple qemu fast hasim 
 model=HAsim Model Foundation
 
 [Hasim - Hardware (fpga) based system]
@@ -33,9 +33,8 @@ File=modules/model/hasim_model.awb
 hasim_system=Hasim - Hardware (fpga) based system
 hasim_controller=Hasim simple controller
 hasim_common=Hasim Common Library
+hasim_fpgaenv=Hasim FPGA Environment
 
-[Hasim Common Library/Requires]
-hasim_fpgaenv=Hasim/FAST combined FPGA Environment
 
 [Uniprocessor chip/Requires]
 hasim_cpu=Hasim Unpipelined CPU
@@ -46,7 +45,7 @@ File=modules/cpu/mips/unpipelined_cpu.awb
 Packagehint=hasim-mips
 
 [Hasim Common Library]
-File=modules/common/hasim_common.awb
+File=config/pm/hasim/submodels/hasim_common.apm
 Packagehint=hasim
 
 [Uniprocessor chip]
@@ -68,73 +67,26 @@ Packagehint=hasim
 [Hasim simple controller/Requires]
 hasim_local_controller=Hasim local controller
 
-[Hasim to FAST functional partition wrapper/Requires]
-fast_funcp=FAST Functional Model
 
-[FAST Functional Model]
-File=modules/functional/fast/fast_funcp.awb
-Packagehint=fast
 
 [Hasim to FAST functional partition wrapper]
 File=modules/functional/qemu-fast/qemu-fast.awb
 Packagehint=hasim-mips
 
-[Software FPGA Components]
-File=modules/common/fpgaenv/fpga-components/software/software-fpga-components.awb
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+[Hasim FPGA Environment]
+File=config/pm/hasim/submodels/fpgaenv/hasim-fpgaenv-null.apm
 Packagehint=hasim
-
-[FAST Utilities Library]
-File=modules/common/utils/fast/fast_utils.awb
-Packagehint=fast
-
-[Standard Virtual Devices]
-File=modules/common/fpgaenv/virtual-platform/virtual-devices/std-virtual-devices.awb
-Packagehint=hasim
-
-[Null Serial Console]
-File=modules/common/fpgaenv/virtual-platform/virtual-devices/console/null-serial/null-serial.awb
-Packagehint=hasim
-
-[Hasim/FAST combined FPGA Environment]
-File=modules/common/fpgaenv-fast/hasim-fast-fpga-environment.awb
-Packagehint=hasim
-
-[Hasim Platform Interface]
-File=modules/common/fpgaenv/platform-interface/hasim/hasim-platform-interface.awb
-Packagehint=hasim
-
-[Null TopLevel Wires]
-File=modules/common/fpgaenv/toplevel-wires/null/null-toplevel-wires.awb
-Packagehint=hasim
-
-[Standard Virtual Devices/Requires]
-console=Null Serial Console
-front_panel=Console Front Panel
-
-[Console Front Panel]
-File=modules/common/fpgaenv/virtual-platform/virtual-devices/front-panel/console/console-fp.awb
-Packagehint=hasim
-
-[Hasim/FAST Virtual Platform]
-File=modules/common/fpgaenv/virtual-platform/fast-virtual-platform.awb
-Packagehint=hasim
-
-[Hasim/FAST Virtual Platform/Requires]
-channelio=Null Channel IO Module
-fast_channelio=FAST ChannelIO - Bluesim
-virtual_devices=Standard Virtual Devices
-
-[FAST ChannelIO - Bluesim]
-File=modules/common/fpgaenv/virtual-platform/fast-channelio/bluesim/fast_channelio_bluesim.awb
-Packagehint=fast
-
-[Null Channel IO Module]
-File=modules/common/fpgaenv/virtual-platform/channelio/null/null-channelio.awb
-Packagehint=hasim
-
-[Hasim/FAST combined FPGA Environment/Requires]
-fast_utils=FAST Utilities Library
-virtual_platform=Hasim/FAST Virtual Platform
-toplevel_wires=Null TopLevel Wires
-platform_interface=Hasim Platform Interface
-fpga_components=Software FPGA Components

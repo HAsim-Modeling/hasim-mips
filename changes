@@ -2904,3 +2904,71 @@ Directory modules/cpu/mips/pipeline/fetch/superscalar
 
 Fully integrated the s10k model with the new functional partion. Michael found a bug in the execute stage of the functional partion and he fixed it temporarily in this code. So now this passes all benchmarks except qsort and towers. Michael identified the problem with the store buffer which lead to infinite traversals...
 
+
+----------
+mpellaue    Date: Tue Aug 28 14:34:14 EDT 2007  CSN: CSN-hasim-mips-148
+                  Tue Aug 28 18:34:14 UTC 2007
+
+
+Directory config/pm/hasim-mips/smips-5stage
+ smips_5stage.apm          Locally Modified          147 
+ smips_5stage_simulation.apm Locally Modified          147 
+ smips_5stage_barrier.apm  Locally Modified          147 
+
+Directory config/pm/hasim-mips/semantic-model
+ semantic_model.apm        Locally Modified          147 
+ 5stage_semantic.apm       Locally Modified          147 
+
+Directory config/pm/hasim-mips/toymips
+ hasim_toymips_simple.apm  Locally Modified          147 
+
+Directory config/pm/hasim-mips/smips-unpipelined
+ smips_unpipelined.apm     Locally Modified          147 
+ smips_unpipelined_qemu.apm Locally Modified          147 
+
+Directory config/pm/hasim-mips/s10k
+ s10k_sim.apm              Locally Modified          147 
+ s10k_funcp.apm            Locally Modified          147 
+ s10k.apm                  Locally Modified          147 
+ s10k_sim_new.apm          Locally Modified          147 
+
+Directory modules/cpu/mips/pipeline/execute/superscalar
+ Execute.bsv               Locally Modified          147 
+
+Directory modules/cpu/mips/pipeline/execute/simple
+ Execute.bsv               Locally Modified          147 
+
+Directory modules/cpu/mips/pipeline/decode/simple
+ Decode.bsv                Locally Modified          147 
+
+Directory modules/cpu/mips/pipeline/decode/s10k
+ Decode.bsv                Locally Modified          147 
+
+Directory modules/cpu/mips/pipeline/issue/s10k
+ Issue.bsv                 Locally Modified          147 
+
+Directory modules/cpu/mips/pipeline/fetch/superscalar
+ Fetch.bsv                 Locally Modified          147 
+
+Directory modules/cpu/mips/pipeline/fetch/simple
+ Fetch.bsv                 Locally Modified          147 
+
+Directory modules/cpu/mips/pipeline/writeback/superscalar
+ Commit.bsv                Locally Modified          147 
+
+Directory modules/cpu/mips/pipeline/writeback/simple
+ Writeback.bsv             Locally Modified          147 
+
+Directory modules/cpu/mips/pipeline/mem/simple
+ Mem.bsv                   Locally Modified          147 
+
+Directory modules/cpu/mips
+ UnpipelinedCPU.bsv        Locally Modified          147 
+
+Directory modules/isa/smips
+ SMIPS_Datapath.bsv        Locally Modified          147 
+
+
+Updating MIPS models for hasim_common reorg.
+
+Michael P.

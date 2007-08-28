@@ -37,6 +37,7 @@ File=modules/model/hasim_model.awb
 hasim_system=Hasim - Hardware (fpga) based system
 hasim_controller=Hasim simple controller
 hasim_common=Hasim Common Library
+hasim_fpgaenv=Hasim FPGA Environment
 
 [Hasim functional partition storebuffer software]
 Packagehint=hasim
@@ -49,8 +50,6 @@ hasim_funcp_storebuffer=Hasim functional partition storebuffer software
 File=modules/functional/common/hasim_funcp_memstate_ifc.awb
 Packagehint=hasim
 
-[Hasim Common Library/Requires]
-hasim_fpgaenv=Hasim FPGA Environment
 
 [Uniprocessor chip/Requires]
 hasim_cpu=Hasim Unpipelined CPU
@@ -61,7 +60,7 @@ File=modules/cpu/mips/unpipelined_cpu.awb
 Packagehint=hasim-mips
 
 [Hasim Common Library]
-File=modules/common/hasim_common.awb
+File=config/pm/hasim/submodels/hasim_common.apm
 Packagehint=hasim
 
 [Hasim FPGA Environment]

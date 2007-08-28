@@ -33,6 +33,7 @@ File=modules/model/hasim_model.awb
 hasim_system=Hasim - Hardware (fpga) based system
 hasim_controller=Hasim simple controller
 hasim_common=Hasim Common Library
+hasim_fpgaenv=Hasim FPGA Environment
 
 [Hasim - SMIPS ISA]
 Packagehint=hasim-mips
@@ -58,8 +59,6 @@ Packagehint=hasim-mips
 File=modules/cpu/mips/s10k/Parameters.awb
 Packagehint=hasim-mips
 
-[Hasim Common Library/Requires]
-hasim_fpgaenv=Hasim FPGA Environment
 
 [Superscalar Writeback Stage]
 File=modules/cpu/mips/pipeline/writeback/superscalar/Commit.awb
@@ -87,7 +86,7 @@ File=modules/cpu/mips/pipeline/issue/issue_alg/simple/priorityAlgo/IssueAlg.awb
 Packagehint=hasim-mips
 
 [Hasim Common Library]
-File=modules/common/hasim_common.awb
+File=config/pm/hasim/submodels/hasim_common.apm
 Packagehint=hasim
 
 [One Entry Branch Stack]
