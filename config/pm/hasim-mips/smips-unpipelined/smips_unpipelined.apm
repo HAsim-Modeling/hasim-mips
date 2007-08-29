@@ -1,8 +1,4 @@
 
-
-
-
-
 [Hasim simple controller]
 Packagehint=hasim
 File=modules/controller/simple/hasim_simple_controller.awb
@@ -16,20 +12,14 @@ Name=Unpipelined SMIPS Model
 Type=HAsim
 Class=Asim::Model
 
-
-
 [Hasim - Hardware (fpga) based system/Requires]
 hasim_funcp=Hasim functional partition semantic model
 hasim_chip=Uniprocessor chip
 hasim_isa=Hasim - SMIPS ISA
 
-
 [Model]
 DefaultAttributes=hasim smips simple
 model=HAsim Model Foundation
-
-
-
 
 [Hasim - Hardware (fpga) based system]
 Packagehint=hasim
@@ -39,17 +29,11 @@ File=modules/system/single_chip_system/hasim_system.awb
 Packagehint=hasim
 File=modules/model/hasim_model.awb
 
-
-
 [HAsim Model Foundation/Requires]
 hasim_system=Hasim - Hardware (fpga) based system
 hasim_controller=Hasim simple controller
 hasim_common=Hasim Common Library
-hasim_fpgaenv=Hasim FPGA Environment
-
-
-
-
+fpgaenv=FPGA Environment
 
 [Uniprocessor chip/Requires]
 hasim_cpu=Hasim Unpipelined CPU
@@ -63,9 +47,6 @@ Packagehint=hasim-mips
 File=config/pm/hasim/submodels/hasim_common.apm
 Packagehint=hasim
 
-[Hasim FPGA Environment]
-File=config/pm/hasim/submodels/fpgaenv/hasim-fpgaenv-null.apm
-Packagehint=hasim
 
 [Uniprocessor chip]
 File=modules/chip/mips/uniprocessor/uniprocessor.awb
@@ -89,3 +70,7 @@ hasim_local_controller=Hasim local controller
 [Hasim functional partition semantic model]
 File=config/pm/hasim-mips/submodels/funcp/smips_funcp_new.apm
 Packagehint=hasim-mips
+
+[FPGA Environment]
+File=config/pm/hasim/submodels/fpgaenv/hasim-fpgaenv-null.apm
+Packagehint=hasim

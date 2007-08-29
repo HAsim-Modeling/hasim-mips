@@ -2972,3 +2972,35 @@ Directory modules/isa/smips
 Updating MIPS models for hasim_common reorg.
 
 Michael P.
+
+----------
+mpellaue    Date: Wed Aug 29 16:10:00 EDT 2007  CSN: CSN-hasim-mips-149
+                  Wed Aug 29 20:10:00 UTC 2007
+
+
+Directory config/pm/hasim-mips/smips-5stage
+ smips_5stage.apm          Locally Modified          148 
+ smips_5stage_simulation.apm Locally Modified          148 
+ smips_5stage_barrier.apm  Locally Modified          148 
+
+Directory config/pm/hasim-mips
+ semantic-model/           Locally Removed           147 
+
+Directory config/pm/hasim-mips/toymips
+ hasim_toymips_simple.apm  Locally Modified          148 
+
+Directory config/pm/hasim-mips/smips-unpipelined
+ smips_unpipelined.apm     Locally Modified          148 
+ smips_unpipelined_qemu.apm Locally Modified          148 
+
+Directory config/pm/hasim-mips/s10k
+ s10k.apm                  Locally Modified          148 
+ s10k_sim_new.apm          Locally Removed           148 
+ s10k_sim.apm              Locally Modified          148 
+ s10k_funcp.apm            Locally Removed           148 
+
+
+Finished reorg to fpgaenv. Deleted obsolete models. Everything should work with
+the new organization.
+
+Michael P.

@@ -33,8 +33,7 @@ File=modules/model/hasim_model.awb
 hasim_system=Hasim - Hardware (fpga) based system
 hasim_controller=Hasim simple controller
 hasim_common=Hasim Common Library
-hasim_fpgaenv=Hasim FPGA Environment
-
+fpgaenv=FPGA Environment
 
 [Uniprocessor chip/Requires]
 hasim_cpu=Hasim Unpipelined CPU
@@ -67,26 +66,11 @@ Packagehint=hasim
 [Hasim simple controller/Requires]
 hasim_local_controller=Hasim local controller
 
-
-
 [Hasim to FAST functional partition wrapper]
 File=modules/functional/qemu-fast/qemu-fast.awb
 Packagehint=hasim-mips
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-[Hasim FPGA Environment]
+[FPGA Environment]
 File=config/pm/hasim/submodels/fpgaenv/hasim-fpgaenv-null.apm
 Packagehint=hasim
