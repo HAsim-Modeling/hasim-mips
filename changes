@@ -3004,3 +3004,17 @@ Finished reorg to fpgaenv. Deleted obsolete models. Everything should work with
 the new organization.
 
 Michael P.
+
+----------
+mpellaue    Date: Fri Aug 31 16:40:50 EDT 2007  CSN: CSN-hasim-mips-150
+                  Fri Aug 31 20:40:50 UTC 2007
+
+
+Directory config/pm/hasim-mips/submodels/funcp
+ smips-funcp-fpga.apm      Locally Modified          148 
+ smips_funcp_new.apm       Locally Modified          148 
+
+
+Small change to functional partition arrangement. Added the Cache requirement to memstate.
+
+Michael P.
