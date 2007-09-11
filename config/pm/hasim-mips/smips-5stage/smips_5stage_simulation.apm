@@ -102,7 +102,7 @@ hasim_local_controller=Hasim local controller
 connection_terminus=Hasim Connection Terminus
 
 [FPGA Environment]
-File=config/pm/hasim/submodels/fpgaenv/hasim-fpgaenv-null.apm
+File=config/pm/hasim/submodels/fpgaenv/hasim-fpgaenv-software-no-gui.apm
 Packagehint=platforms
 
 [Hasim functional partition semantic model]
