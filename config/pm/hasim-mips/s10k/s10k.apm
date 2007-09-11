@@ -138,11 +138,16 @@ Packagehint=hasim
 
 [Hasim simple controller/Requires]
 hasim_local_controller=Hasim local controller
+connection_terminus=Hasim Connection Terminus
 
 [FPGA Environment]
 File=config/pm/hasim/submodels/fpgaenv/hasim-fpgaenv-xup.apm
-Packagehint=hasim
+Packagehint=platforms
 
 [Hasim functional partition semantic model]
 File=config/pm/hasim-mips/submodels/funcp/smips_funcp_new.apm
 Packagehint=hasim-mips
+
+[Hasim Connection Terminus]
+File=modules/controller/connection-terminus/connection-terminus.awb
+Packagehint=hasim

@@ -3018,3 +3018,27 @@ Directory config/pm/hasim-mips/submodels/funcp
 Small change to functional partition arrangement. Added the Cache requirement to memstate.
 
 Michael P.
+
+----------
+aparasha    Date: Tue Sep 11 14:51:55 EDT 2007  CSN: CSN-hasim-mips-151
+                  Tue Sep 11 18:51:55 UTC 2007
+
+
+Directory config/pm/hasim-mips/smips-5stage
+ smips_5stage.apm          Locally Modified          150 
+ smips_5stage_simulation.apm Locally Modified          150 
+ smips_5stage_barrier.apm  Locally Modified          150 
+
+Directory config/pm/hasim-mips/toymips
+ hasim_toymips_simple.apm  Locally Modified          150 
+
+Directory config/pm/hasim-mips/smips-unpipelined
+ smips_unpipelined.apm     Locally Modified          150 
+ smips_unpipelined_qemu.apm Locally Modified          150 
+
+Directory config/pm/hasim-mips/s10k
+ s10k_sim.apm              Locally Modified          150 
+ s10k.apm                  Locally Modified          150 
+
+
+Updated APM files to satisfy ConnectionTerminus dependency.
