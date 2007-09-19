@@ -3052,3 +3052,13 @@ Directory config/pm/hasim-mips/smips-5stage
  smips_5stage_simulation.apm Locally Modified          151 
 
 Use the non-GUI version of the software platform.
+
+----------
+aparasha    Date: Wed Sep 19 13:35:00 EDT 2007  CSN: CSN-hasim-mips-153
+                  Wed Sep 19 17:35:00 UTC 2007
+
+
+Directory config/pm/hasim-mips/smips-5stage
+ smips_5stage_hybrid_sim.apm Locally Added               0 
+
+- added a new 5stage hybrid model for convenience.
