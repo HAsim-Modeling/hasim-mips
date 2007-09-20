@@ -3062,3 +3062,14 @@ Directory config/pm/hasim-mips/smips-5stage
  smips_5stage_hybrid_sim.apm Locally Added               0 
 
 - added a new 5stage hybrid model for convenience.
+----------
+jsemer      Date: Thu Sep 20 08:53:23 EDT 2007  CSN: CSN-hasim-mips-154
+                  Thu Sep 20 12:53:23 UTC 2007
+
+
+Directory tools/scripts/smips
+ setup-bmark               Locally Modified          153 
+ setup-test                Locally Modified          153 
+
+Updated benchmark setup scripts to launch either hybrid designs or pure 
+hardware simulations. 
