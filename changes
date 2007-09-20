@@ -3073,3 +3073,13 @@ Directory tools/scripts/smips
 
 Updated benchmark setup scripts to launch either hybrid designs or pure 
 hardware simulations. 
+
+----------
+mcadler     Date: Thu Sep 20 10:03:46 EDT 2007  CSN: CSN-hasim-mips-155
+                  Thu Sep 20 14:03:46 UTC 2007
+
+
+Directory config/pm/hasim-mips/s10k
+ s10k_sim.apm              Locally Modified          154 
+
+Fix fpgaenv for s10k_sim.
