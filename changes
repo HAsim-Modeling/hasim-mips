@@ -3083,3 +3083,13 @@ Directory config/pm/hasim-mips/s10k
  s10k_sim.apm              Locally Modified          154 
 
 Fix fpgaenv for s10k_sim.
+
+----------
+aparasha    Date: Thu Oct  4 16:29:37 EDT 2007  CSN: CSN-hasim-mips-156
+                  Thu Oct  4 20:29:37 UTC 2007
+
+
+Directory config/pm/hasim-mips/smips-5stage
+ smips_5stage_hybrid_sim.apm Locally Modified          155 
+
+- updated fpgaenv for hybrid model

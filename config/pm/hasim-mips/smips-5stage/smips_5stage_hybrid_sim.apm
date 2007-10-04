@@ -1,8 +1,4 @@
 
-[Hasim simple controller]
-Packagehint=hasim
-File=modules/controller/simple/hasim_simple_controller.awb
-
 [Global]
 SaveParameters=0
 Description=5-Stage HASim SMIPS Model Hybrid Simulation
@@ -31,7 +27,7 @@ File=modules/model/hasim_model.awb
 
 [HAsim Model Foundation/Requires]
 hasim_system=Hasim - Hardware (fpga) based system
-hasim_controller=Hasim simple controller
+hasim_controller=Hasim hybrid simple controller
 hasim_common=Hasim Common Library
 fpgaenv=FPGA Environment
 
@@ -93,18 +89,6 @@ Packagehint=hasim-mips
 File=modules/memory/magic_memory.awb
 Packagehint=hasim-mips
 
-[Hasim local controller]
-File=modules/controller/local/hasim_local_controller.awb
-Packagehint=hasim
-
-[Hasim simple controller/Requires]
-hasim_local_controller=Hasim local controller
-connection_terminus=Hasim Connection Terminus
-
-[FPGA Environment]
-File=config/pm/hasim/submodels/fpgaenv/hasim-fpgaenv-rrr-sim.apm
-Packagehint=platforms
-
 [Hasim functional partition semantic model]
 File=config/pm/hasim-mips/submodels/funcp/smips_funcp_new.apm
 Packagehint=hasim-mips
@@ -112,3 +96,33 @@ Packagehint=hasim-mips
 [Hasim Connection Terminus]
 File=modules/controller/connection-terminus/connection-terminus.awb
 Packagehint=hasim
+
+[Hasim hybrid simple controller]
+File=modules/controller/hybrid-simple/hybrid-simple-controller.awb
+Packagehint=hasim
+
+[Hasim software controller for hybrid models]
+File=modules/controller/software/software-controller.awb
+Packagehint=hasim
+
+[Hasim hybrid simple controller/Requires]
+software_controller=Hasim software controller for hybrid models
+connection_terminus=Hasim Connection Terminus
+hasim_local_controller=Hasim local controller
+
+[FPGA Environment]
+File=config/pm/hasim/submodels/fpgaenv/hasim-fpgaenv-hybrid-sim.apm
+Packagehint=platforms
+
+[Hasim local controller]
+File=modules/controller/local/hasim_local_controller.awb
+Packagehint=hasim
+
+[Hasim Connection Terminus/Params]
+TERM_FPGA_SWITCHES=0
+TERM_RRR_CLIENT_VOID=0
+TERM_VDEV_MEMORY=0
+TERM_FPGA_BUTTONS=0
+TERM_RRR_CLIENT_DIOV=0
+TERM_VDEV_MEMORY_INVALIDATE=0
+TERM_FPGA_LEDS=0
