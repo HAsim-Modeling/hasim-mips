@@ -134,7 +134,6 @@ Packagehint=hasim
 
 [Hasim simple controller/Requires]
 hasim_local_controller=Hasim local controller
-connection_terminus=Hasim Connection Terminus
 
 [Always taken Branch Predictor]
 File=modules/cpu/mips/branch/predictor/taken/BranchPred.awb
@@ -148,6 +147,10 @@ Packagehint=hasim-mips
 File=config/pm/hasim/submodels/fpgaenv/hasim-fpgaenv-software-no-gui.apm
 Packagehint=platforms
 
-[Hasim Connection Terminus]
-File=modules/controller/connection-terminus/connection-terminus.awb
-Packagehint=hasim
+
+[Hasim Common Library/Params]
+TERM_FPGA_SWITCHES=0
+TERM_VDEV_MEMORY=0
+TERM_FPGA_BUTTONS=0
+TERM_VDEV_MEMORY_INVALIDATE=0
+TERM_FPGA_LEDS=0

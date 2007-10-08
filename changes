@@ -3093,3 +3093,23 @@ Directory config/pm/hasim-mips/smips-5stage
  smips_5stage_hybrid_sim.apm Locally Modified          155 
 
 - updated fpgaenv for hybrid model
+
+----------
+aparasha    Date: Mon Oct  8 14:26:21 EDT 2007  CSN: CSN-hasim-mips-157
+                  Mon Oct  8 18:26:21 UTC 2007
+
+
+Directory config/pm/hasim-mips/smips-5stage
+ smips_5stage.apm          Locally Modified          156 
+ smips_5stage_simulation.apm Locally Modified          156 
+ smips_5stage_barrier.apm  Locally Modified          156 
+ smips_5stage_hybrid_sim.apm Locally Modified          156 
+
+Directory config/pm/hasim-mips/smips-unpipelined
+ smips_unpipelined.apm     Locally Modified          156 
+
+Directory config/pm/hasim-mips/s10k
+ s10k_sim.apm              Locally Modified          156 
+ s10k.apm                  Locally Modified          156 
+
+- updated parameter settings for connection terminus.
