@@ -3113,3 +3113,23 @@ Directory config/pm/hasim-mips/s10k
  s10k.apm                  Locally Modified          156 
 
 - updated parameter settings for connection terminus.
+
+----------
+pellauer    Date: Thu Oct 11 14:32:32 EDT 2007  CSN: CSN-hasim-mips-158
+                  Thu Oct 11 18:32:32 UTC 2007
+
+
+Directory modules/cpu/mips/pipeline/execute/simple_barrier
+ Execute.bsv               Locally Modified          157 
+
+Directory modules/cpu/mips/pipeline/execute/simple
+ Execute.bsv               Locally Modified          157 
+
+Directory modules/isa/smips
+ ISA.bsv                   Locally Modified          157 
+ SMIPS_Datapath.bsv        Locally Modified          157 
+
+
+Return Effective Address from execute so the timing model can simulate a DCache.
+
+Michael P.

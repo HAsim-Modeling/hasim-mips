@@ -96,6 +96,8 @@ module [HASim_Module] mkPipe_Execute#(File debug_file, Tick curTick)
 	end
       tagged RNop:
 	port_to_fet.send(tagged Invalid);
+      tagged REffectiveAddr .ea:
+	    port_to_fet.send(tagged Invalid);
       tagged RTerminate .pf:
       begin
 	port_to_fet.send(tagged Invalid);

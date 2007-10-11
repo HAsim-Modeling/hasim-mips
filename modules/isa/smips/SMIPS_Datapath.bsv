@@ -52,7 +52,7 @@ module [HASim_Module] mkISA_Datapath
 	
 	  Addr extimm = signExtend(info.offset);
 	  eaddr = src1 + extimm;
-	  res   = tagged RNop;
+	  res   = tagged REffectiveAddr eaddr;
 	  wb    = False;
 	  dbg   = $fdisplay(debug_log, "LW EADDR 0x%h = 0x%h + 0x%h", eaddr, src1, extimm);
 
@@ -64,7 +64,7 @@ module [HASim_Module] mkISA_Datapath
 
 	  Addr extimm = signExtend(info.offset);
 	  eaddr = src1 + extimm;
-	  res   = tagged RNop;
+	  res   = tagged REffectiveAddr eaddr;
 	  wbval = src2;
 	  dbg   = $fdisplay(debug_log, "SW EADDR 0x%h = 0x%h + 0x%h <= 0x%h", eaddr, src1, extimm, src2);
 

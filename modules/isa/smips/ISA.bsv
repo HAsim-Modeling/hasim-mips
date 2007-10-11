@@ -369,10 +369,11 @@ typedef struct
 //FP Exec-->TP
 typedef union tagged
 {
-  Addr     RBranchTaken;
-  Addr     RBranchNotTaken;
-  void     RNop;
-  Bool     RTerminate; //Bool is pass/fail
+  Addr     RBranchTaken;    //Branch was taken to this Addr
+  Addr     RBranchNotTaken; //Branch was not taken
+  Addr     REffectiveAddr;  //Load/Store effective address for DCache
+  void     RNop;            //ALU op with no interesting data
+  Bool     RTerminate;      //End the run if this instruction commits. Bool is pass/fail.
 }
   InstResult 
     deriving 
