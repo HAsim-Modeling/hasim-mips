@@ -3133,3 +3133,13 @@ Directory modules/isa/smips
 Return Effective Address from execute so the timing model can simulate a DCache.
 
 Michael P.
+
+----------
+aparasha    Date: Tue Oct 23 18:36:26 EDT 2007  CSN: CSN-hasim-mips-159
+                  Tue Oct 23 22:36:26 UTC 2007
+
+
+Directory tools/scripts/smips
+ setup-bmark               Locally Modified          158 
+
+run script now passes arguments through to simulation binary.
