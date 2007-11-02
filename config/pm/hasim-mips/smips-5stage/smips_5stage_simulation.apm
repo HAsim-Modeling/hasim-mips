@@ -1,7 +1,4 @@
 
-[Hasim simple controller]
-Packagehint=hasim
-File=modules/controller/simple/hasim_simple_controller.awb
 
 [Global]
 SaveParameters=0
@@ -31,7 +28,7 @@ File=modules/model/hasim_model.awb
 
 [HAsim Model Foundation/Requires]
 hasim_system=Hasim - Hardware (fpga) based system
-hasim_controller=Hasim simple controller
+hasim_controller=Hasim Simulation-Only Simple controller
 hasim_common=Hasim Common Library
 fpgaenv=FPGA Environment
 
@@ -93,12 +90,7 @@ Packagehint=hasim-mips
 File=modules/memory/magic_memory.awb
 Packagehint=hasim-mips
 
-[Hasim local controller]
-File=modules/controller/local/hasim_local_controller.awb
-Packagehint=hasim
 
-[Hasim simple controller/Requires]
-hasim_local_controller=Hasim local controller
 
 [FPGA Environment]
 File=config/pm/hasim/submodels/fpgaenv/hasim-fpgaenv-software-no-gui.apm
@@ -108,10 +100,13 @@ Packagehint=platforms
 File=config/pm/hasim-mips/submodels/funcp/smips_funcp_new.apm
 Packagehint=hasim-mips
 
-
 [Hasim Common Library/Params]
 TERM_FPGA_SWITCHES=0
 TERM_VDEV_MEMORY=0
 TERM_FPGA_BUTTONS=0
 TERM_VDEV_MEMORY_INVALIDATE=0
 TERM_FPGA_LEDS=0
+
+[Hasim Simulation-Only Simple controller]
+File=config/pm/hasim/submodels/controller/hasim_simulation_only_controller.apm
+Packagehint=hasim

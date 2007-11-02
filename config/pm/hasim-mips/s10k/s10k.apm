@@ -1,14 +1,11 @@
 
-[Hasim simple controller]
-Packagehint=hasim
-File=modules/controller/simple/hasim_simple_controller.awb
 
 [Global]
 SaveParameters=0
-Description=SMIPS R10K Core XUP
+Description=SMIPS R10K Core Hybrid
 File=s10k
 Version=2.1
-Name=SMIPS R10K Core XUP
+Name=SMIPS R10K Core Hybrid
 Type=HAsim
 Class=Asim::Model
 
@@ -18,7 +15,7 @@ hasim_chip=Uniprocessor chip
 hasim_isa=Hasim - SMIPS ISA
 
 [Model]
-DefaultAttributes=s10k smips hasim xup
+DefaultAttributes=s10k smips hasim hybrid
 model=HAsim Model Foundation
 
 [Hasim - Hardware (fpga) based system]
@@ -31,7 +28,7 @@ File=modules/model/hasim_model.awb
 
 [HAsim Model Foundation/Requires]
 hasim_system=Hasim - Hardware (fpga) based system
-hasim_controller=Hasim simple controller
+hasim_controller=Hasim hybrid simple controller
 hasim_common=Hasim Common Library
 fpgaenv=FPGA Environment
 
@@ -132,21 +129,15 @@ Packagehint=hasim-mips
 File=modules/cpu/mips/branch/stack/1entry/BranchStack.awb
 Packagehint=hasim-mips
 
-[Hasim local controller]
-File=modules/controller/local/hasim_local_controller.awb
-Packagehint=hasim
 
-[Hasim simple controller/Requires]
-hasim_local_controller=Hasim local controller
 
 [FPGA Environment]
-File=config/pm/hasim/submodels/fpgaenv/hasim-fpgaenv-xup.apm
+File=config/pm/hasim/submodels/fpgaenv/hasim-fpgaenv-hybrid-sim.apm
 Packagehint=platforms
 
 [Hasim functional partition semantic model]
 File=config/pm/hasim-mips/submodels/funcp/smips_funcp_new.apm
 Packagehint=hasim-mips
-
 
 [Hasim Common Library/Params]
 TERM_FPGA_SWITCHES=0
@@ -154,3 +145,7 @@ TERM_VDEV_MEMORY=0
 TERM_FPGA_BUTTONS=0
 TERM_VDEV_MEMORY_INVALIDATE=0
 TERM_FPGA_LEDS=0
+
+[Hasim hybrid simple controller]
+File=config/pm/hasim/submodels/controller/hasim_hybrid_simple_controller.apm
+Packagehint=hasim

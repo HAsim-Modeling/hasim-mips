@@ -1,7 +1,4 @@
 
-[Hasim simple controller]
-Packagehint=hasim
-File=modules/controller/simple/hasim_simple_controller.awb
 
 [Global]
 SaveParameters=0
@@ -31,7 +28,7 @@ File=modules/model/hasim_model.awb
 
 [HAsim Model Foundation/Requires]
 hasim_system=Hasim - Hardware (fpga) based system
-hasim_controller=Hasim simple controller
+hasim_controller=Hasim null controller
 hasim_common=Hasim Common Library
 fpgaenv=FPGA Environment
 
@@ -59,13 +56,7 @@ Packagehint=hasim-mips
 File=modules/isa/smips/hasim_smips_isa.awb
 Packagehint=hasim-mips
 
-[Hasim local controller]
-File=modules/controller/local/hasim_local_controller.awb
-Packagehint=hasim
 
-[Hasim simple controller/Requires]
-hasim_local_controller=Hasim local controller
-connection_terminus=Hasim Connection Terminus
 
 [Hasim to FAST functional partition wrapper]
 File=modules/functional/qemu-fast/qemu-fast.awb
@@ -75,6 +66,7 @@ Packagehint=hasim-mips
 File=config/pm/hasim/submodels/fpgaenv/hasim-fpgaenv-null.apm
 Packagehint=platforms
 
-[Hasim Connection Terminus]
-File=modules/controller/connection-terminus/connection-terminus.awb
+
+[Hasim null controller]
+File=modules/controller/hardware-only/null/hasim_null_controller.awb
 Packagehint=hasim

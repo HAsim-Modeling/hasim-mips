@@ -1,14 +1,10 @@
 
-[Hasim simple controller]
-Packagehint=hasim
-File=modules/controller/simple/hasim_simple_controller.awb
-
 [Global]
 SaveParameters=0
-Description=SMIPS R10K Core Simulation
+Description=SMIPS R10K Core Simulation Only
 File=s10k_sim
 Version=2.1
-Name=SMIPS R10K Core Simulation
+Name=SMIPS R10K Core Simulation Only
 Type=HAsim
 Class=Asim::Model
 
@@ -31,7 +27,7 @@ File=modules/model/hasim_model.awb
 
 [HAsim Model Foundation/Requires]
 hasim_system=Hasim - Hardware (fpga) based system
-hasim_controller=Hasim simple controller
+hasim_controller=Hasim Simulation-Only Simple controller
 hasim_common=Hasim Common Library
 fpgaenv=FPGA Environment
 
@@ -128,13 +124,6 @@ Packagehint=hasim-mips
 File=modules/cpu/mips/branch/stack/1entry/BranchStack.awb
 Packagehint=hasim-mips
 
-[Hasim local controller]
-File=modules/controller/local/hasim_local_controller.awb
-Packagehint=hasim
-
-[Hasim simple controller/Requires]
-hasim_local_controller=Hasim local controller
-
 [Always taken Branch Predictor]
 File=modules/cpu/mips/branch/predictor/taken/BranchPred.awb
 Packagehint=hasim-mips
@@ -147,10 +136,13 @@ Packagehint=hasim-mips
 File=config/pm/hasim/submodels/fpgaenv/hasim-fpgaenv-software-no-gui.apm
 Packagehint=platforms
 
-
 [Hasim Common Library/Params]
 TERM_FPGA_SWITCHES=0
 TERM_VDEV_MEMORY=0
 TERM_FPGA_BUTTONS=0
 TERM_VDEV_MEMORY_INVALIDATE=0
 TERM_FPGA_LEDS=0
+
+[Hasim Simulation-Only Simple controller]
+File=config/pm/hasim/submodels/controller/hasim_simulation_only_controller.apm
+Packagehint=hasim

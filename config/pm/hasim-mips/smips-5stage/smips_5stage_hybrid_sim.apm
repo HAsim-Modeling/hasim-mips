@@ -93,26 +93,15 @@ Packagehint=hasim-mips
 File=config/pm/hasim-mips/submodels/funcp/smips_funcp_new.apm
 Packagehint=hasim-mips
 
-
 [Hasim hybrid simple controller]
-File=modules/controller/hybrid-simple/hybrid-simple-controller.awb
+File=config/pm/hasim/submodels/controller/hasim_hybrid_simple_controller.apm
 Packagehint=hasim
 
-[Hasim software controller for hybrid models]
-File=modules/controller/software/software-controller.awb
-Packagehint=hasim
 
-[Hasim hybrid simple controller/Requires]
-software_controller=Hasim software controller for hybrid models
-hasim_local_controller=Hasim local controller
 
 [FPGA Environment]
 File=config/pm/hasim/submodels/fpgaenv/hasim-fpgaenv-hybrid-sim.apm
 Packagehint=platforms
-
-[Hasim local controller]
-File=modules/controller/local/hasim_local_controller.awb
-Packagehint=hasim
 
 
 [Hasim Common Library/Params]
