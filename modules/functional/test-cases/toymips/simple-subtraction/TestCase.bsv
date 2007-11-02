@@ -30,10 +30,10 @@ function TestCase#(Inst, Value) testSubtraction (Integer x, Integer y);
   return TestCase
          {
            imem_init: prog, 
-	   dmem_init: dmem_i, 
-	   dmem_exp:  dmem_e
-	 };
-	 
+           dmem_init: dmem_i, 
+           dmem_exp:  dmem_e
+         };
+ 
 endfunction
 
 //Eventually these should be parameters

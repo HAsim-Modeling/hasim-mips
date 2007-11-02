@@ -35,7 +35,7 @@ module mkBranchPred(BranchPred);
     method ActionValue#(Bool) getPredResp();
     
         respQ.deq();
-	return respQ.first();
+        return respQ.first();
     
     endmethod
     

@@ -3170,3 +3170,90 @@ Directory config/pm/hasim-mips/s10k
 Changed APM files to reflect the new Controller organization.
 
 Michael P.
+
+----------
+pellauer    Date: Fri Nov  2 16:20:51 EDT 2007  CSN: CSN-hasim-mips-161
+                  Fri Nov  2 20:20:51 UTC 2007
+
+
+Directory modules/functional/toymips
+ FUNCP_ExecuteAlg.bsv      Locally Modified          159 
+ FUNCP_DecodeAlg.bsv       Locally Modified          159 
+
+Directory modules/functional/mips
+ FUNCP_FetchAlg.bsv        Locally Modified          159 
+ FUNCP_MemAlg.bsv          Locally Modified          159 
+
+Directory modules/functional/smips
+ FUNCP_ExecuteAlg.bsv      Locally Modified          159 
+ FUNCP_DecodeAlg.bsv       Locally Modified          159 
+
+Directory modules/functional/test-cases/toymips/simple-addition
+ TestCase.bsv              Locally Modified          159 
+
+Directory modules/functional/test-cases/toymips/stalls
+ TestCase.bsv              Locally Modified          159 
+
+Directory modules/functional/test-cases/toymips/simple-subtraction
+ TestCase.bsv              Locally Modified          159 
+
+Directory modules/functional/test-cases/toymips/branch
+ TestCase.bsv              Locally Modified          159 
+
+Directory modules/functional/test-cases/smips/simple-addition
+ TestCase.bsv              Locally Modified          159 
+
+Directory modules/functional/test-cases/smips/branch
+ TestCase.bsv              Locally Modified          159 
+
+Directory modules/cpu/mips/pipeline/execute/simple_barrier
+ Execute.bsv               Locally Modified          159 
+
+Directory modules/cpu/mips/pipeline/execute/simple
+ Execute.bsv               Locally Modified          159 
+
+Directory modules/cpu/mips/pipeline/decode/simple_barrier
+ Decode.bsv                Locally Modified          159 
+
+Directory modules/cpu/mips/pipeline/decode/simple
+ Decode.bsv                Locally Modified          159 
+
+Directory modules/cpu/mips/pipeline/fetch/simple_barrier
+ Fetch.bsv                 Locally Modified          159 
+
+Directory modules/cpu/mips/pipeline/fetch/simple
+ Fetch.bsv                 Locally Modified          159 
+
+Directory modules/cpu/mips/pipeline/writeback/simple_barrier
+ Writeback.bsv             Locally Modified          159 
+
+Directory modules/cpu/mips/pipeline/writeback/simple
+ Writeback.bsv             Locally Modified          159 
+
+Directory modules/cpu/mips/pipeline/mem/simple_barrier
+ Mem.bsv                   Locally Modified          159 
+
+Directory modules/cpu/mips/pipeline/mem/simple
+ Mem.bsv                   Locally Modified          159 
+
+Directory modules/cpu/mips/branch/predictor/globHistory
+ BranchPred.bsv            Locally Modified          159 
+
+Directory modules/cpu/mips
+ UnpipelinedCPU.bsv        Locally Modified          159 
+
+Directory modules/isa/toymips
+ ISA.bsv                   Locally Modified          159 
+
+Directory modules/isa/smips
+ SMIPS_Datapath.bsv        Locally Modified          159 
+
+
+I finally figured out why my text editor was occaisionally randomly inserting
+tabs into the source code, which was then messing up the formatting for everyone
+else. I have consequently excised all tabs from the source files, as the start
+of moving us towards a unified coding convention.
+
+(The platforms repository is already tab-free.)
+
+Michael P.

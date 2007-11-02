@@ -63,11 +63,11 @@ typedef union tagged
 //Decode-->Exec               
 typedef union tagged 
 {
-  struct {PRName pdest; PRName op1;	PRName op2;     } DAdd;
-  struct {PRName pdest; PRName op1;	PRName op2;     } DSub;
-  struct {PRName cond;	PRName addr;	   	        } DBz;     
+  struct {PRName pdest; PRName op1;        PRName op2;     } DAdd;
+  struct {PRName pdest; PRName op1;        PRName op2;     } DSub;
+  struct {PRName cond;        PRName addr;                           } DBz;     
   struct {PRName pdest; PRName idx;     Bit#(6) offset; } DLoad;
-  struct {PRName pdest; Bit#(12) value;		        } DLoadImm;
+  struct {PRName pdest; Bit#(12) value;                        } DLoadImm;
   struct {PRName value; PRName idx;     Bit#(6) offset; } DStore;
   void                                                    DTerminate;
 }
@@ -113,7 +113,7 @@ typedef enum
 typedef struct 
 {
   Maybe#(Tuple2#(RName, PRName)) dep_dest;
-  Maybe#(Tuple2#(RName, PRName)) dep_src1;  	 
+  Maybe#(Tuple2#(RName, PRName)) dep_src1;           
   Maybe#(Tuple2#(RName, PRName)) dep_src2;
 }
   DepInfo 
@@ -144,22 +144,22 @@ typedef union tagged
   ModelCommand COM_Other;
 }
   Command 
-                deriving 
-		        (Eq, Bits);
+          deriving 
+                   (Eq, Bits);
 
-		
+                
 typedef union tagged
 {
   void                                            RESP_DoneLoading;
-  void                                            RESP_DoneRunning; //Perhaps return local tick here	 
+  void                                            RESP_DoneRunning; //Perhaps return local tick here         
   struct {Addr addr; Value exp_v; Value found_v;} RESP_Failure;
   void                                            RESP_CheckPassed;
   void                                            RESP_CheckFailed;
   ModelResponse                                   RESP_Other;
 }
   Response
-                 deriving
-		         (Eq, Bits);
+           deriving
+                    (Eq, Bits);
 
 //Commands specific to this model
 

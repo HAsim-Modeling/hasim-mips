@@ -75,7 +75,7 @@ module [HASim_Module] mkFUNCP_DecodeAlg ();
       tagged IBz {cond: .c , addr:  .addr}:
           return tuple4(Invalid, c, addr, True);
       tagged ILoad {dest: .rd, idx: .ri, offset: .off}:
-	  return tuple4(Valid rd, ri, ?, False);
+          return tuple4(Valid rd, ri, ?, False);
       tagged ILoadImm {dest: .rd, imm: .i}:
           return tuple4(Valid rd, ?, ?, False);
       tagged IStore {src: .rsrc, idx: .ri, offset: .off}:
@@ -118,17 +118,17 @@ module [HASim_Module] mkFUNCP_DecodeAlg ();
     case (inst) matches
       tagged IAdd {dest: .rd, src1: .ra, src2: .rb}:
         begin
-	  debug_case("inst", "IAdd");
+          debug_case("inst", "IAdd");
 
           decinst = DAdd {pdest: prd, op1: pra, op2: prb};
           depinfo = DepInfo {dep_dest: Just(tuple2(rd, prd)), dep_src1: Just(tuple2(ra, pra)), dep_src2: Just(tuple2(rb,prb))};
-	  
+          
           debug(2, $display("DEC: [%d]: IAdd R%d := R%d + R%d", t, rd, ra, rb));
-	end
+        end
       tagged ISub {dest: .rd, src1: .ra, src2: .rb}:
         begin
-	  debug_case("inst", "ISub");
-	  
+          debug_case("inst", "ISub");
+          
           decinst = DSub {pdest: prd, op1: pra, op2: prb};
           depinfo = DepInfo {dep_dest: Just(tuple2(rd, prd)), dep_src1: Just(tuple2(ra, pra)), dep_src2: Just(tuple2(rb,prb))};
 
@@ -136,8 +136,8 @@ module [HASim_Module] mkFUNCP_DecodeAlg ();
         end
       tagged IBz {cond: .c , addr:  .addr}:
         begin
-	  debug_case("inst", "IBz");
-	  
+          debug_case("inst", "IBz");
+          
           decinst = DBz {cond: pra, addr: prb};
           depinfo = DepInfo {dep_dest: Nothing, dep_src1: Just(tuple2(c,pra)), dep_src2: Just(tuple2(addr,prb))};
 
@@ -145,8 +145,8 @@ module [HASim_Module] mkFUNCP_DecodeAlg ();
         end
       tagged ILoad {dest: .rd, idx: .ri, offset: .off}:
         begin
-	  debug_case("inst", "ILoad");
-	  
+          debug_case("inst", "ILoad");
+          
           decinst = DLoad {pdest: prd, idx: pra, offset: zeroExtend(off)};
           depinfo = DepInfo {dep_dest: Just(tuple2(rd,prd)), dep_src1: Just(tuple2(ri,pra)), dep_src2: Nothing};
 
@@ -154,8 +154,8 @@ module [HASim_Module] mkFUNCP_DecodeAlg ();
         end
       tagged ILoadImm {dest: .rd, imm: .i}:
         begin
-	  debug_case("inst", "ILoadImm");
-	  
+          debug_case("inst", "ILoadImm");
+          
           decinst = DLoadImm {pdest: prd, value: signExtend(i)};
           depinfo = DepInfo {dep_dest: Just(tuple2(rd,prd)), dep_src1: Nothing, dep_src2: Nothing};
 
@@ -163,17 +163,17 @@ module [HASim_Module] mkFUNCP_DecodeAlg ();
         end
       tagged IStore {src: .rsrc, idx: .ri, offset: .off}:
         begin
-	  debug_case("inst", "IStore");
-	  
+          debug_case("inst", "IStore");
+          
           decinst = DStore{value: pra, idx: prb, offset: zeroExtend(off)};
           depinfo = DepInfo {dep_dest: Nothing, dep_src1: Just(tuple2(ri,prb)), dep_src2: Just(tuple2(rsrc,pra))};
-	  
+          
           debug(2, $display("DEC: [%d]: IStore (R%d + %h) := R%d", t, ri, off, rsrc));
         end
       tagged ITerminate:
         begin
-	  debug_case("inst", "ITerminate");
-	  
+          debug_case("inst", "ITerminate");
+          
           decinst = DTerminate;
           depinfo = DepInfo {dep_dest: Nothing, dep_src1: Nothing, dep_src2: Nothing};
 

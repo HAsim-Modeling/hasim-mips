@@ -47,8 +47,8 @@ module [HASim_Module] mkPipe_Fetch#(File debug_file, Tick curTick)
   Reg#(Token)          stall_tok <- mkRegU;
   Reg#(Maybe#(Addr))  stall_addr <- mkRegU;
   Reg#(Bit#(16))     stall_count <- mkReg(0);
-  Reg#(Bool)         	stalling <- mkReg(False);
-  Reg#(FET_State)    	   state <- mkReg(FET_Ready);
+  Reg#(Bool)                 stalling <- mkReg(False);
+  Reg#(FET_State)               state <- mkReg(FET_Ready);
   
   //For branch prediction
   
@@ -108,23 +108,23 @@ module [HASim_Module] mkPipe_Fetch#(File debug_file, Tick curTick)
       begin
       
         //Look up this token
-	Bool pred_taken = ktok.timep_info.scratchpad[0] == 1; //The prediction is stored in the scratchpad
-	let iaddr = addrs.sub(ktok.index); //Get the address
-	let hash = btbHash(iaddr);    //Hash the address
+        Bool pred_taken = ktok.timep_info.scratchpad[0] == 1; //The prediction is stored in the scratchpad
+        let iaddr = addrs.sub(ktok.index); //Get the address
+        let hash = btbHash(iaddr);    //Hash the address
         let pred_pc = btb.sub(hash);  //Get the predpc 
-	
-	case (mpc) matches
-	  tagged Invalid:  //Branch predicted correctly
-	  begin 
-	    branch_pred.upd(ktok, iaddr, pred_taken, pred_taken);
-	  end
-	  tagged Valid .new_pc: //Branch mispredicted. Start the new epoch
-	  begin
-	    branch_pred.upd(ktok, iaddr, pred_taken, !pred_taken);
-	    btb.upd(hash, tagged Valid new_pc);
-	    epoch <= epoch + 1;
-	    pc <= new_pc;
-	  end
+        
+        case (mpc) matches
+          tagged Invalid:  //Branch predicted correctly
+          begin 
+            branch_pred.upd(ktok, iaddr, pred_taken, pred_taken);
+          end
+          tagged Valid .new_pc: //Branch mispredicted. Start the new epoch
+          begin
+            branch_pred.upd(ktok, iaddr, pred_taken, !pred_taken);
+            btb.upd(hash, tagged Valid new_pc);
+            epoch <= epoch + 1;
+            pc <= new_pc;
+          end
         endcase
 
       end
@@ -133,26 +133,26 @@ module [HASim_Module] mkPipe_Fetch#(File debug_file, Tick curTick)
     if (!stalling)
       begin
         $fdisplay(debug_file, "[%d]:TOK:REQ", curTick);
-	fp_tok_req.send(17); //17 is arbitrarily-chosen bug workaround
-	state <= FET_GetInst;
+        fp_tok_req.send(17); //17 is arbitrarily-chosen bug workaround
+        state <= FET_GetInst;
 
       end
     else
       begin
       
         if (stall_count == 0)
-	  begin
+          begin
             port_to_dec.send(tagged Valid tuple2(stall_tok, stall_addr));
             event_fet.recordEvent(tagged Valid zeroExtend(stall_tok.index));
             stat_fet.incr();
-	    stalling <= False;
-	  end
-	else
-	  begin
+            stalling <= False;
+          end
+        else
+          begin
             port_to_dec.send(tagged Invalid);
             event_fet.recordEvent(tagged Invalid);
             stall_count <= stall_count - 1;
-	  end
+          end
       end
 
    endrule

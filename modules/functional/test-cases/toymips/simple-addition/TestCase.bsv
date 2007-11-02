@@ -29,10 +29,10 @@ function TestCase testAddition (Integer x, Integer y);
   return TestCase
          {
            imem_init: prog, 
-	   dmem_init: dmem_i, 
-	   dmem_exp:  dmem_e
-	 };
-	 
+           dmem_init: dmem_i, 
+           dmem_exp:  dmem_e
+         };
+ 
 endfunction
 
 

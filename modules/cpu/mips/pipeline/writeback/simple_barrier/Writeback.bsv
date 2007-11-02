@@ -80,13 +80,13 @@ module [HASim_Module] mkPipe_Writeback#(File debug_file, Tick curTick)
       tagged Invalid:
       begin
         noAction;
-	event_wb.recordEvent(tagged Invalid);
+        event_wb.recordEvent(tagged Invalid);
       end
       tagged Valid .tok:
       begin
         $fdisplay(debug_file, "[%d]:LCO:REQ: %0d", curTick, tok.index);
         fp_lco_req.send(tuple2(tok, ?));
-	in_flight <= True;
+        in_flight <= True;
       end
     endcase
   

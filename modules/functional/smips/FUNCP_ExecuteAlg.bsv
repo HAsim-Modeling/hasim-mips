@@ -196,562 +196,562 @@ module [HASim_Module] mkFUNCP_ExecuteAlg#(File debug_log, Tick curCC) ();
       
       //Load Word
       tagged DLW {pbase: .rb, pdest: .rd, offset: .off}: 
-	begin
-	
+        begin
+        
           done  = isJust(mva);
-	  Addr extimm = signExtend(off);
-	  Addr ea = unJust(mva) + extimm;
-	  res   = tagged RNop;
-	  dbg = $fdisplay(debug_log, "[%d]: EXE: [%d] LW PR%d <= MEM[0x%h = 0x%h + 0x%h]", curCC,  tok.index, rd, ea, unJust(mva), extimm);
-	  einst = ELoad 
-	          {
-		    addr:  ea,
-		    pdest: rd 
-		  };
-	end
-	
+          Addr extimm = signExtend(off);
+          Addr ea = unJust(mva) + extimm;
+          res   = tagged RNop;
+          dbg = $fdisplay(debug_log, "[%d]: EXE: [%d] LW PR%d <= MEM[0x%h = 0x%h + 0x%h]", curCC,  tok.index, rd, ea, unJust(mva), extimm);
+          einst = ELoad 
+                  {
+                    addr:  ea,
+                    pdest: rd 
+                  };
+        end
+        
       //Store Word
       tagged DSW {pbase: .rb, psrc: .rs, offset: .off}: 
-	begin
-	
+        begin
+        
           done  = isJust(mva) && isJust(mvb);
-	  Addr extimm = signExtend(off);
-	  Value ea = unJust(mva) + extimm;
-	  res   = tagged RNop;
-	  dbg = $fdisplay(debug_log, "[%d]: EXE: [%d] SW MEM[0x%h = 0x%h + 0x%h] <= 0x%h", curCC,  tok.index, ea, unJust(mva), extimm, unJust(mvb));
-	  einst = EStore
-	          {
-		    addr: ea,
-		    val:  unJust(mvb)
-		  };
-	end
+          Addr extimm = signExtend(off);
+          Value ea = unJust(mva) + extimm;
+          res   = tagged RNop;
+          dbg = $fdisplay(debug_log, "[%d]: EXE: [%d] SW MEM[0x%h = 0x%h + 0x%h] <= 0x%h", curCC,  tok.index, ea, unJust(mva), extimm, unJust(mvb));
+          einst = EStore
+                  {
+                    addr: ea,
+                    val:  unJust(mvb)
+                  };
+        end
 
       // -- Simple Ops ------------------------------------------------      
 
       //Add Immediate Unsigned 
       //Actually the numbers are sign extended, it just can't overflow
       tagged DADDIU {psrc: .rs, pdest: .rd, imm:.simm}: 
-	begin
-	
+        begin
+        
           done  = isJust(mva);
-	  res   = tagged RNop;
-	  Value extimm = signExtend(simm);
-	  wbval = unJust(mva) + extimm;
-	  dbg = $fdisplay(debug_log, "[%d]: EXE: [%d] DADDIU PR%d <= 0x%h = 0x%h + 0x%h]", curCC,  tok.index, rd, wbval, unJust(mva), extimm);
-	  einst = EWB
-	          {
-		    pdest:  rd
-		  };
-	end
-	
+          res   = tagged RNop;
+          Value extimm = signExtend(simm);
+          wbval = unJust(mva) + extimm;
+          dbg = $fdisplay(debug_log, "[%d]: EXE: [%d] DADDIU PR%d <= 0x%h = 0x%h + 0x%h]", curCC,  tok.index, rd, wbval, unJust(mva), extimm);
+          einst = EWB
+                  {
+                    pdest:  rd
+                  };
+        end
+        
       //Set Less Than Immediate (Signed)
       tagged DSLTI {psrc: .rs, pdest: .rd, imm:.simm}: 
-	begin
-	
+        begin
+        
           done  = isJust(mva);
-	  res   = tagged RNop;
-	  Value extimm = signExtend(simm);
-	  wbval = zeroExtend(pack(signedLT(unJust(mva), extimm)));
-	  dbg = $fdisplay(debug_log, "[%d]: EXE: [%d] DSLTI PR%d <= 0x%h = slt(0x%h, 0x%h)", curCC,  tok.index, rd, wbval, unJust(mva), extimm);
-	  einst = EWB
-	          {
-		    pdest:  rd
-		  };
-	end
-	
+          res   = tagged RNop;
+          Value extimm = signExtend(simm);
+          wbval = zeroExtend(pack(signedLT(unJust(mva), extimm)));
+          dbg = $fdisplay(debug_log, "[%d]: EXE: [%d] DSLTI PR%d <= 0x%h = slt(0x%h, 0x%h)", curCC,  tok.index, rd, wbval, unJust(mva), extimm);
+          einst = EWB
+                  {
+                    pdest:  rd
+                  };
+        end
+        
       //Set Less Than Immediate Unsigned 
       tagged DSLTIU {psrc: .rs, pdest: .rd, imm:.simm}: 
-	begin
-	
+        begin
+        
           done  = isJust(mva);
-	  res   = tagged RNop;
-	  Value extimm = signExtend(simm);
-	  wbval = zeroExtend(pack(unJust(mva) < extimm));
-	  dbg = $fdisplay(debug_log, "[%d]: EXE: [%d] DSLTIU PR%d <= 0x%h = sltu(0x%h, 0x%h)", curCC,  tok.index, rd, wbval, unJust(mva), extimm);
-	  einst = EWB
-	          {
-		    pdest:  rd
-		  };
-	end
-	
+          res   = tagged RNop;
+          Value extimm = signExtend(simm);
+          wbval = zeroExtend(pack(unJust(mva) < extimm));
+          dbg = $fdisplay(debug_log, "[%d]: EXE: [%d] DSLTIU PR%d <= 0x%h = sltu(0x%h, 0x%h)", curCC,  tok.index, rd, wbval, unJust(mva), extimm);
+          einst = EWB
+                  {
+                    pdest:  rd
+                  };
+        end
+        
       //And Immediate
       tagged DANDI {psrc: .rs, pdest: .rd, imm:.zimm}: 
-	begin
-	
+        begin
+        
           done  = isJust(mva);
-	  res   = tagged RNop;
-	  wbval = unJust(mva) & zeroExtend(zimm);
-	  dbg = $fdisplay(debug_log, "[%d]: EXE: [%d] DANDI PR%d <= 0x%h = 0x%h & 0x%h", curCC,  tok.index, rd, wbval, unJust(mva), zimm);
+          res   = tagged RNop;
+          wbval = unJust(mva) & zeroExtend(zimm);
+          dbg = $fdisplay(debug_log, "[%d]: EXE: [%d] DANDI PR%d <= 0x%h = 0x%h & 0x%h", curCC,  tok.index, rd, wbval, unJust(mva), zimm);
           einst = EWB
                   {
-		    pdest:  rd
-		  };
-	end
-	
+                    pdest:  rd
+                  };
+        end
+        
       //Or Immediate
       tagged DORI {psrc: .rs, pdest: .rd, imm:.zimm}: 
-	begin
-	
+        begin
+        
           done  = isJust(mva);
-	  res   = tagged RNop;
-	  wbval = unJust(mva) | zeroExtend(zimm);
-	  dbg = $fdisplay(debug_log, "[%d]: EXE: [%d] DORI PR%d <= 0x%h = 0x%h | 0x%h", curCC,  tok.index, rd, wbval, unJust(mva), zimm);
+          res   = tagged RNop;
+          wbval = unJust(mva) | zeroExtend(zimm);
+          dbg = $fdisplay(debug_log, "[%d]: EXE: [%d] DORI PR%d <= 0x%h = 0x%h | 0x%h", curCC,  tok.index, rd, wbval, unJust(mva), zimm);
           einst = EWB
                   {
-		    pdest:  rd
-		  };
-	end
-	
+                    pdest:  rd
+                  };
+        end
+        
       //XOR Immediate
       tagged DXORI {psrc: .rs, pdest: .rd, imm:.zimm}: 
-	begin
-	
+        begin
+        
           done  = isJust(mva);
-	  res   = tagged RNop;
-	  wbval = unJust(mva) ^ zeroExtend(zimm);
-	  dbg = $fdisplay(debug_log, "[%d]: EXE: [%d] DXORI PR%d <= 0x%h = 0x%h ^ 0x%h", curCC,  tok.index, rd, wbval, unJust(mva), zimm);
+          res   = tagged RNop;
+          wbval = unJust(mva) ^ zeroExtend(zimm);
+          dbg = $fdisplay(debug_log, "[%d]: EXE: [%d] DXORI PR%d <= 0x%h = 0x%h ^ 0x%h", curCC,  tok.index, rd, wbval, unJust(mva), zimm);
           einst = EWB
                   {
-		    pdest:  rd
-		  };
-	end
-	
-	
+                    pdest:  rd
+                  };
+        end
+        
+        
       //Load Unsigned Immediate (Really is unsigned)
       tagged DLUI {pdest: .rd, imm:.zimm}: 
-	begin
+        begin
 
           done  = True;
-	  res   = tagged RNop;
-	  wbval = zeroExtend(zimm) << 16;
-	  dbg = $fdisplay(debug_log, "[%d]: EXE: [%d] DLUI PR%d <= 0x%h = 0x%h << 16", curCC,  tok.index, rd, wbval, zimm);
+          res   = tagged RNop;
+          wbval = zeroExtend(zimm) << 16;
+          dbg = $fdisplay(debug_log, "[%d]: EXE: [%d] DLUI PR%d <= 0x%h = 0x%h << 16", curCC,  tok.index, rd, wbval, zimm);
           einst = EWB
                   {
-		    pdest:  rd
-		  };
-	end
-	
-	
+                    pdest:  rd
+                  };
+        end
+        
+        
       //Shift Left Logical (Immediate)
       tagged DSLL {psrc: .rs, pdest: .rd, shamt:.sha}: 
-	begin
+        begin
 
           done  = isJust(mva);
-	  res   = tagged RNop;
-	  wbval = unJust(mva) << sha;
-	  dbg = $fdisplay(debug_log, "[%d]: EXE: [%d] DSLL PR%d <= 0x%h = 0x%h << 0x%h", curCC,  tok.index, rd, wbval, unJust(mva), sha);
+          res   = tagged RNop;
+          wbval = unJust(mva) << sha;
+          dbg = $fdisplay(debug_log, "[%d]: EXE: [%d] DSLL PR%d <= 0x%h = 0x%h << 0x%h", curCC,  tok.index, rd, wbval, unJust(mva), sha);
           einst = EWB
                   {
-		    pdest:  rd
-		  };
-	end
-	
+                    pdest:  rd
+                  };
+        end
+        
       //Shift Right Logical (Immediate)
       tagged DSRL {psrc: .rs, pdest: .rd, shamt:.sha}: 
-	begin
+        begin
 
           done  = isJust(mva);
-	  res   = tagged RNop;
-	  wbval = unJust(mva) >> sha;
-	  dbg = $fdisplay(debug_log, "[%d]: EXE: [%d] DSRL PR%d <= 0x%h = 0x%h >> 0x%h", curCC,  tok.index, rd, wbval, unJust(mva), sha);
+          res   = tagged RNop;
+          wbval = unJust(mva) >> sha;
+          dbg = $fdisplay(debug_log, "[%d]: EXE: [%d] DSRL PR%d <= 0x%h = 0x%h >> 0x%h", curCC,  tok.index, rd, wbval, unJust(mva), sha);
           einst = EWB
                   {
-		    pdest:  rd
-		  };
-	end
-	
+                    pdest:  rd
+                  };
+        end
+        
       //Shift Right Arithmatic (Immediate)
       tagged DSRA {psrc: .rs, pdest: .rd, shamt:.sha}: 
-	begin
+        begin
 
           done  = isJust(mva);
-	  res   = tagged RNop;
-	  wbval = signedShiftRight(unJust(mva), sha);
-	  dbg = $fdisplay(debug_log, "[%d]: EXE: [%d] DSRA PR%d <= 0x%h = 0x%h <<a 0x%h", curCC,  tok.index, rd, wbval, unJust(mva), sha);
+          res   = tagged RNop;
+          wbval = signedShiftRight(unJust(mva), sha);
+          dbg = $fdisplay(debug_log, "[%d]: EXE: [%d] DSRA PR%d <= 0x%h = 0x%h <<a 0x%h", curCC,  tok.index, rd, wbval, unJust(mva), sha);
           einst = EWB
                   {
-		    pdest:  rd
-		  };
-	end
-	
+                    pdest:  rd
+                  };
+        end
+        
       //Shift Left Logical Variable
       tagged DSLLV {psrc: .rs, pdest: .rd, pshamt:.rsha}: 
-	begin
+        begin
 
           done  = isJust(mva) && isJust(mvb);
-	  res   = tagged RNop;
-	  wbval = unJust(mva) << unJust(mvb)[4:0];
-	  dbg = $fdisplay(debug_log, "[%d]: EXE: [%d] DSLLV PR%d <= 0x%h = 0x%h << 0x%h", curCC,  tok.index, rd, wbval, unJust(mva), unJust(mvb)[4:0]);
+          res   = tagged RNop;
+          wbval = unJust(mva) << unJust(mvb)[4:0];
+          dbg = $fdisplay(debug_log, "[%d]: EXE: [%d] DSLLV PR%d <= 0x%h = 0x%h << 0x%h", curCC,  tok.index, rd, wbval, unJust(mva), unJust(mvb)[4:0]);
           einst = EWB
                   {
-		    pdest:  rd
-		  };
-	end
-	
+                    pdest:  rd
+                  };
+        end
+        
       //Shift Right Logical Variable
       tagged DSRLV {psrc: .rs, pdest: .rd, pshamt:.rsha}: 
-	begin
+        begin
 
           done  = isJust(mva) && isJust(mvb);
-	  res   = tagged RNop;
-	  wbval = unJust(mva) >> unJust(mvb)[4:0];
-	  dbg = $fdisplay(debug_log, "[%d]: EXE: [%d] DSRLV PR%d <= 0x%h = 0x%h >> 0x%h", curCC,  tok.index, rd, wbval, unJust(mva), unJust(mvb)[4:0]);
-	  einst = EWB
-                  {
-		    pdest:  rd
-		  };
-	end
-	
-      //Shift Right Arithmatic Variable
-      tagged DSRAV {psrc: .rs, pdest: .rd, pshamt:.rsha}: 
-	begin
-
-          done  = isJust(mva) && isJust(mvb);
-	  res   = tagged RNop;
-	  wbval = signedShiftRight(unJust(mva), unJust(mvb)[4:0]);
-	  dbg = $fdisplay(debug_log, "[%d]: EXE: [%d] DSRAV PR%d <= 0x%h = 0x%h >>a 0x%h", curCC,  tok.index, rd, wbval, unJust(mva), unJust(mvb)[4:0]);
-	  einst = EWB
-                  {
-		    pdest:  rd
-		  };
-	end
-	
-      //Add Unsigned
-      tagged DADDU {psrc1: .rs1, psrc2: .rs2, pdest: .rd}: 
-	begin
-	  
-          done  = isJust(mva) && isJust(mvb);
-	  res   = tagged RNop;
-	  wbval = unJust(mva) + unJust(mvb);
-	  dbg = $fdisplay(debug_log, "[%d]: EXE: [%d] DADDU PR%d <= %0h = %0h + %0h", curCC,  tok.index, rd, wbval, unJust(mva), unJust(mvb));
+          res   = tagged RNop;
+          wbval = unJust(mva) >> unJust(mvb)[4:0];
+          dbg = $fdisplay(debug_log, "[%d]: EXE: [%d] DSRLV PR%d <= 0x%h = 0x%h >> 0x%h", curCC,  tok.index, rd, wbval, unJust(mva), unJust(mvb)[4:0]);
           einst = EWB
                   {
-		    pdest:  rd
-		  };
-		  
-	    
-	end
+                    pdest:  rd
+                  };
+        end
+        
+      //Shift Right Arithmatic Variable
+      tagged DSRAV {psrc: .rs, pdest: .rd, pshamt:.rsha}: 
+        begin
+
+          done  = isJust(mva) && isJust(mvb);
+          res   = tagged RNop;
+          wbval = signedShiftRight(unJust(mva), unJust(mvb)[4:0]);
+          dbg = $fdisplay(debug_log, "[%d]: EXE: [%d] DSRAV PR%d <= 0x%h = 0x%h >>a 0x%h", curCC,  tok.index, rd, wbval, unJust(mva), unJust(mvb)[4:0]);
+          einst = EWB
+                  {
+                    pdest:  rd
+                  };
+        end
+        
+      //Add Unsigned
+      tagged DADDU {psrc1: .rs1, psrc2: .rs2, pdest: .rd}: 
+        begin
+          
+          done  = isJust(mva) && isJust(mvb);
+          res   = tagged RNop;
+          wbval = unJust(mva) + unJust(mvb);
+          dbg = $fdisplay(debug_log, "[%d]: EXE: [%d] DADDU PR%d <= %0h = %0h + %0h", curCC,  tok.index, rd, wbval, unJust(mva), unJust(mvb));
+          einst = EWB
+                  {
+                    pdest:  rd
+                  };
+                  
+            
+        end
 
       //Subtract Unsigned
       tagged DSUBU {psrc1: .rs1, psrc2: .rs2, pdest: .rd}: 
-	begin
+        begin
 
           done  = isJust(mva) && isJust(mvb);
-	  res   = tagged RNop;
-	  wbval = unJust(mva) - unJust(mvb);
-	  dbg = $fdisplay(debug_log, "[%d]: EXE: [%d] DSUBU PR%d <= %0h = %0h - %0h", curCC,  tok.index, rd, wbval, unJust(mva), unJust(mvb));
+          res   = tagged RNop;
+          wbval = unJust(mva) - unJust(mvb);
+          dbg = $fdisplay(debug_log, "[%d]: EXE: [%d] DSUBU PR%d <= %0h = %0h - %0h", curCC,  tok.index, rd, wbval, unJust(mva), unJust(mvb));
           einst = EWB
                   {
-		    pdest:  rd
-		  };
-	end
-	
+                    pdest:  rd
+                  };
+        end
+        
       //And
       tagged DAND {psrc1: .rs1, psrc2: .rs2, pdest: .rd}: 
-	begin
+        begin
 
           done  = isJust(mva) && isJust(mvb);
-	  res   = tagged RNop;
-	  wbval = unJust(mva) & unJust(mvb);
-	  dbg = $fdisplay(debug_log, "[%d]: EXE: [%d] DAND PR%d <= %0h = %0h & %0h", curCC,  tok.index, rd, wbval, unJust(mva), unJust(mvb));
+          res   = tagged RNop;
+          wbval = unJust(mva) & unJust(mvb);
+          dbg = $fdisplay(debug_log, "[%d]: EXE: [%d] DAND PR%d <= %0h = %0h & %0h", curCC,  tok.index, rd, wbval, unJust(mva), unJust(mvb));
           einst = EWB
                   {
-		    pdest:  rd
-		  };
-	end
+                    pdest:  rd
+                  };
+        end
       
       //OR
       tagged DOR {psrc1: .rs1, psrc2: .rs2, pdest: .rd}: 
-	begin
+        begin
 
           done  = isJust(mva) && isJust(mvb);
-	  res   = tagged RNop;
-	  wbval = unJust(mva) | unJust(mvb);
-	  dbg = $fdisplay(debug_log, "[%d]: EXE: [%d] DOR PR%d <= %0h = %0h | %0h", curCC,  tok.index, rd, wbval, unJust(mva), unJust(mvb));
+          res   = tagged RNop;
+          wbval = unJust(mva) | unJust(mvb);
+          dbg = $fdisplay(debug_log, "[%d]: EXE: [%d] DOR PR%d <= %0h = %0h | %0h", curCC,  tok.index, rd, wbval, unJust(mva), unJust(mvb));
           einst = EWB
                   {
-		    pdest:  rd
-		  };
-	end
-	
+                    pdest:  rd
+                  };
+        end
+        
       //XOR
       tagged DXOR {psrc1: .rs1, psrc2: .rs2, pdest: .rd}: 
-	begin
+        begin
 
           done  = isJust(mva) && isJust(mvb);
-	  res   = tagged RNop;
-	  wbval = unJust(mva) ^ unJust(mvb);
-	  dbg = $fdisplay(debug_log, "[%d]: EXE: [%d] DXOR PR%d <= %0h = %0h ^ %0h", curCC,  tok.index, rd, wbval, unJust(mva), unJust(mvb));
+          res   = tagged RNop;
+          wbval = unJust(mva) ^ unJust(mvb);
+          dbg = $fdisplay(debug_log, "[%d]: EXE: [%d] DXOR PR%d <= %0h = %0h ^ %0h", curCC,  tok.index, rd, wbval, unJust(mva), unJust(mvb));
           einst = EWB
                   {
-		    pdest:  rd
-		  };
-	end
+                    pdest:  rd
+                  };
+        end
 
       //NOR
       tagged DNOR {psrc1: .rs1, psrc2: .rs2, pdest: .rd}: 
-	begin
+        begin
 
           done  = isJust(mva) && isJust(mvb);
-	  res   = tagged RNop;
-	  wbval = ~(unJust(mva) | unJust(mvb));
-	  dbg = $fdisplay(debug_log, "[%d]: EXE: [%d] DNOR PR%d <= %0h = %0h nor %0h", curCC,  tok.index, rd, wbval, unJust(mva), unJust(mvb));
+          res   = tagged RNop;
+          wbval = ~(unJust(mva) | unJust(mvb));
+          dbg = $fdisplay(debug_log, "[%d]: EXE: [%d] DNOR PR%d <= %0h = %0h nor %0h", curCC,  tok.index, rd, wbval, unJust(mva), unJust(mvb));
           einst = EWB
                   {
-		    pdest:  rd
-		  };
-	end
+                    pdest:  rd
+                  };
+        end
 
       //Set Less Than
       tagged DSLT {psrc1: .rs1, psrc2: .rs2, pdest: .rd}: 
-	begin
+        begin
 
           done  = isJust(mva) && isJust(mvb);
-	  res   = tagged RNop;
-	  wbval = zeroExtend(pack(signedLT(unJust(mva), unJust(mvb))));
-	  dbg = $fdisplay(debug_log, "[%d]: EXE: [%d] DSLT PR%d <= %0h = slt(%0h, %0h)", curCC,  tok.index, rd, wbval, unJust(mva), unJust(mvb));
+          res   = tagged RNop;
+          wbval = zeroExtend(pack(signedLT(unJust(mva), unJust(mvb))));
+          dbg = $fdisplay(debug_log, "[%d]: EXE: [%d] DSLT PR%d <= %0h = slt(%0h, %0h)", curCC,  tok.index, rd, wbval, unJust(mva), unJust(mvb));
           einst = EWB
                   {
-		    pdest:  rd
-		  };
-	end
+                    pdest:  rd
+                  };
+        end
       
       //Set Less Than Unsigned
       tagged DSLTU {psrc1: .rs1, psrc2: .rs2, pdest: .rd}: 
-	begin
+        begin
 
           done  = isJust(mva) && isJust(mvb);
-	  res   = tagged RNop;
-	  wbval = zeroExtend(pack(unJust(mva) < unJust(mvb)));
-	  dbg = $fdisplay(debug_log, "[%d]: EXE: [%d] DSLTU PR%d <= %0h = sltu(%0h, %0h)", curCC,  tok.index, rd, wbval, unJust(mva), unJust(mvb));
+          res   = tagged RNop;
+          wbval = zeroExtend(pack(unJust(mva) < unJust(mvb)));
+          dbg = $fdisplay(debug_log, "[%d]: EXE: [%d] DSLTU PR%d <= %0h = sltu(%0h, %0h)", curCC,  tok.index, rd, wbval, unJust(mva), unJust(mvb));
           einst = EWB
                   {
-		    pdest:  rd
-		  };
-	end
+                    pdest:  rd
+                  };
+        end
 
 
       // -- Branches --------------------------------------------------
       
       //Branch if Less-Than or Equal to Zero
       tagged DBLEZ {psrc: .rs, offset: .off}: 
-	begin
+        begin
 
           Bool taken = signedLE(unJust(mva), 0);
-	  Addr extimm = signExtend(off) << 2;
-	  Addr dest  = addr_plus_4 + extimm;
+          Addr extimm = signExtend(off) << 2;
+          Addr dest  = addr_plus_4 + extimm;
 
           done  = isJust(mva);
-	  res   = taken ? (tagged RBranchTaken dest) : (tagged RBranchNotTaken addr_plus_4);
-	  dbg = $fdisplay(debug_log, "[%d]: EXE: [%d] DBLEZ PC <= 0x%h (offset 0x%h) if (0x%h <= 0)", curCC,  tok.index, dest, extimm, unJust(mva));
-	  einst = ENop;
+          res   = taken ? (tagged RBranchTaken dest) : (tagged RBranchNotTaken addr_plus_4);
+          dbg = $fdisplay(debug_log, "[%d]: EXE: [%d] DBLEZ PC <= 0x%h (offset 0x%h) if (0x%h <= 0)", curCC,  tok.index, dest, extimm, unJust(mva));
+          einst = ENop;
 
-	end
+        end
 
       //Branch if Greater Than Zero
       tagged DBGTZ {psrc: .rs, offset: .off}: 
-	begin
-	
+        begin
+        
           Bool taken = signedGT(unJust(mva), 0);
-	  Addr extimm = signExtend(off) << 2;
-	  Addr dest  = addr_plus_4 + extimm;
+          Addr extimm = signExtend(off) << 2;
+          Addr dest  = addr_plus_4 + extimm;
 
           done  = isJust(mva);
-	  res   = taken ? (tagged RBranchTaken dest) : (tagged RBranchNotTaken addr_plus_4);
-	  dbg = $fdisplay(debug_log, "[%d]: EXE: [%d] DBGTZ PC <= 0x%h (offset 0x%h) if (0x%h > 0)", curCC,  tok.index, dest, extimm, unJust(mva));
-	  einst = ENop;
+          res   = taken ? (tagged RBranchTaken dest) : (tagged RBranchNotTaken addr_plus_4);
+          dbg = $fdisplay(debug_log, "[%d]: EXE: [%d] DBGTZ PC <= 0x%h (offset 0x%h) if (0x%h > 0)", curCC,  tok.index, dest, extimm, unJust(mva));
+          einst = ENop;
 
-	end
+        end
 
       //Branch if Less Than Zero
       tagged DBLTZ {psrc: .rs, offset: .off}: 
-	begin
-	
+        begin
+        
           Bool taken = signedLT(unJust(mva), 0);
-	  Addr extimm = signExtend(off) << 2;
-	  Addr dest  = addr_plus_4 + extimm;
+          Addr extimm = signExtend(off) << 2;
+          Addr dest  = addr_plus_4 + extimm;
 
           done  = isJust(mva);
-	  res   = taken ? (tagged RBranchTaken dest) : (tagged RBranchNotTaken addr_plus_4);
-	  dbg = $fdisplay(debug_log, "[%d]: EXE: [%d] DBLTZ PC <= 0x%h (offset 0x%h) if (0x%h < 0)", curCC,  tok.index, dest, extimm, unJust(mva));
-	  einst = ENop;
+          res   = taken ? (tagged RBranchTaken dest) : (tagged RBranchNotTaken addr_plus_4);
+          dbg = $fdisplay(debug_log, "[%d]: EXE: [%d] DBLTZ PC <= 0x%h (offset 0x%h) if (0x%h < 0)", curCC,  tok.index, dest, extimm, unJust(mva));
+          einst = ENop;
 
-	end
+        end
 
       //Branch if Greater than or Equal to Zero
       tagged DBGEZ {psrc: .rs, offset: .off}: 
-	begin
+        begin
 
           Bool taken = signedGE(unJust(mva), 0);
-	  Addr extimm = signExtend(off) << 2;
-	  Addr dest  = addr_plus_4 + extimm;
+          Addr extimm = signExtend(off) << 2;
+          Addr dest  = addr_plus_4 + extimm;
 
           done  = isJust(mva);
-	  res   = taken ? (tagged RBranchTaken dest) : (tagged RBranchNotTaken addr_plus_4);
-	  dbg = $fdisplay(debug_log, "[%d]: EXE: [%d] DBGEZ PC <= 0x%h (offset 0x%h) if (0x%h > 0)", curCC,  tok.index, dest, extimm, unJust(mva));
-	  einst = ENop;
+          res   = taken ? (tagged RBranchTaken dest) : (tagged RBranchNotTaken addr_plus_4);
+          dbg = $fdisplay(debug_log, "[%d]: EXE: [%d] DBGEZ PC <= 0x%h (offset 0x%h) if (0x%h > 0)", curCC,  tok.index, dest, extimm, unJust(mva));
+          einst = ENop;
 
-	end
+        end
 
       //Branch if Equal
       tagged DBEQ {psrc1: .rs1, psrc2: .rs2, offset: .off}: 
-	begin
+        begin
 
           Bool taken = unJust(mva) == unJust(mvb);
-	  Addr extimm = signExtend(off) << 2;
-	  Addr dest  = addr_plus_4 + extimm;
+          Addr extimm = signExtend(off) << 2;
+          Addr dest  = addr_plus_4 + extimm;
 
           done  = isJust(mva) && isJust(mvb);
-	  res   = taken ? (tagged RBranchTaken dest) : (tagged RBranchNotTaken addr_plus_4);
-	  dbg = $fdisplay(debug_log, "[%d]: EXE: [%d] DBEQ PC <= 0x%h (offset 0x%h) if (0x%h == 0x%h)", curCC,  tok.index, dest, extimm, unJust(mva), unJust(mvb));
-	  einst = ENop;
+          res   = taken ? (tagged RBranchTaken dest) : (tagged RBranchNotTaken addr_plus_4);
+          dbg = $fdisplay(debug_log, "[%d]: EXE: [%d] DBEQ PC <= 0x%h (offset 0x%h) if (0x%h == 0x%h)", curCC,  tok.index, dest, extimm, unJust(mva), unJust(mvb));
+          einst = ENop;
 
-	end
+        end
 
       //Branch if Not Equal
       tagged DBNE {psrc1: .rs1, psrc2: .rs2, offset: .off}: 
-	begin
+        begin
 
           Bool taken = unJust(mva) != unJust(mvb);
-	  Addr extimm = signExtend(off) << 2;
-	  Addr dest  = addr_plus_4 + extimm;
+          Addr extimm = signExtend(off) << 2;
+          Addr dest  = addr_plus_4 + extimm;
 
           done  = isJust(mva) && isJust(mvb);
-	  res   = taken ? (tagged RBranchTaken dest) : (tagged RBranchNotTaken addr_plus_4);
-	  dbg = $fdisplay(debug_log, "[%d]: EXE: [%d] DBNE PC <= 0x%h (offset 0x%h) if (0x%h != 0x%h)", curCC,  tok.index, dest, extimm, unJust(mva), unJust(mvb));
-	  einst = ENop;
+          res   = taken ? (tagged RBranchTaken dest) : (tagged RBranchNotTaken addr_plus_4);
+          dbg = $fdisplay(debug_log, "[%d]: EXE: [%d] DBNE PC <= 0x%h (offset 0x%h) if (0x%h != 0x%h)", curCC,  tok.index, dest, extimm, unJust(mva), unJust(mvb));
+          einst = ENop;
 
-	end
+        end
       
       // -- Jumps -----------------------------------------------------
 
       //Jump
       tagged DJ {target: .targ}: 
-	begin
+        begin
 
-	  Addr dest  = {addr_plus_4[31:28], targ, 2'b00};
+          Addr dest  = {addr_plus_4[31:28], targ, 2'b00};
 
           done  = True;
-	  res   = tagged RBranchTaken dest;
-	  dbg = $fdisplay(debug_log, "[%d]: EXE: [%d] DJ PC <= 0x%h = {%0h, %0h, 00}", curCC,  tok.index, dest, addr_plus_4[31:26], targ);
-	  einst = ENop;
+          res   = tagged RBranchTaken dest;
+          dbg = $fdisplay(debug_log, "[%d]: EXE: [%d] DJ PC <= 0x%h = {%0h, %0h, 00}", curCC,  tok.index, dest, addr_plus_4[31:26], targ);
+          einst = ENop;
 
-	end
+        end
       
       //Jump Register
       tagged DJR {psrc: .rs}: 
-	begin
+        begin
 
           Addr dest = unJust(mva);
 
           done  = isJust(mva);
-	  res   = tagged RBranchTaken dest;
-	  dbg = $fdisplay(debug_log, "[%d]: EXE: [%d] DJR PC <= 0x%h ", curCC,  tok.index, dest);
-	  einst = ENop;
+          res   = tagged RBranchTaken dest;
+          dbg = $fdisplay(debug_log, "[%d]: EXE: [%d] DJR PC <= 0x%h ", curCC,  tok.index, dest);
+          einst = ENop;
 
-	end
+        end
 
       //Jump and Link (into archictectural register 31)
       tagged DJAL {target: .targ, pdest: .rd}:
-	begin
+        begin
 
-	  Addr dest  = {addr_plus_4[31:28], targ, 2'b0};
-	  
+          Addr dest  = {addr_plus_4[31:28], targ, 2'b0};
+          
           done  = True;
-	  res   = tagged RBranchTaken dest;
-	  wbval = addr_plus_4;
-	  dbg = $fdisplay(debug_log, "[%d]: EXE: [%d] DJAL PC <= 0x%h, PR%d <= 0x%h", curCC,  tok.index, dest, rd, addr_plus_4);
+          res   = tagged RBranchTaken dest;
+          wbval = addr_plus_4;
+          dbg = $fdisplay(debug_log, "[%d]: EXE: [%d] DJAL PC <= 0x%h, PR%d <= 0x%h", curCC,  tok.index, dest, rd, addr_plus_4);
           einst = EWB
                   {
-		    pdest:  rd
-		  };
-	end
+                    pdest:  rd
+                  };
+        end
 
 
       //Jump and Link into Register
       tagged DJALR {psrc: .rs, pdest: .rd}: 
-	begin
-	  
-	  Addr dest  = unJust(mva);
-	  
+        begin
+          
+          Addr dest  = unJust(mva);
+          
           done  = isJust(mva);
-	  res   = tagged RBranchTaken dest;
-	  wbval = addr_plus_4;
-	  dbg = $fdisplay(debug_log, "[%d]: EXE: [%d] DJALR PC <= 0x%h, PR%d <= 0x%h", curCC,  tok.index, dest, rd, addr_plus_4);
+          res   = tagged RBranchTaken dest;
+          wbval = addr_plus_4;
+          dbg = $fdisplay(debug_log, "[%d]: EXE: [%d] DJALR PC <= 0x%h, PR%d <= 0x%h", curCC,  tok.index, dest, rd, addr_plus_4);
           einst = EWB
                   {
-		    pdest:  rd
-		  };
-	end
+                    pdest:  rd
+                  };
+        end
        // -- Co-Proc ---------------------------------------------------
 
       //Move To Co-Processor 0
       tagged DMTC0 {psrc: .rs, cop0dest: .cd}: 
-	begin
-	  
+        begin
+          
           done  = isJust(mva);
-	  Bool pf = unJust(mva) == 1; //Equal to 1 means we passed
-	  //A Non-Zero value to "fromHost" is equivalent to a terminate for our purposes
-	  res   = (unJust(mva) == 0) ? tagged RNop : (cd == 21) ? tagged RTerminate pf : tagged RNop;
-	  dbg = $fdisplay(debug_log, "[%d]: EXE: [%d] DMTC0 COP0 R%d <= 0x%h", curCC,  tok.index, cd, unJust(mva));
+          Bool pf = unJust(mva) == 1; //Equal to 1 means we passed
+          //A Non-Zero value to "fromHost" is equivalent to a terminate for our purposes
+          res   = (unJust(mva) == 0) ? tagged RNop : (cd == 21) ? tagged RTerminate pf : tagged RNop;
+          dbg = $fdisplay(debug_log, "[%d]: EXE: [%d] DMTC0 COP0 R%d <= 0x%h", curCC,  tok.index, cd, unJust(mva));
           einst = ENop;
-	end
+        end
 
       //Move From Co-Processor 0
       tagged DMFC0 {pdest: .rd, cop0src: .cs}: 
-	begin
-	  //This instruction is pretty useless because cop0src doesn't exist.
-	  //So what we do instead is set rd to 1 (because this is what most of our testcases use this for).
+        begin
+          //This instruction is pretty useless because cop0src doesn't exist.
+          //So what we do instead is set rd to 1 (because this is what most of our testcases use this for).
           done  = True;
-	  res   = tagged RNop;
-	  wbval = 1;
-	  dbg = $fdisplay(debug_log, "[%d]: EXE: [%d] DMFC0 PR%d <= COP0 R%0d (Hardwired to 1)", curCC,  tok.index, rd, cs);
+          res   = tagged RNop;
+          wbval = 1;
+          dbg = $fdisplay(debug_log, "[%d]: EXE: [%d] DMFC0 PR%d <= COP0 R%0d (Hardwired to 1)", curCC,  tok.index, rd, cs);
           einst = EWB
                   {
-		    pdest:  rd
-		  };
-	end
+                    pdest:  rd
+                  };
+        end
 
        // -- Illegal ---------------------------------------------------
  
       tagged DTERMINATE: 
         begin
-	
-	  done = True;
-	  res = tagged RTerminate True;
-	  dbg = $fdisplay(debug_log, "[%d]: EXE: [%d] DTERMINATE", curCC,  tok.index);
-	  einst = ENop;
-	  	  
+        
+          done = True;
+          res = tagged RTerminate True;
+          dbg = $fdisplay(debug_log, "[%d]: EXE: [%d] DTERMINATE", curCC,  tok.index);
+          einst = ENop;
+                    
         end
-	
+        
       default: 
         begin
-	
-	  done = True;
-	  res = tagged RNop;
-	  einst = ENop;
-	  
-	  $fdisplay(debug_log, "[%d]: EXE: ERROR: EXECUTING ILLEGAL INSTRUCTION", curCC);
-	  
+        
+          done = True;
+          res = tagged RNop;
+          einst = ENop;
+          
+          $fdisplay(debug_log, "[%d]: EXE: ERROR: EXECUTING ILLEGAL INSTRUCTION", curCC);
+          
         end
     endcase
       
     if (done)
       begin
-	link_exe.makeResp(tuple3(tok, res, einst));
-	
-	case (einst) matches
-	  tagged EWB {pdest: .d}:
-	    link_write1.send(tuple2(d, wbval));
-	  default:
-	    noAction;
-	endcase
-	
-	debug(2, dbg);
-	waitingQ.deq();
+        link_exe.makeResp(tuple3(tok, res, einst));
+        
+        case (einst) matches
+          tagged EWB {pdest: .d}:
+            link_write1.send(tuple2(d, wbval));
+          default:
+            noAction;
+        endcase
+        
+        debug(2, dbg);
+        waitingQ.deq();
       end
       else
-	  debug(2, $fdisplay(debug_log, "[%d]: EXE stall", curCC));
+        debug(2, $fdisplay(debug_log, "[%d]: EXE stall", curCC));
       
     waiting <= False;
 

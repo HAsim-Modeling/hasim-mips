@@ -86,13 +86,13 @@ module [HASim_Module] mkFUNCP_ExecuteAlg ();
         end
       tagged DLoad {pdest: .prd, idx: .idx, offset: .o}:
         begin
-	  va = idx;
-	end
+          va = idx;
+        end
       tagged DStore {value: .v, idx: .idx, offset: .o}:
         begin
-	  va = idx;
-	  vb = v;
-	end
+          va = idx;
+          vb = v;
+        end
     endcase
 
     //Try to get the values from the Bypass unit
@@ -126,139 +126,139 @@ module [HASim_Module] mkFUNCP_ExecuteAlg ();
        tagged DAdd {pdest: .prd, op1: .ra, op2: .rb}:
        begin
        
-	 debug_case("dec", "DAdd");
-	 
+         debug_case("dec", "DAdd");
+         
          if (isJust(mva) && isJust(mvb))
          begin
-	 
-	   debug_then("isJust(mva) && isJust(mvb)");
-	   
-	   let result = unJust(mva) + unJust(mvb);
-	   
+         
+           debug_then("isJust(mva) && isJust(mvb)");
+           
+           let result = unJust(mva) + unJust(mvb);
+           
            link_write1.send(tuple2(prd, result));
            link_exe.makeResp(tuple3(t, RNop, EWB {pdest: prd}));
            waitingQ.deq();
 
-	   debug(2, $display("EXE: [%d] DAdd PR%d <= 0x%h = 0x%h + 0x%h", t, prd, result, unJust(mva), unJust(mvb)));
-	   
+           debug(2, $display("EXE: [%d] DAdd PR%d <= 0x%h = 0x%h + 0x%h", t, prd, result, unJust(mva), unJust(mvb)));
+           
          end
        end
        tagged DSub {pdest: .prd, op1: .ra, op2: .rb}:
        begin
        
-	 debug_case("dec", "DSub");
-	 
+         debug_case("dec", "DSub");
+         
          if (isJust(mva) && isJust(mvb))
          begin
-	 
-	   debug_then("isJust(mva) && isJust(mvb)");
-	   
-	   let result = unJust(mva) - unJust(mvb);
-	   
+         
+           debug_then("isJust(mva) && isJust(mvb)");
+           
+           let result = unJust(mva) - unJust(mvb);
+           
            link_write1.send(tuple2(prd, result));
            link_exe.makeResp(tuple3(t, RNop, EWB {pdest: prd}));
            waitingQ.deq();
-	   
-	   debug(2, $display("EXE: [%d] DSub PR%d <= 0x%h = 0x%h - 0x%h", t, prd, result, unJust(mva), unJust(mvb)));
-	   
+           
+           debug(2, $display("EXE: [%d] DSub PR%d <= 0x%h = 0x%h - 0x%h", t, prd, result, unJust(mva), unJust(mvb)));
+           
          end
        end
        tagged DBz {cond: .c, addr: .a}:
        begin
        
-	 debug_case("dec", "DBz");
-	 
-	 case (mva) matches
-	   tagged Valid .cval:
-	   begin
-	   
-	     debug_case("mva", "Valid");
-	     
-	     if (cval != 0)
-	     begin // XXX extra cleverness needed
-	     
-	       debug_then("cval != 0");
-	       
-	       link_exe.makeResp(tuple3(t, RBranchNotTaken, ENop));
-	       waitingQ.deq();
+         debug_case("dec", "DBz");
+         
+         case (mva) matches
+           tagged Valid .cval:
+           begin
+           
+             debug_case("mva", "Valid");
+             
+             if (cval != 0)
+             begin // XXX extra cleverness needed
+             
+               debug_then("cval != 0");
+               
+               link_exe.makeResp(tuple3(t, RBranchNotTaken, ENop));
+               waitingQ.deq();
 
-	       debug(2, $display("EXE: [%d] DBz Not Taken (cval == %0d)", t, cval));
-	       
-	     end
-	     else   // condition must be zero
-	     begin
-	     
-	       debug_else("cval != 0");
-	       
-	       case (mvb) matches
-		 tagged Valid .dest:
-		 begin
-		 
-		   debug_case("mvb", "Valid");
-		   
+               debug(2, $display("EXE: [%d] DBz Not Taken (cval == %0d)", t, cval));
+               
+             end
+             else   // condition must be zero
+             begin
+             
+               debug_else("cval != 0");
+               
+               case (mvb) matches
+                 tagged Valid .dest:
+                 begin
+                 
+                   debug_case("mvb", "Valid");
+                   
                    link_exe.makeResp(tuple3(t, RBranchTaken dest, ENop));
                    waitingQ.deq();
-		   
-	           debug(2, $display("EXE: [%d] DBz TAKEN (cval == %0d) to 0x%h", t, cval, dest));
-        	 end
-		 default:
-		   debug_case_default("mvb");
-	       endcase
-	       
-	     end
-	   end
-	   default:
-	     debug_case_default("mva");
-	 endcase
+                   
+                   debug(2, $display("EXE: [%d] DBz TAKEN (cval == %0d) to 0x%h", t, cval, dest));
+                 end
+                 default:
+                   debug_case_default("mvb");
+               endcase
+               
+             end
+           end
+           default:
+             debug_case_default("mva");
+         endcase
        end
        tagged DLoad {pdest: .prd, idx: .idx, offset: .o}:
        begin
          
-	 debug_case("dec", "DLoad");
-	 
+         debug_case("dec", "DLoad");
+         
          if (isJust(mva))
          begin
-	   let ea = unJust(mva) + signExtend(o);
+           let ea = unJust(mva) + signExtend(o);
            link_exe.makeResp(tuple3(t, RNop, ELoad {pdest:prd, addr: ea}));
            waitingQ.deq();
-	 
-	   debug(2, $display("EXE: [%d] DLoad PR%d := (PR%d + 0x%h)", t, prd, idx, o));
-	   
-	 end
+         
+           debug(2, $display("EXE: [%d] DLoad PR%d := (PR%d + 0x%h)", t, prd, idx, o));
+           
+         end
        end
        tagged DLoadImm {pdest: .prd, value: .val}:
        begin
 
-	 debug_case("dec", "DLoadImm");
+         debug_case("dec", "DLoadImm");
 
          link_write1.send(tuple2(prd, signExtend(val)));
          link_exe.makeResp(tuple3(t, RNop, EWB {pdest: prd}));
          waitingQ.deq();
-	 
-	 debug(2, $display("EXE: [%d] DLoadImm PR%d := 0x%h", t, prd, val));
+         
+         debug(2, $display("EXE: [%d] DLoadImm PR%d := 0x%h", t, prd, val));
        end
        tagged DStore {value: .v, idx: .idx, offset: .o}:
        begin
 
-	 debug_case("dec", "DStore");
+         debug_case("dec", "DStore");
 
          if (isJust(mva) && isJust(mvb))
          begin
-	   let ea = unJust(mva) + signExtend(o);
+           let ea = unJust(mva) + signExtend(o);
            link_exe.makeResp(tuple3(t, RNop, EStore {val: unJust(mvb), addr: ea}));
            waitingQ.deq(); 
-	   debug(2, $display("EXE: [%d] DStore (PR%d + 0x%h) := PR%d", t, idx, o, v));
-	 end
+           debug(2, $display("EXE: [%d] DStore (PR%d + 0x%h) := PR%d", t, idx, o, v));
+         end
        end
        tagged DTerminate:
        begin
 
-	 debug_case("dec", "DTerminate");
-	 
+         debug_case("dec", "DTerminate");
+         
          link_exe.makeResp(tuple3(t, RTerminate, ENop));
          waitingQ.deq();
 
-	 debug(2, $display("EXE: [%d] DTerminate", t)); 
+         debug(2, $display("EXE: [%d] DTerminate", t)); 
        end
     endcase
   endrule

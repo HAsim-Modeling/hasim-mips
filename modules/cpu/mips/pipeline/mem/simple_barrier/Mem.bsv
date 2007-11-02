@@ -76,18 +76,18 @@ module [HASim_Module] mkPipe_Mem#(File debug_file, Tick curTick)
     if (isHit)
       begin
 
-	port_to_wb.send(tagged Valid tok);
-	event_mem.recordEvent(tagged Valid zeroExtend(tok.index));
+        port_to_wb.send(tagged Valid tok);
+        event_mem.recordEvent(tagged Valid zeroExtend(tok.index));
 
       end
     else
       begin
-	port_to_wb.send(tagged Invalid);
-	event_mem.recordEvent(tagged Invalid);
-	stat_dmisses.incr();
-	stall_count <= `MEM_DCACHE_MISS_PENALTY;
-	stall_tok   <= tok;
-	stalling    <= True;
+        port_to_wb.send(tagged Invalid);
+        event_mem.recordEvent(tagged Invalid);
+        stat_dmisses.incr();
+        stall_count <= `MEM_DCACHE_MISS_PENALTY;
+        stall_tok   <= tok;
+        stalling    <= True;
       end
 
     state <= MEM_Ready;
@@ -103,35 +103,35 @@ module [HASim_Module] mkPipe_Mem#(File debug_file, Tick curTick)
 
     if (stalling)
       begin
-	if (stall_count == 0)
-	  begin
+        if (stall_count == 0)
+          begin
             port_to_wb.send(tagged Valid stall_tok);
             event_mem.recordEvent(tagged Valid zeroExtend(stall_tok.index));
-	    stalling <= False;
-	  end
-	else
-	  begin
-	    stall_count <= stall_count - 1;
-	    port_to_wb.send(tagged Invalid);
+            stalling <= False;
+          end
+        else
+          begin
+            stall_count <= stall_count - 1;
+            port_to_wb.send(tagged Invalid);
             event_mem.recordEvent(tagged Invalid);
-	  end
+          end
       end
     else
       begin
 
-	case (mtok) matches
-	  tagged Invalid:
-	  begin
+        case (mtok) matches
+          tagged Invalid:
+          begin
             port_to_wb.send(tagged Invalid);
             event_mem.recordEvent(tagged Invalid);
-	  end
-	  tagged Valid .tok:
-	  begin
+          end
+          tagged Valid .tok:
+          begin
             $fdisplay(debug_file, "[%d]:REQ:MEM: %0d", curTick, tok.index);
             fp_mem_req.send(tuple2(tok, ?));
-	    state <= MEM_Finish;
-	  end
-	endcase
+            state <= MEM_Finish;
+          end
+        endcase
 
       end
   

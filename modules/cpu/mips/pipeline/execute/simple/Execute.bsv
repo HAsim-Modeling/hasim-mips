@@ -58,25 +58,25 @@ module [HASim_Module] mkPipe_Execute#(File debug_file, Tick curTick)
       tagged Invalid:
       begin
         port_to_mem.send(tagged Invalid);
-	    event_exe.recordEvent(tagged Invalid);
-	    port_to_fet.send(tagged Invalid);
+            event_exe.recordEvent(tagged Invalid);
+            port_to_fet.send(tagged Invalid);
       end
       tagged Valid {.tok, .maddr}:
       begin
-	    if (tok.timep_info.epoch != epoch) //kill it
-	    begin
+            if (tok.timep_info.epoch != epoch) //kill it
+            begin
           $fdisplay(debug_file, "[%d]:EXE: Killing: %0d", curTick, tok.index);
-	      fp_exe_kill.send(tok);
+              fp_exe_kill.send(tok);
           event_exe.recordEvent(tagged Invalid);
           port_to_mem.send(tagged Invalid);
-	      port_to_fet.send(tagged Invalid);
-	    end
-	    else //continue to execute it
-	    begin
+              port_to_fet.send(tagged Invalid);
+            end
+            else //continue to execute it
+            begin
           $fdisplay(debug_file, "[%d]:EXE:REQ: %0d", curTick, tok.index);
           fp_exe_req.send(tuple2(tok, ?));
-	      addrQ.enq(maddr);
-	      in_flight <= True;
+              addrQ.enq(maddr);
+              in_flight <= True;
         end
       end
     endcase
@@ -94,48 +94,48 @@ module [HASim_Module] mkPipe_Execute#(File debug_file, Tick curTick)
 
     case (res) matches
       tagged RBranchTaken .addr:
-	  begin
-	    $fdisplay(debug_file, "[%d]:EXE: Branch taken", curTick);
-	    Bool mispredict = case (addrQ.first()) matches
-	                        tagged Valid .pred: (pred != addr);
-			                tagged Invalid: True;
-		                  endcase;
+          begin
+            $fdisplay(debug_file, "[%d]:EXE: Branch taken", curTick);
+            Bool mispredict = case (addrQ.first()) matches
+                                tagged Valid .pred: (pred != addr);
+                                        tagged Invalid: True;
+                                  endcase;
         if (mispredict)
-	    begin
-	      $fdisplay(debug_file, "[%d]:EXE: Branch mispredicted!", curTick);
-	      stat_mpred.incr();
+            begin
+              $fdisplay(debug_file, "[%d]:EXE: Branch mispredicted!", curTick);
+              stat_mpred.incr();
           epoch <= epoch + 1;
           fp_rewindToToken.send(tok);
-	      port_to_fet.send(tagged Valid tuple2(tok, tagged Valid addr));  
-	    end
-	    else
-	      port_to_fet.send(tagged Valid tuple2(tok, tagged Invalid));
-	  end
+              port_to_fet.send(tagged Valid tuple2(tok, tagged Valid addr));  
+            end
+            else
+              port_to_fet.send(tagged Valid tuple2(tok, tagged Invalid));
+          end
       tagged RBranchNotTaken .addr:
-	  begin
-	  
-	    $fdisplay(debug_file, "[%d]:EXE: Branch not taken", curTick);
-	    if (pred_taken == 1)
-	    begin
-	      $fdisplay(debug_file, "[%d]:EXE: Branch mispredicted!", curTick);
-	      stat_mpred.incr();
+          begin
+          
+            $fdisplay(debug_file, "[%d]:EXE: Branch not taken", curTick);
+            if (pred_taken == 1)
+            begin
+              $fdisplay(debug_file, "[%d]:EXE: Branch mispredicted!", curTick);
+              stat_mpred.incr();
           epoch <= epoch + 1;
           fp_rewindToToken.send(tok);
-	      port_to_fet.send(tagged Valid tuple2(tok, tagged Valid addr));
-	    end
-	    else
-	      port_to_fet.send(tagged Valid tuple2(tok, tagged Invalid));
-	  end
+              port_to_fet.send(tagged Valid tuple2(tok, tagged Valid addr));
+            end
+            else
+              port_to_fet.send(tagged Valid tuple2(tok, tagged Invalid));
+          end
       tagged RNop:
-	    port_to_fet.send(tagged Invalid);
+            port_to_fet.send(tagged Invalid);
       tagged REffectiveAddr .ea:
-	    port_to_fet.send(tagged Invalid);
+            port_to_fet.send(tagged Invalid);
       tagged RTerminate .pf:
       begin
-	    port_to_fet.send(tagged Invalid);
-	    $fdisplay(debug_file, "[%d]:EXE: Setting Termination!", curTick);
-	    tok.timep_info.scratchpad[1] = 1; //[1] is termination
-	    tok.timep_info.scratchpad[2] = pack(pf); //[2] is passfail
+            port_to_fet.send(tagged Invalid);
+            $fdisplay(debug_file, "[%d]:EXE: Setting Termination!", curTick);
+            tok.timep_info.scratchpad[1] = 1; //[1] is termination
+            tok.timep_info.scratchpad[2] = pack(pf); //[2] is passfail
       end
     endcase
 

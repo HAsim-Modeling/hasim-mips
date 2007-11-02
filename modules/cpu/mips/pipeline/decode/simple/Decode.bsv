@@ -76,9 +76,9 @@ module [HASim_Module] mkPipe_Decode#(File debug_file, Tick curTick)
         case (deps.dep_dest) matches
           tagged Invalid:
             return False;
-	  tagged Valid {.rnm, .prnm}:
+          tagged Valid {.rnm, .prnm}:
             return prnm == pr;
-	endcase
+        endcase
     endcase
      
   endfunction
@@ -102,18 +102,18 @@ module [HASim_Module] mkPipe_Decode#(File debug_file, Tick curTick)
       Bit#(2) stall1 = 
         case (deps.dep_src1) matches
           tagged Invalid:
-	    return 0;
-	  tagged Valid {.rnm, .prnm}:
-	    return stallsFor(prnm);
-	endcase;
+            return 0;
+          tagged Valid {.rnm, .prnm}:
+            return stallsFor(prnm);
+        endcase;
     
       Bit#(2) stall2 = 
         case (deps.dep_src2) matches
           tagged Invalid:
-	    return 0;
-	  tagged Valid {.rnm, .prnm}:
-	    return stallsFor(prnm);
-	endcase;
+            return 0;
+          tagged Valid {.rnm, .prnm}:
+            return stallsFor(prnm);
+        endcase;
       
       return max(stall1, stall2);
       
@@ -134,15 +134,15 @@ module [HASim_Module] mkPipe_Decode#(File debug_file, Tick curTick)
       tagged Invalid: //Pass-through
       begin
         port_to_exe.send(tagged Invalid);
-	event_dec.recordEvent(tagged Invalid);
-	shiftStalls(tagged Invalid);
+        event_dec.recordEvent(tagged Invalid);
+        shiftStalls(tagged Invalid);
       end
       tagged Valid {.tok, .maddr}:
       begin
         $fdisplay(debug_file, "[%d]:DEC:REQ: %0d", curTick, tok.index);
         fp_dec_req.send(tuple2(tok, ?));
-	addrQ.enq(maddr);
-	in_flight <= True;
+        addrQ.enq(maddr);
+        in_flight <= True;
       end
     endcase
     

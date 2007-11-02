@@ -34,7 +34,7 @@ module [HASim_Module] mkFUNCP_FetchAlg#(File debug_log, Tick curCC) ();
                      Tuple3#(Token, PackedInst, Tuple2#(Addr, PackedInst)))
   //... 
   link_fet <- mkConnection_Server("fp_fet_stage");
-	 
+ 
   Connection_Client#(Addr, PackedInst) 
   //...
   link_to_imem <- mkConnection_Client("mem_imem");

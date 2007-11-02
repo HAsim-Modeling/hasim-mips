@@ -47,10 +47,10 @@ function TestCase#(Inst, Value) testStalls (Integer x);
   return TestCase
          {
            imem_init: prog, 
-	   dmem_init: dmem_i,
-	   dmem_exp:  dmem_e
-	 };
-	 
+           dmem_init: dmem_i,
+           dmem_exp:  dmem_e
+         };
+ 
 endfunction
 
 //Eventually this could be set as a parameter
