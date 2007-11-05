@@ -35,7 +35,7 @@ module [HASim_Module] mkFUNCP_MemAlg#(File debug_log, Tick curCC) ();
                      Tuple3#(Token, void, InstWBInfo)) 
   //...
   link_mem <- mkConnection_Server("fp_mem_stage");
-          
+	  
   Connection_Client#(MemReq, MemResp) 
   //...
   link_to_dmem <- mkConnection_Client("mem_dmem");
@@ -65,42 +65,42 @@ module [HASim_Module] mkFUNCP_MemAlg#(File debug_log, Tick curCC) ();
         debug_case("i", "ELoad");
        
         link_to_dmem.makeReq(Ld {addr: a, token: t});
-          
+	  
         $fdisplay(debug_log, "[%d] MEM: [%0d] Load Request: 0x%h", curCC, t.index, a);
-        
+	
         waitingQ.enq(tuple2(t, i));
       end
       tagged EStore{val: .v, addr: .a}:
       begin
       
         debug_case("i", "EStore");
-        
+	
         link_to_dmem.makeReq(St {val: v, addr: a, token: t});
-          
+	  
         $fdisplay(debug_log, "[%d] MEM: [%0d] Store Request: 0x%h := %d", curCC, t.index, a, v);
-        
-        
+	
+	
         waitingQ.enq(tuple2(t, i));
       end
       tagged EWB {pdest: .pd}:
       begin
 
-        debug_case_default("i");
+	debug_case_default("i");
 
         link_mem.makeResp(tuple3(t, ?, WWB));
 
         $fdisplay(debug_log, "[%d] MEM: [%0d] Passing through Nop", curCC, t.index);
-        
+	
       end
       tagged ENop:
       begin
 
-        debug_case_default("i");
+	debug_case_default("i");
 
         link_mem.makeResp(tuple3(t, ?, WNop));
 
         $fdisplay(debug_log, "[%d] MEM: [%0d] Passing through Nop", curCC, t.index);
-        
+	
       end
     endcase
     
@@ -117,43 +117,44 @@ module [HASim_Module] mkFUNCP_MemAlg#(File debug_log, Tick curCC) ();
     case (i) matches
       tagged ELoad {pdest: .prd, addr: .*}:
         begin
-        
-          debug_case("i", "ELoad");
-          
+	
+	  debug_case("i", "ELoad");
+	  
           let resp = link_to_dmem.getResp();
-          link_to_dmem.deq();
-          
+	  link_to_dmem.deq();
+	  
           Value v = case (resp) matches
                       tagged LdResp .val: return val;
                       tagged StResp .*  : return 0; // impossible
                     endcase;
-                    
+		    
           waitingQ.deq();
           link_mem.makeResp(tuple3(tok,?, WWB));
           link_write2.send(tuple2(prd, v));
-          
+	  
           debug(2, $fdisplay(debug_log, "[%d] MEM: [%0d] LdResp: PR%d <= 0x%h", curCC, tok.index, prd, v));
-          
+	  
         end
       tagged EStore {val: .*, addr: .*}:
         begin
-        
-          debug_case("i", "EStore");
-          
+	
+	  debug_case("i", "EStore");
+	  
           let resp = link_to_dmem.getResp();
+          link_to_dmem.deq();
           waitingQ.deq();
           link_mem.makeResp(tuple3(tok, ?, WStore));
-          
+	  
           debug(2, $fdisplay(debug_log, "[%d] MEM: [%0d] StResp", curCC, tok.index));
         end
       default:
         begin
-        
-          debug_case_default("i");
-          
+	
+	  debug_case_default("i");
+	  
           waitingQ.deq();
           link_mem.makeResp(tuple3(tok, ?, WNop));
-  
+	  
           $display("[%d] MEM: [%0d] ERROR NON-MEMORY OP IN QUEUE", curCC, tok.index);
         end
     endcase

@@ -3298,3 +3298,23 @@ Directory modules/cpu/mips/branch/predictor/notTaken
 Fixed the imports of the barrier synchronization verion of SMIPS 5-stage.
 
 Michael P.
+
+----------
+pellauer    Date: Mon Nov  5 15:24:45 EST 2007  CSN: CSN-hasim-mips-164
+                  Mon Nov  5 20:24:45 UTC 2007
+
+
+Directory modules/functional/mips
+ FUNCP_MemAlg.bsv          Locally Modified          163 
+
+Directory modules/cpu/mips/branch/predictor/globHistory
+ BranchPred.bsv            Locally Modified          163 
+
+Directory modules/cpu/mips
+ UnpipelinedCPU.bsv        Locally Modified          163 
+
+
+Small cleanups to hasim-mips that were leftover from the papers and are finally
+getting integrated into the mainline.
+
+Michael P.

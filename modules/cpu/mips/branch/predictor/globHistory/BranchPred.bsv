@@ -2,6 +2,7 @@ import hasim_common::*;
 import hasim_isa::*;
 
 import RegFile::*;
+import FIFO::*;
 
 typedef Bit#(`GLOBAL_HIST_SIZE) GlobalHist;
 typedef Bit#(TAdd#(`GLOBAL_HIST_SIZE,`BRANCH_TABLE_SIZE)) BranchTableIndex;
@@ -15,31 +16,31 @@ endinterface
 
 
 module mkBranchPred(BranchPred);
-    RegFile#(GlobalHist) globalHist <- mkReg(0);
+    Reg#(GlobalHist) globalHist <- mkReg(0);
     RegFile#(BranchTableIndex, Bool) branchTable <- mkRegFileFull();
-    RegFile#(Token, globalHist) screenShot <- mkRegFileFull();
+    RegFile#(TokIndex, GlobalHist) screenShot <- mkRegFileFull();
     
     FIFO#(Bool) respQ <- mkFIFO();
 
     method Action upd(Token token, Addr addr, Bool pred, Bool actual);
         branchTable.upd(truncate({addr, globalHist}), actual);
-        screenShot.upd(token, globalHist);
-        globalHist <= truncate({globalhist, pack(actual)});
+        screenShot.upd(token.index, globalHist);
+        globalHist <= truncate({globalHist, pack(actual)});
     endmethod
 
     method Action getPredReq(Token token, Addr addr);
-        let val = branchRegFile.sub(truncate({addr, globalHist}));
+        let val = branchTable.sub(truncate({addr, globalHist}));
         respQ.enq(val);
     endmethod
 
     method ActionValue#(Bool) getPredResp();
     
         respQ.deq();
-        return respQ.first();
+	return respQ.first();
     
     endmethod
     
     method Action abort(Token token);
-        globalHist = screenShot.sub(token);
+        globalHist <= screenShot.sub(token.index);
     endmethod
 endmodule
