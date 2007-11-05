@@ -3270,3 +3270,31 @@ Directory modules/cpu/mips/pipeline/fetch/simple
  Fetch.bsv                 Locally Modified          161 
 
 Fix a couple of mismatched send/receive ports.
+
+----------
+pellauer    Date: Mon Nov  5 10:46:07 EST 2007  CSN: CSN-hasim-mips-163
+                  Mon Nov  5 15:46:07 UTC 2007
+
+
+Directory modules/cpu/mips/pipeline/execute/simple_barrier
+ Execute.bsv               Locally Modified          162 
+
+Directory modules/cpu/mips/pipeline/decode/simple_barrier
+ Decode.bsv                Locally Modified          162 
+
+Directory modules/cpu/mips/pipeline/fetch/simple_barrier
+ Fetch.bsv                 Locally Modified          162 
+
+Directory modules/cpu/mips/pipeline/writeback/simple_barrier
+ Writeback.bsv             Locally Modified          162 
+
+Directory modules/cpu/mips/pipeline/mem/simple_barrier
+ Mem.bsv                   Locally Modified          162 
+
+Directory modules/cpu/mips/branch/predictor/notTaken
+ BranchPred.bsv            Locally Modified          162 
+
+
+Fixed the imports of the barrier synchronization verion of SMIPS 5-stage.
+
+Michael P.
