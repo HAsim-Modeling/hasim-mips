@@ -20,7 +20,7 @@ module [HASim_Module] mkPipe_Issue();
     function receiveFunctionM(String str, Integer i) = mkPort_Receive(strConcat(str, integerToString(i)), 1);
 
     Connection_Receive#(Tuple2#(Token, DepInfo)) fpDecodeResp <- mkConnection_Receive("fp_dec_resp");
-    Connection_Send#(Tuple2#(Token, Bit#(0)))       fpExePort <- mkConnection_Send("fp_exe_req");
+    Connection_Send#(Tuple2#(Token, void))          fpExePort <- mkConnection_Send("fp_exe_req");
 
     Connection_Send#(Token)                         fpExeKill <- mkConnection_Send("fp_exe_kill");
 

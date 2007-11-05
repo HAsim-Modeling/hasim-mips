@@ -3257,3 +3257,16 @@ of moving us towards a unified coding convention.
 (The platforms repository is already tab-free.)
 
 Michael P.
+
+----------
+mcadler     Date: Mon Nov  5 09:01:08 EST 2007  CSN: CSN-hasim-mips-162
+                  Mon Nov  5 14:01:08 UTC 2007
+
+
+Directory modules/cpu/mips/pipeline/issue/s10k
+ Issue.bsv                 Locally Modified          161 
+
+Directory modules/cpu/mips/pipeline/fetch/simple
+ Fetch.bsv                 Locally Modified          161 
+
+Fix a couple of mismatched send/receive ports.

@@ -64,8 +64,8 @@ module [HASim_Module] mkPipe_Fetch#(File debug_file, Tick curTick)
   Connection_Receive#(Token)  fp_tok_resp <- mkConnection_Receive("fp_tok_resp");
   Connection_Send#(Token)     fp_tok_kill <- mkConnection_Send("fp_tok_kill");
   
-  Connection_Send#(Tuple2#(Token, Addr))           fp_fet_req  <- mkConnection_Send("fp_fet_req");
-  Connection_Receive#(Tuple2#(Token, PackedInst))  fp_fet_resp <- mkConnection_Receive("fp_fet_resp");
+  Connection_Send#(Tuple2#(Token, Addr))     fp_fet_req  <- mkConnection_Send("fp_fet_req");
+  Connection_Receive#(Tuple2#(Token, Inst))  fp_fet_resp <- mkConnection_Receive("fp_fet_resp");
 
   Connection_Send#(Token)     fp_fet_kill <- mkConnection_Send("fp_fet_kill");
   Connection_Send#(Token)     fp_dec_kill <- mkConnection_Send("fp_dec_kill");
