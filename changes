@@ -3331,3 +3331,16 @@ Directory modules/isa/smips
 Added preliminary Fence support to SMIPS ISA (easy because SMIPS has no fences.)
 
 Michael P.
+
+----------
+pellauer    Date: Wed Dec  5 10:45:42 EST 2007  CSN: CSN-hasim-mips-166
+                  Wed Dec  5 15:45:42 UTC 2007
+
+
+Directory modules/isa/smips
+ ISA.bsv                   Locally Modified          165 
+
+
+Small fix of previous checkin.
+
+Michael

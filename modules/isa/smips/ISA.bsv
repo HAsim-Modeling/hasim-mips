@@ -691,7 +691,7 @@ function Bool isStore(Inst i);
 endfunction
 
 
-function Bool isFence(MIPS_INST inst);
+function Bool isFence(Inst inst);
 
     return False;
 
