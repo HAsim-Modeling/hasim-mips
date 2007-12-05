@@ -3318,3 +3318,16 @@ Small cleanups to hasim-mips that were leftover from the papers and are finally
 getting integrated into the mainline.
 
 Michael P.
+
+----------
+pellauer    Date: Wed Dec  5 10:17:37 EST 2007  CSN: CSN-hasim-mips-165
+                  Wed Dec  5 15:17:37 UTC 2007
+
+
+Directory modules/isa/smips
+ ISA.bsv                   Locally Modified          164 
+
+
+Added preliminary Fence support to SMIPS ISA (easy because SMIPS has no fences.)
+
+Michael P.

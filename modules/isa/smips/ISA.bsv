@@ -690,3 +690,21 @@ function Bool isStore(Inst i);
   endcase;
 endfunction
 
+
+function Bool isFence(MIPS_INST inst);
+
+    return False;
+
+endfunction
+
+function Bool drainBefore(Inst i);
+
+  return False;
+
+endfunction
+
+function Bool drainAfter(Inst i);
+
+  return False;
+
+endfunction
