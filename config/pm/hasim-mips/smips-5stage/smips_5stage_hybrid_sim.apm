@@ -27,7 +27,7 @@ File=modules/model/hasim_model.awb
 
 [HAsim Model Foundation/Requires]
 hasim_system=Hasim - Hardware (fpga) based system
-hasim_controller=Hasim hybrid simple controller
+hasim_controller=Hasim Standard Controller
 hasim_common=Hasim Common Library
 fpgaenv=FPGA Environment
 
@@ -93,21 +93,18 @@ Packagehint=hasim-mips
 File=config/pm/hasim-mips/submodels/funcp/smips_funcp_new.apm
 Packagehint=hasim-mips
 
-[Hasim hybrid simple controller]
-File=config/pm/hasim/submodels/controller/hasim_hybrid_simple_controller.apm
-Packagehint=hasim
-
-
 
 [FPGA Environment]
 File=config/pm/hasim/submodels/fpgaenv/hasim-fpgaenv-hybrid-sim.apm
 Packagehint=platforms
 
-
 [Hasim Common Library/Params]
 TERM_FPGA_SWITCHES=0
 TERM_VDEV_MEMORY=0
 TERM_FPGA_BUTTONS=0
-TERM_RRR_CONTROLLER=0
 TERM_VDEV_MEMORY_INVALIDATE=0
 TERM_FPGA_LEDS=0
+
+[Hasim Standard Controller]
+File=config/pm/hasim/submodels/controller/hybrid_standard_controller.apm
+Packagehint=hasim

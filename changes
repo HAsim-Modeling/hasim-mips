@@ -3344,3 +3344,13 @@ Directory modules/isa/smips
 Small fix of previous checkin.
 
 Michael
+
+----------
+mcadler     Date: Mon Feb  4 18:49:07 EST 2008  CSN: CSN-hasim-mips-167
+                  Mon Feb  4 23:49:07 UTC 2008
+
+
+Directory config/pm/hasim-mips/smips-5stage
+ smips_5stage_hybrid_sim.apm Locally Modified          166 
+
+Update controller.
