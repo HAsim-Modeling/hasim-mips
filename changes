@@ -3354,3 +3354,58 @@ Directory config/pm/hasim-mips/smips-5stage
  smips_5stage_hybrid_sim.apm Locally Modified          166 
 
 Update controller.
+
+----------
+pellauer    Date: Fri Feb  8 18:24:42 EST 2008  CSN: CSN-hasim-mips-168
+                  Fri Feb  8 23:24:42 UTC 2008
+
+
+Directory config/pm/hasim-mips/smips-5stage
+ smips_5stage_newfuncp.apm Locally Added               0 
+
+Directory modules/cpu/mips/pipeline/execute
+ simple-newfuncp/          Locally Added               0 
+
+Directory modules/cpu/mips/pipeline/execute/simple-newfuncp
+ execute_simple_newfuncp.awb Locally Added               0 
+ Execute.bsv               Locally Added               0 
+
+Directory modules/cpu/mips/pipeline/decode
+ simple-newfuncp/          Locally Added               0 
+
+Directory modules/cpu/mips/pipeline/decode/simple-newfuncp
+ Decode.bsv                Locally Added               0 
+ decode_simpe_newfuncp.awb Locally Added               0 
+
+Directory modules/cpu/mips/pipeline/fetch
+ simple-newfuncp/          Locally Added               0 
+
+Directory modules/cpu/mips/pipeline/fetch/simple-newfuncp
+ fetch_simple_newfuncp.awb Locally Added               0 
+ Fetch.bsv                 Locally Added               0 
+
+Directory modules/cpu/mips/pipeline/writeback
+ simple-newfuncp/          Locally Added               0 
+
+Directory modules/cpu/mips/pipeline/writeback/simple-newfuncp
+ writeback_simple_newfuncp.awb Locally Added               0 
+ Writeback.bsv             Locally Added               0 
+
+Directory modules/cpu/mips/pipeline/mem
+ simple-newfuncp/          Locally Added               0 
+
+Directory modules/cpu/mips/pipeline/mem/simple-newfuncp
+ mem_simple_newfuncp.awb   Locally Added               0 
+ Mem.bsv                   Locally Added               0 
+
+Directory modules/isa/smips
+ hasim_smips_isa.awb       Locally Modified          167 
+ forwards_compatability.bsv Locally Added               0 
+ hasim_smips_datapath_new.awb Locally Added               0 
+ SMIPS_Datapath_New.bsv    Locally Added               0 
+
+
+Added timing modules to use the new functional partition. Also added a new
+version of the SMIPS datapath which is forwards-compatable.
+
+Michael P.

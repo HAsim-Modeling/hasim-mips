@@ -7,13 +7,13 @@
 #/*
 # %AWB_START
 #
-# %name Hasim - SMIPS ISA
-# %desc Hasim - SMIPS ISA
-# %provides hasim_isa
+# %name New 5-stage pipeline Execute
+# %desc New 5-stage pipeline Execute
+# %provides hasim_pipe_execute
 #
-# %attributes hasim smips
+# %attributes 5stage mips hasim
 #
-# %public ISA.bsv forwards_compatability.bsv
+# %public Execute.bsv
 #
 # %AWB_END
 # */

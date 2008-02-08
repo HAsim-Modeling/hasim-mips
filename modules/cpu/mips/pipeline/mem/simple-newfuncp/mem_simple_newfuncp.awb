@@ -1,0 +1,21 @@
+#/********************************************************************
+# *
+# * Awb module specification
+# *
+# *******************************************************************/
+
+#/*
+# %AWB_START
+#
+# %name New 5-stage pipeline Mem
+# %desc New 5-stage pipeline Mem
+# %provides hasim_pipe_mem
+#
+# %attributes 5stage mips hasim
+#
+# %public Mem.bsv
+# %param MEM_DCACHE_HIT_CHANCE 50 "Percentage of DCache requests that hit (0-100)"
+# %param MEM_DCACHE_MISS_PENALTY 10 "Clock cycles to stall on a DCache miss (0-65535)"
+#
+# %AWB_END
+# */
