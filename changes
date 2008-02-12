@@ -3409,3 +3409,15 @@ Added timing modules to use the new functional partition. Also added a new
 version of the SMIPS datapath which is forwards-compatable.
 
 Michael P.
+
+----------
+aparasha    Date: Mon Feb 11 21:51:05 EST 2008  CSN: CSN-hasim-mips-170
+                  Tue Feb 12 02:51:05 UTC 2008
+
+
+Directory config/pm/hasim-mips/smips-5stage
+ smips_5stage_hybrid_htg.apm Locally Added               0 
+ smips_5stage_hybrid_sim.apm Locally Modified          169 
+
+- added a new model for HTG-based Hybrid SMIPS 5-stage pipeline
+- updated connection terminus params for smips-5-stage-hybrid-sim

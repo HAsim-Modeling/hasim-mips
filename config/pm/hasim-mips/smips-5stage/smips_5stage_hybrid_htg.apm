@@ -1,10 +1,10 @@
 
 [Global]
 SaveParameters=0
-Description=5-Stage HASim SMIPS Model Hybrid Simulation
-File=smips_5stage_hybrid_sim
+Description=5-Stage HASim SMIPS Model Hybrid HiTech Global v5 PCI-Express Board
+File=smips_5stage_hybrid_htg
 Version=2.1
-Name=5-Stage HASim SMIPS Model Hybrid Simulation
+Name=5-Stage HASim SMIPS Model Hybrid HTG-v5-PCIe
 Type=HAsim
 Class=Asim::Model
 
@@ -94,7 +94,7 @@ File=config/pm/hasim-mips/submodels/funcp/smips_funcp_new.apm
 Packagehint=hasim-mips
 
 [FPGA Environment]
-File=config/pm/hasim/submodels/fpgaenv/hasim-fpgaenv-hybrid-sim.apm
+File=config/pm/hasim/submodels/fpgaenv/hasim-fpgaenv-htg-v5-pcie.apm
 Packagehint=platforms
 
 [Hasim Common Library/Params]
@@ -109,3 +109,9 @@ TERM_RRR_CLIENT_STARTER=0
 [Hasim Standard Controller]
 File=config/pm/hasim/submodels/controller/hybrid_standard_controller.apm
 Packagehint=hasim
+
+[HAsim Model Foundation/Params]
+MAKE_ALL_TARGET=bit
+
+[Hasim Standard Controller/Params]
+HASIM_CONTROLLER_COOLDOWN=10000000
