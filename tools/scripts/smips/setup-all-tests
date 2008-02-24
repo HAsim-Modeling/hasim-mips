@@ -10,12 +10,10 @@
 #
 ##############################################################
 
-#XXX improve this
-
-if [ -e /p/asim/benchmarks/hasim/smips/ ]; then
-  bmark_dir="/p/asim/benchmarks/hasim/smips/"
-elif [ -e /afs/csail.mit.edu/group/csg/tools_lx86/src/smips ]; then
-  bmark_dir="/afs/csail.mit.edu/group/csg/tools_lx86/src/smips"
+bmark_dir=$(awb-resolver -config=benchmarkdir)/hasim/smips
+if [ ! -e "$bmark_dir" ]; then
+  echo "Error: $0 - smips benchmark dirrectory ($bmark_dir) does not exist"
+  exit 1;
 fi
 
 # 1. Build Benchmark in $destdir

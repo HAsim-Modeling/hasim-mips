@@ -3421,3 +3421,16 @@ Directory config/pm/hasim-mips/smips-5stage
 
 - added a new model for HTG-based Hybrid SMIPS 5-stage pipeline
 - updated connection terminus params for smips-5-stage-hybrid-sim
+
+----------
+emer        Date: Sat Feb 23 21:13:59 EST 2008  CSN: CSN-hasim-mips-171
+                  Sun Feb 24 02:13:59 UTC 2008
+
+
+Directory tools/scripts/smips
+ setup-all-tests           Locally Modified          170 
+ setup-bmark               Locally Modified          170 
+ setup-test                Locally Modified          170 
+
+Setup scripts now rely on BENCHMARKDIR to find the smips benchmarks 
+rather than hard coded, site dependent paths.
