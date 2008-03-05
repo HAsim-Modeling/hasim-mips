@@ -1,5 +1,4 @@
 
-
 [Global]
 SaveParameters=0
 Description=5-Stage HASim SMIPS Model Simulation
@@ -28,7 +27,7 @@ File=modules/model/hasim_model.awb
 
 [HAsim Model Foundation/Requires]
 hasim_system=Hasim - Hardware (fpga) based system
-hasim_controller=Hasim Simulation-Only Simple controller
+hasim_controller=Hasim Standard Controller
 hasim_common=Hasim Common Library
 fpgaenv=FPGA Environment
 
@@ -90,8 +89,6 @@ Packagehint=hasim-mips
 File=modules/memory/magic_memory.awb
 Packagehint=hasim-mips
 
-
-
 [FPGA Environment]
 File=config/pm/hasim/submodels/fpgaenv/hasim-fpgaenv-software-no-gui.apm
 Packagehint=platforms
@@ -107,6 +104,7 @@ TERM_FPGA_BUTTONS=0
 TERM_VDEV_MEMORY_INVALIDATE=0
 TERM_FPGA_LEDS=0
 
-[Hasim Simulation-Only Simple controller]
-File=config/pm/hasim/submodels/controller/hasim_simulation_only_controller.apm
+
+[Hasim Standard Controller]
+File=config/pm/hasim/submodels/controller/hardware_standard_controller.apm
 Packagehint=hasim

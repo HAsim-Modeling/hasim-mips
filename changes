@@ -3434,3 +3434,16 @@ Directory tools/scripts/smips
 
 Setup scripts now rely on BENCHMARKDIR to find the smips benchmarks 
 rather than hard coded, site dependent paths.
+
+----------
+pellauer    Date: Wed Mar  5 12:40:26 EST 2008  CSN: CSN-hasim-mips-172
+                  Wed Mar  5 17:40:26 UTC 2008
+
+
+Directory config/pm/hasim-mips/smips-5stage
+ smips_5stage_simulation.apm Locally Modified          171 
+
+
+5-stage simulation now uses standard controller. (With Bluesim-only streams and starter).
+
+Michael P.
