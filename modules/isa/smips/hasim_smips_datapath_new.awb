@@ -7,13 +7,13 @@
 #/*
 # %AWB_START
 #
-# %name Hasim - SMIPS Simple Datapath
-# %desc Hasim - SMIPS Simple Datapath
+# %name Hasim - SMIPS Datapath V3
+# %desc Hasim - SMIPS Datapath V3
 # %provides hasim_isa_datapath
 #
 # %attributes hasim smips
 #
-# %public SMIPS_Datapath.bsv
+# %public SMIPS_Datapath_New.bsv
 #
 # %param SYNTH_BOUNDARY mkISA_Datapath "Name of synthesis boundary"
 # %param HASIM_ISA_DP_LOGFILE "hasim_isa_dp.out" "Name of ISA Datapath logfile"

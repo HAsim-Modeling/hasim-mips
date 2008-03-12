@@ -7,6 +7,7 @@ import hasim_modellib::*;
 import hasim_isa::*;
 
 import hasim_local_controller::*;
+`include "asim/dict/STREAMS.bsh"
 
 //AWB Parameters           default:
 //DEC_PIPELINE_IS_BYPASSED   True
@@ -37,7 +38,7 @@ module [HASim_Module] mkPipe_Decode#(File debug_file, Tick curTick)
   Connection_Receive#(Tuple2#(Token, DepInfo))  fp_dec_resp <- mkConnection_Receive("fp_dec_resp");
   
   //Events
-  EventRecorder event_dec <- mkEventRecorder("2   DEC");
+  EventRecorder event_dec <- mkEventRecorder(`STREAMS_EVENT_DECODE);
   
   //Incoming Ports
   Port_Receive#(Tuple2#(Token, Maybe#(Addr))) port_from_fet <- mkPort_Receive("fet_to_dec", 1);

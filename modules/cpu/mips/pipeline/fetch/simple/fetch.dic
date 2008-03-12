@@ -1,0 +1,4 @@
+def STREAMS.EVENTS.FETCH.INSTRUCTION_FET          "[%9u]: 1 FET: %d\n";
+def STREAMS.STATS.FETCH.ICACHE_MISSES    "icache misses          = %u\n";
+def STREAMS.STATS.FETCH.INSTS_FETCHED    "instructions fetched   = %u\n";
+def STREAMS.STATS.FETCH.TOTAL_CYCLES     "total cycles           = %u\n";

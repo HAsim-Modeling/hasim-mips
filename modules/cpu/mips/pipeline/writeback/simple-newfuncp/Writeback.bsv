@@ -8,6 +8,9 @@ import hasim_isa::*;
 
 import hasim_local_controller::*;
 
+`include "asim/dict/STREAMS_EVENTS_WRITEBACK.bsh"
+`include "asim/dict/STREAMS_STATS_WRITEBACK.bsh"
+
 typedef enum
 {
   WB_Ready, WB_Finish, WB_CommitStore, WB_FinishStore
@@ -28,10 +31,10 @@ module [HASim_Module] mkPipe_Writeback#(File debug_file, Tick curTick)
   Connection_Send#(Token)    fp_gco_req  <- mkConnection_Send("funcp_commitStores_req");
   Connection_Receive#(Token) fp_gco_resp <- mkConnection_Receive("funcp_commitStores_resp");
   //Events
-  EventRecorder event_wb <- mkEventRecorder("5          WB");
+  EventRecorder event_wb <- mkEventRecorder(`STREAMS_EVENTS_WRITEBACK_INSTRUCTION_WRITEBACK);
   
   //Stats
-  Stat stat_wb <- mkStatCounter("Instructions Committed");
+  Stat stat_wb <- mkStatCounter(`STREAMS_STATS_WRITEBACK_INSTS_COMMITTED);
 
   //Incoming Ports
   Port_Receive#(Tuple2#(Token, Bool)) port_from_mem <- mkPort_Receive("mem_to_wb", 1);

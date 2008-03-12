@@ -14,6 +14,8 @@
 # %attributes 5stage mips hasim
 #
 # %public Decode.bsv
+# %sources -t DICT -v PUBLIC decode.dic
+#
 # %param DEC_PIPELINE_IS_BYPASSED True "Is the pipeline fully bypassed or must we stall? (True/False)"
 #
 # %AWB_END

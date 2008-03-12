@@ -27,7 +27,7 @@ File=modules/model/hasim_model.awb
 
 [HAsim Model Foundation/Requires]
 hasim_system=Hasim - Hardware (fpga) based system
-hasim_controller=Hasim simulation-only simple controller (deprecated)
+hasim_controller=Hasim Standard Controller
 hasim_common=New Hasim Common Library
 fpgaenv=FPGA Environment
 
@@ -115,19 +115,12 @@ funcp_memstate_cache=Null Cache for Functional Partition
 [Functional Partition/Requires]
 funcp_memstate=Memory State for Functional Partition
 funcp_regstate=Register State for Functional Partition
-hasim_isa_datapath=Hasim - SMIPS Simple Datapath
+hasim_isa_datapath=Hasim - SMIPS Datapath V3
 
 [Register State Manager using Macro Ops]
 File=modules/hasim/functional-partition/register-state/manager/macro-ops/regstate_manager_macro_ops.awb
 Packagehint=hasim
 
-[Hasim - SMIPS Simple Datapath]
-File=modules/isa/smips/hasim_smips_datapath.awb
-Packagehint=hasim-mips
-
-[Hasim simulation-only simple controller (deprecated)]
-File=config/pm/hasim/submodels/controller/hasim_simulation_only_controller.apm
-Packagehint=hasim
 
 [New 5-stage pipeline Mem]
 File=modules/cpu/mips/pipeline/mem/simple-newfuncp/mem_simple_newfuncp.awb
@@ -183,4 +176,12 @@ hasim_modellib=Hasim Modeling Library
 
 [Soft Connection Algorithm]
 File=modules/bluespec/common/soft_connections/alg/typed/soft_connections_alg.awb
+Packagehint=hasim
+
+[Hasim - SMIPS Datapath V3]
+File=modules/isa/smips/hasim_smips_datapath_new.awb
+Packagehint=hasim-mips
+
+[Hasim Standard Controller]
+File=config/pm/hasim/submodels/controller/hardware_standard_controller.apm
 Packagehint=hasim

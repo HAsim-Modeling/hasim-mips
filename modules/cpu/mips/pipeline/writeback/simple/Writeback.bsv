@@ -7,6 +7,8 @@ import hasim_modellib::*;
 import hasim_isa::*;
 
 import hasim_local_controller::*;
+`include "asim/dict/STREAMS_EVENTS_WRITEBACK.bsh"
+`include "asim/dict/STREAMS_STATS_WRITEBACK.bsh"
 
 module [HASim_Module] mkPipe_Writeback#(File debug_file, Tick curTick)
     //interface:
@@ -29,10 +31,10 @@ module [HASim_Module] mkPipe_Writeback#(File debug_file, Tick curTick)
   Connection_Send#(Token) link_memstate_kill <- mkConnection_Send("fp_memstate_kill");
 
   //Events
-  EventRecorder event_wb <- mkEventRecorder("5          WB");
+  EventRecorder event_wb <- mkEventRecorder(`STREAMS_EVENTS_WRITEBACK_INSTRUCTION_WRITEBACK);
   
   //Stats
-  Stat stat_wb <- mkStatCounter("Instructions Committed");
+  Stat stat_wb <- mkStatCounter(`STREAMS_STATS_WRITEBACK_INSTS_COMMITTED);
 
   //Incoming Ports
   Port_Receive#(Token) port_from_mem <- mkPort_Receive("mem_to_wb", 1);

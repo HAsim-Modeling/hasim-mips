@@ -143,7 +143,7 @@ module [HASim_Module] mkCPU
  
   //Events
   
-  EventRecorder event_com <- mkEventRecorder("com");
+  EventRecorder event_com <- mkEventRecorder(0);
   
   Vector#(0, Port_Control) inports = newVector();
   Vector#(0, Port_Control) outports = newVector();

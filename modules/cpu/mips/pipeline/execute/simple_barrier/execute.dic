@@ -1,0 +1,2 @@
+def STREAMS.EVENT_EXECUTE   "[%9u]: 3     EXE: %d\n";
+def STREAMS.STAT_BPRED_MISPREDS   "branch mispredicts     = %u\n";

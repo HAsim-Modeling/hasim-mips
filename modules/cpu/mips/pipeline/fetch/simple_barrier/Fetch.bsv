@@ -12,6 +12,8 @@ import hasim_isa::*;
 import hasim_local_controller::*;
 import hasim_branch_pred::*;
 
+`include "asim/dict/STREAMS.bsh"
+
 //AWB Parameters            default:
 //FET_ICACHE_HIT_CHANCE       50
 //FET_ICACHE_MISS_PENALTY     10
@@ -74,14 +76,13 @@ module [HASim_Module] mkPipe_Fetch#(File debug_file, Tick curTick)
   Connection_Send#(Token)     fp_dec_kill <- mkConnection_Send("fp_dec_kill");
       
   //Events
-  EventRecorder event_fet <- mkEventRecorder("1 FET");
+  EventRecorder event_fet <- mkEventRecorder(`STREAMS_EVENT_FETCH_INSTRUCTION_FET);
   
   //Stats
-  Stat stat_cycles <- mkStatCounter("Total Cycles");
-  Stat stat_fet <- mkStatCounter("Instructions Fetched");
-  Stat stat_imisses <- mkStatCounter("ICache Misses");
+  Stat stat_cycles   <- mkStatCounter(`STREAMS_STAT_FETCH_TOTAL_CYCLES);
+  Stat stat_fet      <- mkStatCounter(`STREAMS_STAT_FETCH_INSTS_FETCHED);
+  Stat stat_imisses  <- mkStatCounter(`STREAMS_STAT_FETCH_ICACHE_MISSES);
 
-    
   //Incoming Ports
   Port_Receive#(Tuple2#(Token, Maybe#(Addr))) port_from_exe <- mkPort_Receive("fet_branchResolve", 1);
 

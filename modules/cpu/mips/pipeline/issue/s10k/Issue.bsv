@@ -47,7 +47,7 @@ module [HASim_Module] mkPipe_Issue();
 
     Reg#(Bool)                                modelCycleBegin <- mkReg(True);
 
-    EventRecorder                                    eventFet <- mkEventRecorder("Issue");
+    EventRecorder                                    eventFet <- mkEventRecorder(0);
 
     rule synchronize(killState == KillDone && issueState == IssueDone && dispatchState == DispatchDone);
         if(!modelCycleBegin)

@@ -7,6 +7,7 @@ import hasim_modellib::*;
 import hasim_isa::*;
 
 import hasim_local_controller::*;
+`include "asim/dict/STREAMS.bsh"
 
 interface Execute;
   method Action start();
@@ -31,10 +32,10 @@ module [HASim_Module] mkPipe_Execute#(File debug_file, Tick curTick)
   Connection_Send#(Token)     fp_rewindToToken <- mkConnection_Send("fp_rewindToToken");
 
   //Events
-  EventRecorder event_exe <- mkEventRecorder("3     EXE");
+  EventRecorder event_exe <- mkEventRecorder(`STREAMS_EVENT_EXECUTE);
   
   //Stats
-  Stat stat_mpred <- mkStatCounter("Branch Mispredicts");
+  Stat stat_mpred <- mkStatCounter(`STREAMS_STAT_BPRED_MISPREDS);
   
   //Incoming Ports
   Port_Receive#(Tuple2#(Token, Maybe#(Addr))) port_from_dec <- mkPort_Receive("dec_to_exe", 1);

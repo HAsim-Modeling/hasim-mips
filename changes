@@ -3447,3 +3447,99 @@ Directory config/pm/hasim-mips/smips-5stage
 5-stage simulation now uses standard controller. (With Bluesim-only streams and starter).
 
 Michael P.
+
+----------
+pellauer    Date: Wed Mar 12 18:58:37 EDT 2008  CSN: CSN-hasim-mips-173
+                  Wed Mar 12 22:58:37 UTC 2008
+
+
+Directory config/pm/hasim-mips/smips-5stage
+ smips_5stage_newfuncp.apm Locally Modified          172 
+
+Directory modules/cpu/mips/pipeline/execute/simple_barrier
+ execute.dic               Locally Added               0 
+ Execute.bsv               Locally Modified          172 
+
+Directory modules/cpu/mips/pipeline/execute/simple
+ execute.dic               Locally Added               0 
+ hasim_simple_execute.awb  Locally Modified          172 
+ Execute.bsv               Locally Modified          172 
+
+Directory modules/cpu/mips/pipeline/execute/simple-newfuncp
+ execute.dic               Locally Added               0 
+ execute_simple_newfuncp.awb Locally Modified          172 
+ Execute.bsv               Locally Modified          172 
+
+Directory modules/cpu/mips/pipeline/decode/simple_barrier
+ Decode.bsv                Locally Modified          172 
+
+Directory modules/cpu/mips/pipeline/decode/simple
+ decode.dic                Locally Added               0 
+ hasim_simple_decode.awb   Locally Modified          172 
+ Decode.bsv                Locally Modified          172 
+
+Directory modules/cpu/mips/pipeline/decode/simple-newfuncp
+ decode.dic                Locally Added               0 
+ Decode.bsv                Locally Modified          172 
+ decode_simpe_newfuncp.awb Locally Modified          172 
+
+Directory modules/cpu/mips/pipeline/issue/s10k
+ Issue.bsv                 Locally Modified          172 
+
+Directory modules/cpu/mips/pipeline/fetch/simple_barrier
+ Fetch.bsv                 Locally Modified          172 
+ fetch.dic                 Locally Added               0 
+ hasim_fetch_barrier.awb   Locally Modified          172 
+
+Directory modules/cpu/mips/pipeline/fetch/simple
+ Fetch.bsv                 Locally Modified          172 
+ fetch.dic                 Locally Added               0 
+ hasim_simple_fetch.awb    Locally Modified          172 
+
+Directory modules/cpu/mips/pipeline/fetch/simple-newfuncp
+ fetch_simple_newfuncp.awb Locally Modified          172 
+ Fetch.bsv                 Locally Modified          172 
+ fetch.dic                 Locally Added               0 
+
+Directory modules/cpu/mips/pipeline/writeback/simple_barrier
+ Writeback.bsv             Locally Modified          172 
+ writeback.dic             Locally Added               0 
+ hasim_writeback_barrier.awb Locally Modified          172 
+
+Directory modules/cpu/mips/pipeline/writeback/simple
+ Writeback.bsv             Locally Modified          172 
+ writeback.dic             Locally Added               0 
+ hasim_simple_writeback.awb Locally Modified          172 
+
+Directory modules/cpu/mips/pipeline/writeback/simple-newfuncp
+ writeback_simple_newfuncp.awb Locally Modified          172 
+ Writeback.bsv             Locally Modified          172 
+ writeback.dic             Locally Added               0 
+
+Directory modules/cpu/mips/pipeline/mem/simple_barrier
+ Mem.bsv                   Locally Modified          172 
+ mem.dic                   Locally Added               0 
+ hasim_mem_barrier.awb     Locally Modified          172 
+
+Directory modules/cpu/mips/pipeline/mem/simple
+ hasim_simple_mem.awb      Locally Modified          172 
+ Mem.bsv                   Locally Modified          172 
+ mem.dic                   Locally Added               0 
+
+Directory modules/cpu/mips/pipeline/mem/simple-newfuncp
+ mem_simple_newfuncp.awb   Locally Modified          172 
+ Mem.bsv                   Locally Modified          172 
+ mem.dic                   Locally Added               0 
+
+Directory modules/cpu/mips
+ UnpipelinedCPU.bsv        Locally Modified          172 
+
+Directory modules/isa/smips
+ hasim_smips_datapath_new.awb Locally Modified          172 
+
+
+* All Event/Stat instantiations changed to use dictionaries.
+* Some configuration bugfixes in smips_5stage_newfuncp.
+
+Michael P.
+
