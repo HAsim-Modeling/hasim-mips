@@ -40,9 +40,8 @@ echo "Creating simlinks"
 
 if [ -e ../../pm/simx ]; then
     /bin/ln -f -s ../../pm/simx .
-    # We know these must be there, but don't know their exact names
-    /bin/ln -f -s ../../pm/*_sw.exe .
-    /bin/ln -f -s ../../pm/*_hw.exe .
+    # Create link to top-level .bsc directory
+    /bin/ln -f -s ../../pm/.bsc .
     progname="./simx"
 else
     /bin/ln -f -s ../../pm/simv .

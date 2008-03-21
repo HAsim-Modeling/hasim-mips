@@ -3543,3 +3543,23 @@ Directory modules/isa/smips
 
 Michael P.
 
+
+----------
+aparasha    Date: Fri Mar 21 11:07:49 EDT 2008  CSN: CSN-hasim-mips-174
+                  Fri Mar 21 15:07:49 UTC 2008
+
+
+Directory tools/scripts/smips
+ setup-bmark               Locally Modified          173 
+ setup-test                Locally Modified          173 
+
+- fixed setup-bmark and setup-test to link to top-level .bsc/
+  directory in pm/ instead of creating individual links to
+  he and sw exe's.
+
+- updated setup-test to generate run script that passes cmdline
+  arguments to the simulator executable (setup-bmark was already
+  doing this).
+
+- setup-all-tests is outdated and completely broken and needs
+  to be fixed.
