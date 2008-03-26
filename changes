@@ -3563,3 +3563,73 @@ Directory tools/scripts/smips
 
 - setup-all-tests is outdated and completely broken and needs
   to be fixed.
+
+----------
+pellauer    Date: Wed Mar 26 18:06:03 EDT 2008  CSN: CSN-hasim-mips-175
+                  Wed Mar 26 22:06:03 UTC 2008
+
+
+Directory config/pm/hasim-mips/toymips
+ hasim_toymips_simple.apm  Locally Modified          174 
+
+Directory modules/cpu/mips
+ UnpipelinedCPU.bsv        Locally Modified          174 
+
+Directory modules
+ hasim-mips/               Locally Added               0 
+
+Directory modules/hasim-mips
+ isa/                      Locally Added               0 
+
+Directory modules/hasim-mips/isa
+ datapath/                 Locally Added               0 
+
+Directory modules/hasim-mips/isa/datapath
+ toymips/                  Locally Added               0 
+
+Directory modules/hasim-mips/isa/datapath/toymips
+ toymips_datapath.awb      Locally Added               0 
+ toymips_datapath.bsv      Locally Added               0 
+
+Directory modules/hasim-mips/isa/datapath
+ template/                 Locally Added               0 
+
+Directory modules/hasim-mips/isa/datapath/template
+ isa_datapath_template.awb Locally Added               0 
+ isa_datapath_template.bsv Locally Added               0 
+
+Directory modules/hasim-mips/isa
+ definition/               Locally Added               0 
+
+Directory modules/hasim-mips/isa/definition
+ toymips/                  Locally Added               0 
+
+Directory modules/hasim-mips/isa/definition/toymips
+ isa_decode_functions.bsv  Locally Added               0 
+ isa_datatypes.bsv         Locally Added               0 
+ isa_memory_conversions.bsv Locally Added               0 
+ isa_definition_template.awb Locally Added               0 
+ isa_derived_types.bsv     Locally Added               0 
+ README.txt                Locally Added               0 
+
+Directory modules/hasim-mips/isa/definition
+ template/                 Locally Added               0 
+
+Directory modules/hasim-mips/isa/definition/template
+ isa_decode_functions.bsv  Locally Added               0 
+ isa_datatypes.bsv         Locally Added               0 
+ isa_memory_conversions.bsv Locally Added               0 
+ isa_definition_template.awb Locally Added               0 
+ isa_derived_types.bsv     Locally Added               0 
+ README.txt                Locally Added               0 
+
+Directory modules/isa/smips
+ forwards_compatability.bsv Locally Modified          174 
+
+
+* Rearranged the ISA directory into definition/datatpath.
+* Added a code template for ISA that will be the basis of the full MIPS design.
+* Re-implemented TOYMIPS ISA using the code templates.
+* Updated the Unpipelined model to use the new functional partition/ISA.
+
+Michael P.

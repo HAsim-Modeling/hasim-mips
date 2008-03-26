@@ -1,5 +1,4 @@
 
-
 [Global]
 SaveParameters=0
 Description=Simple HASim Toymips Model
@@ -10,9 +9,9 @@ Type=HAsim
 Class=Asim::Model
 
 [Hasim - Hardware (fpga) based system/Requires]
-hasim_funcp=Hasim functional partition semantic model
+hasim_funcp=Functional Partition
 hasim_chip=Uniprocessor chip
-hasim_isa=Hasim - SMIPS ISA
+hasim_isa=Hasim - Toymips Version 2
 
 [Model]
 DefaultAttributes=hasim toymips simple
@@ -28,8 +27,8 @@ File=modules/model/hasim_model.awb
 
 [HAsim Model Foundation/Requires]
 hasim_system=Hasim - Hardware (fpga) based system
-hasim_controller=Hasim Simulation-Only Simple controller
-hasim_common=Hasim Common Library
+hasim_controller=Hasim Standard Controller
+hasim_common=New Hasim Common Library
 fpgaenv=FPGA Environment
 
 [Uniprocessor chip/Requires]
@@ -40,33 +39,115 @@ hasim_memory=magic memory
 File=modules/cpu/mips/unpipelined_cpu.awb
 Packagehint=hasim-mips
 
-[Hasim Common Library]
-File=config/pm/hasim/submodels/hasim_common.apm
-Packagehint=hasim
-
-
 [Uniprocessor chip]
 File=modules/chip/mips/uniprocessor/uniprocessor.awb
 Packagehint=hasim-mips
-
 
 [magic memory]
 File=modules/memory/magic_memory.awb
 Packagehint=hasim-mips
 
-[Hasim - SMIPS ISA]
-File=modules/isa/smips/hasim_smips_isa.awb
-Packagehint=hasim-mips
-
 [FPGA Environment]
-File=config/pm/hasim/submodels/fpgaenv/hasim-fpgaenv-null.apm
+File=config/pm/hasim/submodels/fpgaenv/hasim-fpgaenv-software-no-gui.apm
 Packagehint=platforms
 
-[Hasim functional partition semantic model]
-File=config/pm/hasim-mips/submodels/funcp/smips_funcp_new.apm
+[Hasim Modeling Library]
+File=modules/common/modellib/hasim_modellib.awb
+Packagehint=hasim
+
+[Hasim Platform Interface]
+File=modules/common/platform_interface/hasim/hasim-platform-interface.awb
+Packagehint=hasim
+
+
+[Smart Synthesis Boundaries]
+File=modules/common/smart_synthesis_boundaries/smart_synth_boundaries.awb
+Packagehint=hasim
+
+[Soft Connections/Requires]
+soft_connections_alg=Soft Connection Algorithm
+
+[Soft Connections]
+File=modules/bluespec/common/soft_connections/soft_connections.awb
+Packagehint=hasim
+
+[New Hasim Common Library]
+File=modules/hasim/common/new-funcp/hasim_common_newfuncp.awb
+Packagehint=hasim
+
+[New Hasim Common Library/Requires]
+smart_synth_boundaries=Smart Synthesis Boundaries
+platform_interface=Hasim Platform Interface
+soft_connections=Soft Connections
+hasim_modellib=Hasim Modeling Library
+
+[Soft Connection Algorithm]
+File=modules/bluespec/common/soft_connections/alg/typed/soft_connections_alg.awb
+Packagehint=hasim
+
+[Hasim - Toymips Version 2]
+File=modules/hasim-mips/isa/definition/toymips/isa_definition_template.awb
 Packagehint=hasim-mips
 
+[Memory State for Functional Partition/Requires]
+funcp_memstate_manager=Manager using Macro Ops for Mem State
 
-[Hasim Simulation-Only Simple controller]
-File=config/pm/hasim/submodels/controller/hasim_simulation_only_controller.apm
+[Scoreboard with One-Hot Encoding]
+File=modules/hasim/functional-partition/register-state/scoreboard/onehot/regstate_scoreboard_onehot.awb
+Packagehint=hasim
+
+[Register State for Functional Partition]
+File=modules/hasim/functional-partition/register-state/regstate_default.awb
+Packagehint=hasim
+
+[Memory State for Functional Partition]
+File=modules/hasim/functional-partition/memory-state/memstate_default.awb
+Packagehint=hasim
+
+[Register State Manager using Macro Ops/Requires]
+funcp_regstate_freelist=Freelist in BRAM
+funcp_regstate_scoreboard=Scoreboard with One-Hot Encoding
+
+[Freelist in BRAM]
+File=modules/hasim/functional-partition/register-state/freelist/bram/funcp_freelist_bram.awb
+Packagehint=hasim
+
+[Manager using Macro Ops for Mem State]
+File=modules/hasim/functional-partition/memory-state/manager/macro-ops/memstate_manager_macro_ops.awb
+Packagehint=hasim
+
+[Functional Partition]
+File=modules/hasim/functional-partition/functional_partition_default.awb
+Packagehint=hasim
+
+[Register State for Functional Partition/Requires]
+funcp_regstate_manager=Register State Manager using Macro Ops
+
+[Functional Partition/Requires]
+funcp_memstate=Memory State for Functional Partition
+funcp_regstate=Register State for Functional Partition
+hasim_isa_datapath=Toymips Datapath
+
+[Register State Manager using Macro Ops]
+File=modules/hasim/functional-partition/register-state/manager/macro-ops/regstate_manager_macro_ops.awb
+Packagehint=hasim
+
+[Store Buffer using Bucket Hash]
+File=modules/hasim/functional-partition/memory-state/store-buffer/bucket-hash/memstate_storebuffer_bucket_hash.awb
+Packagehint=hasim
+
+[Null Cache for Functional Partition]
+File=modules/hasim/functional-partition/memory-state/cache/null/memstate_cache_null.awb
+Packagehint=hasim
+
+[Toymips Datapath]
+File=modules/hasim-mips/isa/datapath/toymips/toymips_datapath.awb
+Packagehint=hasim-mips
+
+[Manager using Macro Ops for Mem State/Requires]
+funcp_memstate_storebuffer=Store Buffer using Bucket Hash
+funcp_memstate_cache=Null Cache for Functional Partition
+
+[Hasim Standard Controller]
+File=config/pm/hasim/submodels/controller/hardware_standard_controller.apm
 Packagehint=hasim

@@ -70,37 +70,37 @@ function Bool isaIsBranch(ISA_INSTRUCTION i) = isBranch(bitsToInst(i));
 function ISA_LOAD_TYPE isaLoadType(ISA_INSTRUCTION i) = ?;
 function ISA_STORE_TYPE isaStoreType(ISA_INSTRUCTION i) = ?;
 
-function MEM_Addr isaAddressToMemAddress(ISA_ADDRESS a);
+function MEM_ADDRESS isaAddressToMemAddress(ISA_ADDRESS a);
 
     return unpack(a);
 
 endfunction
 
-function ISA_ADDRESS isaAddressFromMemAddress(MEM_Addr a);
+function ISA_ADDRESS isaAddressFromMemAddress(MEM_ADDRESS a);
 
     return unpack(a);
 
 endfunction
 
-function ISA_INSTRUCTION isaInstructionFromMemValue(MEM_Value v);
+function ISA_INSTRUCTION isaInstructionFromMemValue(MEM_VALUE v);
 
     return unpack(v);
 
 endfunction
 
-function MEM_Value isaInstructionToMemValue(ISA_INSTRUCTION i);
+function MEM_VALUE isaInstructionToMemValue(ISA_INSTRUCTION i);
 
    return unpack(i);
 
 endfunction
 
-function ISA_VALUE isaValueFromMemValue(MEM_Value v);
+function ISA_VALUE isaValueFromMemValue(MEM_VALUE v);
 
     return unpack(v);
 
 endfunction
 
-function MEM_Value isaValueToMemValue(ISA_VALUE v);
+function MEM_VALUE isaValueToMemValue(ISA_VALUE v);
 
     return unpack(v);
     

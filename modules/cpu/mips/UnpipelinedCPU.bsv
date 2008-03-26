@@ -9,33 +9,25 @@ import hasim_local_controller::*;
 //Model-specific imports
 import hasim_isa::*;
 
-`ifdef PARTITION_NAME
-`undef PARTITION_NAME
-`endif
-
-`define PARTITION_NAME "Timing"
-
-
 
 //************************* Simple Timing Partition ***********************//
-//                                                    `                    //
+//                                                                         //
 // This is about the simplest timing partition you can conceive of. It     //
 // simply fetches one instruction at a time, executes it, then moves to    //
 // the next instruction. This can serve as a good mechanism to verify      //
 // the functional partition and can serve as a "golden model" for more     //
 // complex timing partitions.                                              //
-//                                                    `                    //
+//                                                                         //
 //*************************************************************************//
 
 
 
 typedef enum 
 { 
-  TOK, FET, DEC, EXE, MEM, LCO, GCO 
+  TOK, FET, DEC, EXE, LOA, STO, LCO, GCO 
 } 
   Stage deriving (Eq, Bits);
 
-`define MODULE_NAME "mkCPU"
 module [HASim_Module] mkCPU
      //interface:
                  ();
@@ -50,96 +42,68 @@ module [HASim_Module] mkCPU
   //The current stage
   Reg#(Stage) stage <- mkReg(TOK);
   
-  //Current token (response from TOK stage)
-  Reg#(Token) cur_tok <- mkRegU();
+  //Current TOKEN (response from TOK stage)
+  Reg#(TOKEN) cur_tok <- mkRegU();
   
   //Current instruction (response from FET stage)
-  Reg#(Inst)  cur_inst <- mkRegU();
+  Reg#(ISA_INSTRUCTION)  cur_inst <- mkRegU();
   
   //The Program Counter
-  Reg#(Addr) pc <- mkReg(32'h00001000);
+  Reg#(ISA_ADDRESS) pc <- mkReg(32'h00001000);
   
   //The actual Clock Cycle, for debugging messages
   Reg#(Bit#(32)) hostCC <- mkReg(0);
   
   //The simulation Clock Cycle, or "tick"
-  Reg#(Tick) baseTick <- mkReg(0);
+  Reg#(Bit#(32)) baseTick <- mkReg(0);
   
   //********* Connections *********//
   
-  Connection_Client#(Bit#(8), Token)
+  Connection_Client#(void, TOKEN)
   //...
-  link_to_tok <- mkConnection_Client("fp_tok");
+  link_to_tok <- mkConnection_Client("funcp_newInFlight");
   
-  Connection_Client#(Tuple2#(Token, Addr),
-                     Tuple2#(Token, Inst))
+  Connection_Client#(Tuple2#(TOKEN, ISA_ADDRESS),
+                     Tuple2#(TOKEN, ISA_INSTRUCTION))
   //...
-  link_to_fet <- mkConnection_Client("fp_fet");
+  link_to_fet <- mkConnection_Client("funcp_getInstruction");
   
-  Connection_Client#(Tuple2#(Token, void),
-                     Tuple2#(Token, DepInfo))
+  Connection_Client#(TOKEN,
+                     Tuple2#(TOKEN, ISA_DEPENDENCY_INFO))
   //...
-  link_to_dec <- mkConnection_Client("fp_dec");
+  link_to_dec <- mkConnection_Client("funcp_getDependencies");
   
-  Connection_Client#(Tuple2#(Token, void),
-                     Tuple2#(Token, InstResult))
+  Connection_Client#(TOKEN,
+                     Tuple2#(TOKEN, ISA_EXECUTION_RESULT))
   //...
-  link_to_exe <- mkConnection_Client("fp_exe");
+  link_to_exe <- mkConnection_Client("funcp_getResults");
   
-  Connection_Client#(Tuple2#(Token, void),
-                     Tuple2#(Token, void))
+  Connection_Client#(TOKEN,
+                     TOKEN)
   //...
-  link_to_mem <- mkConnection_Client("fp_mem");
+  link_to_load <- mkConnection_Client("funcp_doLoads");
   
-  Connection_Client#(Tuple2#(Token, void),
-                     Tuple2#(Token, void))
+  Connection_Client#(TOKEN,
+                     TOKEN)
   //...
-  link_to_lco <- mkConnection_Client("fp_lco");
+  link_to_store <- mkConnection_Client("funcp_doSpeculativeStores");
+
+  Connection_Client#(TOKEN,
+                     TOKEN)
+  //...
+  link_to_lco <- mkConnection_Client("funcp_commitResults");
   
-  Connection_Client#(Tuple2#(Token, void),
-                     Tuple2#(Token, void))
+  Connection_Client#(TOKEN,
+                     TOKEN)
   //...
-  link_to_gco <- mkConnection_Client("fp_gco");
+  link_to_gco <- mkConnection_Client("funcp_commitStores");
 
   //For killing. UNUSED
   
-  Connection_Send#(Token) 
+  Connection_Send#(TOKEN) 
   //...
-        link_rewindToToken <- mkConnection_Send("fp_rewindToToken");
+        link_rewindToToken <- mkConnection_Send("funcp_rewindToToken");
 
-  Connection_Send#(Token) 
-  //...
-        link_memstate_kill <- mkConnection_Send("fp_memstate_kill");
-
-  Connection_Send#(Token) 
-  //...
-        link_tok_kill <- mkConnection_Send("fp_tok_kill");
-
-  Connection_Send#(Token) 
-  //...
-        link_fet_kill <- mkConnection_Send("fp_fet_kill");
-	
-  Connection_Send#(Token) 
-  //...
-        link_dec_kill <- mkConnection_Send("fp_dec_kill");
-
-  Connection_Send#(Token) 
-  //...
-        link_exe_kill <- mkConnection_Send("fp_exe_kill");
-
-  Connection_Send#(Token) 
-  //...
-        link_mem_kill <- mkConnection_Send("fp_mem_kill");
-	
-  Connection_Send#(Token) 
-  //...
-        link_lco_kill <- mkConnection_Send("fp_lco_kill");
-
-  Connection_Send#(Token) 
-  //...
-        link_gco_kill <- mkConnection_Send("fp_gco_kill");
-  
-  
  
   //Events
   
@@ -184,9 +148,9 @@ module [HASim_Module] mkCPU
 	  begin
 	    debug_then("!madeReq");
 	    
-	    //Request a token
-	    debug(2, $fdisplay(debug_log, "[%d] Requesting a new token on model cycle %0d.", hostCC, baseTick));
-	    link_to_tok.makeReq(17);
+	    //Request a TOKEN
+	    debug(2, $fdisplay(debug_log, "[%d] Requesting a new TOKEN on model cycle %0d.", hostCC, baseTick));
+	    link_to_tok.makeReq(?);
 	    
 	    madeReq <= True;
 	    
@@ -201,7 +165,7 @@ module [HASim_Module] mkCPU
 	    
             tok.timep_info = TIMEP_TokInfo{epoch: 0, scratchpad: 0};
 
-	    debug(2, $fdisplay(debug_log, "[%d] TOK Responded with token %0d.", hostCC, tok.index));
+	    debug(2, $fdisplay(debug_log, "[%d] TOK Responded with TOKEN %0d.", hostCC, tok.index));
 	    
 	    cur_tok <= tok;
 	    
@@ -218,7 +182,7 @@ module [HASim_Module] mkCPU
 	    debug_then("!madeReq");
 	    
 	    //Fetch next instruction
-	    debug(2, $fdisplay(debug_log, "[%d] Fetching token %0d at address 0x%h.", hostCC, cur_tok.index, pc));
+	    debug(2, $fdisplay(debug_log, "[%d] Fetching TOKEN %0d at address 0x%h.", hostCC, cur_tok.index, pc));
             link_to_fet.makeReq(tuple2(cur_tok, pc));
 	    
 	    madeReq <= True;
@@ -231,9 +195,9 @@ module [HASim_Module] mkCPU
             match {.tok, .inst} = link_to_fet.getResp();
 	    link_to_fet.deq();
 
-	    debug(2, $fdisplay(debug_log, "[%d] FET Responded with token %0d.", hostCC, tok.index));
+	    debug(2, $fdisplay(debug_log, "[%d] FET Responded with TOKEN %0d.", hostCC, tok.index));
 	    
-	    if (tok.index != cur_tok.index) $display ("FET ERROR: Token Mismatch. Expected: %0d Received: %0d", cur_tok.index, tok.index);
+	    if (tok.index != cur_tok.index) $display ("FET ERROR: TOKEN Mismatch. Expected: %0d Received: %0d", cur_tok.index, tok.index);
 	    
 	    stage <= DEC;
 	    madeReq <= False;
@@ -247,8 +211,8 @@ module [HASim_Module] mkCPU
 	    debug_then("!madeReq");
 	    
 	    //Decode current inst
-	    debug(2, $fdisplay(debug_log, "[%d] Decoding token %0d.", hostCC, cur_tok.index));
-            link_to_dec.makeReq(tuple2(cur_tok, ?));
+	    debug(2, $fdisplay(debug_log, "[%d] Decoding TOKEN %0d.", hostCC, cur_tok.index));
+            link_to_dec.makeReq(cur_tok);
 	    
 	    madeReq <= True;
 	  end
@@ -260,9 +224,9 @@ module [HASim_Module] mkCPU
             match {.tok, .deps} = link_to_dec.getResp();
 	    link_to_dec.deq();
 
-	    debug(2, $fdisplay(debug_log, "[%d] DEC Responded with token %0d.", hostCC, tok.index));
+	    debug(2, $fdisplay(debug_log, "[%d] DEC Responded with TOKEN %0d.", hostCC, tok.index));
 	    
-	    if (tok.index != cur_tok.index) $display ("DEC ERROR: Token Mismatch. Expected: %0d Received: %0d", cur_tok.index, tok.index);
+	    if (tok.index != cur_tok.index) $display ("DEC ERROR: TOKEN Mismatch. Expected: %0d Received: %0d", cur_tok.index, tok.index);
 	    
 	    stage <= EXE;
 	    madeReq <= False;
@@ -275,8 +239,8 @@ module [HASim_Module] mkCPU
 	  begin
 	    debug_then("!madeReq");
 	    //Execute instruction
-	    debug(2, $fdisplay(debug_log, "[%d] Executing token %0d", hostCC, cur_tok.index));
-            link_to_exe.makeReq(tuple2(cur_tok, ?));
+	    debug(2, $fdisplay(debug_log, "[%d] Executing TOKEN %0d", hostCC, cur_tok.index));
+            link_to_exe.makeReq(cur_tok);
 	    madeReq <= True;
 	  end
 	else
@@ -287,9 +251,9 @@ module [HASim_Module] mkCPU
             match {.tok, .res} = link_to_exe.getResp();
 	    link_to_exe.deq();
 
-	    debug(2, $fdisplay(debug_log, "[%d] EXE Responded with token %0d.", hostCC, tok.index));
+	    debug(2, $fdisplay(debug_log, "[%d] EXE Responded with TOKEN %0d.", hostCC, tok.index));
 	    
-	    if (tok.index != cur_tok.index) $display ("EXE ERROR: Token Mismatch. Expected: %0d Received: %0d", cur_tok.index, tok.index);
+	    if (tok.index != cur_tok.index) $display ("EXE ERROR: TOKEN Mismatch. Expected: %0d Received: %0d", cur_tok.index, tok.index);
 	   	
 	    case (res) matches
 	      tagged RBranchTaken .addr:
@@ -314,34 +278,68 @@ module [HASim_Module] mkCPU
 	      end
 	    endcase
 	    
-	    stage <= MEM;
+            if (isaIsLoad(cur_inst))
+  	      stage <= LOA;
+            else if (isaIsStore(cur_inst))
+              stage <= STO;
+            else
+              stage <= LCO;
+
 	    madeReq <= False;
 	  end
       end
-      MEM:
+      LOA:
       begin
-        debug_case("stage", "MEM");
+        debug_case("stage", "LOA");
         if (!madeReq)
 	  begin
 	    debug_then("!madeReq");
 	    
-	    //Request memory ops
-	    debug(2, $fdisplay(debug_log, "[%d] Memory ops for token %0d", hostCC, cur_tok.index));
-            link_to_mem.makeReq(tuple2(cur_tok, ?));
-	    
-	    madeReq <= True;
-	  end
+	    //Request load
+	    debug(2, $fdisplay(debug_log, "[%d] Load for TOKEN %0d", hostCC, cur_tok.index));
+            link_to_load.makeReq(cur_tok);
+            madeReq <= True;
+          end
 	else
 	  begin
 	    debug_else("!madeReq");
 	    
  	    //Get the response
-	    match {.tok, .*} = link_to_mem.getResp();
-	    link_to_mem.deq();
+	    let tok = link_to_load.getResp();
+	    link_to_load.deq();
 
-	    debug(2, $fdisplay(debug_log, "[%d] MEM Responded with token %0d.", hostCC, tok.index));
+	    debug(2, $fdisplay(debug_log, "[%d] Load ops responded with TOKEN %0d.", hostCC, tok.index));
 	    
-	    if (tok.index != cur_tok.index) $display ("MEM ERROR: Token Mismatch. Expected: %0d Received: %0d", cur_tok.index, tok.index);
+	    if (tok.index != cur_tok.index) $display ("LOA ERROR: TOKEN Mismatch. Expected: %0d Received: %0d", cur_tok.index, tok.index);
+	    
+	    stage <= LCO;
+	    madeReq <= False;
+	  end
+      end
+      STO:
+      begin
+        debug_case("stage", "STO");
+        if (!madeReq)
+	  begin
+	    debug_then("!madeReq");
+	    
+	    //Request store
+	    debug(2, $fdisplay(debug_log, "[%d] Store for TOKEN %0d", hostCC, cur_tok.index));
+            link_to_store.makeReq(cur_tok);
+            madeReq <= True;
+
+          end
+	else
+	  begin
+	    debug_else("!madeReq");
+	    
+ 	    //Get the response
+	    let tok = link_to_store.getResp();
+	    link_to_store.deq();
+
+	    debug(2, $fdisplay(debug_log, "[%d] Store ops responded with TOKEN %0d.", hostCC, tok.index));
+	    
+	    if (tok.index != cur_tok.index) $display ("STO ERROR: TOKEN Mismatch. Expected: %0d Received: %0d", cur_tok.index, tok.index);
 	    
 	    stage <= LCO;
 	    madeReq <= False;
@@ -355,8 +353,8 @@ module [HASim_Module] mkCPU
 	    debug_then("!madeReq");
 	    
 	    //Request memory ops
-	    debug(2, $fdisplay(debug_log, "[%d] Locally committing token %0d.", hostCC, cur_tok.index));
-            link_to_lco.makeReq(tuple2(cur_tok, ?));
+	    debug(2, $fdisplay(debug_log, "[%d] Locally committing TOKEN %0d.", hostCC, cur_tok.index));
+            link_to_lco.makeReq(cur_tok);
 	    
 	    madeReq <= True;
 	  end
@@ -366,14 +364,21 @@ module [HASim_Module] mkCPU
 	    
  	    //Get the response
   
-            match {.tok, .*} = link_to_lco.getResp();
+            let tok = link_to_lco.getResp();
 	    link_to_lco.deq();
 
-	    debug(2, $fdisplay(debug_log, "[%d] LCO Responded with token %0d.", hostCC, tok.index));
+	    debug(2, $fdisplay(debug_log, "[%d] LCO Responded with TOKEN %0d.", hostCC, tok.index));
 	    
-	    if (tok.index != cur_tok.index) $display ("LCO ERROR: Token Mismatch. Expected: %0d Received: %0d", cur_tok.index, tok.index);
-	    
-	    stage <= GCO;
+	    if (tok.index != cur_tok.index) $display ("LCO ERROR: TOKEN Mismatch. Expected: %0d Received: %0d", cur_tok.index, tok.index);
+	    if (isaIsStore(cur_inst))
+	      stage <= GCO;
+            else
+            begin
+              stage <= TOK;
+              baseTick <= baseTick + 1;
+	      debug(1, $fdisplay(debug_log, "Committed TOKEN %0d on model cycle %0d.", cur_tok.index, baseTick));
+	      event_com.recordEvent(tagged Valid zeroExtend(cur_tok.index));
+            end
 	    madeReq <= False;
 	  end
       end
@@ -385,8 +390,8 @@ module [HASim_Module] mkCPU
 	    debug_then("!madeReq");
 	    
 	    //Request memory ops
-	    debug(2, $fdisplay(debug_log, "[%d] Globally committing token %0d", hostCC, cur_tok.index));
-            link_to_gco.makeReq(tuple2(cur_tok, ?));
+	    debug(2, $fdisplay(debug_log, "[%d] Globally committing TOKEN %0d", hostCC, cur_tok.index));
+            link_to_gco.makeReq(cur_tok);
 	    
 	    madeReq <= True;
 	  end
@@ -395,14 +400,14 @@ module [HASim_Module] mkCPU
 	    debug_else("!madeReq");
 	    
  	    //Get the response
-            match {.tok, .*} = link_to_gco.getResp();
+            let tok = link_to_gco.getResp();
 	    link_to_gco.deq();
 
-	    debug(2, $fdisplay(debug_log, "[%d] GCO Responded with token %0d.", hostCC, tok.index));
+	    debug(2, $fdisplay(debug_log, "[%d] GCO Responded with TOKEN %0d.", hostCC, tok.index));
 	    
-	    if (tok.index != cur_tok.index) $display ("GCO ERROR: Token Mismatch. Expected: %0d Received: %0d", cur_tok.index, tok.index);
+	    if (tok.index != cur_tok.index) $display ("GCO ERROR: TOKEN Mismatch. Expected: %0d Received: %0d", cur_tok.index, tok.index);
 	    
-	    debug(1, $fdisplay(debug_log, "Committed token %0d on model cycle %0d.", cur_tok.index, baseTick));
+	    debug(1, $fdisplay(debug_log, "Committed TOKEN %0d on model cycle %0d.", cur_tok.index, baseTick));
 	    event_com.recordEvent(tagged Valid zeroExtend(cur_tok.index));
 	    
 	    stage <= TOK;

@@ -1,0 +1,22 @@
+#/********************************************************************
+# *
+# * Awb module specification
+# *
+# *******************************************************************/
+
+#/*
+# %AWB_START
+#
+# %name Template ISA Datapath
+# %desc Template ISA Datapath
+# %provides hasim_isa_datapath
+#
+# %attributes isa template
+#
+# %public isa_datapath_template.bsv
+#
+# %param SYNTH_BOUNDARY mkISA_Datapath "Name of synthesis boundary"
+# %param HASIM_ISA_DP_LOGFILE "hasim_isa_dp.out" "Name of ISA Datapath logfile"
+#
+# %AWB_END
+# */
