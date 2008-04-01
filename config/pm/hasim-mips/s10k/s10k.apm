@@ -1,5 +1,4 @@
 
-
 [Global]
 SaveParameters=0
 Description=SMIPS R10K Core Hybrid
@@ -28,7 +27,7 @@ File=modules/model/hasim_model.awb
 
 [HAsim Model Foundation/Requires]
 hasim_system=Hasim - Hardware (fpga) based system
-hasim_controller=Hasim hybrid simple controller
+hasim_controller=Hasim Standard Controller
 hasim_common=Hasim Common Library
 fpgaenv=FPGA Environment
 
@@ -129,8 +128,6 @@ Packagehint=hasim-mips
 File=modules/cpu/mips/branch/stack/1entry/BranchStack.awb
 Packagehint=hasim-mips
 
-
-
 [FPGA Environment]
 File=config/pm/hasim/submodels/fpgaenv/hasim-fpgaenv-hybrid-sim.apm
 Packagehint=platforms
@@ -146,6 +143,7 @@ TERM_FPGA_BUTTONS=0
 TERM_VDEV_MEMORY_INVALIDATE=0
 TERM_FPGA_LEDS=0
 
-[Hasim hybrid simple controller]
-File=config/pm/hasim/submodels/controller/hasim_hybrid_simple_controller.apm
+
+[Hasim Standard Controller]
+File=config/pm/hasim/submodels/controller/hybrid_standard_controller.apm
 Packagehint=hasim

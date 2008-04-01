@@ -11,19 +11,19 @@ import hasim_local_controller::*;
 `include "asim/dict/STREAMS_EVENTS_EXECUTE.bsh"
 `include "asim/dict/STREAMS_STATS_EXECUTE.bsh"
 
-module [HASim_Module] mkPipe_Execute#(File debug_file, Tick curTick)
+module [HASIM_MODULE] mkPipe_Execute#(File debug_file, Bit#(32) curTick)
     //interface:
                 ();
   
   //Local State
-  Reg#(TIMEP_Epoch)  epoch     <- mkReg(0);
+  Reg#(TOKEN_TIMEP_EPOCH)  epoch     <- mkReg(0);
   Reg#(Bool)   in_flight <- mkReg(False);
-  FIFO#(Tuple3#(Maybe#(Addr), Bool, Bool)) addrQ   <- mkFIFO();
+  FIFO#(Tuple3#(Maybe#(ISA_ADDRESS), Bool, Bool)) addrQ   <- mkFIFO();
 
   //Connections to FP
   
   Connection_Send#(Token)           fp_exe_req  <- mkConnection_Send("funcp_getResults_req");
-  Connection_Receive#(Tuple2#(Token, InstResult))  fp_exe_resp <- mkConnection_Receive("funcp_getResults_resp");
+  Connection_Receive#(Tuple2#(TOKEN, ISA_EXECUTION_RESULT))  fp_exe_resp <- mkConnection_Receive("funcp_getResults_resp");
 
   Connection_Send#(Token)     fp_rewindToToken <- mkConnection_Send("funcp_rewindToToken");
 
@@ -34,11 +34,11 @@ module [HASim_Module] mkPipe_Execute#(File debug_file, Tick curTick)
   Stat stat_mpred <- mkStatCounter(`STREAMS_STATS_EXECUTE_BPRED_MISPREDS);
   
   //Incoming Ports
-  Port_Receive#(Tuple4#(Token, Maybe#(Addr), Bool, Bool)) port_from_dec <- mkPort_Receive("dec_to_exe", 1);
+  Port_Receive#(Tuple4#(TOKEN, Maybe#(ISA_ADDRESS), Bool, Bool)) port_from_dec <- mkPort_Receive("dec_to_exe", 1);
 
   //Outgoing Ports
-  Port_Send#(Tuple3#(Token, Bool, Bool))                        port_to_mem <- mkPort_Send("exe_to_mem");
-  Port_Send#(Tuple2#(Token, Maybe#(Addr))) port_to_fet <- mkPort_Send("fet_branchResolve");
+  Port_Send#(Tuple3#(TOKEN, Bool, Bool))                        port_to_mem <- mkPort_Send("exe_to_mem");
+  Port_Send#(Tuple2#(TOKEN, Maybe#(ISA_ADDRESS))) port_to_fet <- mkPort_Send("fet_branchResolve");
 
   //Local Controller
   Vector#(1, Port_Control) inports  = newVector();

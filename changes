@@ -3633,3 +3633,76 @@ Directory modules/isa/smips
 * Updated the Unpipelined model to use the new functional partition/ISA.
 
 Michael P.
+
+----------
+pellauer    Date: Tue Apr  1 17:51:55 EDT 2008  CSN: CSN-hasim-mips-176
+                  Tue Apr  1 21:51:55 UTC 2008
+
+
+Directory tools/scripts/smips
+ setup-all-tests           Locally Modified          175 
+ setup-bmark               Locally Modified          175 
+ setup-test                Locally Modified          175 
+
+Directory config/pm/hasim-mips/s10k
+ s10k_sim.apm              Locally Modified          175 
+ s10k.apm                  Locally Modified          175 
+
+Directory modules/cpu/mips
+ CPU.bsv                   Locally Modified          175 
+
+Directory modules/cpu/mips/pipeline/execute/simple-newfuncp
+ Execute.bsv               Locally Modified          175 
+
+Directory modules/cpu/mips/pipeline/decode/simple-newfuncp
+ Decode.bsv                Locally Modified          175 
+
+Directory modules/cpu/mips/pipeline/fetch/simple-newfuncp
+ Fetch.bsv                 Locally Modified          175 
+
+Directory modules/cpu/mips/pipeline/writeback/simple-newfuncp
+ Writeback.bsv             Locally Modified          175 
+
+Directory modules/cpu/mips/pipeline/mem/simple-newfuncp
+ Mem.bsv                   Locally Modified          175 
+
+Directory modules/cpu/mips/branch/predictor/notTaken
+ BranchPredV3.awb          Locally Added               0 
+ BranchPredV3.bsv          Locally Added               0 
+
+Directory modules/hasim-mips/isa/datapath/template
+ isa_datapath_template.bsv Locally Modified          175 
+
+Directory modules/hasim-mips/isa/datapath
+ smips/                    Locally Added               0 
+
+Directory modules/hasim-mips/isa/datapath/smips
+ isa_datapath_smips.awb    Locally Added               0 
+ isa_datapath_smips.bsv    Locally Added               0 
+
+Directory modules/hasim-mips/isa/definition/toymips
+ isa_decode_functions.bsv  Locally Modified          175 
+
+Directory modules/hasim-mips/isa/definition
+ smips/                    Locally Added               0 
+
+Directory modules/hasim-mips/isa/definition/smips
+ isa_decode_functions.bsv  Locally Added               0 
+ isa_datatypes.bsv         Locally Added               0 
+ isa_memory_conversions.bsv Locally Added               0 
+ isa_definition_template.awb Locally Added               0 
+ isa_derived_types.bsv     Locally Added               0 
+ README.txt                Locally Added               0 
+
+
+Added a preliminary version of V3 of the SMIPS ISA. This version passes all ISA
+tests and 2/5 long-running benchmarks, so is not quite ready for prime time yet.
+
+Updated more modules to the new coding conventions.
+
+Also added a stopgap measure to the benchmark scripts until the benchmark system
+is overhauled.
+
+
+Michael P.
+

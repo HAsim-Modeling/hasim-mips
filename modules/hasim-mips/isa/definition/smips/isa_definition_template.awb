@@ -1,0 +1,20 @@
+#/********************************************************************
+# *
+# * Awb module specification
+# *
+# *******************************************************************/
+
+#/*
+# %AWB_START
+#
+# %name Hasim - SMIPS Version 2
+# %desc Hasim - SMIPS Version 2 Based on Template
+# %provides hasim_isa
+#
+# %attributes hasim template
+#
+# %public isa_datatypes.bsv isa_decode_functions.bsv isa_derived_types.bsv isa_memory_conversions.bsv
+# %private README.txt
+#
+# %AWB_END
+# */

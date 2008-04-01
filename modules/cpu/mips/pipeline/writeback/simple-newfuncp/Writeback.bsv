@@ -15,21 +15,21 @@ typedef enum
 {
   WB_Ready, WB_Finish, WB_CommitStore, WB_FinishStore
 }
-  WB_State deriving (Eq, Bits);
+  WB_STATE deriving (Eq, Bits);
 
-module [HASim_Module] mkPipe_Writeback#(File debug_file, Tick curTick)
+module [HASIM_MODULE] mkPipe_Writeback#(File debug_file, Bit#(32) curTick)
     //interface:
                 ();
 
   //Local State
-  Reg#(WB_State) state <- mkReg(WB_Ready);
+  Reg#(WB_STATE) state <- mkReg(WB_Ready);
 
   //Connections to FP
-  Connection_Send#(Token)    fp_lco_req  <- mkConnection_Send("funcp_commitResults_req");
-  Connection_Receive#(Token) fp_lco_resp <- mkConnection_Receive("funcp_commitResults_resp");
+  Connection_Send#(TOKEN)    fp_lco_req  <- mkConnection_Send("funcp_commitResults_req");
+  Connection_Receive#(TOKEN) fp_lco_resp <- mkConnection_Receive("funcp_commitResults_resp");
     
-  Connection_Send#(Token)    fp_gco_req  <- mkConnection_Send("funcp_commitStores_req");
-  Connection_Receive#(Token) fp_gco_resp <- mkConnection_Receive("funcp_commitStores_resp");
+  Connection_Send#(TOKEN)    fp_gco_req  <- mkConnection_Send("funcp_commitStores_req");
+  Connection_Receive#(TOKEN) fp_gco_resp <- mkConnection_Receive("funcp_commitStores_resp");
   //Events
   EventRecorder event_wb <- mkEventRecorder(`STREAMS_EVENTS_WRITEBACK_INSTRUCTION_WRITEBACK);
   
@@ -37,7 +37,7 @@ module [HASim_Module] mkPipe_Writeback#(File debug_file, Tick curTick)
   Stat stat_wb <- mkStatCounter(`STREAMS_STATS_WRITEBACK_INSTS_COMMITTED);
 
   //Incoming Ports
-  Port_Receive#(Tuple2#(Token, Bool)) port_from_mem <- mkPort_Receive("mem_to_wb", 1);
+  Port_Receive#(Tuple2#(TOKEN, Bool)) port_from_mem <- mkPort_Receive("mem_to_wb", 1);
 
   //Local Controller
   Vector#(1, Port_Control) inports = newVector();

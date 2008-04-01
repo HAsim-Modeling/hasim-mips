@@ -83,13 +83,14 @@ endfunction
 // mipsGetSrc2
 
 // Given an instruction, return source 2 (rt)
-// Only MTC0 does not have a second source.
+// Only LW and MTC0 does not have a second source.
 
 function Maybe#(ISA_REG_INDEX) mipsGetSrc2(ISA_INSTRUCTION i);
     
     MIPS_OPCODE op = i[31:26];
 
     case (op)
+        mipsLW:   return tagged Invalid;
         mipsCOP0: return tagged Invalid;
         default: return tagged Valid i[20:16];
     endcase
@@ -169,7 +170,7 @@ function Bool isaIsStore(ISA_INSTRUCTION i);
 
     MIPS_OPCODE op = i[31:26];
 
-    return op == mipsLW;
+    return op == mipsSW;
 
 endfunction
 

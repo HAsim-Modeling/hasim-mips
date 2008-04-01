@@ -21,38 +21,38 @@ typedef enum
   MEM_Finish_Load,
   MEM_Finish_Store
 }
-  MEM_State
+  MEM_STATE
     deriving (Eq, Bits);
 
 Integer mem_hit_chance = (`MEM_DCACHE_HIT_CHANCE * 127) / 100;
 
-module [HASim_Module] mkPipe_Mem#(File debug_file, Tick curTick)
+module [HASIM_MODULE] mkPipe_Mem#(File debug_file, Bit#(32) curTick)
     //interface:
                 ();
   
   //Local State
-  Reg#(Token)     stall_tok   <- mkRegU;
+  Reg#(TOKEN)     stall_tok   <- mkRegU;
   Reg#(Bit#(16))  stall_count <- mkReg(0);
   Reg#(Bool)      stalling    <- mkReg(False);
-  Reg#(MEM_State) state       <- mkReg(MEM_Ready);
+  Reg#(MEM_STATE) state       <- mkReg(MEM_Ready);
   
   //Pseudo-randomness
   LFSR#(Bit#(7)) lfsr <- mkFeedLFSR(7'b1001110);
 
   //Connections to FP
-  Connection_Send#(Token)     fp_loads_req  <- mkConnection_Send("funcp_doLoads_req");
-  Connection_Receive#(Token)  fp_loads_resp <- mkConnection_Receive("funcp_doLoads_resp");
-  Connection_Send#(Token)     fp_stores_req  <- mkConnection_Send("funcp_doSpeculativeStores_req");
-  Connection_Receive#(Token)  fp_stores_resp <- mkConnection_Receive("funcp_doSpeculativeStores_resp");
+  Connection_Send#(TOKEN)     fp_loads_req  <- mkConnection_Send("funcp_doLoads_req");
+  Connection_Receive#(TOKEN)  fp_loads_resp <- mkConnection_Receive("funcp_doLoads_resp");
+  Connection_Send#(TOKEN)     fp_stores_req  <- mkConnection_Send("funcp_doSpeculativeStores_req");
+  Connection_Receive#(TOKEN)  fp_stores_resp <- mkConnection_Receive("funcp_doSpeculativeStores_resp");
 
   //Events
   EventRecorder event_mem <- mkEventRecorder(`STREAMS_EVENTS_MEMORY_INSTRUCTION_MEM);
     
   //Incoming Ports
-  Port_Receive#(Tuple3#(Token, Bool, Bool)) port_from_exe <- mkPort_Receive("exe_to_mem", 1);
+  Port_Receive#(Tuple3#(TOKEN, Bool, Bool)) port_from_exe <- mkPort_Receive("exe_to_mem", 1);
 
   //Outgoing Ports
-  Port_Send#(Tuple2#(Token, Bool)) port_to_wb <- mkPort_Send("mem_to_wb");
+  Port_Send#(Tuple2#(TOKEN, Bool)) port_to_wb <- mkPort_Send("mem_to_wb");
 
   //Local Controller
   Vector#(1, Port_Control) inports  = newVector();
@@ -76,19 +76,21 @@ module [HASim_Module] mkPipe_Mem#(File debug_file, Tick curTick)
       end
       tagged Valid {.tok, .isLoad, .isStore}:
       begin
-        $fdisplay(debug_file, "[%d]:REQ:MEM: %0d", curTick, tok.index);
         if (isLoad)
         begin
+          $fdisplay(debug_file, "[%d]:REQ:LOA: %0d", curTick, tok.index);
           fp_loads_req.send(tok);
           state <= MEM_Finish_Load;
         end
         else if (isStore)
         begin
+          $fdisplay(debug_file, "[%d]:REQ:STO: %0d", curTick, tok.index);
           fp_stores_req.send(tok);
           state <= MEM_Finish_Store;
         end
         else
         begin
+          $fdisplay(debug_file, "[%d]:no mem: %0d", curTick, tok.index);
           port_to_wb.send(tagged Valid tuple2(tok, False));
           event_mem.recordEvent(tagged Invalid);
           state <= MEM_Ready;
@@ -103,7 +105,7 @@ module [HASim_Module] mkPipe_Mem#(File debug_file, Tick curTick)
     let tok = fp_loads_resp.receive();
     fp_loads_resp.deq();
     
-    $fdisplay(debug_file, "[%d]:RSP:MEM: %0d", curTick, tok.index);
+    $fdisplay(debug_file, "[%d]:RSP:LOA: %0d", curTick, tok.index);
     
     port_to_wb.send(tagged Valid tuple2(tok, False));
     event_mem.recordEvent(tagged Valid zeroExtend(tok.index));
@@ -117,7 +119,7 @@ module [HASim_Module] mkPipe_Mem#(File debug_file, Tick curTick)
     let tok = fp_stores_resp.receive();
     fp_stores_resp.deq();
     
-    $fdisplay(debug_file, "[%d]:RSP:MEM: %0d", curTick, tok.index);
+    $fdisplay(debug_file, "[%d]:RSP:STO: %0d", curTick, tok.index);
     
     port_to_wb.send(tagged Valid tuple2(tok, True));
     event_mem.recordEvent(tagged Valid zeroExtend(tok.index));

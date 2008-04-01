@@ -31,7 +31,7 @@ module [HASim_Module] mkISA_Datapath
     // Connection to the functional partition.
     
     Connection_Server#(Tuple3#(ISA_INSTRUCTION, ISA_ADDRESS, ISA_SOURCE_VALUES), 
-                       Tuple3#(ISA_INSTRUCTION_RESULT, ISA_ADDRESS, ISA_RESULT_VALUES)) link_fp <- mkConnection_Server("isa_datapath");
+                       Tuple3#(ISA_EXECUTION_RESULT, ISA_ADDRESS, ISA_RESULT_VALUES)) link_fp <- mkConnection_Server("isa_datapath");
 
     // ***** Debugging Log *****
     
@@ -80,14 +80,19 @@ module [HASim_Module] mkISA_Datapath
     rule datapathExec (True);
 
         // Get the request from the functional partition.
-        match {.inst, .addr, .vs} = link_fp.getReq();
+        match {.inst, .addr, .srcs} = link_fp.getReq();
         link_fp.deq();
 
         // Some convenient variables to return.
 
-        ISA_INSTRUCTION_RESULT result;
-        ISA_ADDRESS eaddr;
-        ISA_RESULT_VALUES = Vector::replicate(Invalid);
+        // The result for the timing partition.
+        ISA_EXECUTION_RESULT timep_result;
+        
+        // The effective address for Loads/Stores
+        ISA_ADDRESS effective_addr;
+        
+        // The writebacks which are sent to the register file.
+        ISA_RESULT_VALUES writebacks = Vector::replicate(Invalid);
 
         case (inst) matches // You should write this.
             default: 

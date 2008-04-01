@@ -1,0 +1,20 @@
+#/********************************************************************
+# *
+# * Awb module specification
+# *
+# *******************************************************************/
+
+#/*
+# %AWB_START
+#
+# %name Always not taken Branch Predictor V3
+# %desc Always not taken Branch Predictor V3
+# %provides hasim_branch_pred
+#
+# %attributes mips hasim
+#
+# %public BranchPredV3.bsv
+#
+# %AWB_END
+# */
+

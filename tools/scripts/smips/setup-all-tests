@@ -53,6 +53,7 @@ do
   mkdir -p $rundir
   /bin/ln -f -s ../program/$1.smips.vmh $rundir/program.vmh
   /bin/ln -f -s ../../../pm/simv $rundir/simv
+  /bin/ln -f -s ../../../pm/.bsc $rundir/.bsc
   if [ -e ../../../pm/simv.daidir ]; then
     /bin/ln -f -s ../../../pm/simv.daidir $rundir/simv.daidir
   fi

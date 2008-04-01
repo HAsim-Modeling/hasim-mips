@@ -15,7 +15,7 @@ module [HASim_Module] mkCPU
                 ();
    
   let debug_file <- mkReg(InvalidFile);
-  Reg#(Tick) curTick <- mkReg(0);
+  Reg#(Bit#(32)) curTick <- mkReg(0);
 
   Reg#(Bool) ran <- mkReg(False);
 

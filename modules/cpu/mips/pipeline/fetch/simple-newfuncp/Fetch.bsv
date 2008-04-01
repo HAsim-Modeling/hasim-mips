@@ -27,47 +27,47 @@ typedef enum
   FET_GetInst,
   FET_Finish
 }
-  FET_State
+  FET_STATE
     deriving (Eq, Bits);
 
-typedef Bit#(`FET_BTB_HASH_BITS) AddrHash;
+typedef Bit#(`FET_BTB_HASH_BITS) ISA_ADDRESSHash;
 
-function AddrHash btbHash(Addr a);
+function ISA_ADDRESSHash btbHash(ISA_ADDRESS a);
 
   return truncate(a);
 
 endfunction
 
-module [HASim_Module] mkPipe_Fetch#(File debug_file, Tick curTick)
+module [HASIM_MODULE] mkPipe_Fetch#(File debug_file, Bit#(32) curTick)
     //interface:
                 ();
 
   //Local State
 
-  Reg#(Addr)                  pc <- mkReg(32'h00001000);
-  Reg#(TIMEP_Epoch)        epoch <- mkReg(0);
-  Reg#(Token)          stall_tok <- mkRegU;
-  Reg#(Maybe#(Addr))  stall_addr <- mkRegU;
-  Reg#(Inst)          stall_inst <- mkRegU;
+  Reg#(ISA_ADDRESS)           pc <- mkReg(32'h00001000);
+  Reg#(TOKEN_TIMEP_EPOCH)     epoch <- mkReg(0);
+  Reg#(TOKEN)          stall_tok <- mkRegU;
+  Reg#(Maybe#(ISA_ADDRESS))  stall_addr <- mkRegU;
+  Reg#(ISA_INSTRUCTION)    stall_inst <- mkRegU;
   Reg#(Bit#(16))     stall_count <- mkReg(0);
   Reg#(Bool)                 stalling <- mkReg(False);
-  Reg#(FET_State)               state <- mkReg(FET_Ready);
+  Reg#(FET_STATE)               state <- mkReg(FET_Ready);
   
   //For branch prediction
   
   BranchPred branch_pred <- mkBranchPred();
-  RegFile#(TokIndex, Addr)         addrs <- mkRegFileFull();
-  RegFile#(AddrHash, Maybe#(Addr))   btb <- mkRegFileFull();
+  RegFile#(TokIndex, ISA_ADDRESS)         addrs <- mkRegFileFull();
+  RegFile#(ISA_ADDRESSHash, Maybe#(ISA_ADDRESS))   btb <- mkRegFileFull();
   
   //Pseudo-randomness
   LFSR#(Bit#(7)) lfsr <- mkFeedLFSR(7'b1001110);
 
   //Connections to FP
   Connection_Send#(void)   fp_tok_req  <- mkConnection_Send("funcp_newInFlight_req");
-  Connection_Receive#(Token)  fp_tok_resp <- mkConnection_Receive("funcp_newInFlight_resp");
+  Connection_Receive#(TOKEN)  fp_tok_resp <- mkConnection_Receive("funcp_newInFlight_resp");
   
-  Connection_Send#(Tuple2#(Token, Addr))     fp_fet_req  <- mkConnection_Send("funcp_getInstruction_req");
-  Connection_Receive#(Tuple2#(Token, PackedInst))  fp_fet_resp <- mkConnection_Receive("funcp_getInstruction_resp");
+  Connection_Send#(Tuple2#(TOKEN, ISA_ADDRESS))         fp_fet_req  <- mkConnection_Send("funcp_getInstruction_req");
+  Connection_Receive#(Tuple2#(TOKEN, ISA_INSTRUCTION))  fp_fet_resp <- mkConnection_Receive("funcp_getInstruction_resp");
       
   //Events
   EventRecorder event_fet <- mkEventRecorder(`STREAMS_EVENTS_FETCH_INSTRUCTION_FET);
@@ -79,10 +79,10 @@ module [HASim_Module] mkPipe_Fetch#(File debug_file, Tick curTick)
 
     
   //Incoming Ports
-  Port_Receive#(Tuple2#(Token, Maybe#(Addr))) port_from_exe <- mkPort_Receive("fet_branchResolve", 1);
+  Port_Receive#(Tuple2#(TOKEN, Maybe#(ISA_ADDRESS))) port_from_exe <- mkPort_Receive("fet_branchResolve", 1);
 
   //Outgoing Ports
-  Port_Send#(Tuple3#(Token, Maybe#(Addr), Inst)) port_to_dec <- mkPort_Send("fet_to_dec");
+  Port_Send#(Tuple3#(TOKEN, Maybe#(ISA_ADDRESS), ISA_INSTRUCTION)) port_to_dec <- mkPort_Send("fet_to_dec");
 
   //Local Controller
   Vector#(1, Port_Control) inports  = newVector();
@@ -197,7 +197,7 @@ module [HASim_Module] mkPipe_Fetch#(File debug_file, Tick curTick)
      if (isHit)
      begin
      
-       port_to_dec.send(tagged Valid tuple3(tok, pred_addr, bitsToInst(inst)));
+       port_to_dec.send(tagged Valid tuple3(tok, pred_addr, inst));
        event_fet.recordEvent(tagged Valid zeroExtend(tok.index));
        stat_fet.incr();
 
@@ -210,7 +210,7 @@ module [HASim_Module] mkPipe_Fetch#(File debug_file, Tick curTick)
        stall_count <= `FET_ICACHE_MISS_PENALTY;
        stall_tok   <= tok;
        stall_addr  <= pred_addr;
-       stall_inst  <= bitsToInst(inst);
+       stall_inst  <= inst;
        stalling    <= True;
      end
      

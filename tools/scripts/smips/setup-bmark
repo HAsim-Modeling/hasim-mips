@@ -45,6 +45,8 @@ if [ -e ../../pm/simx ]; then
     progname="./simx"
 else
     /bin/ln -f -s ../../pm/simv .
+    # Create link to top-level .bsc directory
+    /bin/ln -f -s ../../pm/.bsc .
     progname="./simv"
 fi
 

@@ -13,37 +13,37 @@ import hasim_local_controller::*;
 //AWB Parameters           default:
 //DEC_PIPELINE_IS_BYPASSED   True
 
-module [HASim_Module] mkPipe_Decode#(File debug_file, Tick curTick)
+module [HASIM_MODULE] mkPipe_Decode#(File debug_file, Bit#(32) curTick)
     //interface:
                 ();
 
 
   //Local State
   Reg#(Bool)      in_flight   <- mkReg(False);
-  FIFO#(Tuple3#(Maybe#(Addr), Bool, Bool)) infoQ   <- mkFIFO();
+  FIFO#(Tuple3#(Maybe#(ISA_ADDRESS), Bool, Bool)) infoQ   <- mkFIFO();
   
   //Scoreboard
   Reg#(Maybe#(ISA_DEPENDENCY_INFO)) exe_stall_info <- mkReg(tagged Invalid);
   Reg#(Maybe#(ISA_DEPENDENCY_INFO)) mem_stall_info <- mkReg(tagged Invalid);
   Reg#(Maybe#(ISA_DEPENDENCY_INFO))  wb_stall_info <- mkReg(tagged Invalid);
   Reg#(Bool) exe_is_load <- mkReg(False);
-  Vector#(3, Reg#(Maybe#(Tuple5#(Token, ISA_DEPENDENCY_INFO, Maybe#(Addr), Bool, Bool)))) stall_toks = newVector();
-  stall_toks[0] <- mkReg(Invalid);
-  stall_toks[1] <- mkReg(Invalid);
-  stall_toks[2] <- mkReg(Invalid);
+  Vector#(3, Reg#(Maybe#(Tuple5#(TOKEN, ISA_DEPENDENCY_INFO, Maybe#(ISA_ADDRESS), Bool, Bool)))) stall_toks = newVector();
+  stall_toks[0] <- mkReg(tagged Invalid);
+  stall_toks[1] <- mkReg(tagged Invalid);
+  stall_toks[2] <- mkReg(tagged Invalid);
 
   //Connections to FP
-  Connection_Send#(Token)        fp_dec_req  <- mkConnection_Send("funcp_getDependencies_req");
-  Connection_Receive#(Tuple2#(Token, ISA_DEPENDENCY_INFO))  fp_dec_resp <- mkConnection_Receive("funcp_getDependencies_resp");
+  Connection_Send#(TOKEN)        fp_dec_req  <- mkConnection_Send("funcp_getDependencies_req");
+  Connection_Receive#(Tuple2#(TOKEN, ISA_DEPENDENCY_INFO))  fp_dec_resp <- mkConnection_Receive("funcp_getDependencies_resp");
   
   //Events
   EventRecorder event_dec <- mkEventRecorder(`STREAMS_EVENTS_DECODE_INSTRUCTION_DECODE);
   
   //Incoming Ports
-  Port_Receive#(Tuple3#(Token, Maybe#(Addr), Inst)) port_from_fet <- mkPort_Receive("fet_to_dec", 1);
+  Port_Receive#(Tuple3#(TOKEN, Maybe#(ISA_ADDRESS), ISA_INSTRUCTION)) port_from_fet <- mkPort_Receive("fet_to_dec", 1);
 
   //Outgoing Ports
-  Port_Send#(Tuple4#(Token, Maybe#(Addr), Bool, Bool))      port_to_exe <- mkPort_Send("dec_to_exe");
+  Port_Send#(Tuple4#(TOKEN, Maybe#(ISA_ADDRESS), Bool, Bool))      port_to_exe <- mkPort_Send("dec_to_exe");
 
   //Local Controller
   Vector#(1, Port_Control) inports  = newVector();
@@ -65,7 +65,7 @@ module [HASim_Module] mkPipe_Decode#(File debug_file, Tick curTick)
   endaction
   endfunction
 
-  function Action manageStalls(Bit#(2) k, Maybe#(Tuple5#(Token, ISA_DEPENDENCY_INFO, Maybe#(Addr), Bool, Bool)) newStall);
+  function Action manageStalls(Bit#(2) k, Maybe#(Tuple5#(TOKEN, ISA_DEPENDENCY_INFO, Maybe#(ISA_ADDRESS), Bool, Bool)) newStall);
   action
 
     case (newStall) matches
@@ -115,7 +115,7 @@ module [HASim_Module] mkPipe_Decode#(File debug_file, Tick curTick)
   
   endfunction
 
-  function Bool isCalculating(PRName pr, Maybe#(ISA_DEPENDENCY_INFO) mdeps);
+  function Bool isCalculating(FUNCP_PHYSICAL_REG_INDEX pr, Maybe#(ISA_DEPENDENCY_INFO) mdeps);
     
     case (mdeps) matches
       tagged Invalid:
@@ -131,13 +131,13 @@ module [HASim_Module] mkPipe_Decode#(File debug_file, Tick curTick)
      
   endfunction
   
-  function Bool loadStall(PRName pr);
+  function Bool loadStall(FUNCP_PHYSICAL_REG_INDEX pr);
     
     return exe_is_load ? isCalculating(pr, exe_stall_info) : False;
 
   endfunction
   
-  function Bit#(2) stallsFor(PRName pr);
+  function Bit#(2) stallsFor(FUNCP_PHYSICAL_REG_INDEX pr);
   
     Bit#(2) st_exe = isCalculating(pr, exe_stall_info) ? 3 : 0;
     Bit#(2) st_mem = isCalculating(pr, mem_stall_info) ? 2 : 0;
@@ -229,7 +229,7 @@ module [HASim_Module] mkPipe_Decode#(File debug_file, Tick curTick)
         // Always send the request to the funcp
         $fdisplay(debug_file, "[%d]:DEC:REQ: %0d", curTick, tok.index);
         fp_dec_req.send(tok);
-        infoQ.enq(tuple3(maddr, isLoad(inst), isStore(inst)));
+        infoQ.enq(tuple3(maddr, isaIsLoad(inst), isaIsStore(inst)));
         in_flight <= True;
       end
     endcase
