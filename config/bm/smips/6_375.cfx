@@ -58,29 +58,19 @@ my @bmarks = ("median",
 	      "vvadd");
 	      
 foreach my $test (@tests) {
-        $gcfg->add(name => $test,
-                  tree => [ "tests" ],
-                  setup => "tools/scripts/smips/setup-test $test",
-		  feeder => "vcs",
-                  ccount => 800000,
-                  );
-   }
+    $gcfg->add(name => $test,
+               tree => [ "tests" ],
+               setup => "tools/scripts/smips/setup-bmark --group instruction-tests $test",
+               feeder => "vcs",
+              );
+}
      
 foreach my $bmark (@bmarks) {
-        $gcfg->add(name => $bmark,
-                  tree => [ "benchmarks" ],
-                  setup => "tools/scripts/smips/setup-bmark $bmark",
-		  feeder => "vcs",
-                  ccount => 800000,
-                  );
-   }
-
-# Run all tests
-$gcfg->add(name => "all_tests",
-	   tree => [ ],
-	   setup => "tools/scripts/smips/setup-all-tests @tests",
-	   feeder => "vcs",
-	   ccount => 800000,
-	  );
+    $gcfg->add(name => $bmark,
+               tree => [ "benchmarks" ],
+               setup => "tools/scripts/smips/setup-bmark $bmark",
+               feeder => "vcs",
+              );
+}
 
 $gcfg->action(@ARGV);

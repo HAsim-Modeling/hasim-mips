@@ -3706,3 +3706,27 @@ is overhauled.
 
 Michael P.
 
+
+----------
+mcadler     Date: Wed Apr  2 14:01:10 EDT 2008  CSN: CSN-hasim-mips-177
+                  Wed Apr  2 18:01:10 UTC 2008
+
+
+Directory tools/scripts/smips
+ run.bmark                 Locally Added               0 
+ setup-all-tests           Locally Removed           176 
+ setup-bmark               Locally Modified          176 
+ setup-test                Locally Removed           176 
+
+Directory config/bm/smips
+ 6_375.cfx                 Locally Modified          176 
+
+New benchmark configuration and run scripts:
+  - Run script automatically programs the FPGA, when appropriate.  Script
+    takes --noprogram (don't program FPGA) and --noreserve (don't reserve/
+    release) FPGA lock.
+  - Run script detects hybrid, hardware only and Bluesim models and attempts
+    to do the right thing.
+
+setup-bmark now handles what used to be done by setup-test.
+
