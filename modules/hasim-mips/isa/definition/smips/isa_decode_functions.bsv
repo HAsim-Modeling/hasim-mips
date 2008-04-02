@@ -296,6 +296,8 @@ function Maybe#(ISA_REG_INDEX) mipsGetSrc2(ISA_INSTRUCTION i);
             MIPS_SPECIAL_OPCODE sp_op = i[5:0];
         
             case (sp_op)
+                mipsSpecialSLL,
+                mipsSpecialSRL,
                 mipsSpecialJALR,
                 mipsSpecialJR:   return tagged Invalid;
                 default:         return tagged Valid i[20:16];

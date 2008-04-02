@@ -150,7 +150,7 @@ module [HASim_Module] mkISA_Datapath
                 ISA_VALUE result = srcs[0] + sign_ext_imm;
                 writebacks[0] = tagged Valid result;
                 // Log it.
-                $fdisplay(debug_log, "ADDIU 0x%h = 0x%h + 0x%h", result, srcs[0], sign_ext_imm);
+                $fdisplay(debug_log, "ADDIU 0x%h = 0x%h + 0x%h]", result, srcs[0], sign_ext_imm);
                 // No information needs to be returned to the timing partition.
                 timep_result = tagged RNop;
 
@@ -261,7 +261,8 @@ module [HASim_Module] mkISA_Datapath
                 ISA_ADDRESS dest  = {branch_not_taken_dest[31:28], inst[25:0], 2'b00};
                 // Log it.
                 $fdisplay(debug_log, "J PC <= 0x%h = {%0h, %0h, 00}", dest, branch_not_taken_dest[31:26], inst[25:0]);
-
+                // Return the branch result to the timing partition.
+                timep_result = tagged RBranchTaken dest;
             end
 
 
@@ -581,7 +582,7 @@ module [HASim_Module] mkISA_Datapath
                         ISA_VALUE result = zeroExtend(pack(srcs[0] < srcs[1]));
                         writebacks[0] = tagged Valid result;
                         // Log it.
-                        $fdisplay(debug_log, "SLT %0h = slt(%0h, %0h)", result, srcs[0], srcs[1]);
+                        $fdisplay(debug_log, "SLTU %0h = sltu(%0h, %0h)", result, srcs[0], srcs[1]);
                         // The timing partition does not need any information.
                         timep_result = tagged RNop;
 

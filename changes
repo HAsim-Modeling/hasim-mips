@@ -3730,3 +3730,19 @@ New benchmark configuration and run scripts:
 
 setup-bmark now handles what used to be done by setup-test.
 
+
+----------
+pellauer    Date: Wed Apr  2 15:40:35 EDT 2008  CSN: CSN-hasim-mips-178
+                  Wed Apr  2 19:40:35 UTC 2008
+
+
+Directory modules/hasim-mips/isa/datapath/smips
+ isa_datapath_smips.bsv    Locally Modified          177 
+
+Directory modules/hasim-mips/isa/definition/smips
+ isa_decode_functions.bsv  Locally Modified          177 
+
+
+Fixed a bug in SMIPS V3. 4/5 benchmarks now pass (all but Towers).
+
+Michael
