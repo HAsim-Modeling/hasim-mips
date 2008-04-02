@@ -3757,3 +3757,17 @@ Directory tools/scripts/smips
 
 Pure Bluespec benchmarks expect to load the program from program.vmh.
 Make the link to keep them happy.
+
+----------
+pellauer    Date: Wed Apr  2 16:47:56 EDT 2008  CSN: CSN-hasim-mips-180
+                  Wed Apr  2 20:47:56 UTC 2008
+
+
+Directory modules/hasim-mips/isa/datapath/smips
+ isa_datapath_smips.bsv    Locally Modified          179 
+
+
+Fixed the (hopefully) final bug in SMIPS V3. All 5 benchmarks now pass. This ISA
+should be the basis of our implementation of the full MIPS ISA.
+
+Michael P.

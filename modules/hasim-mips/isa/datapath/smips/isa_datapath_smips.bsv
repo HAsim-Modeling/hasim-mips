@@ -415,7 +415,7 @@ module [HASim_Module] mkISA_Datapath
                         // Get the shift amount from src1
                         Bit#(5) shift_amount = srcs[0][4:0];
                         // Do the calculation and write it back.
-                        ISA_VALUE result = srcs[0] << shift_amount;
+                        ISA_VALUE result = srcs[1] << shift_amount;
                         writebacks[0] = tagged Valid result;
                         // Log it.
                         $fdisplay(debug_log, "SLLV 0x%h = 0x%h << 0x%h", result, srcs[0], shift_amount);
@@ -433,7 +433,7 @@ module [HASim_Module] mkISA_Datapath
                         // Get the shift amount from src1
                         Bit#(5) shift_amount = srcs[0][4:0];
                         // Do the calculation and write it back.
-                        ISA_VALUE result = srcs[0] >> shift_amount;
+                        ISA_VALUE result = srcs[1] >> shift_amount;
                         writebacks[0] = tagged Valid result;
                         // Log it.
                         $fdisplay(debug_log, "SLLV 0x%h = 0x%h >> 0x%h", result, srcs[0], shift_amount);
@@ -451,7 +451,7 @@ module [HASim_Module] mkISA_Datapath
                         // Get the shift amount from src1
                         Bit#(5) shift_amount = srcs[0][4:0];
                         // Do the calculation and write it back.
-                        ISA_VALUE result = signedShiftRight(srcs[0], shift_amount);
+                        ISA_VALUE result = signedShiftRight(srcs[1], shift_amount);
                         writebacks[0] = tagged Valid result;
                         // Log it.
                         $fdisplay(debug_log, "SRAV 0x%h = 0x%h >>a 0x%h", result, srcs[0], shift_amount);
