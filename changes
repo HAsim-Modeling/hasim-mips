@@ -3746,3 +3746,14 @@ Directory modules/hasim-mips/isa/definition/smips
 Fixed a bug in SMIPS V3. 4/5 benchmarks now pass (all but Towers).
 
 Michael
+
+----------
+mcadler     Date: Wed Apr  2 15:49:27 EDT 2008  CSN: CSN-hasim-mips-179
+                  Wed Apr  2 19:49:27 UTC 2008
+
+
+Directory tools/scripts/smips
+ run.bmark                 Locally Modified          178 
+
+Pure Bluespec benchmarks expect to load the program from program.vmh.
+Make the link to keep them happy.

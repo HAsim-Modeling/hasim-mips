@@ -70,6 +70,10 @@ foreach my $c (@ARGV) {
 # Adjust the arguments for Bluesim if it is being invoked directly
 if (! $config{isHybridModel} && ($mType == $MODEL_BLUESIM)) {
     $cmd =~ s/\s--/ +--/g;
+
+    # Bluesim may expect to load a program from a well known file
+    unlink('program.vmh');
+    link('program/@BENCHMARK@.smips.vmh', 'program.vmh');
 }
 
 
