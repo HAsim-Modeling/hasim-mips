@@ -714,7 +714,7 @@ module [HASim_Module] mkISA_Datapath
             begin
             
                 // An illegal instruction
-                $fdisplay(debug_log, "WARNING: EXECUTING ILLEGAL INSTRUCTION!");
+                $fdisplay(debug_log, "WARNING: EXECUTING ILLEGAL INSTRUCTION: %0h", inst);
             
             end
 

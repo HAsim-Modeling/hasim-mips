@@ -1,0 +1,187 @@
+
+[Global]
+SaveParameters=0
+Description=5-Stage MIPS Model V3
+File=smips_5stage_v3_hybrid_sim
+Version=2.1
+Name=5-Stage MIPS Model V3
+Type=HAsim
+Class=Asim::Model
+
+[Hasim - Hardware (fpga) based system/Requires]
+hasim_funcp=Functional Partition
+hasim_chip=Uniprocessor chip
+hasim_isa=Hasim - SMIPS Version 2
+
+[Model]
+DefaultAttributes=hasim smips 5-stage
+model=HAsim Model Foundation
+
+[Hasim - Hardware (fpga) based system]
+Packagehint=hasim
+File=modules/system/single_chip_system/hasim_system.awb
+
+[HAsim Model Foundation]
+Packagehint=hasim
+File=modules/model/hasim_model.awb
+
+[HAsim Model Foundation/Requires]
+hasim_system=Hasim - Hardware (fpga) based system
+hasim_controller=Hasim Standard Controller
+hasim_common=New Hasim Common Library
+fpgaenv=FPGA Environment
+
+[Uniprocessor chip/Requires]
+hasim_cpu=5-stage pipeline CPU
+hasim_memory=magic memory
+
+
+[5-stage pipeline CPU/Requires]
+hasim_pipe_mem=New 5-stage pipeline Mem
+hasim_pipe_writeback=New 5-stage pipeline Writeback
+hasim_pipe_execute=New 5-stage pipeline Execute
+hasim_pipe_decode=New 5-stage pipeline Decode
+hasim_pipe_fetch=New 5-stage pipeline Fetch
+
+[5-stage pipeline CPU]
+File=modules/cpu/mips/5stage_cpu.awb
+Packagehint=hasim-mips
+
+[Uniprocessor chip]
+File=modules/chip/mips/uniprocessor/uniprocessor.awb
+Packagehint=hasim-mips
+
+[magic memory]
+File=modules/memory/magic_memory.awb
+Packagehint=hasim-mips
+
+[FPGA Environment]
+File=config/pm/hasim/submodels/fpgaenv/hasim-fpgaenv-hybrid-sim.apm
+Packagehint=platforms
+
+[Memory State for Functional Partition/Requires]
+funcp_memstate_manager=Manager using Macro Ops for Mem State
+
+[Scoreboard with One-Hot Encoding]
+File=modules/hasim/functional-partition/register-state/scoreboard/onehot/regstate_scoreboard_onehot.awb
+Packagehint=hasim
+
+[Register State for Functional Partition]
+File=modules/hasim/functional-partition/register-state/regstate_default.awb
+Packagehint=hasim
+
+[Store Buffer using Bucket Hash]
+File=modules/hasim/functional-partition/memory-state/store-buffer/bucket-hash/memstate_storebuffer_bucket_hash.awb
+Packagehint=hasim
+
+[Memory State for Functional Partition]
+File=modules/hasim/functional-partition/memory-state/memstate_default.awb
+Packagehint=hasim
+
+[Register State Manager using Macro Ops/Requires]
+funcp_regstate_freelist=Freelist in BRAM
+funcp_regstate_scoreboard=Scoreboard with One-Hot Encoding
+
+[Freelist in BRAM]
+File=modules/hasim/functional-partition/register-state/freelist/bram/funcp_freelist_bram.awb
+Packagehint=hasim
+
+[Manager using Macro Ops for Mem State]
+File=modules/hasim/functional-partition/memory-state/manager/macro-ops/memstate_manager_macro_ops.awb
+Packagehint=hasim
+
+[Functional Partition]
+File=modules/hasim/functional-partition/functional_partition_default.awb
+Packagehint=hasim
+
+[Null Cache for Functional Partition]
+File=modules/hasim/functional-partition/memory-state/cache/null/memstate_cache_null.awb
+Packagehint=hasim
+
+[Register State for Functional Partition/Requires]
+funcp_regstate_manager=Register State Manager using Macro Ops
+
+[Manager using Macro Ops for Mem State/Requires]
+funcp_memstate_storebuffer=Store Buffer using Bucket Hash
+funcp_memstate_cache=Null Cache for Functional Partition
+
+[Functional Partition/Requires]
+funcp_memstate=Memory State for Functional Partition
+funcp_regstate=Register State for Functional Partition
+hasim_isa_datapath=SMIPS ISA Datapath V3
+
+[Register State Manager using Macro Ops]
+File=modules/hasim/functional-partition/register-state/manager/macro-ops/regstate_manager_macro_ops.awb
+Packagehint=hasim
+
+[New 5-stage pipeline Mem]
+File=modules/cpu/mips/pipeline/mem/simple-newfuncp/mem_simple_newfuncp.awb
+Packagehint=hasim-mips
+
+[Hasim Modeling Library]
+File=modules/common/modellib/hasim_modellib.awb
+Packagehint=hasim
+
+[Smart Synthesis Boundaries]
+File=modules/common/smart_synthesis_boundaries/smart_synth_boundaries.awb
+Packagehint=hasim
+
+[New 5-stage pipeline Execute]
+File=modules/cpu/mips/pipeline/execute/simple-newfuncp/execute_simple_newfuncp.awb
+Packagehint=hasim-mips
+
+[New 5-stage pipeline Decode]
+File=modules/cpu/mips/pipeline/decode/simple-newfuncp/decode_simpe_newfuncp.awb
+Packagehint=hasim-mips
+
+[New 5-stage pipeline Fetch]
+File=modules/cpu/mips/pipeline/fetch/simple-newfuncp/fetch_simple_newfuncp.awb
+Packagehint=hasim-mips
+
+[Hasim Platform Interface]
+File=modules/common/platform_interface/hasim/hasim-platform-interface.awb
+Packagehint=hasim
+
+[Soft Connections/Requires]
+soft_connections_alg=Soft Connection Algorithm
+
+[New 5-stage pipeline Fetch/Requires]
+hasim_branch_pred=Always not taken Branch Predictor V3
+
+[New 5-stage pipeline Writeback]
+File=modules/cpu/mips/pipeline/writeback/simple-newfuncp/writeback_simple_newfuncp.awb
+Packagehint=hasim-mips
+
+[Soft Connections]
+File=modules/bluespec/common/soft_connections/soft_connections.awb
+Packagehint=hasim
+
+[New Hasim Common Library]
+File=modules/hasim/common/new-funcp/hasim_common_newfuncp.awb
+Packagehint=hasim
+
+[New Hasim Common Library/Requires]
+smart_synth_boundaries=Smart Synthesis Boundaries
+platform_interface=Hasim Platform Interface
+soft_connections=Soft Connections
+hasim_modellib=Hasim Modeling Library
+
+[Soft Connection Algorithm]
+File=modules/bluespec/common/soft_connections/alg/typed/soft_connections_alg.awb
+Packagehint=hasim
+
+[Hasim Standard Controller]
+File=config/pm/hasim/submodels/controller/hybrid_standard_controller.apm
+Packagehint=hasim
+
+[Hasim - SMIPS Version 2]
+File=modules/hasim-mips/isa/definition/smips/isa_definition_template.awb
+Packagehint=hasim-mips
+
+[SMIPS ISA Datapath V3]
+File=modules/hasim-mips/isa/datapath/smips/isa_datapath_smips.awb
+Packagehint=hasim-mips
+
+[Always not taken Branch Predictor V3]
+File=modules/cpu/mips/branch/predictor/notTaken/BranchPredV3.awb
+Packagehint=hasim-mips

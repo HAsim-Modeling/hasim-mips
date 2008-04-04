@@ -8,7 +8,7 @@ import hasim_isa::*;
 
 import hasim_local_controller::*;
 
-`include "asim/dict/STREAMS_EVENTS_EXECUTE.bsh"
+`include "asim/dict/EVENTS_EXECUTE.bsh"
 `include "asim/dict/STREAMS_STATS_EXECUTE.bsh"
 
 module [HASIM_MODULE] mkPipe_Execute#(File debug_file, Bit#(32) curTick)
@@ -28,7 +28,7 @@ module [HASIM_MODULE] mkPipe_Execute#(File debug_file, Bit#(32) curTick)
   Connection_Send#(Token)     fp_rewindToToken <- mkConnection_Send("funcp_rewindToToken");
 
   //Events
-  EventRecorder event_exe <- mkEventRecorder(`STREAMS_EVENTS_EXECUTE_INSTRUCTION_EXECUTE);
+  EventRecorder event_exe <- mkEventRecorder(`EVENTS_EXECUTE_INSTRUCTION_EXECUTE);
   
   //Stats
   Stat stat_mpred <- mkStatCounter(`STREAMS_STATS_EXECUTE_BPRED_MISPREDS);

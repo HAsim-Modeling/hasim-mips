@@ -7,7 +7,7 @@ import hasim_modellib::*;
 import hasim_isa::*;
 
 import hasim_local_controller::*;
-`include "asim/dict/STREAMS_EVENTS_MEMORY.bsh"
+`include "asim/dict/EVENTS_MEMORY.bsh"
 
 //AWB Parameters          default:
 //MEM_DCACHE_HIT_CHANCE     50
@@ -44,7 +44,7 @@ module [HASim_Module] mkPipe_Mem#(File debug_file, Tick curTick)
   Connection_Send#(Token)     fp_mem_kill <- mkConnection_Send("fp_mem_kill");
 
   //Events
-  EventRecorder event_mem <- mkEventRecorder(`STREAMS_EVENTS_MEMORY_INSTRUCTION_MEM);
+  EventRecorder event_mem <- mkEventRecorder(`EVENTS_MEMORY_INSTRUCTION_MEM);
     
   //Incoming Ports
   Port_Receive#(Token) port_from_exe <- mkPort_Receive("exe_to_mem", 1);

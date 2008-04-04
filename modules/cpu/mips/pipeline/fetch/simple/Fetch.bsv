@@ -11,7 +11,7 @@ import hasim_isa::*;
 
 import hasim_local_controller::*;
 import hasim_branch_pred::*;
-`include "asim/dict/STREAMS_EVENTS_FETCH.bsh"
+`include "asim/dict/EVENTS_FETCH.bsh"
 `include "asim/dict/STREAMS_STATS_FETCH.bsh"
 
 //AWB Parameters            default:
@@ -73,7 +73,7 @@ module [HASim_Module] mkPipe_Fetch#(File debug_file, Tick curTick)
   Connection_Send#(Token)     fp_dec_kill <- mkConnection_Send("fp_dec_kill");
 
   //Events
-  EventRecorder event_fet <- mkEventRecorder(`STREAMS_EVENTS_FETCH_INSTRUCTION_FET);
+  EventRecorder event_fet <- mkEventRecorder(`EVENTS_FETCH_INSTRUCTION_FET);
   
   //Stats
   Stat stat_cycles   <- mkStatCounter(`STREAMS_STATS_FETCH_TOTAL_CYCLES);

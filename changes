@@ -3771,3 +3771,59 @@ Fixed the (hopefully) final bug in SMIPS V3. All 5 benchmarks now pass. This ISA
 should be the basis of our implementation of the full MIPS ISA.
 
 Michael P.
+
+----------
+pellauer    Date: Fri Apr  4 16:08:38 EDT 2008  CSN: CSN-hasim-mips-181
+                  Fri Apr  4 20:08:38 UTC 2008
+
+
+Directory config/pm/hasim-mips/smips-5stage
+ smips_5stage_v3_hybrid_sim.apm Locally Added               0 
+
+Directory modules/cpu/mips/pipeline/execute/simple
+ execute.dic               Locally Modified          180 
+ Execute.bsv               Locally Modified          180 
+
+Directory modules/cpu/mips/pipeline/execute/simple-newfuncp
+ execute.dic               Locally Modified          180 
+ Execute.bsv               Locally Modified          180 
+
+Directory modules/cpu/mips/pipeline/decode/simple
+ decode.dic                Locally Modified          180 
+ Decode.bsv                Locally Modified          180 
+
+Directory modules/cpu/mips/pipeline/decode/simple-newfuncp
+ decode.dic                Locally Modified          180 
+ Decode.bsv                Locally Modified          180 
+
+Directory modules/cpu/mips/pipeline/fetch/simple
+ Fetch.bsv                 Locally Modified          180 
+ fetch.dic                 Locally Modified          180 
+
+Directory modules/cpu/mips/pipeline/fetch/simple-newfuncp
+ Fetch.bsv                 Locally Modified          180 
+ fetch.dic                 Locally Modified          180 
+
+Directory modules/cpu/mips/pipeline/writeback/simple
+ Writeback.bsv             Locally Modified          180 
+ writeback.dic             Locally Modified          180 
+
+Directory modules/cpu/mips/pipeline/writeback/simple-newfuncp
+ Writeback.bsv             Locally Modified          180 
+ writeback.dic             Locally Modified          180 
+
+Directory modules/cpu/mips/pipeline/mem/simple
+ Mem.bsv                   Locally Modified          180 
+ mem.dic                   Locally Modified          180 
+
+Directory modules/cpu/mips/pipeline/mem/simple-newfuncp
+ Mem.bsv                   Locally Modified          180 
+ mem.dic                   Locally Modified          180 
+
+Directory modules/hasim-mips/isa/datapath/smips
+ isa_datapath_smips.bsv    Locally Modified          180 
+
+
+Updated timing partition modules to use the correct dictionary for Events.
+
+Michael P.

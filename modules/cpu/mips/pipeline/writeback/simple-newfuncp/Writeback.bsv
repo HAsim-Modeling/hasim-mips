@@ -8,7 +8,7 @@ import hasim_isa::*;
 
 import hasim_local_controller::*;
 
-`include "asim/dict/STREAMS_EVENTS_WRITEBACK.bsh"
+`include "asim/dict/EVENTS_WRITEBACK.bsh"
 `include "asim/dict/STREAMS_STATS_WRITEBACK.bsh"
 
 typedef enum
@@ -31,7 +31,7 @@ module [HASIM_MODULE] mkPipe_Writeback#(File debug_file, Bit#(32) curTick)
   Connection_Send#(TOKEN)    fp_gco_req  <- mkConnection_Send("funcp_commitStores_req");
   Connection_Receive#(TOKEN) fp_gco_resp <- mkConnection_Receive("funcp_commitStores_resp");
   //Events
-  EventRecorder event_wb <- mkEventRecorder(`STREAMS_EVENTS_WRITEBACK_INSTRUCTION_WRITEBACK);
+  EventRecorder event_wb <- mkEventRecorder(`EVENTS_WRITEBACK_INSTRUCTION_WRITEBACK);
   
   //Stats
   Stat stat_wb <- mkStatCounter(`STREAMS_STATS_WRITEBACK_INSTS_COMMITTED);
