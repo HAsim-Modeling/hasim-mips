@@ -3827,3 +3827,89 @@ Directory modules/hasim-mips/isa/datapath/smips
 Updated timing partition modules to use the correct dictionary for Events.
 
 Michael P.
+
+----------
+pellauer    Date: Wed Apr  9 15:28:00 EDT 2008  CSN: CSN-hasim-mips-182
+                  Wed Apr  9 19:28:00 UTC 2008
+
+
+Directory config/pm/hasim-mips/smips-5stage
+ smips_5stage.apm          Locally Removed           181 
+ smips_5stage_v3_hybrid_sim.apm Locally Modified          181 
+ smips_5stage_hybrid_htg.apm Locally Modified          181 
+ smips_5stage_simulation.apm Locally Removed           181 
+ smips_5stage_newfuncp.apm Locally Removed           181 
+ smips_5stage_barrier.apm  Locally Removed           181 
+ smips_5stage_hybrid_sim.apm Locally Modified          181 
+
+Directory config/pm/hasim-mips/toymips
+ hasim_toymips_simple.apm  Locally Modified          181 
+
+Directory config/pm/hasim-mips/smips-unpipelined
+ smips_unpipelined.apm     Locally Modified          181 
+ smips_unpipelined_qemu.apm Locally Modified          181 
+
+Directory config/pm/hasim-mips/submodels/funcp
+ smips-funcp-fpga.apm      Locally Removed           181 
+
+Directory config/pm/hasim-mips/s10k
+ s10k_sim.apm              Locally Modified          181 
+ s10k.apm                  Locally Removed           181 
+
+Directory modules/cpu/mips/pipeline/execute/simple_barrier
+ Execute.bsv               Locally Modified          181 
+
+Directory modules/cpu/mips/pipeline/execute/simple
+ Execute.bsv               Locally Modified          181 
+
+Directory modules/cpu/mips/pipeline/execute/simple-newfuncp
+ Execute.bsv               Locally Modified          181 
+
+Directory modules/cpu/mips/pipeline/decode/simple_barrier
+ Decode.bsv                Locally Modified          181 
+
+Directory modules/cpu/mips/pipeline/decode/simple
+ Decode.bsv                Locally Modified          181 
+
+Directory modules/cpu/mips/pipeline/decode/simple-newfuncp
+ Decode.bsv                Locally Modified          181 
+
+Directory modules/cpu/mips/pipeline/decode/s10k
+ Decode.bsv                Locally Modified          181 
+
+Directory modules/cpu/mips/pipeline/fetch/simple_barrier
+ Fetch.bsv                 Locally Modified          181 
+
+Directory modules/cpu/mips/pipeline/fetch/simple
+ Fetch.bsv                 Locally Modified          181 
+
+Directory modules/cpu/mips/pipeline/fetch/simple-newfuncp
+ Fetch.bsv                 Locally Modified          181 
+
+Directory modules/cpu/mips/pipeline/writeback/simple_barrier
+ Writeback.bsv             Locally Modified          181 
+
+Directory modules/cpu/mips/pipeline/writeback/simple
+ Writeback.bsv             Locally Modified          181 
+
+Directory modules/cpu/mips/pipeline/writeback/simple-newfuncp
+ Writeback.bsv             Locally Modified          181 
+
+Directory modules/cpu/mips/pipeline/mem/simple_barrier
+ Mem.bsv                   Locally Modified          181 
+
+Directory modules/cpu/mips/pipeline/mem/simple
+ Mem.bsv                   Locally Modified          181 
+
+Directory modules/cpu/mips/pipeline/mem/simple-newfuncp
+ Mem.bsv                   Locally Modified          181 
+
+Directory modules/cpu/mips
+ UnpipelinedCPU.bsv        Locally Modified          181 
+
+
+* Reconfigured models to use new controller organization.
+* Removed some obsolete models
+* Began the change towards having unified local controller library.
+
+Michael P.

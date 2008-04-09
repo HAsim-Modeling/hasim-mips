@@ -133,7 +133,7 @@ File=config/pm/hasim-mips/submodels/funcp/smips_funcp_new.apm
 Packagehint=hasim-mips
 
 [FPGA Environment]
-File=config/pm/hasim/submodels/fpgaenv/hasim-fpgaenv-software-no-gui.apm
+File=config/pm/hasim/submodels/fpgaenv/hasim-fpgaenv-hybrid-sim.apm
 Packagehint=platforms
 
 [Hasim Common Library/Params]
@@ -143,7 +143,6 @@ TERM_FPGA_BUTTONS=0
 TERM_VDEV_MEMORY_INVALIDATE=0
 TERM_FPGA_LEDS=0
 
-
 [Hasim Standard Controller]
-File=config/pm/hasim/submodels/controller/hardware_standard_controller.apm
+File=config/pm/hasim/submodels/controller/hybrid_standard_controller.apm
 Packagehint=hasim

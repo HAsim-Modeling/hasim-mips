@@ -14,27 +14,18 @@ hasim_chip=Uniprocessor chip
 hasim_isa=Hasim - SMIPS Version 2
 
 [Model]
-DefaultAttributes=hasim smips 5-stage
-model=HAsim Model Foundation
+DefaultAttributes=hasim smips 5-stage hybrid sim
+model=HAsim Hybrid Model Foundation
 
 [Hasim - Hardware (fpga) based system]
 Packagehint=hasim
 File=modules/system/single_chip_system/hasim_system.awb
 
-[HAsim Model Foundation]
-Packagehint=hasim
-File=modules/model/hasim_model.awb
 
-[HAsim Model Foundation/Requires]
-hasim_system=Hasim - Hardware (fpga) based system
-hasim_controller=Hasim Standard Controller
-hasim_common=New Hasim Common Library
-fpgaenv=FPGA Environment
 
 [Uniprocessor chip/Requires]
 hasim_cpu=5-stage pipeline CPU
 hasim_memory=magic memory
-
 
 [5-stage pipeline CPU/Requires]
 hasim_pipe_mem=New 5-stage pipeline Mem
@@ -185,3 +176,13 @@ Packagehint=hasim-mips
 [Always not taken Branch Predictor V3]
 File=modules/cpu/mips/branch/predictor/notTaken/BranchPredV3.awb
 Packagehint=hasim-mips
+
+[HAsim Hybrid Model Foundation]
+File=modules/model/hasim_model.awb
+Packagehint=hasim
+
+[HAsim Hybrid Model Foundation/Requires]
+hasim_common=New Hasim Common Library
+hasim_system=Hasim - Hardware (fpga) based system
+hasim_controller=Hasim Standard Controller
+fpgaenv=FPGA Environment

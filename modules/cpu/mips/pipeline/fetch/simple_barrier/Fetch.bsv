@@ -9,7 +9,7 @@ import soft_connections::*;
 import hasim_modellib::*;
 import hasim_isa::*;
 
-import hasim_local_controller::*;
+import module_local_controller::*;
 import hasim_branch_pred::*;
 
 `include "asim/dict/STREAMS.bsh"

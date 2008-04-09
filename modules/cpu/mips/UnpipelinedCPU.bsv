@@ -4,7 +4,7 @@ import Vector::*;
 import hasim_common::*;
 import soft_connections::*;
 import hasim_modellib::*;
-import hasim_local_controller::*;
+import module_local_controller::*;
 
 //Model-specific imports
 import hasim_isa::*;

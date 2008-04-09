@@ -2,7 +2,7 @@ import hasim_common::*;
 import soft_connections::*;
 import hasim_modellib::*;
 import hasim_isa::*;
-import hasim_local_controller::*;
+import module_local_controller::*;
 
 import FIFOF::*;
 import FIFO::*;

@@ -14,22 +14,14 @@ hasim_chip=Uniprocessor chip
 hasim_isa=Hasim - Toymips Version 2
 
 [Model]
-DefaultAttributes=hasim toymips simple
-model=HAsim Model Foundation
+DefaultAttributes=hasim toymips unpipelined hybrid sim
+model=HAsim Hybrid Model Foundation
 
 [Hasim - Hardware (fpga) based system]
 Packagehint=hasim
 File=modules/system/single_chip_system/hasim_system.awb
 
-[HAsim Model Foundation]
-Packagehint=hasim
-File=modules/model/hasim_model.awb
 
-[HAsim Model Foundation/Requires]
-hasim_system=Hasim - Hardware (fpga) based system
-hasim_controller=Hasim Standard Controller
-hasim_common=New Hasim Common Library
-fpgaenv=FPGA Environment
 
 [Uniprocessor chip/Requires]
 hasim_cpu=Hasim Unpipelined CPU
@@ -48,7 +40,7 @@ File=modules/memory/magic_memory.awb
 Packagehint=hasim-mips
 
 [FPGA Environment]
-File=config/pm/hasim/submodels/fpgaenv/hasim-fpgaenv-software-no-gui.apm
+File=config/pm/hasim/submodels/fpgaenv/hasim-fpgaenv-hybrid-sim.apm
 Packagehint=platforms
 
 [Hasim Modeling Library]
@@ -58,7 +50,6 @@ Packagehint=hasim
 [Hasim Platform Interface]
 File=modules/common/platform_interface/hasim/hasim-platform-interface.awb
 Packagehint=hasim
-
 
 [Smart Synthesis Boundaries]
 File=modules/common/smart_synthesis_boundaries/smart_synth_boundaries.awb
@@ -149,5 +140,15 @@ funcp_memstate_storebuffer=Store Buffer using Bucket Hash
 funcp_memstate_cache=Null Cache for Functional Partition
 
 [Hasim Standard Controller]
-File=config/pm/hasim/submodels/controller/hardware_standard_controller.apm
+File=config/pm/hasim/submodels/controller/hybrid_standard_controller.apm
 Packagehint=hasim
+
+[HAsim Hybrid Model Foundation]
+File=modules/model/hasim_model.awb
+Packagehint=hasim
+
+[HAsim Hybrid Model Foundation/Requires]
+hasim_common=New Hasim Common Library
+hasim_system=Hasim - Hardware (fpga) based system
+hasim_controller=Hasim Standard Controller
+fpgaenv=FPGA Environment

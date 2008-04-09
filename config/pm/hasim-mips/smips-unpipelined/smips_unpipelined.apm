@@ -1,5 +1,4 @@
 
-
 [Global]
 SaveParameters=0
 Description=Unpipelined SMIPS  Model
@@ -15,22 +14,14 @@ hasim_chip=Uniprocessor chip
 hasim_isa=Hasim - SMIPS ISA
 
 [Model]
-DefaultAttributes=hasim smips simple
-model=HAsim Model Foundation
+DefaultAttributes=hasim smips unpipelined hybrid sim
+model=HAsim Hybrid Model Foundation
 
 [Hasim - Hardware (fpga) based system]
 Packagehint=hasim
 File=modules/system/single_chip_system/hasim_system.awb
 
-[HAsim Model Foundation]
-Packagehint=hasim
-File=modules/model/hasim_model.awb
 
-[HAsim Model Foundation/Requires]
-hasim_system=Hasim - Hardware (fpga) based system
-hasim_controller=Hasim Simulation-Only Simple controller
-hasim_common=Hasim Common Library
-fpgaenv=FPGA Environment
 
 [Uniprocessor chip/Requires]
 hasim_cpu=Hasim Unpipelined CPU
@@ -56,14 +47,12 @@ Packagehint=hasim-mips
 File=modules/isa/smips/hasim_smips_isa.awb
 Packagehint=hasim-mips
 
-
-
 [Hasim functional partition semantic model]
 File=config/pm/hasim-mips/submodels/funcp/smips_funcp_new.apm
 Packagehint=hasim-mips
 
 [FPGA Environment]
-File=config/pm/hasim/submodels/fpgaenv/hasim-fpgaenv-null.apm
+File=config/pm/hasim/submodels/fpgaenv/hasim-fpgaenv-hybrid-sim.apm
 Packagehint=platforms
 
 [Hasim Common Library/Params]
@@ -73,6 +62,16 @@ TERM_FPGA_BUTTONS=0
 TERM_VDEV_MEMORY_INVALIDATE=0
 TERM_FPGA_LEDS=0
 
-[Hasim Simulation-Only Simple controller]
-File=config/pm/hasim/submodels/controller/hasim_simulation_only_controller.apm
+[Hasim Standard Controller]
+File=config/pm/hasim/submodels/controller/hybrid_standard_controller.apm
+Packagehint=hasim
+
+[HAsim Hybrid Model Foundation/Requires]
+hasim_common=Hasim Common Library
+hasim_system=Hasim - Hardware (fpga) based system
+hasim_controller=Hasim Standard Controller
+fpgaenv=FPGA Environment
+
+[HAsim Hybrid Model Foundation]
+File=modules/model/hasim_model.awb
 Packagehint=hasim

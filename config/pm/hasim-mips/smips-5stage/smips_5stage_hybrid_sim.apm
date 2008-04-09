@@ -14,22 +14,14 @@ hasim_chip=Uniprocessor chip
 hasim_isa=Hasim - SMIPS ISA
 
 [Model]
-DefaultAttributes=hasim smips 5-stage
-model=HAsim Model Foundation
+DefaultAttributes=hasim smips 5-stage hybrid simulation
+model=HAsim Hybrid Model Foundation
 
 [Hasim - Hardware (fpga) based system]
 Packagehint=hasim
 File=modules/system/single_chip_system/hasim_system.awb
 
-[HAsim Model Foundation]
-Packagehint=hasim
-File=modules/model/hasim_model.awb
 
-[HAsim Model Foundation/Requires]
-hasim_system=Hasim - Hardware (fpga) based system
-hasim_controller=Hasim Standard Controller
-hasim_common=Hasim Common Library
-fpgaenv=FPGA Environment
 
 [Hasim - SMIPS ISA]
 Packagehint=hasim-mips
@@ -105,7 +97,18 @@ TERM_VDEV_MEMORY_INVALIDATE=0
 TERM_FPGA_LEDS=0
 TERM_VDEV_STREAMS=0
 TERM_RRR_CLIENT_STARTER=0
+TERM_RRR_CLIENT_EVENTS=0
 
 [Hasim Standard Controller]
 File=config/pm/hasim/submodels/controller/hybrid_standard_controller.apm
+Packagehint=hasim
+
+[HAsim Hybrid Model Foundation/Requires]
+hasim_common=Hasim Common Library
+hasim_system=Hasim - Hardware (fpga) based system
+hasim_controller=Hasim Standard Controller
+fpgaenv=FPGA Environment
+
+[HAsim Hybrid Model Foundation]
+File=modules/model/hasim_model.awb
 Packagehint=hasim
