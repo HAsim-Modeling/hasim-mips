@@ -1,2 +1,2 @@
 def EVENTS.WRITEBACK.INSTRUCTION_WRITEBACK "5         WBK";
-def STREAMS.STATS.WRITEBACK.INSTS_COMMITTED  "instructions committed = %u\n";
+def STATS.WRITEBACK.INSTS_COMMITTED  "Instructions Committed";

@@ -9,7 +9,7 @@ import hasim_isa::*;
 import module_local_controller::*;
 
 `include "asim/dict/EVENTS_EXECUTE.bsh"
-`include "asim/dict/STREAMS_STATS_EXECUTE.bsh"
+`include "asim/dict/STATS_EXECUTE.bsh"
 
 module [HASIM_MODULE] mkPipe_Execute#(File debug_file, Bit#(32) curTick)
     //interface:
@@ -31,7 +31,7 @@ module [HASIM_MODULE] mkPipe_Execute#(File debug_file, Bit#(32) curTick)
   EventRecorder event_exe <- mkEventRecorder(`EVENTS_EXECUTE_INSTRUCTION_EXECUTE);
   
   //Stats
-  Stat stat_mpred <- mkStatCounter(`STREAMS_STATS_EXECUTE_BPRED_MISPREDS);
+  Stat stat_mpred <- mkStatCounter(`STATS_EXECUTE_BPRED_MISPREDS);
   
   //Incoming Ports
   Port_Receive#(Tuple4#(TOKEN, Maybe#(ISA_ADDRESS), Bool, Bool)) port_from_dec <- mkPort_Receive("dec_to_exe", 1);

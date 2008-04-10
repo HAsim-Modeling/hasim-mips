@@ -12,7 +12,7 @@ import module_local_controller::*;
 import hasim_branch_pred::*;
 
 `include "asim/dict/EVENTS_FETCH.bsh"
-`include "asim/dict/STREAMS_STATS_FETCH.bsh"
+`include "asim/dict/STATS_FETCH.bsh"
 
 //AWB Parameters            default:
 //FET_ICACHE_HIT_CHANCE       50
@@ -73,9 +73,9 @@ module [HASIM_MODULE] mkPipe_Fetch#(File debug_file, Bit#(32) curTick)
   EventRecorder event_fet <- mkEventRecorder(`EVENTS_FETCH_INSTRUCTION_FET);
   
   //Stats
-  Stat stat_cycles   <- mkStatCounter(`STREAMS_STATS_FETCH_TOTAL_CYCLES);
-  Stat stat_fet      <- mkStatCounter(`STREAMS_STATS_FETCH_INSTS_FETCHED);
-  Stat stat_imisses  <- mkStatCounter(`STREAMS_STATS_FETCH_ICACHE_MISSES);
+  Stat stat_cycles   <- mkStatCounter(`STATS_FETCH_TOTAL_CYCLES);
+  Stat stat_fet      <- mkStatCounter(`STATS_FETCH_INSTS_FETCHED);
+  Stat stat_imisses  <- mkStatCounter(`STATS_FETCH_ICACHE_MISSES);
 
     
   //Incoming Ports

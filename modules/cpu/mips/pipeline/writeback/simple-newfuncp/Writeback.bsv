@@ -9,7 +9,7 @@ import hasim_isa::*;
 import module_local_controller::*;
 
 `include "asim/dict/EVENTS_WRITEBACK.bsh"
-`include "asim/dict/STREAMS_STATS_WRITEBACK.bsh"
+`include "asim/dict/STATS_WRITEBACK.bsh"
 
 typedef enum
 {
@@ -34,7 +34,7 @@ module [HASIM_MODULE] mkPipe_Writeback#(File debug_file, Bit#(32) curTick)
   EventRecorder event_wb <- mkEventRecorder(`EVENTS_WRITEBACK_INSTRUCTION_WRITEBACK);
   
   //Stats
-  Stat stat_wb <- mkStatCounter(`STREAMS_STATS_WRITEBACK_INSTS_COMMITTED);
+  Stat stat_wb <- mkStatCounter(`STATS_WRITEBACK_INSTS_COMMITTED);
 
   //Incoming Ports
   Port_Receive#(Tuple2#(TOKEN, Bool)) port_from_mem <- mkPort_Receive("mem_to_wb", 1);

@@ -3913,3 +3913,37 @@ Directory modules/cpu/mips
 * Began the change towards having unified local controller library.
 
 Michael P.
+
+----------
+pellauer    Date: Thu Apr 10 15:31:35 EDT 2008  CSN: CSN-hasim-mips-184
+                  Thu Apr 10 19:31:35 UTC 2008
+
+
+Directory modules/cpu/mips/pipeline/execute/simple
+ execute.dic               Locally Modified          183 
+ Execute.bsv               Locally Modified          183 
+
+Directory modules/cpu/mips/pipeline/execute/simple-newfuncp
+ execute.dic               Locally Modified          183 
+ Execute.bsv               Locally Modified          183 
+
+Directory modules/cpu/mips/pipeline/fetch/simple
+ Fetch.bsv                 Locally Modified          183 
+ fetch.dic                 Locally Modified          183 
+
+Directory modules/cpu/mips/pipeline/fetch/simple-newfuncp
+ Fetch.bsv                 Locally Modified          183 
+ fetch.dic                 Locally Modified          183 
+
+Directory modules/cpu/mips/pipeline/writeback/simple
+ Writeback.bsv             Locally Modified          183 
+ writeback.dic             Locally Modified          183 
+
+Directory modules/cpu/mips/pipeline/writeback/simple-newfuncp
+ Writeback.bsv             Locally Modified          183 
+ writeback.dic             Locally Modified          183 
+
+
+* Changed dictionaries to not use streams for stats/assertions any more.
+
+Michael P.
