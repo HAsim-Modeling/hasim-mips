@@ -62,6 +62,29 @@ function Bool isaIsStore(ISA_INSTRUCTION i);
 
 endfunction
 
+// isaLoadType
+
+// Returns the ISA_LOAD_TYPE (which you defined in isa_datatypes.bsv) of a given instruction.
+// This will only be called on instructions where isaIsLoad() returns True.
+
+function ISA_MEMOP_TYPE isaLoadType(ISA_INSTRUCTION i);
+
+    return ?; // You should write this.
+
+endfunction
+
+
+// isaStoreType
+
+// Returns the ISA_STORE_TYPE (which you defined in isa_datatypes.bsv) of a given instruction.
+// This will only be called on instructions where isaIsStore() returns True.
+
+function ISA_MEMOP_TYPE isaStoreType(ISA_INSTRUCTION i);
+
+    return ?; // You should write this.
+
+endfunction
+
 
 // isaIsBranch
 
@@ -102,25 +125,13 @@ function Bool isaDrainAfter(ISA_INSTRUCTION i);
 endfunction
 
 
-// isaLoadType
+// isaEmulateInstruction
 
-// Returns the ISA_LOAD_TYPE (which you defined in isa_datatypes.bsv) of a given instruction.
-// This will only be called on instructions where isaIsLoad() returns True.
+// Returns true if the given instruction should be emulated in software.
 
-function ISA_MEMOP_TYPE isaLoadType(ISA_INSTRUCTION i);
+function Bool isaEmulateInstruction(ISA_INSTRUCTION i);
 
-    return ?; // You should write this.
-
-endfunction
-
-
-// isaStoreType
-
-// Returns the ISA_STORE_TYPE (which you defined in isa_datatypes.bsv) of a given instruction.
-// This will only be called on instructions where isaIsStore() returns True.
-
-function ISA_MEMOP_TYPE isaStoreType(ISA_INSTRUCTION i);
-
-    return ?; // You should write this.
+    return False; // You should write this.
 
 endfunction
+

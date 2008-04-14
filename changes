@@ -3947,3 +3947,28 @@ Directory modules/cpu/mips/pipeline/writeback/simple-newfuncp
 * Changed dictionaries to not use streams for stats/assertions any more.
 
 Michael P.
+
+----------
+pellauer    Date: Mon Apr 14 15:00:22 EDT 2008  CSN: CSN-hasim-mips-185
+                  Mon Apr 14 19:00:22 UTC 2008
+
+
+Directory config/pm/hasim-mips/smips-5stage
+ smips_5stage_v3_hybrid_sim.apm Locally Modified          184 
+
+Directory modules/hasim-mips/isa/definition/smips
+ isa_decode_functions.bsv  Locally Modified          184 
+
+Directory modules/hasim-mips/isa/definition/template
+ isa_decode_functions.bsv  Locally Modified          184 
+
+
+Added a isaEmulateInstruction() function to ISA which says whether or not the
+given instruction should be emulated in software.
+
+SMIPS marks instructions without a recognized major opcode as emulated.
+
+To test this capability add an instruction such as "c4000000" to any SMIPS
+program.
+
+Michael P.

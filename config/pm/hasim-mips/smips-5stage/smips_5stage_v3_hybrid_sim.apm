@@ -21,8 +21,6 @@ model=HAsim Hybrid Model Foundation
 Packagehint=hasim
 File=modules/system/single_chip_system/hasim_system.awb
 
-
-
 [Uniprocessor chip/Requires]
 hasim_cpu=5-stage pipeline CPU
 hasim_memory=magic memory
@@ -100,6 +98,7 @@ funcp_memstate_cache=Null Cache for Functional Partition
 funcp_memstate=Memory State for Functional Partition
 funcp_regstate=Register State for Functional Partition
 hasim_isa_datapath=SMIPS ISA Datapath V3
+hasim_isa_emulator=ISA Emulator
 
 [Register State Manager using Macro Ops]
 File=modules/hasim/functional-partition/register-state/manager/macro-ops/regstate_manager_macro_ops.awb
@@ -186,3 +185,7 @@ hasim_common=New Hasim Common Library
 hasim_system=Hasim - Hardware (fpga) based system
 hasim_controller=Hasim Standard Controller
 fpgaenv=FPGA Environment
+
+[ISA Emulator]
+File=modules/hasim/functional-partition/isa-emulator/isa-emulator.awb
+Packagehint=hasim
