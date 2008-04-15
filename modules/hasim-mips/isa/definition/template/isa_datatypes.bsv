@@ -57,11 +57,7 @@ typedef enum
 // An ISA-specific register index. This could be simple (Bit#(5)) or a complex tagged union
 // encapsulating every addressable register in the system. This should pack into an efficient
 // number of bits, so you may want to define a custom instance of bits.
+// It will also need to be an instance of Bounded, Arith, and Literal.
 
-typedef union tagged
-{
-  Bit#(5) IREG_Normal;  // Example: One of the normal architectural integer registers
-  Bit#(5) IREG_Special; // Example: A special register outside of this group.
-} 
-  ISA_REG_INDEX deriving (Eq, Bits);
+typedef Bit#(5) ISA_REG_INDEX;
 

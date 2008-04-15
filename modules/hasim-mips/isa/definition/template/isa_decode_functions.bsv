@@ -36,7 +36,7 @@ endfunction
 
 function Integer isaGetNumDsts(ISA_INSTRUCTION i);
 
-  return tagged Invalid; // You should write this.
+  return 0; // You should write this.
  
 endfunction
 

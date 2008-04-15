@@ -3982,3 +3982,21 @@ Directory admin/packages
  hasim-mips                Locally Modified          185 
 
 Add dependence on platforms and hasim repositories.
+
+----------
+pellauer    Date: Tue Apr 15 11:57:51 EDT 2008  CSN: CSN-hasim-mips-187
+                  Tue Apr 15 15:57:51 UTC 2008
+
+
+Directory modules/hasim-mips/isa/datapath/template
+ isa_datapath_template.bsv Locally Modified          186 
+
+Directory modules/hasim-mips/isa/definition/template
+ isa_decode_functions.bsv  Locally Modified          186 
+ isa_datatypes.bsv         Locally Modified          186 
+ isa_memory_conversions.bsv Locally Modified          186 
+
+
+Some fixups in the ISA template.
+
+Michael P.

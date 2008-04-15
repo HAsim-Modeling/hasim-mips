@@ -6,7 +6,7 @@
 // This function takes an isa-specific address and turns it into
 // an address the memory virtual device understands.
 
-function MEM_ADDRESS isaAddressToMemAddress(ISA_ADDRESS a, ISA_MEMOP_TYPE memtype);
+function MEM_ADDRESS isaAddressToMemAddress(ISA_ADDRESS a);
 
     return unpack(a); // If you need more than this write it here.
 

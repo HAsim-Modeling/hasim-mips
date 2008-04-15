@@ -89,7 +89,7 @@ module [HASim_Module] mkISA_Datapath
         ISA_EXECUTION_RESULT timep_result;
         
         // The effective address for Loads/Stores
-        ISA_ADDRESS effective_addr;
+        ISA_ADDRESS effective_addr = 0;
         
         // The writebacks which are sent to the register file.
         ISA_RESULT_VALUES writebacks = Vector::replicate(Invalid);
@@ -97,13 +97,13 @@ module [HASim_Module] mkISA_Datapath
         case (inst) matches // You should write this.
             default: 
             begin
-                result = tagged RNop;
+                timep_result = tagged RNop;
                 $fdisplay(debug_log, "WARNING: EXECUTING UNDEFINED INSTRUCTION.");
             end
         endcase
 
         // Return the result to the functional partition.
-        link_fp.makeResp(tuple3(res, eaddr, writebacks));
+        link_fp.makeResp(tuple3(timep_result, effective_addr, writebacks));
 
     endrule
 
