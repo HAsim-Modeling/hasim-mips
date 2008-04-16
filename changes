@@ -4000,3 +4000,28 @@ Directory modules/hasim-mips/isa/definition/template
 Some fixups in the ISA template.
 
 Michael P.
+
+----------
+mcadler     Date: Wed Apr 16 15:19:48 EDT 2008  CSN: CSN-hasim-mips-188
+                  Wed Apr 16 19:19:48 UTC 2008
+
+
+Directory tools/scripts
+ smips/                    Locally Removed           187 
+
+Directory tools/scripts/smips
+ run.bmark                 Locally Removed           187 
+ setup-bmark               Locally Removed           187 
+ Makefile.bmarks           Locally Removed           187 
+ Makefile.tests            Locally Removed           187 
+
+Directory config/bm/smips
+ 6_375.cfx                 Locally Modified          187 
+
+Directory modules/hasim-mips/isa/definition/smips
+ isa_definition_template.awb Locally Modified          187 
+
+Directory modules/isa/smips
+ hasim_smips_isa.awb       Locally Modified          187 
+
+Moved benchmark setup to hasim repository.

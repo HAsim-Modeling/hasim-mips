@@ -60,16 +60,18 @@ my @bmarks = ("median",
 foreach my $test (@tests) {
     $gcfg->add(name => $test,
                tree => [ "tests" ],
-               setup => "tools/scripts/smips/setup-bmark --group instruction-tests $test",
+               setup => "tools/scripts/bmark/setup-bmark --group instruction-tests --isa smips $test",
                feeder => "vcs",
+               feedflags => "program/${test}.smips.vmh",
               );
 }
      
 foreach my $bmark (@bmarks) {
     $gcfg->add(name => $bmark,
                tree => [ "benchmarks" ],
-               setup => "tools/scripts/smips/setup-bmark $bmark",
+               setup => "tools/scripts/bmark/setup-bmark --isa smips $bmark",
                feeder => "vcs",
+               feedflags => "program/${bmark}.smips.vmh",
               );
 }
 

@@ -18,3 +18,5 @@
 #
 # %AWB_END
 # */
+
+%param SIMULATED_ISA "SMIPS"            "Modeled ISA"
