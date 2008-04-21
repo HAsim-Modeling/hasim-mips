@@ -30,6 +30,7 @@ hasim_funcp_freelist=Hasim functional partition freelist
 hasim_funcp_memstate_ifc=Hasim functional partition memstate interface
 hasim_funcp_memstate=Hasim functional partition memstate cached
 hasim_funcp_tokstate=Hasim functional partition token state
+funcp_memory=Hybrid Memory for Functional Partition
 
 [Hasim functional partition token state]
 File=modules/functional/semantic-model/hasim_funcp_tokstate.awb
@@ -43,8 +44,6 @@ Packagehint=hasim
 File=modules/functional/store-buffer/hasim_funcp_storebuffer_sequenced.awb
 Packagehint=hasim
 
-
-
 [Hasim functional partition null cache]
 File=modules/functional/memstate/hasim_funcp_null_cache.awb
 Packagehint=hasim
@@ -56,3 +55,14 @@ Packagehint=hasim
 [Hasim functional partition memstate cached/Requires]
 hasim_funcp_cache=Hasim functional partition null cache
 hasim_funcp_storebuffer=Hasim functional partition storebuffer sequenced
+
+[VMH hybrid memory]
+File=modules/hasim/functional-partition/memory-state/memory/hybrid/vmh/vmh-memory.awb
+Packagehint=hasim
+
+[Hybrid Memory for Functional Partition]
+File=modules/hasim/functional-partition/memory-state/memory/hybrid/memory_virtual_device_hybrid.awb
+Packagehint=hasim
+
+[Hybrid Memory for Functional Partition/Requires]
+funcp_simulated_memory=VMH hybrid memory

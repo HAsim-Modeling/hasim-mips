@@ -1,6 +1,6 @@
 import Vector::*;
 
-`include "memory.bsh"
+`include "funcp_memory.bsh"
 
 typedef Addr ISA_ADDRESS;
 

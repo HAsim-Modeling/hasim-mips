@@ -4025,3 +4025,23 @@ Directory modules/isa/smips
  hasim_smips_isa.awb       Locally Modified          187 
 
 Moved benchmark setup to hasim repository.
+
+----------
+mcadler     Date: Mon Apr 21 15:48:41 EDT 2008  CSN: CSN-hasim-mips-189
+                  Mon Apr 21 19:48:41 UTC 2008
+
+
+Directory config/pm/hasim-mips/smips-5stage
+ smips_5stage_v3_hybrid_sim.apm Locally Modified          188 
+
+Directory config/pm/hasim-mips/submodels/funcp
+ smips_funcp_new.apm       Locally Modified          188 
+
+Directory modules/hasim-mips/isa/definition/smips
+ isa_memory_conversions.bsv Locally Modified          188 
+
+Directory modules/isa/smips
+ forwards_compatability.bsv Locally Modified          188 
+
+Functional model memory renamed "funcp_memory" since there are now multiple
+classes of memory.

@@ -9,7 +9,7 @@ Type=HAsim
 Class=Asim::Model
 
 [Hasim - Hardware (fpga) based system/Requires]
-hasim_funcp=Functional Partition
+hasim_funcp=Functional Partition Version 3
 hasim_chip=Uniprocessor chip
 hasim_isa=Hasim - SMIPS Version 2
 
@@ -50,6 +50,7 @@ Packagehint=platforms
 
 [Memory State for Functional Partition/Requires]
 funcp_memstate_manager=Manager using Macro Ops for Mem State
+funcp_memory=Hybrid Memory for Functional Partition
 
 [Scoreboard with One-Hot Encoding]
 File=modules/hasim/functional-partition/register-state/scoreboard/onehot/regstate_scoreboard_onehot.awb
@@ -79,10 +80,6 @@ Packagehint=hasim
 File=modules/hasim/functional-partition/memory-state/manager/macro-ops/memstate_manager_macro_ops.awb
 Packagehint=hasim
 
-[Functional Partition]
-File=modules/hasim/functional-partition/functional_partition_default.awb
-Packagehint=hasim
-
 [Null Cache for Functional Partition]
 File=modules/hasim/functional-partition/memory-state/cache/null/memstate_cache_null.awb
 Packagehint=hasim
@@ -93,12 +90,6 @@ funcp_regstate_manager=Register State Manager using Macro Ops
 [Manager using Macro Ops for Mem State/Requires]
 funcp_memstate_storebuffer=Store Buffer using Bucket Hash
 funcp_memstate_cache=Null Cache for Functional Partition
-
-[Functional Partition/Requires]
-funcp_memstate=Memory State for Functional Partition
-funcp_regstate=Register State for Functional Partition
-hasim_isa_datapath=SMIPS ISA Datapath V3
-hasim_isa_emulator=ISA Emulator
 
 [Register State Manager using Macro Ops]
 File=modules/hasim/functional-partition/register-state/manager/macro-ops/regstate_manager_macro_ops.awb
@@ -186,6 +177,34 @@ hasim_system=Hasim - Hardware (fpga) based system
 hasim_controller=Hasim Standard Controller
 fpgaenv=FPGA Environment
 
-[ISA Emulator]
+[Functional Partition Version 3/Requires]
+funcp_memstate=Memory State for Functional Partition
+funcp_regstate=Register State for Functional Partition
+hasim_isa_semantics=Hybrid ISA Semantics
+
+[Hybrid Memory for Functional Partition/Requires]
+funcp_simulated_memory=VMH hybrid memory
+
+[VMH hybrid memory]
+File=modules/hasim/functional-partition/memory-state/memory/hybrid/vmh/vmh-memory.awb
+Packagehint=hasim
+
+[Hybrid Memory for Functional Partition]
+File=modules/hasim/functional-partition/memory-state/memory/hybrid/memory_virtual_device_hybrid.awb
+Packagehint=hasim
+
+[Functional Partition Version 3]
+File=modules/hasim/functional-partition/functional_partition_default.awb
+Packagehint=hasim
+
+[Hybrid ISA Semantics]
+File=modules/hasim/functional-partition/hybrid_isa_semantics.awb
+Packagehint=hasim
+
+[Hybrid ISA Emulator]
 File=modules/hasim/functional-partition/isa-emulator/isa-emulator.awb
 Packagehint=hasim
+
+[Hybrid ISA Semantics/Requires]
+isa_emulator=Hybrid ISA Emulator
+hasim_isa_datapath=SMIPS ISA Datapath V3
