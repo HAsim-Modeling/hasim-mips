@@ -4045,3 +4045,15 @@ Directory modules/isa/smips
 
 Functional model memory renamed "funcp_memory" since there are now multiple
 classes of memory.
+
+----------
+mcadler     Date: Tue Apr 22 13:59:49 EDT 2008  CSN: CSN-hasim-mips-190
+                  Tue Apr 22 17:59:49 UTC 2008
+
+
+Directory modules/cpu/mips
+ unpipelined_cpu.dic       Locally Added               0 
+ unpipelined_cpu.awb       Locally Modified          189 
+ UnpipelinedCPU.bsv        Locally Modified          189 
+
+Add an EVENT and a STAT to the unpipelined model so it compiles.

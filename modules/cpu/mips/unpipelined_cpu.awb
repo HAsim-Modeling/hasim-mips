@@ -14,6 +14,7 @@
 # %attributes simple mips hasim
 #
 # %public UnpipelinedCPU.bsv
+# %private unpipelined_cpu.dic
 #
 # %AWB_END
 # */

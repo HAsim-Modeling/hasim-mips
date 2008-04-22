@@ -1,3 +1,17 @@
+//
+// INTEL CONFIDENTIAL
+// Copyright (c) 2008 Intel Corp.  Recipient is granted a non-sublicensable 
+// copyright license under Intel copyrights to copy and distribute this code 
+// internally only. This code is provided "AS IS" with no support and with no 
+// warranties of any kind, including warranties of MERCHANTABILITY,
+// FITNESS FOR ANY PARTICULAR PURPOSE or INTELLECTUAL PROPERTY INFRINGEMENT. 
+// By making any use of this code, Recipient agrees that no other licenses 
+// to any Intel patents, trade secrets, copyrights or other intellectual 
+// property rights are granted herein, and no other licenses shall arise by 
+// estoppel, implication or by operation of law. Recipient accepts all risks 
+// of use.
+//
+
 import Vector::*;
 
 //HASim library imports
@@ -9,6 +23,8 @@ import module_local_controller::*;
 //Model-specific imports
 import hasim_isa::*;
 
+`include "asim/dict/EVENTS_CPU.bsh"
+`include "asim/dict/STATS_CPU.bsh"
 
 //************************* Simple Timing Partition ***********************//
 //                                                                         //
@@ -106,8 +122,10 @@ module [HASim_Module] mkCPU
 
  
   //Events
+  EventRecorder event_com <- mkEventRecorder(`EVENTS_CPU_INSTRUCTION_COMMIT);
   
-  EventRecorder event_com <- mkEventRecorder(0);
+  //Stats
+  Stat stat_com <- mkStatCounter(`STATS_CPU_INSTRUCTION_COMMIT);
   
   Vector#(0, Port_Control) inports = newVector();
   Vector#(0, Port_Control) outports = newVector();
@@ -121,6 +139,8 @@ module [HASim_Module] mkCPU
     
     if (hostCC == 0)
     begin
+      local_ctrl.startModelCC();
+
       let fd <- $fopen("hasim_cpu.out");
       if (fd == InvalidFile)
       begin
@@ -378,6 +398,7 @@ module [HASim_Module] mkCPU
               baseTick <= baseTick + 1;
 	      debug(1, $fdisplay(debug_log, "Committed TOKEN %0d on model cycle %0d.", cur_tok.index, baseTick));
 	      event_com.recordEvent(tagged Valid zeroExtend(cur_tok.index));
+              stat_com.incr();
             end
 	    madeReq <= False;
 	  end
@@ -409,6 +430,7 @@ module [HASim_Module] mkCPU
 	    
 	    debug(1, $fdisplay(debug_log, "Committed TOKEN %0d on model cycle %0d.", cur_tok.index, baseTick));
 	    event_com.recordEvent(tagged Valid zeroExtend(cur_tok.index));
+            stat_com.incr();
 	    
 	    stage <= TOK;
 	    madeReq <= False;
