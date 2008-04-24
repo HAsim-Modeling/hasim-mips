@@ -217,6 +217,7 @@ module [HASim_Module] mkCPU
 
 	    debug(2, $fdisplay(debug_log, "[%d] FET Responded with TOKEN %0d.", hostCC, tok.index));
 	    
+            cur_inst <= inst;
 	    if (tok.index != cur_tok.index) $display ("FET ERROR: TOKEN Mismatch. Expected: %0d Received: %0d", cur_tok.index, tok.index);
 	    
 	    stage <= DEC;
@@ -286,15 +287,14 @@ module [HASim_Module] mkCPU
 	        debug(2, $fdisplay(debug_log, "Branch not taken"));
 	   	pc <= pc + 4;
 	      end
-              tagged RNop:
-	      begin
-	        debug(2, $fdisplay(debug_log, "Nop"));
-	   	pc <= pc + 4;
-	      end
               tagged RTerminate .pf:
 	      begin
 	        debug(2, $fdisplay(debug_log, "Terminating Execution"));
                 local_ctrl.endProgram(pf);
+	      end
+              default:
+	      begin
+	   	pc <= pc + 4;
 	      end
 	    endcase
 	    

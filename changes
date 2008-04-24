@@ -4057,3 +4057,17 @@ Directory modules/cpu/mips
  UnpipelinedCPU.bsv        Locally Modified          189 
 
 Add an EVENT and a STAT to the unpipelined model so it compiles.
+
+----------
+mcadler     Date: Wed Apr 23 23:15:34 EDT 2008  CSN: CSN-hasim-mips-191
+                  Thu Apr 24 03:15:34 UTC 2008
+
+
+Directory modules/cpu/mips
+ UnpipelinedCPU.bsv        Locally Modified          190 
+
+- Save cur_inst from FET so it can be tested in EXE later.  Never went to
+  load/store stages due to this bug.
+- Advance PC to PC + 4 unless the instruction is a branch.  PC was not advancing
+  for normal instructions.
+
