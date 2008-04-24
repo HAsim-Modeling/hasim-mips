@@ -4071,3 +4071,13 @@ Directory modules/cpu/mips
 - Advance PC to PC + 4 unless the instruction is a branch.  PC was not advancing
   for normal instructions.
 
+
+----------
+aparasha    Date: Thu Apr 24 13:16:21 EDT 2008  CSN: CSN-hasim-mips-192
+                  Thu Apr 24 17:16:21 UTC 2008
+
+
+Directory config/pm/hasim-mips/smips-5stage
+ smips_5stage_v3_hybrid_sim.apm Locally Modified          191 
+
+updated to include changes to funcp memory.

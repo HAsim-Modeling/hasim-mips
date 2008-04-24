@@ -190,7 +190,7 @@ File=modules/hasim/functional-partition/memory-state/memory/hybrid/vmh/vmh-memor
 Packagehint=hasim
 
 [Hybrid Memory for Functional Partition]
-File=modules/hasim/functional-partition/memory-state/memory/hybrid/memory_virtual_device_hybrid.awb
+File=modules/hasim/functional-partition/memory-state/memory/hybrid/hybrid-funcp-memory.awb
 Packagehint=hasim
 
 [Functional Partition Version 3]
@@ -208,3 +208,14 @@ Packagehint=hasim
 [Hybrid ISA Semantics/Requires]
 isa_emulator=Hybrid ISA Emulator
 hasim_isa_datapath=SMIPS ISA Datapath V3
+
+[Hasim Platform Interface/Params]
+TERM_VDEV_STREAMS=0
+TERM_FPGA_SWITCHES=0
+TERM_RRR_CLIENT_EMULATE=0
+TERM_RRR_CLIENT_STATS=0
+TERM_RRR_CLIENT_ASSERTIONS=0
+TERM_FPGA_LEDS=0
+TERM_FPGA_BUTTONS=0
+TERM_RRR_CLIENT_SYNC=0
+TERM_RRR_CLIENT_EVENTS=0
