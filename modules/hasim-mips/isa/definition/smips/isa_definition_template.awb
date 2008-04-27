@@ -7,7 +7,7 @@
 #/*
 # %AWB_START
 #
-# %name Hasim - SMIPS Version 2
+# %name Hasim - SMIPS ISA Definition
 # %desc Hasim - SMIPS Version 2 Based on Template
 # %provides hasim_isa
 #

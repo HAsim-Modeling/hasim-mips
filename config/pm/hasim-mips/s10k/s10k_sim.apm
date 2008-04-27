@@ -9,31 +9,17 @@ Type=HAsim
 Class=Asim::Model
 
 [Hasim - Hardware (fpga) based system/Requires]
-hasim_funcp=Hasim functional partition semantic model
+hasim_funcp=Functional Partition Version 3
 hasim_chip=Uniprocessor chip
-hasim_isa=Hasim - SMIPS ISA
+hasim_isa=Hasim - SMIPS ISA Definition
 
 [Model]
 DefaultAttributes=s10k smips hasim software
-model=HAsim Model Foundation
+model=HAsim Hybrid Model Foundation
 
 [Hasim - Hardware (fpga) based system]
 Packagehint=hasim
 File=modules/system/single_chip_system/hasim_system.awb
-
-[HAsim Model Foundation]
-Packagehint=hasim
-File=modules/model/hasim_model.awb
-
-[HAsim Model Foundation/Requires]
-hasim_system=Hasim - Hardware (fpga) based system
-hasim_controller=Hasim Standard Controller
-hasim_common=Hasim Common Library
-fpgaenv=FPGA Environment
-
-[Hasim - SMIPS ISA]
-Packagehint=hasim-mips
-File=modules/isa/smips/hasim_smips_isa.awb
 
 [Uniprocessor chip/Requires]
 hasim_memory=magic memory
@@ -57,10 +43,6 @@ hasim_issueQ=Simple unguarded queue, which supports out-of-order issue
 [Simple unguarded queue, which supports out-of-order issue]
 File=modules/cpu/mips/pipeline/issue/issue_alg/simple/unguardedQ/IssueQ.awb
 Packagehint=hasim-mips
-
-[Hasim Common Library]
-File=config/pm/hasim/submodels/hasim_common.apm
-Packagehint=hasim
 
 [Superscalar CPU]
 File=modules/cpu/mips/superscalar_cpu.awb
@@ -124,25 +106,37 @@ Packagehint=hasim-mips
 File=modules/cpu/mips/branch/stack/1entry/BranchStack.awb
 Packagehint=hasim-mips
 
-[Always taken Branch Predictor]
-File=modules/cpu/mips/branch/predictor/taken/BranchPred.awb
-Packagehint=hasim-mips
-
-[Hasim functional partition semantic model]
-File=config/pm/hasim-mips/submodels/funcp/smips_funcp_new.apm
-Packagehint=hasim-mips
-
 [FPGA Environment]
 File=config/pm/hasim/submodels/fpgaenv/hasim-fpgaenv-hybrid-sim.apm
 Packagehint=platforms
 
-[Hasim Common Library/Params]
-TERM_FPGA_SWITCHES=0
-TERM_VDEV_MEMORY=0
-TERM_FPGA_BUTTONS=0
-TERM_VDEV_MEMORY_INVALIDATE=0
-TERM_FPGA_LEDS=0
-
 [Hasim Standard Controller]
 File=config/pm/hasim/submodels/controller/hybrid_standard_controller.apm
 Packagehint=hasim
+
+[HAsim Hybrid Model Foundation]
+File=modules/model/hasim_model.awb
+Packagehint=hasim
+
+[HAsim Hybrid Model Foundation/Requires]
+hasim_common=New Hasim Common Library
+hasim_system=Hasim - Hardware (fpga) based system
+hasim_controller=Hasim Standard Controller
+fpgaenv=FPGA Environment
+
+[Functional Partition Version 3]
+File=config/pm/hasim-mips/submodels/funcp/smips_funcp_new.apm
+Packagehint=hasim-mips
+
+[New Hasim Common Library]
+File=config/pm/hasim/submodels/common/hasim_common.apm
+Packagehint=hasim
+
+[Hasim - SMIPS ISA Definition]
+File=modules/hasim-mips/isa/definition/smips/isa_definition_template.awb
+Packagehint=hasim-mips
+
+
+[Always taken Branch Predictor]
+File=modules/cpu/mips/branch/predictor/taken/BranchPred.awb
+Packagehint=hasim-mips

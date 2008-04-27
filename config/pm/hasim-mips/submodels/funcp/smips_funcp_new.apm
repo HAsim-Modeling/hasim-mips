@@ -1,68 +1,106 @@
 
 [Global]
 SaveParameters=0
-Description=SMIPS Functional Partition v2
+Description=SMIPS Functional Partition v3
 File=smips_funcp_new
 Version=2.1
-Name=SMIPS Functional Partition v2
+Name=SMIPS Functional Partition v3
 Type=HAsim
 Class=Asim::Model
 
 [Model]
 DefaultAttributes=smips hasim
-model=Hasim functional partition semantic model
+model=Functional Partition Version 3
 
-[Hasim functional partition memstate interface]
-File=modules/functional/memstate/hasim_funcp_memstate_ifc.awb
-Packagehint=hasim
 
-[Hasim functional partition semantic model]
-File=modules/functional/semantic-model/hasim_funcp_model.awb
-Packagehint=hasim
 
-[Hasim - SMIPS Simple Datapath]
-File=modules/isa/smips/hasim_smips_datapath.awb
-Packagehint=hasim-mips
 
-[Hasim functional partition semantic model/Requires]
-hasim_isa_datapath=Hasim - SMIPS Simple Datapath
-hasim_funcp_freelist=Hasim functional partition freelist
-hasim_funcp_memstate_ifc=Hasim functional partition memstate interface
-hasim_funcp_memstate=Hasim functional partition memstate cached
-hasim_funcp_tokstate=Hasim functional partition token state
-funcp_memory=Hybrid Memory for Functional Partition
 
-[Hasim functional partition token state]
-File=modules/functional/semantic-model/hasim_funcp_tokstate.awb
-Packagehint=hasim
 
-[Hasim functional partition freelist]
-File=modules/functional/freelist/hasim_funcp_freelist.awb
-Packagehint=hasim
 
-[Hasim functional partition storebuffer sequenced]
-File=modules/functional/store-buffer/hasim_funcp_storebuffer_sequenced.awb
-Packagehint=hasim
 
-[Hasim functional partition null cache]
-File=modules/functional/memstate/hasim_funcp_null_cache.awb
-Packagehint=hasim
 
-[Hasim functional partition memstate cached]
-File=modules/functional/memstate/hasim_funcp_memstate_cached.awb
-Packagehint=hasim
 
-[Hasim functional partition memstate cached/Requires]
-hasim_funcp_cache=Hasim functional partition null cache
-hasim_funcp_storebuffer=Hasim functional partition storebuffer sequenced
 
 [VMH hybrid memory]
 File=modules/hasim/functional-partition/memory-state/memory/hybrid/vmh/vmh-memory.awb
 Packagehint=hasim
 
 [Hybrid Memory for Functional Partition]
-File=modules/hasim/functional-partition/memory-state/memory/hybrid/memory_virtual_device_hybrid.awb
+File=modules/hasim/functional-partition/memory-state/memory/hybrid/hybrid-funcp-memory.awb
 Packagehint=hasim
 
 [Hybrid Memory for Functional Partition/Requires]
 funcp_simulated_memory=VMH hybrid memory
+
+[Hybrid ISA Semantics]
+File=modules/hasim/functional-partition/hybrid_isa_semantics.awb
+Packagehint=hasim
+
+[Functional Partition Version 3/Requires]
+funcp_memstate=Memory State for Functional Partition
+funcp_regstate=Register State for Functional Partition
+hasim_isa_semantics=Hybrid ISA Semantics
+
+[Memory State for Functional Partition/Requires]
+funcp_memstate_manager=Manager using Macro Ops for Mem State
+funcp_memory=Hybrid Memory for Functional Partition
+
+[Scoreboard with One-Hot Encoding]
+File=modules/hasim/functional-partition/register-state/scoreboard/onehot/regstate_scoreboard_onehot.awb
+Packagehint=hasim
+
+[Register State for Functional Partition]
+File=modules/hasim/functional-partition/register-state/regstate_default.awb
+Packagehint=hasim
+
+[Store Buffer using Bucket Hash]
+File=modules/hasim/functional-partition/memory-state/store-buffer/bucket-hash/memstate_storebuffer_bucket_hash.awb
+Packagehint=hasim
+
+[Hybrid ISA Emulator]
+File=modules/hasim/functional-partition/isa-emulator/isa-emulator.awb
+Packagehint=hasim
+
+[Memory State for Functional Partition]
+File=modules/hasim/functional-partition/memory-state/memstate_default.awb
+Packagehint=hasim
+
+[Hybrid ISA Semantics/Requires]
+isa_emulator=Hybrid ISA Emulator
+hasim_isa_datapath=SMIPS ISA Datapath V3
+
+[Register State Manager using Macro Ops/Requires]
+funcp_regstate_freelist=Freelist in BRAM
+funcp_regstate_scoreboard=Scoreboard with One-Hot Encoding
+
+[SMIPS ISA Datapath V3]
+File=modules/hasim-mips/isa/datapath/smips/isa_datapath_smips.awb
+Packagehint=hasim-mips
+
+[Freelist in BRAM]
+File=modules/hasim/functional-partition/register-state/freelist/bram/funcp_freelist_bram.awb
+Packagehint=hasim
+
+[Manager using Macro Ops for Mem State]
+File=modules/hasim/functional-partition/memory-state/manager/macro-ops/memstate_manager_macro_ops.awb
+Packagehint=hasim
+
+[Null Cache for Functional Partition]
+File=modules/hasim/functional-partition/memory-state/cache/null/memstate_cache_null.awb
+Packagehint=hasim
+
+[Register State for Functional Partition/Requires]
+funcp_regstate_manager=Register State Manager using Macro Ops
+
+[Functional Partition Version 3]
+File=modules/hasim/functional-partition/functional_partition_default.awb
+Packagehint=hasim
+
+[Manager using Macro Ops for Mem State/Requires]
+funcp_memstate_storebuffer=Store Buffer using Bucket Hash
+funcp_memstate_cache=Null Cache for Functional Partition
+
+[Register State Manager using Macro Ops]
+File=modules/hasim/functional-partition/register-state/manager/macro-ops/regstate_manager_macro_ops.awb
+Packagehint=hasim

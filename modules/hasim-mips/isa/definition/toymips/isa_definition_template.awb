@@ -7,7 +7,7 @@
 #/*
 # %AWB_START
 #
-# %name Hasim - Toymips Version 2
+# %name Hasim - Toymips ISA Definition
 # %desc Hasim - Toymips Version 2 Based on Template
 # %provides hasim_isa
 #
