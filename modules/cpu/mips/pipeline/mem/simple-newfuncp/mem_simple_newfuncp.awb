@@ -7,8 +7,8 @@
 #/*
 # %AWB_START
 #
-# %name New 5-stage pipeline Mem
-# %desc New 5-stage pipeline Mem
+# %name 5-stage pipeline Mem V3
+# %desc 5-stage pipeline Mem V3
 # %provides hasim_pipe_mem
 #
 # %attributes 5stage mips hasim

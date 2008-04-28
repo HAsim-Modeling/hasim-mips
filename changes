@@ -4137,3 +4137,117 @@ code and models claiming to be v3.  All models are now v3.
 TODO:
   - s10k model doesn't compile
   - still need to rename all the "new-funcp" components.
+
+----------
+pellauer    Date: Mon Apr 28 13:29:08 EDT 2008  CSN: CSN-hasim-mips-194
+                  Mon Apr 28 17:29:08 UTC 2008
+
+
+Directory config/pm/hasim-mips/toymips
+ hasim_toymips_simple.apm  Locally Modified          193 
+
+Directory modules/cpu/mips/pipeline/execute
+ simple_barrier/           Locally Removed           193 
+
+Directory modules/cpu/mips/pipeline/execute/simple_barrier
+ execute.dic               Locally Removed           193 
+ hasim_execute_barrier.awb Locally Removed           193 
+ Execute.bsv               Locally Removed           193 
+
+Directory modules/cpu/mips/pipeline/execute
+ simple/                   Locally Removed           193 
+
+Directory modules/cpu/mips/pipeline/execute/simple
+ execute.dic               Locally Removed           193 
+ hasim_simple_execute.awb  Locally Removed           193 
+ Execute.bsv               Locally Removed           193 
+
+Directory modules/cpu/mips/pipeline/execute/simple-newfuncp
+ execute_simple_newfuncp.awb Locally Modified          193 
+
+Directory modules/cpu/mips/pipeline/decode
+ simple_barrier/           Locally Removed           193 
+
+Directory modules/cpu/mips/pipeline/decode/simple_barrier
+ hasim_decode_barrier.awb  Locally Removed           193 
+ Decode.bsv                Locally Removed           193 
+
+Directory modules/cpu/mips/pipeline/decode
+ simple/                   Locally Removed           193 
+
+Directory modules/cpu/mips/pipeline/decode/simple
+ decode.dic                Locally Removed           193 
+ hasim_simple_decode.awb   Locally Removed           193 
+ Decode.bsv                Locally Removed           193 
+
+Directory modules/cpu/mips/pipeline/decode/simple-newfuncp
+ decode_simpe_newfuncp.awb Locally Modified          193 
+
+Directory modules/cpu/mips/pipeline/fetch
+ simple_barrier/           Locally Removed           193 
+
+Directory modules/cpu/mips/pipeline/fetch/simple_barrier
+ Fetch.bsv                 Locally Removed           193 
+ fetch.dic                 Locally Removed           193 
+ hasim_fetch_barrier.awb   Locally Removed           193 
+
+Directory modules/cpu/mips/pipeline/fetch
+ simple/                   Locally Removed           193 
+
+Directory modules/cpu/mips/pipeline/fetch/simple
+ Fetch.bsv                 Locally Removed           193 
+ fetch.dic                 Locally Removed           193 
+ hasim_simple_fetch.awb    Locally Removed           193 
+
+Directory modules/cpu/mips/pipeline/fetch/simple-newfuncp
+ fetch_simple_newfuncp.awb Locally Modified          193 
+
+Directory modules/cpu/mips/pipeline/writeback
+ simple_barrier/           Locally Removed           193 
+
+Directory modules/cpu/mips/pipeline/writeback/simple_barrier
+ Writeback.bsv             Locally Removed           193 
+ writeback.dic             Locally Removed           193 
+ hasim_writeback_barrier.awb Locally Removed           193 
+
+Directory modules/cpu/mips/pipeline/writeback
+ simple/                   Locally Removed           193 
+
+Directory modules/cpu/mips/pipeline/writeback/simple
+ Writeback.bsv             Locally Removed           193 
+ writeback.dic             Locally Removed           193 
+ hasim_simple_writeback.awb Locally Removed           193 
+
+Directory modules/cpu/mips/pipeline/writeback/simple-newfuncp
+ writeback_simple_newfuncp.awb Locally Modified          193 
+
+Directory modules/cpu/mips/pipeline/mem
+ simple_barrier/           Locally Removed           193 
+
+Directory modules/cpu/mips/pipeline/mem/simple_barrier
+ Mem.bsv                   Locally Removed           193 
+ mem.dic                   Locally Removed           193 
+ hasim_mem_barrier.awb     Locally Removed           193 
+
+Directory modules/cpu/mips/pipeline/mem
+ simple/                   Locally Removed           193 
+
+Directory modules/cpu/mips/pipeline/mem/simple
+ hasim_simple_mem.awb      Locally Removed           193 
+ Mem.bsv                   Locally Removed           193 
+ mem.dic                   Locally Removed           193 
+
+Directory modules/cpu/mips/pipeline/mem/simple-newfuncp
+ mem_simple_newfuncp.awb   Locally Modified          193 
+
+
+Removed deprecated versions of the timing model pipeline.
+
+Renamed existing modules in the pipeline to indicate they use functional
+partition V3.
+
+Toymips model now uses V3.
+
+In the next checkin some directories will be renamed.
+
+Michael

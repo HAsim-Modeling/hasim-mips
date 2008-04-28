@@ -7,8 +7,8 @@
 #/*
 # %AWB_START
 #
-# %name New 5-stage pipeline Fetch
-# %desc New 5-stage pipeline Fetch
+# %name 5-stage pipeline Fetch V3
+# %desc 5-stage pipeline Fetch V3
 # %provides hasim_pipe_fetch
 # %requires hasim_branch_pred
 #

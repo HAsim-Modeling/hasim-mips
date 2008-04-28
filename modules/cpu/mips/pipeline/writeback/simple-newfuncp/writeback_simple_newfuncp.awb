@@ -7,8 +7,8 @@
 #/*
 # %AWB_START
 #
-# %name New 5-stage pipeline Writeback
-# %desc New 5-stage pipeline Writeback
+# %name 5-stage pipeline Writeback V3
+# %desc 5-stage pipeline Writeback V3
 # %provides hasim_pipe_writeback
 #
 # %attributes 5stage mips hasim

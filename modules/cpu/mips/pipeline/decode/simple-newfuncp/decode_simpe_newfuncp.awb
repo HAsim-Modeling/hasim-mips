@@ -7,8 +7,8 @@
 #/*
 # %AWB_START
 #
-# %name New 5-stage pipeline Decode
-# %desc New 5-stage pipeline Decode
+# %name 5-stage pipeline Decode V3
+# %desc 5-stage pipeline Decode V3
 # %provides hasim_pipe_decode
 #
 # %attributes 5stage mips hasim
