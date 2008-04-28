@@ -125,7 +125,7 @@ hasim_controller=Hasim Standard Controller
 fpgaenv=FPGA Environment
 
 [Functional Partition Version 3]
-File=config/pm/hasim-mips/submodels/funcp/smips_funcp_new.apm
+File=config/pm/hasim-mips/submodels/funcp/smips_funcp_v3.apm
 Packagehint=hasim-mips
 
 [New Hasim Common Library]
@@ -135,7 +135,6 @@ Packagehint=hasim
 [Hasim - SMIPS ISA Definition]
 File=modules/hasim-mips/isa/definition/smips/isa_definition_template.awb
 Packagehint=hasim-mips
-
 
 [Always taken Branch Predictor]
 File=modules/cpu/mips/branch/predictor/taken/BranchPred.awb

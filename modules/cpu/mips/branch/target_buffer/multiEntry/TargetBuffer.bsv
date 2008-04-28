@@ -5,11 +5,11 @@ import FIFOF::*;
 
 typedef 4 BufferSize;
 
-module mkTargetBuffer#(Addr startAddr)(FIFO#(Addr));
-    FIFOF#(Addr) addrFifo <- mkSizedFIFOF(valueOf(BufferSize));
+module mkTargetBuffer#(ISA_ADDRESS startAddr)(FIFO#(ISA_ADDRESS));
+    FIFOF#(ISA_ADDRESS) addrFifo <- mkSizedFIFOF(valueOf(BufferSize));
 
     //Really dumb buffer which drops the value if the fifo is full
-    method Action enq(Addr _addr);
+    method Action enq(ISA_ADDRESS _addr);
         if(addrFifo.notFull())
             addrFifo.enq(_addr);
     endmethod
@@ -19,7 +19,7 @@ module mkTargetBuffer#(Addr startAddr)(FIFO#(Addr));
             addrFifo.deq();
     endmethod
 
-    method Addr first();
+    method ISA_ADDRESS first();
         if(addrFifo.notEmpty)
             return addrFifo.first();
         else

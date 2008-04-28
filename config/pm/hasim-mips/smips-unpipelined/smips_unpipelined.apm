@@ -37,7 +37,6 @@ Packagehint=hasim-mips
 File=modules/memory/magic_memory.awb
 Packagehint=hasim-mips
 
-
 [FPGA Environment]
 File=config/pm/hasim/submodels/fpgaenv/hasim-fpgaenv-hybrid-sim.apm
 Packagehint=platforms
@@ -57,7 +56,7 @@ File=modules/model/hasim_model.awb
 Packagehint=hasim
 
 [Functional Partition Version 3]
-File=config/pm/hasim-mips/submodels/funcp/smips_funcp_new.apm
+File=config/pm/hasim-mips/submodels/funcp/smips_funcp_v3.apm
 Packagehint=hasim-mips
 
 [New Hasim Common Library]

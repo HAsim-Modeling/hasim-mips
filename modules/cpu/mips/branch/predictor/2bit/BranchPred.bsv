@@ -7,10 +7,10 @@ import FIFO::*;
 typedef Bit#(`BRANCH_TABLE_SIZE) BranchIndex;
 
 interface BranchPred;
-    method Action upd(Token token, Addr addr, Bool pred, Bool actual);
-    method Action getPredReq(Token token, Addr addr);
+    method Action upd(TOKEN token, ISA_ADDRESS addr, Bool pred, Bool actual);
+    method Action getPredReq(TOKEN token, ISA_ADDRESS addr);
     method ActionValue#(Bool) getPredResp();
-    method Action abort(Token token);
+    method Action abort(TOKEN token);
 endinterface
 
 
@@ -19,7 +19,7 @@ module mkBranchPred(BranchPred);
     RegFile#(BranchIndex, Bit#(2)) branchRegFile <- mkRegFileFull();
     FIFO#(Bool) respQ <- mkFIFO();
 
-    method Action upd(Token token, Addr addr, Bool pred, Bool actual);
+    method Action upd(TOKEN token, ISA_ADDRESS addr, Bool pred, Bool actual);
         let counter = branchRegFile.sub(truncate(addr));
         let newCounter = 0;
         if(actual)
@@ -29,7 +29,7 @@ module mkBranchPred(BranchPred);
         branchRegFile.upd(truncate(addr), newCounter);
     endmethod
 
-    method Action getPredReq(Token token, Addr addr);
+    method Action getPredReq(TOKEN token, ISA_ADDRESS addr);
         let counter = branchRegFile.sub(truncate(addr));
         respQ.enq(counter > 1);
     endmethod
@@ -39,7 +39,7 @@ module mkBranchPred(BranchPred);
         return respQ.first();
     endmethod
 
-    method Action abort(Token token);
+    method Action abort(TOKEN token);
         noAction;
     endmethod
 endmodule

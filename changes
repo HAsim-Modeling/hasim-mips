@@ -4280,3 +4280,177 @@ Directory modules/cpu/mips/pipeline/mem
 Intermediate checkin moving directories to keep SVN happy.
 
 Michael
+
+----------
+pellauer    Date: Mon Apr 28 14:01:38 EDT 2008  CSN: CSN-hasim-mips-196
+                  Mon Apr 28 18:01:38 UTC 2008
+
+
+Directory config/pm/hasim-mips/smips-5stage
+ smips_5stage_hybrid_sim.apm Locally Modified          195 
+ smips_5stage_hybrid_htg.apm Locally Modified          195 
+
+Directory config/pm/hasim-mips/submodels
+ timing-models/            Locally Added               0 
+
+Directory config/pm/hasim-mips/submodels/timing-models
+ 5stage-pipeline.apm       Locally Added               0 
+
+Directory config/pm/hasim-mips/submodels/funcp
+ smips_funcp_v3.apm        Locally Added               - 
+ smips_funcp_new.apm       Locally Removed           194 
+
+Directory config/pm/hasim-mips/s10k
+ s10k_sim.apm              Locally Modified          194 
+
+Directory config/pm/hasim-mips/smips-unpipelined
+ smips_unpipelined.apm     Locally Modified          194 
+
+Directory modules/cpu/mips/pipeline/execute/simple
+ execute-simple.awb        Locally Added               - 
+ execute_simple_newfuncp.awb Locally Removed           195 
+
+Directory modules/cpu/mips/pipeline/decode/simple
+ decode-simple.awb         Locally Added               - 
+ decode_simpe_newfuncp.awb Locally Removed           195 
+
+Directory modules/cpu/mips/pipeline/fetch/simple
+ fetch_simple_newfuncp.awb Locally Removed           195 
+ fetch-simple.awb          Locally Added               - 
+
+Directory modules/cpu/mips/pipeline/writeback/simple
+ writeback_simple_newfuncp.awb Locally Removed           195 
+ writeback-simple.awb      Locally Added               - 
+
+Directory modules/cpu/mips/pipeline/mem/simple
+ mem_simple_newfuncp.awb   Locally Removed           195 
+ mem-simple.awb            Locally Added               - 
+
+Directory modules/cpu/mips/branch/target_buffer/multiEntry
+ TargetBuffer.bsv          Locally Modified          194 
+
+Directory modules/cpu/mips/branch/predictor/2bit
+ BranchPred.bsv            Locally Modified          194 
+
+Directory modules/cpu/mips/branch/predictor/taken
+ BranchPred.bsv            Locally Modified          194 
+
+Directory modules/cpu/mips/branch/predictor/notTaken
+ BranchPred.bsv            Locally Modified          194 
+ BranchPredV3.awb          Locally Removed           194 
+ BranchPredV3.bsv          Locally Removed           194 
+
+Directory modules/cpu/mips/branch/predictor/globHistory
+ BranchPred.bsv            Locally Modified          194 
+
+Directory modules/cpu/mips/branch/predictor/simple
+ BranchPred.bsv            Locally Modified          194 
+
+Directory modules/cpu/mips/command_center
+ hasim_command_center.awb  Locally Removed           194 
+ CommandCenter.bsv         Locally Removed           194 
+
+Directory modules/cpu/mips
+ command_center/           Locally Removed           194 
+ barrier_5stage.awb        Locally Removed           194 
+ BarrierCPU.bsv            Locally Removed           194 
+
+Directory modules/functional
+ qemu-fast/                Locally Removed           194 
+
+Directory modules/functional/qemu-fast
+ Hasim2FAST.bsv            Locally Removed           194 
+ qemu-fast.awb             Locally Removed           194 
+
+Directory modules/functional
+ toymips/                  Locally Removed           194 
+
+Directory modules/functional/toymips
+ FUNCP_ExecuteAlg.bsv      Locally Removed           194 
+ FUNCP_DecodeAlg.bsv       Locally Removed           194 
+ toymips_funcp_execute_alg.awb Locally Removed           194 
+ toymips_funcp_decode_alg.awb Locally Removed           194 
+
+Directory modules/functional
+ mips/                     Locally Removed           194 
+
+Directory modules/functional/mips
+ FUNCP_FetchAlg.bsv        Locally Removed           194 
+ FUNCP_GlobalCommitAlg.bsv Locally Removed           194 
+ mips_funcp_localcommit_alg.awb Locally Removed           194 
+ FUNCP_MemAlg.bsv          Locally Removed           194 
+ mips_funcp_fetch_alg.awb  Locally Removed           194 
+ mips_funcp_globalcommit_alg.awb Locally Removed           194 
+ FUNCP_LocalCommitAlg.bsv  Locally Removed           194 
+ mips_funcp_mem_alg.awb    Locally Removed           194 
+
+Directory modules/functional
+ smips/                    Locally Removed           194 
+
+Directory modules/functional/smips
+ smips_funcp_execute_alg.awb Locally Removed           194 
+ smips_funcp_decode_alg.awb Locally Removed           194 
+ FUNCP_ExecuteAlg.bsv      Locally Removed           194 
+ FUNCP_DecodeAlg.bsv       Locally Removed           194 
+
+Directory modules/functional
+ test-cases/               Locally Removed           194 
+
+Directory modules/functional/test-cases
+ toymips/                  Locally Removed           194 
+
+Directory modules/functional/test-cases/toymips
+ simple-addition/          Locally Removed           194 
+
+Directory modules/functional/test-cases/toymips/simple-addition
+ TestCase.bsv              Locally Removed           194 
+ toymips_testcase_simple_addition.awb Locally Removed           194 
+
+Directory modules/functional/test-cases/toymips
+ stalls/                   Locally Removed           194 
+
+Directory modules/functional/test-cases/toymips/stalls
+ TestCase.bsv              Locally Removed           194 
+ toymips_testcase_stalls.awb Locally Removed           194 
+
+Directory modules/functional/test-cases/toymips
+ simple-subtraction/       Locally Removed           194 
+
+Directory modules/functional/test-cases/toymips/simple-subtraction
+ TestCase.bsv              Locally Removed           194 
+ toymips_testcase_simple_subtraction.awb Locally Removed           194 
+
+Directory modules/functional/test-cases/toymips
+ branch/                   Locally Removed           194 
+
+Directory modules/functional/test-cases/toymips/branch
+ TestCase.bsv              Locally Removed           194 
+ toymips_testcase_branch.awb Locally Removed           194 
+
+Directory modules/functional/test-cases
+ smips/                    Locally Removed           194 
+
+Directory modules/functional/test-cases/smips
+ simple-addition/          Locally Removed           194 
+
+Directory modules/functional/test-cases/smips/simple-addition
+ smips_testcase_simple_addition.awb Locally Removed           194 
+ TestCase.bsv              Locally Removed           194 
+
+Directory modules/functional/test-cases/smips
+ branch/                   Locally Removed           194 
+
+Directory modules/functional/test-cases/smips/branch
+ TestCase.bsv              Locally Removed           194 
+ smips_testcase_branch.awb Locally Removed           194 
+
+Directory modules
+ functional/               Locally Removed           194 
+
+
+* Finished remaming all modules to reflect version 3.
+* Removed V1 of the functional partition as it is deprecated.
+
+We should consider moving the timing models to a neutral location, as they are not actually MIPS-specific.
+
+Michael P.

@@ -25,15 +25,8 @@ File=modules/system/single_chip_system/hasim_system.awb
 hasim_cpu=5-stage pipeline CPU
 hasim_memory=magic memory
 
-[5-stage pipeline CPU/Requires]
-hasim_pipe_mem=5-stage pipeline Mem V3
-hasim_pipe_writeback=5-stage pipeline Writeback V3
-hasim_pipe_execute=5-stage pipeline Execute V3
-hasim_pipe_decode=5-stage pipeline Decode V3
-hasim_pipe_fetch=5-stage pipeline Fetch V3
-
 [5-stage pipeline CPU]
-File=modules/cpu/mips/5stage_cpu.awb
+File=config/pm/hasim-mips/submodels/timing-models/5stage-pipeline.apm
 Packagehint=hasim-mips
 
 [Uniprocessor chip]
@@ -69,7 +62,7 @@ File=modules/model/hasim_model.awb
 Packagehint=hasim
 
 [Functional Partition Version 3]
-File=config/pm/hasim-mips/submodels/funcp/smips_funcp_new.apm
+File=config/pm/hasim-mips/submodels/funcp/smips_funcp_v3.apm
 Packagehint=hasim-mips
 
 [New Hasim Common Library]
@@ -80,35 +73,3 @@ Packagehint=hasim
 File=modules/hasim-mips/isa/definition/smips/isa_definition_template.awb
 Packagehint=hasim-mips
 
-
-
-
-
-
-
-[Always not taken Branch Predictor V3]
-File=modules/cpu/mips/branch/predictor/notTaken/BranchPredV3.awb
-Packagehint=hasim-mips
-
-[5-stage pipeline Mem V3]
-File=modules/cpu/mips/pipeline/mem/simple/mem_simple_newfuncp.awb
-Packagehint=hasim-mips
-
-[5-stage pipeline Decode V3]
-File=modules/cpu/mips/pipeline/decode/simple/decode_simpe_newfuncp.awb
-Packagehint=hasim-mips
-
-[5-stage pipeline Writeback V3]
-File=modules/cpu/mips/pipeline/writeback/simple/writeback_simple_newfuncp.awb
-Packagehint=hasim-mips
-
-[5-stage pipeline Fetch V3]
-File=modules/cpu/mips/pipeline/fetch/simple/fetch_simple_newfuncp.awb
-Packagehint=hasim-mips
-
-[5-stage pipeline Execute V3]
-File=modules/cpu/mips/pipeline/execute/simple/execute_simple_newfuncp.awb
-Packagehint=hasim-mips
-
-[5-stage pipeline Fetch V3/Requires]
-hasim_branch_pred=Always not taken Branch Predictor V3
