@@ -4454,3 +4454,15 @@ Directory modules
 We should consider moving the timing models to a neutral location, as they are not actually MIPS-specific.
 
 Michael P.
+
+----------
+vmurali     Date: Mon Apr 28 18:14:54 EDT 2008  CSN: CSN-hasim-mips-197
+                  Mon Apr 28 22:14:54 UTC 2008
+
+
+Directory modules/cpu/mips/pipeline/fetch/simple
+ Fetch.bsv                 Locally Modified          196 
+
+
+- Bug fix at PC ( was hardcoded 32 bit )
+

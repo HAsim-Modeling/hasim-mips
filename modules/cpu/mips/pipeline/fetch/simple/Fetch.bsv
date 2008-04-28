@@ -44,7 +44,7 @@ module [HASIM_MODULE] mkPipe_Fetch#(File debug_file, Bit#(32) curTick)
 
   //Local State
 
-  Reg#(ISA_ADDRESS)           pc <- mkReg(32'h00001000);
+  Reg#(ISA_ADDRESS)           pc <- mkReg('h00001000);
   Reg#(TOKEN_TIMEP_EPOCH)     epoch <- mkReg(0);
   Reg#(TOKEN)          stall_tok <- mkRegU;
   Reg#(Maybe#(ISA_ADDRESS))  stall_addr <- mkRegU;
