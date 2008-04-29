@@ -4477,3 +4477,15 @@ Directory modules/hasim-mips/isa/definition/smips
 
 
 - Destination returning Invalid if it is r0
+
+----------
+vmurali     Date: Tue Apr 29 17:03:34 EDT 2008  CSN: CSN-hasim-mips-199
+                  Tue Apr 29 21:03:34 UTC 2008
+
+
+Directory modules/hasim-mips/isa/definition/smips
+ isa_decode_functions.bsv  Locally Modified          198 
+
+
+Previous commit hasty
+

@@ -318,7 +318,7 @@ endfunction
 
 function Maybe#(ISA_REG_INDEX) isaGetDst(ISA_INSTRUCTION i, Integer n);
 
-    Maybe#(ISA_REG_INDEX) retVal = tagged Invalid;
+    Maybe#(ISA_REG_INDEX) retval = tagged Invalid;
 
     retval = case (n)
                  0      : return mipsGetDst1(i);
@@ -327,9 +327,8 @@ function Maybe#(ISA_REG_INDEX) isaGetDst(ISA_INSTRUCTION i, Integer n);
 
     return case (retval) matches
                tagged Valid 0: return tagged Invalid;
-               default       : retval;
+               default       : return retval;
            endcase;
-    endcase
 
 endfunction
 
