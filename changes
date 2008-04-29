@@ -4466,3 +4466,14 @@ Directory modules/cpu/mips/pipeline/fetch/simple
 
 - Bug fix at PC ( was hardcoded 32 bit )
 
+
+----------
+vmurali     Date: Tue Apr 29 16:56:07 EDT 2008  CSN: CSN-hasim-mips-198
+                  Tue Apr 29 20:56:07 UTC 2008
+
+
+Directory modules/hasim-mips/isa/definition/smips
+ isa_decode_functions.bsv  Locally Modified          196 
+
+
+- Destination returning Invalid if it is r0
