@@ -1,6 +1,6 @@
 import hasim_isa::*;
 
-Addr pcStart = 32'h00001000;
+ISA_ADDRESS pcStart = 'h1000;
 
 typedef 8  TokenSize;
 typedef 4  FetchWidth;

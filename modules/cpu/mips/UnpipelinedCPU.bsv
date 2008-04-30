@@ -65,7 +65,7 @@ module [HASim_Module] mkCPU
   Reg#(ISA_INSTRUCTION)  cur_inst <- mkRegU();
   
   //The Program Counter
-  Reg#(ISA_ADDRESS) pc <- mkReg(32'h00001000);
+  Reg#(ISA_ADDRESS) pc <- mkReg('h1000);
   
   //The actual Clock Cycle, for debugging messages
   Reg#(Bit#(32)) hostCC <- mkReg(0);

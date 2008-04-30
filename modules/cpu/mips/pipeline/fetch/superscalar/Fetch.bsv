@@ -10,7 +10,7 @@ typedef enum {Fetch, FetchDone} FetchState deriving (Bits, Eq);
 module [HASim_Module] mkPipe_Fetch();
     Connection_Send#(Bit#(TokenSize))      fpTokReq <- mkConnection_Send("fp_tok_req");
     Connection_Receive#(Token)            fpTokResp <- mkConnection_Receive("fp_tok_resp");
-    Connection_Send#(Tuple2#(Token, Addr)) fpFetReq <- mkConnection_Send("fp_fet_req");
+    Connection_Send#(Tuple2#(Token, ISA_ADDRESS)) fpFetReq <- mkConnection_Send("fp_fet_req");
 
     Port_Receive#(FetchCount)          fetchMaxPort <- mkPort_Receive("fetchMax", 1);
     Port_Receive#(Addr)           predictedAddrPort <- mkPort_Receive("predictedAddr", 1);

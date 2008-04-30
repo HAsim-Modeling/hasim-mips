@@ -4489,3 +4489,29 @@ Directory modules/hasim-mips/isa/definition/smips
 
 Previous commit hasty
 
+
+----------
+mcadler     Date: Wed Apr 30 08:24:43 EDT 2008  CSN: CSN-hasim-mips-200
+                  Wed Apr 30 12:24:43 UTC 2008
+
+
+Directory config/pm/hasim-mips/submodels/funcp
+ smips_funcp_v3.apm        Locally Modified          199 
+
+Directory modules/cpu/mips/pipeline/execute/superscalar
+ Execute.bsv               Locally Modified          199 
+
+Directory modules/cpu/mips/pipeline/fetch/superscalar
+ Fetch.bsv                 Locally Modified          199 
+
+Directory modules/cpu/mips
+ UnpipelinedCPU.bsv        Locally Modified          199 
+
+Directory modules/cpu/mips/s10k
+ Parameters.bsv            Locally Modified          199 
+ Types.bsv                 Locally Modified          199 
+
+- Functional model config with new base types
+- Use generic start address (old one specified a 32 bit constant).  Using
+  sized constants where zero extend is appropriate doesn't buy us anything!
+- Started some of the s10k v3 functional partition changes.

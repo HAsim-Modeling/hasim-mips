@@ -73,7 +73,7 @@ module [HASim_Module] mkPipe_Execute();
             tagged Valid .recv:
             begin
                 execValid.upd(truncate(recv.robTag), False);
-                InstResult res = instResult.sub(truncate(recv.robTag));
+                let res = instResult.sub(truncate(recv.robTag));
                 fpMemReq.send(tuple2(recv.token, ?));
 
                 Bool finished = case (res) matches
@@ -87,10 +87,10 @@ module [HASim_Module] mkPipe_Execute();
                                     tagged RBranchTaken .addr: return True;
                                     default: return False;
                                 endcase;
-                Addr takenAddr = case (res) matches
-                                     tagged RBranchTaken .addr: return addr;
-                                     default: return recv.addr + 4;
-                                 endcase;
+                let takenAddr = case (res) matches
+                                    tagged RBranchTaken .addr: return addr;
+                                    default: return recv.addr + 4;
+                                endcase;
 
                 ExecResult execResult = ExecResult{token: recv.token,
                                                    addr: recv.addr,

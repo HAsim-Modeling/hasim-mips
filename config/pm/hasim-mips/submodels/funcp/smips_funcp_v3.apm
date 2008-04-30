@@ -2,7 +2,7 @@
 [Global]
 SaveParameters=0
 Description=SMIPS Functional Partition v3
-File=smips_funcp_new
+File=smips_funcp_v3
 Version=2.1
 Name=SMIPS Functional Partition v3
 Type=HAsim
@@ -11,16 +11,6 @@ Class=Asim::Model
 [Model]
 DefaultAttributes=smips hasim
 model=Functional Partition Version 3
-
-
-
-
-
-
-
-
-
-
 
 [VMH hybrid memory]
 File=modules/hasim/functional-partition/memory-state/memory/hybrid/vmh/vmh-memory.awb
@@ -41,6 +31,7 @@ Packagehint=hasim
 funcp_memstate=Memory State for Functional Partition
 funcp_regstate=Register State for Functional Partition
 hasim_isa_semantics=Hybrid ISA Semantics
+funcp_base_types=Functional Partition Base Types
 
 [Memory State for Functional Partition/Requires]
 funcp_memstate_manager=Manager using Macro Ops for Mem State
@@ -103,4 +94,8 @@ funcp_memstate_cache=Null Cache for Functional Partition
 
 [Register State Manager using Macro Ops]
 File=modules/hasim/functional-partition/register-state/manager/macro-ops/regstate_manager_macro_ops.awb
+Packagehint=hasim
+
+[Functional Partition Base Types]
+File=modules/hasim/functional-partition/base-types/funcp-base-types.awb
 Packagehint=hasim

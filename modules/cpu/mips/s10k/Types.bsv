@@ -24,7 +24,7 @@ typedef Bit#(64) ClockCounter;
 
 typedef struct {
     Token token;
-    Addr addr;
+    ISA_ADDRESS addr;
     IssueType issueType;
     Bool done;
     Bool pred;
@@ -35,64 +35,64 @@ typedef struct {
 
 typedef struct {
     Token token;
-    Addr addr;
+    ISA_ADDRESS addr;
     IssueType issueType;
     RobTag robTag;
     BranchCount branchIndex;
     Bool pred;
-    Addr predAddr;
+    ISA_ADDRESS predAddr;
 } IssuePort deriving (Bits, Eq);
 
 typedef struct {
     Token     token;
-    Addr      addr;
+    ISA_ADDRESS addr;
     IssueType issueType;
     RobTag    robTag;
     Bool      src1Ready;
-    PRName    src1;
+    ISA_REG_INDEX src1;
     Bool      src2Ready;
-    PRName    src2;
-    PRName    dest;
+    ISA_REG_INDEX src2;
+    ISA_REG_INDEX dest;
     BranchCount branchIndex;
     Bool      pred;
-    Addr      predAddr;
+    ISA_ADDRESS predAddr;
 } IssueEntry deriving (Bits, Eq);
 
 typedef struct {
     Token token;
-    Addr addr;
+    ISA_ADDRESS addr;
     IssueType issueType;
     RobTag robTag;
-    PRName pRName;
+    ISA_REG_INDEX pRName;
     BranchCount branchIndex;
     Bool pred;
-    Addr predAddr;
+    ISA_ADDRESS predAddr;
 } ExecEntry deriving (Bits, Eq);
 
 typedef struct {
     Token token;
-    Addr addr;
+    ISA_ADDRESS addr;
     IssueType issueType;
     RobTag robTag;
-    PRName pRName;
+    ISA_REG_INDEX pRName;
     BranchCount branchIndex;
     Bool pred;
-    Addr predAddr;
+    ISA_ADDRESS predAddr;
     Bool taken;
-    Addr takenAddr;
+    ISA_ADDRESS takenAddr;
     Bool finished;
     Bool status;
 } ExecResult deriving (Bits, Eq);
 
 typedef struct {
     Token token;
-    Addr addr;
-    PackedInst inst;
+    ISA_ADDRESS addr;
+    ISA_INSTRUCTION inst;
 } InstInfo deriving (Bits, Eq);
 
 typedef struct {
     Token token;
     RobTag robTag;
-    Addr mispredictPC;
+    ISA_ADDRESS mispredictPC;
     BranchCount branchIndex;
 } KillData deriving (Bits, Eq);
