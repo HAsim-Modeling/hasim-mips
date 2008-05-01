@@ -4515,3 +4515,21 @@ Directory modules/cpu/mips/s10k
 - Use generic start address (old one specified a 32 bit constant).  Using
   sized constants where zero extend is appropriate doesn't buy us anything!
 - Started some of the s10k v3 functional partition changes.
+
+----------
+mcadler     Date: Thu May  1 15:14:26 EDT 2008  CSN: CSN-hasim-mips-201
+                  Thu May  1 19:14:26 UTC 2008
+
+
+Directory config/pm/hasim-mips/submodels/funcp
+ smips_funcp_v3.apm        Locally Modified          200 
+
+Directory modules/hasim-mips/isa/definition/toymips
+ isa_datatypes.h           Locally Added               0 
+ isa_definition_template.awb Locally Modified          200 
+
+Directory modules/hasim-mips/isa/definition/smips
+ isa_datatypes.h           Locally Added               0 
+ isa_definition_template.awb Locally Modified          200 
+
+Add new ISA datatypes definition that must track the Bluespec version.

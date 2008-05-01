@@ -13,10 +13,16 @@
 #
 # %attributes hasim template
 #
-# %public isa_datatypes.bsv isa_decode_functions.bsv isa_derived_types.bsv isa_memory_conversions.bsv
+# %public isa_datatypes.h
+# %public isa_datatypes.bsv
+# %public isa_decode_functions.bsv
+# %public isa_derived_types.bsv
+# %public isa_memory_conversions.bsv
+#
 # %private README.txt
+#
+# %param SIMULATED_ISA "SMIPS"            "Modeled ISA"
 #
 # %AWB_END
 # */
 
-%param SIMULATED_ISA "SMIPS"            "Modeled ISA"

@@ -99,3 +99,10 @@ Packagehint=hasim
 [Functional Partition Base Types]
 File=modules/hasim/functional-partition/base-types/funcp-base-types.awb
 Packagehint=hasim
+
+[Null ISA Emulator Implementation]
+File=modules/hasim/functional-partition/isa-emulator/null/null-isa-emulator-impl.awb
+Packagehint=hasim
+
+[Hybrid ISA Emulator/Requires]
+isa_emulator_impl=Null ISA Emulator Implementation
