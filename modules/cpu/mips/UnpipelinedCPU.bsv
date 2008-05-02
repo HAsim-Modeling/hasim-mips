@@ -75,6 +75,10 @@ module [HASim_Module] mkCPU
   
   //********* Connections *********//
   
+  Connection_Send#(Bool)
+  //...
+  link_model_cycle <- mkConnection_Send("model_cycle");
+
   Connection_Client#(void, TOKEN)
   //...
   link_to_tok <- mkConnection_Client("funcp_newInFlight");
@@ -171,6 +175,7 @@ module [HASim_Module] mkCPU
 	    //Request a TOKEN
 	    debug(2, $fdisplay(debug_log, "[%d] Requesting a new TOKEN on model cycle %0d.", hostCC, baseTick));
 	    link_to_tok.makeReq(?);
+            link_model_cycle.send(?);
 	    
 	    madeReq <= True;
 	    

@@ -62,6 +62,9 @@ module [HASIM_MODULE] mkPipe_Fetch#(File debug_file, Bit#(32) curTick)
   //Pseudo-randomness
   LFSR#(Bit#(7)) lfsr <- mkFeedLFSR(7'b1001110);
 
+  //Connections to controller
+  Connection_Send#(Bool) link_model_cycle <- mkConnection_Send("model_cycle");
+
   //Connections to FP
   Connection_Send#(void)   fp_tok_req  <- mkConnection_Send("funcp_newInFlight_req");
   Connection_Receive#(TOKEN)  fp_tok_resp <- mkConnection_Receive("funcp_newInFlight_resp");
@@ -98,6 +101,9 @@ module [HASIM_MODULE] mkPipe_Fetch#(File debug_file, Bit#(32) curTick)
     let mtup <- port_from_exe.receive();
     stat_cycles.incr();
     
+    //Note new model cycle
+    link_model_cycle.send(?);
+
     //First let's take care of incoming resteers
     
     case (mtup) matches

@@ -4533,3 +4533,19 @@ Directory modules/hasim-mips/isa/definition/smips
  isa_definition_template.awb Locally Modified          200 
 
 Add new ISA datatypes definition that must track the Bluespec version.
+
+----------
+mcadler     Date: Fri May  2 16:55:50 EDT 2008  CSN: CSN-hasim-mips-202
+                  Fri May  2 20:55:50 UTC 2008
+
+
+Directory modules/cpu/mips/pipeline/fetch/superscalar
+ Fetch.bsv                 Locally Modified          200 
+
+Directory modules/cpu/mips/pipeline/fetch/simple
+ Fetch.bsv                 Locally Modified          200 
+
+Directory modules/cpu/mips
+ UnpipelinedCPU.bsv        Locally Modified          200 
+
+Send model cycle pulse to controller.

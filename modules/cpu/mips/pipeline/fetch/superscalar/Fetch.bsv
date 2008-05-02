@@ -8,6 +8,9 @@ import hasim_cpu_types::*;
 typedef enum {Fetch, FetchDone} FetchState deriving (Bits, Eq);
 
 module [HASim_Module] mkPipe_Fetch();
+    //Connections to controller
+    Connection_Send#(Bool) link_model_cycle <- mkConnection_Send("model_cycle");
+
     Connection_Send#(Bit#(TokenSize))      fpTokReq <- mkConnection_Send("fp_tok_req");
     Connection_Receive#(Token)            fpTokResp <- mkConnection_Receive("fp_tok_resp");
     Connection_Send#(Tuple2#(Token, ISA_ADDRESS)) fpFetReq <- mkConnection_Send("fp_fet_req");
@@ -30,6 +33,9 @@ module [HASim_Module] mkPipe_Fetch();
         Maybe#(Addr)  predictedAddr <- predictedAddrPort.receive();
         Maybe#(Addr) mispredictAddr <- mispredictAddrPort.receive();
         Maybe#(FetchCount) fetchMax <- fetchMaxPort.receive();
+
+        //Note new model cycle
+        link_model_cycle.send(?);
 
         if(isValid(mispredictAddr))
         begin
