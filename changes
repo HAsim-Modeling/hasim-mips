@@ -4549,3 +4549,22 @@ Directory modules/cpu/mips
  UnpipelinedCPU.bsv        Locally Modified          200 
 
 Send model cycle pulse to controller.
+
+----------
+mcadler     Date: Fri May  2 20:36:26 EDT 2008  CSN: CSN-hasim-mips-203
+                  Sat May  3 00:36:26 UTC 2008
+
+
+Directory config/pm/hasim-mips/smips-5stage
+ smips_5stage_hybrid_exe.apm Locally Added               - 
+ smips_5stage_hybrid_sim.apm Locally Removed           201 
+
+Directory config/pm/hasim-mips/smips-unpipelined
+ smips_unpipelined.apm     Locally Removed           201 
+ smips_unpipelined_exe.apm Locally Added               - 
+
+Directory config/pm/hasim-mips/s10k
+ s10k_sim.apm              Locally Removed           201 
+ s10k_exe.apm              Locally Added               - 
+
+Rename "sim" models to "exe" for consistency.

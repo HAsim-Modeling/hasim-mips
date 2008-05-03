@@ -2,7 +2,7 @@
 [Global]
 SaveParameters=0
 Description=SMIPS R10K Core Simulation Only
-File=s10k_sim
+File=s10k_exe
 Version=2.1
 Name=SMIPS R10K Core Simulation Only
 Type=HAsim
