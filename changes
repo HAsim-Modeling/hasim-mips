@@ -4578,3 +4578,16 @@ Directory config/pm/hasim-mips/submodels/funcp
  smips_funcp_v3.apm        Locally Modified          203 
 
 set isa-emulator AWB params.
+
+----------
+jsemer      Date: Sun May  4 13:25:57 EDT 2008  CSN: CSN-hasim-mips-205
+                  Sun May  4 17:25:57 UTC 2008
+
+
+Directory config/pm/hasim-mips/toymips
+ hasim_toymips_simple.apm  Locally Modified          204 
+
+Directory config/pm/hasim-mips/smips-unpipelined
+ smips_unpipelined_qemu.apm Locally Modified          204 
+
+Updated apm files to use latest version of hasim-common.

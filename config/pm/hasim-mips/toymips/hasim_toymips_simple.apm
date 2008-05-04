@@ -9,7 +9,6 @@ Type=HAsim
 Class=Asim::Model
 
 [Hasim - Hardware (fpga) based system/Requires]
-hasim_funcp=Functional Partition Version 3
 hasim_chip=Uniprocessor chip
 hasim_isa=Hasim - Toymips ISA Definition
 
@@ -41,52 +40,14 @@ Packagehint=hasim-mips
 File=config/pm/hasim/submodels/fpgaenv/hasim-fpgaenv-hybrid-sim.apm
 Packagehint=platforms
 
-[Hasim Modeling Library]
-File=modules/common/modellib/hasim_modellib.awb
-Packagehint=hasim
 
-[Hasim Platform Interface]
-File=modules/common/platform_interface/hasim/hasim-platform-interface.awb
-Packagehint=hasim
 
-[Smart Synthesis Boundaries]
-File=modules/common/smart_synthesis_boundaries/smart_synth_boundaries.awb
-Packagehint=hasim
 
-[Soft Connections/Requires]
-soft_connections_alg=Soft Connection Algorithm
 
-[Soft Connections]
-File=modules/bluespec/common/soft_connections/soft_connections.awb
-Packagehint=hasim
 
 [New Hasim Common Library]
-File=modules/hasim/common/new-funcp/hasim_common_newfuncp.awb
+File=config/pm/hasim/submodels/common/hasim_common.apm
 Packagehint=hasim
-
-[New Hasim Common Library/Requires]
-smart_synth_boundaries=Smart Synthesis Boundaries
-platform_interface=Hasim Platform Interface
-soft_connections=Soft Connections
-hasim_modellib=Hasim Modeling Library
-
-[Soft Connection Algorithm]
-File=modules/bluespec/common/soft_connections/alg/typed/soft_connections_alg.awb
-Packagehint=hasim
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -108,6 +69,3 @@ fpgaenv=FPGA Environment
 File=modules/hasim-mips/isa/definition/toymips/isa_definition_template.awb
 Packagehint=hasim-mips
 
-[Functional Partition Version 3]
-File=config/pm/hasim-mips/submodels/funcp/smips_funcp_new.apm
-Packagehint=hasim-mips
