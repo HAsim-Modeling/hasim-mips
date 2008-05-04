@@ -4568,3 +4568,13 @@ Directory config/pm/hasim-mips/s10k
  s10k_exe.apm              Locally Added               - 
 
 Rename "sim" models to "exe" for consistency.
+
+----------
+aparasha    Date: Sun May  4 10:48:54 EDT 2008  CSN: CSN-hasim-mips-204
+                  Sun May  4 14:48:54 UTC 2008
+
+
+Directory config/pm/hasim-mips/submodels/funcp
+ smips_funcp_v3.apm        Locally Modified          203 
+
+set isa-emulator AWB params.

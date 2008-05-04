@@ -106,3 +106,7 @@ Packagehint=hasim
 
 [Hybrid ISA Emulator/Requires]
 isa_emulator_impl=Null ISA Emulator Implementation
+
+[Hybrid ISA Emulator/Params]
+INST_ISA_ADDR_TUPLE_BITS=64
+RNAME_RVAL_TUPLE_BITS=37
