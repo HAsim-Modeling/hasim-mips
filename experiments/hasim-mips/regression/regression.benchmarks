@@ -4,6 +4,6 @@
 #
 # ***************
 
-experiments = 5stage_mips_exe
+experiments = mips_5stage_exe
 #
 config/bm/smips/6_375.cfx/benchmarks/qsort.cfg

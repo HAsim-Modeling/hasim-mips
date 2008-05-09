@@ -4631,3 +4631,14 @@ and run:
 
 % regression.launcher
 
+
+----------
+mcadler     Date: Fri May  9 09:34:16 EDT 2008  CSN: CSN-hasim-mips-207
+                  Fri May  9 13:34:16 UTC 2008
+
+
+Directory experiments/hasim-mips/regression
+ regression.models         Locally Modified          206 
+ regression.benchmarks     Locally Modified          206 
+
+Rename model to be consistent with APM naming.
