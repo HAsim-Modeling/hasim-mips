@@ -34,7 +34,7 @@ endfunction
 // it into an isa-specific instruction.
 // TODO: Support turning multiple memory values into an instruction.
 
-function ISA_INSTRUCTION isaInstructionFromMemValue(MEM_VALUE v);
+function ISA_INSTRUCTION isaInstructionFromMemValue(MEM_VALUE v, ISA_ADDRESS a);
 
     return unpack(v); // If you need more than this write it here.
 
