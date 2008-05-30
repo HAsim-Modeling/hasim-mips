@@ -26,6 +26,8 @@ import hasim_isa::*;
 `include "asim/dict/EVENTS_CPU.bsh"
 `include "asim/dict/STATS_CPU.bsh"
 
+`include "asim/provides/funcp_simulated_memory.bsh"
+
 //************************* Simple Timing Partition ***********************//
 //                                                                         //
 // This is about the simplest timing partition you can conceive of. It     //
@@ -65,7 +67,7 @@ module [HASim_Module] mkCPU
   Reg#(ISA_INSTRUCTION)  cur_inst <- mkRegU();
   
   //The Program Counter
-  Reg#(ISA_ADDRESS) pc <- mkReg('h1000);
+  Reg#(ISA_ADDRESS) pc <- mkReg(`PROGRAM_START_ADDR);
   
   //The actual Clock Cycle, for debugging messages
   Reg#(Bit#(32)) hostCC <- mkReg(0);

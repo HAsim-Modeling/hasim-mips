@@ -4656,3 +4656,19 @@ Directory modules/hasim-mips/isa/definition/template
 
 Changed the template and smips isaInstructionFromMemValue interface
 
+
+----------
+mcadler     Date: Fri May 30 15:43:34 EDT 2008  CSN: CSN-hasim-mips-209
+                  Fri May 30 19:43:34 UTC 2008
+
+
+Directory modules/cpu/mips/pipeline/fetch/simple
+ Fetch.bsv                 Locally Modified          208 
+
+Directory modules/cpu/mips
+ UnpipelinedCPU.bsv        Locally Modified          208 
+
+Directory modules/cpu/mips/s10k
+ Parameters.bsv            Locally Modified          208 
+
+Start PC is now an awb parameter (PROGRAM_START_ADDR).

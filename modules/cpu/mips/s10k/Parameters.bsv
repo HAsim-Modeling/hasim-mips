@@ -1,6 +1,8 @@
 import hasim_isa::*;
 
-ISA_ADDRESS pcStart = 'h1000;
+`include "asim/provides/funcp_simulated_memory.bsh"
+
+ISA_ADDRESS pcStart = `PROGRAM_START_ADDR;
 
 typedef 8  TokenSize;
 typedef 4  FetchWidth;
