@@ -4672,3 +4672,15 @@ Directory modules/cpu/mips/s10k
  Parameters.bsv            Locally Modified          208 
 
 Start PC is now an awb parameter (PROGRAM_START_ADDR).
+
+----------
+aparasha    Date: Fri Jun  6 01:38:06 EDT 2008  CSN: CSN-hasim-mips-210
+                  Fri Jun  6 05:38:06 UTC 2008
+
+
+Directory config/pm/hasim-mips/smips-5stage
+ smips_5stage_hybrid_htg.apm Locally Modified          209 
+
+It seems the controller parameter HASIM_CONTROLLER_COOLDOWN was removed
+but the APM(s) was/were not updated to reflect this. Other APMs might
+need to be fixed.

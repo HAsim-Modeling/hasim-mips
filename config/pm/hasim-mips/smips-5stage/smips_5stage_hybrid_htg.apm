@@ -45,8 +45,6 @@ Packagehint=platforms
 File=config/pm/hasim/submodels/controller/hybrid_standard_controller.apm
 Packagehint=hasim
 
-[Hasim Standard Controller/Params]
-HASIM_CONTROLLER_COOLDOWN=10000000
 
 [HAsim Hybrid Model Foundation/Requires]
 hasim_common=New Hasim Common Library
