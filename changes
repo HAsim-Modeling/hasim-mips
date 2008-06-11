@@ -4705,3 +4705,14 @@ Directory modules/cpu/mips
 
 - Moved the rewind part to Fetch Stage
 - Moved snapshot part of regstate_manager as a separate module ( hence change in apm files )
+
+----------
+vmurali     Date: Wed Jun 11 02:14:46 EDT 2008  CSN: CSN-hasim-mips-212
+                  Wed Jun 11 06:14:46 UTC 2008
+
+
+Directory modules/cpu/mips/pipeline/fetch/simple
+ Fetch.bsv                 Locally Modified          211 
+
+
+Removed the curTick which was introduced in previous check-in for debugging purposes

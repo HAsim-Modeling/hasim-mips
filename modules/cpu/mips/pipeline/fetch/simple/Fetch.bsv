@@ -42,7 +42,7 @@ function ISA_ADDRESSHash btbHash(ISA_ADDRESS a);
 
 endfunction
 
-module [HASIM_MODULE] mkPipe_Fetch#(File debug_file, Bit#(32) currTick)
+module [HASIM_MODULE] mkPipe_Fetch#(File debug_file, Bit#(32) curTick)
     //interface:
                 ();
 
@@ -96,12 +96,6 @@ module [HASIM_MODULE] mkPipe_Fetch#(File debug_file, Bit#(32) currTick)
 
   //Outgoing Ports
   Port_Send#(Tuple3#(TOKEN, Maybe#(ISA_ADDRESS), ISA_INSTRUCTION)) port_to_dec <- mkPort_Send("fet_to_dec");
-
-  Reg#(Bit#(32)) curTick <- mkReg(0);
-
-    rule tickNow(True);
-        curTick <= curTick + 1;
-    endrule
 
   //Local Controller
   Vector#(1, Port_Control) inports  = newVector();
