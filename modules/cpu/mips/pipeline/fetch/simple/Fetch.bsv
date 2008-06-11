@@ -25,7 +25,9 @@ Integer fet_hit_chance = (`FET_ICACHE_HIT_CHANCE * 127)/ 100;
 
 typedef enum 
 {
+  FET_Rewind,
   FET_Ready,
+  FET_Ready2,
   FET_GetInst,
   FET_Finish
 }
@@ -40,7 +42,7 @@ function ISA_ADDRESSHash btbHash(ISA_ADDRESS a);
 
 endfunction
 
-module [HASIM_MODULE] mkPipe_Fetch#(File debug_file, Bit#(32) curTick)
+module [HASIM_MODULE] mkPipe_Fetch#(File debug_file, Bit#(32) currTick)
     //interface:
                 ();
 
@@ -55,6 +57,8 @@ module [HASIM_MODULE] mkPipe_Fetch#(File debug_file, Bit#(32) curTick)
   Reg#(Bool)                 stalling <- mkReg(False);
   Reg#(FET_STATE)               state <- mkReg(FET_Ready);
   
+  Reg#(Bit#(64)) counter <- mkReg(0);
+
   //For branch prediction
   
   BranchPred branch_pred <- mkBranchPred();
@@ -68,12 +72,14 @@ module [HASIM_MODULE] mkPipe_Fetch#(File debug_file, Bit#(32) curTick)
   Connection_Send#(Bool) link_model_cycle <- mkConnection_Send("model_cycle");
 
   //Connections to FP
-  Connection_Send#(void)   fp_tok_req  <- mkConnection_Send("funcp_newInFlight_req");
+  Connection_Send#(Bit#(1))   fp_tok_req  <- mkConnection_Send("funcp_newInFlight_req");
   Connection_Receive#(TOKEN)  fp_tok_resp <- mkConnection_Receive("funcp_newInFlight_resp");
   
   Connection_Send#(Tuple2#(TOKEN, ISA_ADDRESS))         fp_fet_req  <- mkConnection_Send("funcp_getInstruction_req");
   Connection_Receive#(Tuple2#(TOKEN, ISA_INSTRUCTION))  fp_fet_resp <- mkConnection_Receive("funcp_getInstruction_resp");
       
+  Connection_Send#(Token)     rewindToToken <- mkConnection_Send("funcp_rewindToToken_req");
+
   //Events
   EventRecorder event_fet <- mkEventRecorder(`EVENTS_FETCH_INSTRUCTION_FET);
   
@@ -86,8 +92,16 @@ module [HASIM_MODULE] mkPipe_Fetch#(File debug_file, Bit#(32) curTick)
   //Incoming Ports
   Port_Receive#(Tuple2#(TOKEN, Maybe#(ISA_ADDRESS))) port_from_exe <- mkPort_Receive("fet_branchResolve", 1);
 
+  Connection_Receive#(Bit#(1)) rewind <- mkConnection_Receive("funcp_rewindToToken_resp");
+
   //Outgoing Ports
   Port_Send#(Tuple3#(TOKEN, Maybe#(ISA_ADDRESS), ISA_INSTRUCTION)) port_to_dec <- mkPort_Send("fet_to_dec");
+
+  Reg#(Bit#(32)) curTick <- mkReg(0);
+
+    rule tickNow(True);
+        curTick <= curTick + 1;
+    endrule
 
   //Local Controller
   Vector#(1, Port_Control) inports  = newVector();
@@ -96,10 +110,19 @@ module [HASIM_MODULE] mkPipe_Fetch#(File debug_file, Bit#(32) curTick)
   outports[0] = port_to_dec.ctrl;
   LocalController local_ctrl <- mkLocalController(inports, outports);
 
+  rule fetchWait(state == FET_Rewind);
+    rewind.deq();
+    state <= FET_Ready2;
+  endrule
+
   rule beginFetch (state == FET_Ready);
   
     local_ctrl.startModelCC();
     
+    counter <= counter + 1;
+    
+     $fdisplay(debug_file, "[%d]:Fetch Counter: %0d", curTick, counter);
+
     let mtup <- port_from_exe.receive();
     stat_cycles.incr();
     
@@ -110,10 +133,9 @@ module [HASIM_MODULE] mkPipe_Fetch#(File debug_file, Bit#(32) curTick)
     
     case (mtup) matches
       tagged Invalid: //No Re-steer
-        noAction;
+            state <= FET_Ready2;
       tagged Valid {.ktok, .mpc}: //Re-steer
       begin
-      
         //Look up this token
         Bool pred_taken = ktok.timep_info.scratchpad[0] == 1; //The prediction is stored in the scratchpad
         let iaddr = addrs.sub(ktok.index); //Get the address
@@ -124,19 +146,26 @@ module [HASIM_MODULE] mkPipe_Fetch#(File debug_file, Bit#(32) curTick)
           tagged Invalid:  //Branch predicted correctly
           begin 
             branch_pred.upd(ktok, iaddr, pred_taken, pred_taken);
+            state <= FET_Ready2;
           end
           tagged Valid .new_pc: //Branch mispredicted. Start the new epoch
           begin
             branch_pred.upd(ktok, iaddr, pred_taken, !pred_taken);
             btb.upd(hash, tagged Valid new_pc);
             epoch <= epoch + 1;
+            state <= FET_Rewind;
+            rewindToToken.send(ktok);
+            $fdisplay(debug_file, "[%d]:Fetch Counter when rewinding: %0d", curTick, counter);
+
             pc <= new_pc;
           end
         endcase
 
       end
     endcase
-    
+  endrule
+  
+  rule beginFetch2 (state == FET_Ready2);
     if (!stalling)
       begin
         $fdisplay(debug_file, "[%d]:TOK:REQ", curTick);
@@ -146,7 +175,7 @@ module [HASIM_MODULE] mkPipe_Fetch#(File debug_file, Bit#(32) curTick)
       end
     else
       begin
-      
+        state <= FET_Ready;
         if (stall_count == 0)
           begin
             port_to_dec.send(tagged Valid tuple3(stall_tok, stall_addr, stall_inst));

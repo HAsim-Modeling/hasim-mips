@@ -81,7 +81,7 @@ module [HASim_Module] mkCPU
   //...
   link_model_cycle <- mkConnection_Send("model_cycle");
 
-  Connection_Client#(void, TOKEN)
+  Connection_Client#(Bit#(1), TOKEN)
   //...
   link_to_tok <- mkConnection_Client("funcp_newInFlight");
   
@@ -122,9 +122,9 @@ module [HASim_Module] mkCPU
 
   //For killing. UNUSED
   
-  Connection_Send#(TOKEN) 
+  Connection_Client#(TOKEN, Bit#(1)) 
   //...
-        link_rewindToToken <- mkConnection_Send("funcp_rewindToToken");
+        link_rewindToToken <- mkConnection_Client("funcp_rewindToToken");
 
  
   //Events

@@ -64,6 +64,7 @@ hasim_isa_datapath=SMIPS ISA Datapath V3
 [Register State Manager using Macro Ops/Requires]
 funcp_regstate_freelist=Freelist in BRAM
 funcp_regstate_scoreboard=Scoreboard with One-Hot Encoding
+funcp_regstate_snapshot=Snapshot in BRAM
 
 [SMIPS ISA Datapath V3]
 File=modules/hasim-mips/isa/datapath/smips/isa_datapath_smips.awb
@@ -110,3 +111,7 @@ isa_emulator_impl=Null ISA Emulator Implementation
 [Hybrid ISA Emulator/Params]
 INST_ISA_ADDR_TUPLE_BITS=64
 RNAME_RVAL_TUPLE_BITS=37
+
+[Snapshot in BRAM]
+File=modules/hasim/functional-partition/register-state/snapshot/bram/funcp_snapshot_bram.awb
+Packagehint=hasim

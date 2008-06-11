@@ -4684,3 +4684,24 @@ Directory config/pm/hasim-mips/smips-5stage
 It seems the controller parameter HASIM_CONTROLLER_COOLDOWN was removed
 but the APM(s) was/were not updated to reflect this. Other APMs might
 need to be fixed.
+
+----------
+vmurali     Date: Wed Jun 11 02:11:46 EDT 2008  CSN: CSN-hasim-mips-211
+                  Wed Jun 11 06:11:46 UTC 2008
+
+
+Directory config/pm/hasim-mips/submodels/funcp
+ smips_funcp_v3.apm        Locally Modified          210 
+
+Directory modules/cpu/mips/pipeline/execute/simple
+ Execute.bsv               Locally Modified          210 
+
+Directory modules/cpu/mips/pipeline/fetch/simple
+ Fetch.bsv                 Locally Modified          210 
+
+Directory modules/cpu/mips
+ UnpipelinedCPU.bsv        Locally Modified          210 
+
+
+- Moved the rewind part to Fetch Stage
+- Moved snapshot part of regstate_manager as a separate module ( hence change in apm files )

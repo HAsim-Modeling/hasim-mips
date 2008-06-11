@@ -25,8 +25,6 @@ module [HASIM_MODULE] mkPipe_Execute#(File debug_file, Bit#(32) curTick)
   Connection_Send#(Token)           fp_exe_req  <- mkConnection_Send("funcp_getResults_req");
   Connection_Receive#(Tuple2#(TOKEN, ISA_EXECUTION_RESULT))  fp_exe_resp <- mkConnection_Receive("funcp_getResults_resp");
 
-  Connection_Send#(Token)     fp_rewindToToken <- mkConnection_Send("funcp_rewindToToken");
-
   //Events
   EventRecorder event_exe <- mkEventRecorder(`EVENTS_EXECUTE_INSTRUCTION_EXECUTE);
   
@@ -40,6 +38,8 @@ module [HASIM_MODULE] mkPipe_Execute#(File debug_file, Bit#(32) curTick)
   Port_Send#(Tuple3#(TOKEN, Bool, Bool))                        port_to_mem <- mkPort_Send("exe_to_mem");
   Port_Send#(Tuple2#(TOKEN, Maybe#(ISA_ADDRESS))) port_to_fet <- mkPort_Send("fet_branchResolve");
 
+    Reg#(Bit#(64)) counter <- mkReg(0);
+
   //Local Controller
   Vector#(1, Port_Control) inports  = newVector();
   Vector#(2, Port_Control) outports = newVector();
@@ -51,6 +51,10 @@ module [HASIM_MODULE] mkPipe_Execute#(File debug_file, Bit#(32) curTick)
   rule executeReq (!in_flight);
   
     local_ctrl.startModelCC();
+
+    counter <= counter + 1;
+    $fdisplay(debug_file, "[%d]:Exe Counter : %0d", curTick, counter);
+    
     
     let mtup <- port_from_dec.receive();
     
@@ -91,6 +95,8 @@ module [HASIM_MODULE] mkPipe_Execute#(File debug_file, Bit#(32) curTick)
     let pred_taken = tok.timep_info.scratchpad[0];
     match {.predAddr, .isLoad, .isStore} = addrQ.first();
     
+    $fdisplay(debug_file, "[%d]:Exe Counter when sent : %0d", curTick, counter);
+    
     case (res) matches
       tagged RBranchTaken .addr:
           begin
@@ -104,7 +110,6 @@ module [HASIM_MODULE] mkPipe_Execute#(File debug_file, Bit#(32) curTick)
               $fdisplay(debug_file, "[%d]:EXE: Branch mispredicted!", curTick);
               stat_mpred.incr();
           epoch <= epoch + 1;
-          fp_rewindToToken.send(tok);
               port_to_fet.send(tagged Valid tuple2(tok, tagged Valid addr));  
             end
             else
@@ -119,7 +124,6 @@ module [HASIM_MODULE] mkPipe_Execute#(File debug_file, Bit#(32) curTick)
               $fdisplay(debug_file, "[%d]:EXE: Branch mispredicted!", curTick);
               stat_mpred.incr();
               epoch <= epoch + 1;
-              fp_rewindToToken.send(tok);
               port_to_fet.send(tagged Valid tuple2(tok, tagged Valid addr));
             end
             else
