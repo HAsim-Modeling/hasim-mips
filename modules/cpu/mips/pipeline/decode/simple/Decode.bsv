@@ -20,14 +20,14 @@ module [HASIM_MODULE] mkPipe_Decode#(File debug_file, Bit#(32) curTick)
 
   //Local State
   Reg#(Bool)      in_flight   <- mkReg(False);
-  FIFO#(Tuple3#(Maybe#(ISA_ADDRESS), Bool, Bool)) infoQ   <- mkFIFO();
+  FIFO#(Tuple5#(ISA_ADDRESS, Bool, Bool, Bool, Bool)) infoQ   <- mkFIFO();
   
   //Scoreboard
   Reg#(Maybe#(ISA_DEPENDENCY_INFO)) exe_stall_info <- mkReg(tagged Invalid);
   Reg#(Maybe#(ISA_DEPENDENCY_INFO)) mem_stall_info <- mkReg(tagged Invalid);
   Reg#(Maybe#(ISA_DEPENDENCY_INFO))  wb_stall_info <- mkReg(tagged Invalid);
   Reg#(Bool) exe_is_load <- mkReg(False);
-  Vector#(3, Reg#(Maybe#(Tuple5#(TOKEN, ISA_DEPENDENCY_INFO, Maybe#(ISA_ADDRESS), Bool, Bool)))) stall_toks = newVector();
+  Vector#(3, Reg#(Maybe#(Tuple6#(TOKEN, ISA_DEPENDENCY_INFO, ISA_ADDRESS, Bool, Bool, Bool)))) stall_toks = newVector();
   stall_toks[0] <- mkReg(tagged Invalid);
   stall_toks[1] <- mkReg(tagged Invalid);
   stall_toks[2] <- mkReg(tagged Invalid);
@@ -40,10 +40,10 @@ module [HASIM_MODULE] mkPipe_Decode#(File debug_file, Bit#(32) curTick)
   EventRecorder event_dec <- mkEventRecorder(`EVENTS_DECODE_INSTRUCTION_DECODE);
   
   //Incoming Ports
-  Port_Receive#(Tuple3#(TOKEN, Maybe#(ISA_ADDRESS), ISA_INSTRUCTION)) port_from_fet <- mkPort_Receive("fet_to_dec", 1);
+  Port_Receive#(Tuple3#(TOKEN, ISA_ADDRESS, ISA_INSTRUCTION)) port_from_fet <- mkPort_Receive("fet_to_dec", 1);
 
   //Outgoing Ports
-  Port_Send#(Tuple4#(TOKEN, Maybe#(ISA_ADDRESS), Bool, Bool))      port_to_exe <- mkPort_Send("dec_to_exe");
+  Port_Send#(Tuple5#(TOKEN, ISA_ADDRESS, Bool, Bool, Bool))      port_to_exe <- mkPort_Send("dec_to_exe");
 
   //Local Controller
   Vector#(1, Port_Control) inports  = newVector();
@@ -65,7 +65,7 @@ module [HASIM_MODULE] mkPipe_Decode#(File debug_file, Bit#(32) curTick)
   endaction
   endfunction
 
-  function Action manageStalls(Bit#(2) k, Maybe#(Tuple5#(TOKEN, ISA_DEPENDENCY_INFO, Maybe#(ISA_ADDRESS), Bool, Bool)) newStall);
+  function Action manageStalls(Bit#(2) k, Maybe#(Tuple6#(TOKEN, ISA_DEPENDENCY_INFO, ISA_ADDRESS, Bool, Bool, Bool)) newStall);
   action
 
     case (newStall) matches
@@ -214,9 +214,9 @@ module [HASIM_MODULE] mkPipe_Decode#(File debug_file, Bit#(32) curTick)
             manageStalls(0, Invalid);
             exe_is_load <= False;
           end
-          tagged Valid {.stall_tok, .stall_deps, .addr, .isLoad, .isStore}: // We should pass through the stalled guy. (Compress the bubble)
+          tagged Valid {.stall_tok, .stall_deps, .addr, .isLoad, .isStore, .drainAfter}: // We should pass through the stalled guy. (Compress the bubble)
           begin
-            port_to_exe.send(tagged Valid tuple4(stall_tok, addr, isLoad, isStore));
+            port_to_exe.send(tagged Valid tuple5(stall_tok, addr, isLoad, isStore, drainAfter));
             event_dec.recordEvent(tagged Valid zeroExtend(stall_tok.index));
             shiftDepInfo(tagged Valid stall_deps);
             manageStalls(0, Invalid);
@@ -229,7 +229,7 @@ module [HASIM_MODULE] mkPipe_Decode#(File debug_file, Bit#(32) curTick)
         // Always send the request to the funcp
         $fdisplay(debug_file, "[%d]:DEC:REQ: %0d", curTick, tok.index);
         fp_dec_req.send(tok);
-        infoQ.enq(tuple3(maddr, isaIsLoad(inst), isaIsStore(inst)));
+        infoQ.enq(tuple5(maddr, isaIsLoad(inst), isaIsStore(inst), isaDrainBefore(inst), isaDrainAfter(inst)));
         in_flight <= True;
       end
     endcase
@@ -241,14 +241,14 @@ module [HASIM_MODULE] mkPipe_Decode#(File debug_file, Bit#(32) curTick)
     match {.tok, .deps} = fp_dec_resp.receive();
     fp_dec_resp.deq();
     
-    match {.addr, .isLoad, .isStore} = infoQ.first();
+    match {.addr, .isLoad, .isStore, .drainBefore, .drainAfter} = infoQ.first();
     infoQ.deq();
 
     $fdisplay(debug_file, "[%d]:DEC:RSP: %0d", curTick, tok.index);
 
     in_flight <= False;
 
-    Bit#(2) new_stall = stallLength(deps);
+    Bit#(2) new_stall = drainBefore ? 3 : stallLength(deps);
     
     let someone_is_stalled = isValid(stall_toks[0]) || isValid(stall_toks[1]) || isValid(stall_toks[2]);
     let we_are_stalling = (new_stall > 0) || someone_is_stalled;
@@ -258,7 +258,7 @@ module [HASIM_MODULE] mkPipe_Decode#(File debug_file, Bit#(32) curTick)
       
       // We go at the back of the stall line
       let stall_length = max(new_stall, longest_stalled_token);
-      manageStalls(stall_length, tagged Valid tuple5(tok, deps, addr, isLoad, isStore));
+      manageStalls(stall_length, tagged Valid tuple6(tok, deps, addr, isLoad, isStore, drainAfter));
 
       // But what do we send onwards?
       case (stall_toks[0]) matches
@@ -269,9 +269,9 @@ module [HASIM_MODULE] mkPipe_Decode#(File debug_file, Bit#(32) curTick)
           shiftDepInfo(tagged Invalid);
           exe_is_load <= False;
         end
-        tagged Valid {.stall_tok, .stall_deps, .stall_addr, .stall_isLoad, .stall_isStore}:
+        tagged Valid {.stall_tok, .stall_deps, .stall_addr, .stall_isLoad, .stall_isStore, .stall_drainAfter}:
         begin  // Send the stalled guy instead.
-          port_to_exe.send(tagged Valid tuple4(stall_tok, stall_addr, stall_isLoad, stall_isStore));
+          port_to_exe.send(tagged Valid tuple5(stall_tok, stall_addr, stall_isLoad, stall_isStore, stall_drainAfter));
           event_dec.recordEvent(tagged Valid zeroExtend(stall_tok.index));
           shiftDepInfo(tagged Valid stall_deps);
           exe_is_load <= stall_isLoad;
@@ -282,7 +282,7 @@ module [HASIM_MODULE] mkPipe_Decode#(File debug_file, Bit#(32) curTick)
     else  // No one's in front of us, we're free to go.
     begin
     
-      port_to_exe.send(tagged Valid tuple4(tok, addr, isLoad, isStore));
+      port_to_exe.send(tagged Valid tuple5(tok, addr, isLoad, isStore, drainAfter));
       event_dec.recordEvent(tagged Valid zeroExtend(tok.index));
       shiftDepInfo(tagged Valid deps);
       manageStalls(0, tagged Invalid);

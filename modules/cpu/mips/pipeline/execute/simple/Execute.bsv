@@ -18,7 +18,7 @@ module [HASIM_MODULE] mkPipe_Execute#(File debug_file, Bit#(32) curTick)
   //Local State
   Reg#(TOKEN_TIMEP_EPOCH)  epoch     <- mkReg(0);
   Reg#(Bool)   in_flight <- mkReg(False);
-  FIFO#(Tuple3#(Maybe#(ISA_ADDRESS), Bool, Bool)) addrQ   <- mkFIFO();
+  FIFO#(Tuple4#(ISA_ADDRESS, Bool, Bool, Bool)) addrQ   <- mkFIFO();
 
   //Connections to FP
   
@@ -32,7 +32,7 @@ module [HASIM_MODULE] mkPipe_Execute#(File debug_file, Bit#(32) curTick)
   Stat stat_mpred <- mkStatCounter(`STATS_EXECUTE_BPRED_MISPREDS);
   
   //Incoming Ports
-  Port_Receive#(Tuple4#(TOKEN, Maybe#(ISA_ADDRESS), Bool, Bool)) port_from_dec <- mkPort_Receive("dec_to_exe", 1);
+  Port_Receive#(Tuple5#(TOKEN, ISA_ADDRESS, Bool, Bool, Bool)) port_from_dec <- mkPort_Receive("dec_to_exe", 1);
 
   //Outgoing Ports
   Port_Send#(Tuple3#(TOKEN, Bool, Bool))                        port_to_mem <- mkPort_Send("exe_to_mem");
@@ -61,11 +61,11 @@ module [HASIM_MODULE] mkPipe_Execute#(File debug_file, Bit#(32) curTick)
     case (mtup) matches
       tagged Invalid:
       begin
-        port_to_mem.send(tagged Invalid);
+            port_to_mem.send(tagged Invalid);
             event_exe.recordEvent(tagged Invalid);
             port_to_fet.send(tagged Invalid);
       end
-      tagged Valid {.tok, .maddr, .isLoad, .isStore}:
+      tagged Valid {.tok, .addr, .isLoad, .isStore, .drainAfter}:
       begin
             if (tok.timep_info.epoch != epoch) //kill it
             begin
@@ -77,7 +77,7 @@ module [HASIM_MODULE] mkPipe_Execute#(File debug_file, Bit#(32) curTick)
             begin
               $fdisplay(debug_file, "[%d]:EXE:REQ: %0d", curTick, tok.index);
               fp_exe_req.send(tok);
-              addrQ.enq(tuple3(maddr, isLoad, isStore));
+              addrQ.enq(tuple4(addr, isLoad, isStore, drainAfter));
               in_flight <= True;
         end
       end
@@ -93,27 +93,35 @@ module [HASIM_MODULE] mkPipe_Execute#(File debug_file, Bit#(32) curTick)
     $fdisplay(debug_file, "[%d]:EXE:RSP: %0d", curTick, tok.index);
     
     let pred_taken = tok.timep_info.scratchpad[0];
-    match {.predAddr, .isLoad, .isStore} = addrQ.first();
+
+    match {.predAddr, .isLoad, .isStore, .drainAfter} = addrQ.first();
+    addrQ.deq();
     
     $fdisplay(debug_file, "[%d]:Exe Counter when sent : %0d", curTick, counter);
+    
+    Bool mispredict = False;
     
     case (res) matches
       tagged RBranchTaken .addr:
           begin
             $fdisplay(debug_file, "[%d]:EXE: Branch taken", curTick);
-            Bool mispredict = case (predAddr) matches
-                                tagged Valid .pred: (pred != addr);
-                                        tagged Invalid: True;
-                                  endcase;
-        if (mispredict)
+        if (predAddr != addr)
             begin
               $fdisplay(debug_file, "[%d]:EXE: Branch mispredicted!", curTick);
               stat_mpred.incr();
-          epoch <= epoch + 1;
+              epoch <= epoch + 1;
               port_to_fet.send(tagged Valid tuple2(tok, tagged Valid addr));  
             end
+            else if (drainAfter)
+            begin
+              $fdisplay(debug_file, "[%d]:EXE: Emulation resteer to 0x%h!", curTick, predAddr);
+              port_to_fet.send(tagged Valid tuple2(tok, tagged Valid predAddr));
+              epoch <= epoch + 1;
+            end
             else
+            begin
               port_to_fet.send(tagged Valid tuple2(tok, tagged Invalid));
+            end
           end
       tagged RBranchNotTaken .addr:
           begin
@@ -126,23 +134,59 @@ module [HASIM_MODULE] mkPipe_Execute#(File debug_file, Bit#(32) curTick)
               epoch <= epoch + 1;
               port_to_fet.send(tagged Valid tuple2(tok, tagged Valid addr));
             end
+            else if (drainAfter)
+            begin
+              $fdisplay(debug_file, "[%d]:EXE: Emulation resteer to 0x%h!", curTick, predAddr);
+              epoch <= epoch + 1;
+              port_to_fet.send(tagged Valid tuple2(tok, tagged Valid predAddr));
+            end
             else
+            begin
               port_to_fet.send(tagged Valid tuple2(tok, tagged Invalid));
+            end
           end
       tagged RNop:
-            port_to_fet.send(tagged Invalid);
+      begin
+            if (drainAfter)
+            begin
+                $fdisplay(debug_file, "[%d]:EXE: Emulation resteer to 0x%h!", curTick, predAddr);
+                port_to_fet.send(tagged Valid tuple2(tok, tagged Valid predAddr));
+                epoch <= epoch + 1;
+            end
+            else
+            begin
+                port_to_fet.send(tagged Invalid);
+            end
+      end
       tagged REffectiveAddr .ea:
-            port_to_fet.send(tagged Invalid);
+      begin
+            if (drainAfter)
+            begin
+                $fdisplay(debug_file, "[%d]:EXE: Emulation resteer to 0x%h!", curTick, predAddr);
+                port_to_fet.send(tagged Valid tuple2(tok, tagged Valid predAddr));
+            end
+            else
+            begin
+                port_to_fet.send(tagged Invalid);
+            end
+      end
       tagged RTerminate .pf:
       begin
-            port_to_fet.send(tagged Invalid);
+            if (drainAfter)
+            begin
+                $fdisplay(debug_file, "[%d]:EXE: Emulation resteer to 0x%h!", curTick, predAddr);
+                port_to_fet.send(tagged Valid tuple2(tok, tagged Valid predAddr));
+                epoch <= epoch + 1;
+            end
+            else
+            begin
+                port_to_fet.send(tagged Invalid);
+            end
             $fdisplay(debug_file, "[%d]:EXE: Setting Termination!", curTick);
             tok.timep_info.scratchpad[1] = 1; //[1] is termination
             tok.timep_info.scratchpad[2] = pack(pf); //[2] is passfail
       end
     endcase
-
-    addrQ.deq();
     port_to_mem.send(tagged Valid tuple3(tok, isLoad, isStore));
     event_exe.recordEvent(tagged Valid zeroExtend(tok.index));
     in_flight <= False;

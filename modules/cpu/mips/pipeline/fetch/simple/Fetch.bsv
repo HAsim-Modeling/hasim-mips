@@ -34,9 +34,9 @@ typedef enum
   FET_STATE
     deriving (Eq, Bits);
 
-typedef Bit#(`FET_BTB_HASH_BITS) ISA_ADDRESSHash;
+typedef Bit#(`FET_BTB_HASH_BITS) ISA_ADDRESS_HASH;
 
-function ISA_ADDRESSHash btbHash(ISA_ADDRESS a);
+function ISA_ADDRESS_HASH btbHash(ISA_ADDRESS a);
 
   return truncate(a);
 
@@ -51,7 +51,7 @@ module [HASIM_MODULE] mkPipe_Fetch#(File debug_file, Bit#(32) curTick)
   Reg#(ISA_ADDRESS)           pc <- mkReg(`PROGRAM_START_ADDR);
   Reg#(TOKEN_TIMEP_EPOCH)     epoch <- mkReg(0);
   Reg#(TOKEN)          stall_tok <- mkRegU;
-  Reg#(Maybe#(ISA_ADDRESS))  stall_addr <- mkRegU;
+  Reg#(ISA_ADDRESS)   stall_addr <- mkRegU;
   Reg#(ISA_INSTRUCTION)    stall_inst <- mkRegU;
   Reg#(Bit#(16))     stall_count <- mkReg(0);
   Reg#(Bool)                 stalling <- mkReg(False);
@@ -63,7 +63,7 @@ module [HASIM_MODULE] mkPipe_Fetch#(File debug_file, Bit#(32) curTick)
   
   BranchPred branch_pred <- mkBranchPred();
   RegFile#(TokIndex, ISA_ADDRESS)         addrs <- mkRegFileFull();
-  RegFile#(ISA_ADDRESSHash, Maybe#(ISA_ADDRESS))   btb <- mkRegFileFull();
+  RegFile#(ISA_ADDRESS_HASH, Maybe#(ISA_ADDRESS))   btb <- mkRegFileFull();
   
   //Pseudo-randomness
   LFSR#(Bit#(7)) lfsr <- mkFeedLFSR(7'b1001110);
@@ -95,7 +95,7 @@ module [HASIM_MODULE] mkPipe_Fetch#(File debug_file, Bit#(32) curTick)
   Connection_Receive#(Bit#(1)) rewind <- mkConnection_Receive("funcp_rewindToToken_resp");
 
   //Outgoing Ports
-  Port_Send#(Tuple3#(TOKEN, Maybe#(ISA_ADDRESS), ISA_INSTRUCTION)) port_to_dec <- mkPort_Send("fet_to_dec");
+  Port_Send#(Tuple3#(TOKEN, ISA_ADDRESS, ISA_INSTRUCTION)) port_to_dec <- mkPort_Send("fet_to_dec");
 
   //Local Controller
   Vector#(1, Port_Control) inports  = newVector();
@@ -219,8 +219,8 @@ module [HASIM_MODULE] mkPipe_Fetch#(File debug_file, Bit#(32) curTick)
      
      tok.timep_info.scratchpad[0] = pack(pred_taken);
 
-     pc <= pred_taken && isValid(btb_resp) ? validValue(btb_resp) : pc + 4;
-     let pred_addr = pred_taken && isValid(btb_resp) ? btb_resp : tagged Invalid;
+     let pred_addr = pred_taken && isValid(btb_resp) ? validValue(btb_resp) : pc + 4;
+     pc <= pred_addr;
 
      let isHit = lfsr.value < fromInteger(fet_hit_chance);
      lfsr.next();

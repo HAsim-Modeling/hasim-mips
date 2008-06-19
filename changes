@@ -4716,3 +4716,33 @@ Directory modules/cpu/mips/pipeline/fetch/simple
 
 
 Removed the curTick which was introduced in previous check-in for debugging purposes
+
+----------
+mpellaue    Date: Thu Jun 19 16:57:07 EDT 2008  CSN: CSN-hasim-mips-213
+                  Thu Jun 19 20:57:07 UTC 2008
+
+
+Directory modules/cpu/mips/pipeline/execute/simple
+ Execute.bsv               Locally Modified          212 
+
+Directory modules/cpu/mips/pipeline/decode/simple
+ Decode.bsv                Locally Modified          212 
+
+Directory modules/cpu/mips/pipeline/fetch/simple
+ Fetch.bsv                 Locally Modified          212 
+
+
+Support drainBefore/drainAfter in simple 5-stage model.
+
+* drainAfter is supported like a branch resteer. Basically it treats any
+  drainAfter instruction like a mispredicted branch.
+  
+* drainBefore is implemented by stalling the instruction in the Decode stage.
+  Admittedly this is imperfect because the Decode stage doesn't have enough
+  buffering to support back-to-back-to-back drainBefores. Let's see how far we can
+  get with this buffering.
+  
+* All SMIPS models pass. Testing with Alpha is ongoing...
+
+Michael P.
+
