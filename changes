@@ -4746,3 +4746,16 @@ Support drainBefore/drainAfter in simple 5-stage model.
 
 Michael P.
 
+
+----------
+mpellaue    Date: Thu Jun 26 12:37:54 EDT 2008  CSN: CSN-hasim-mips-214
+                  Thu Jun 26 16:37:54 UTC 2008
+
+
+Directory modules/cpu/mips/pipeline/fetch/simple
+ Fetch.bsv                 Locally Modified          213 
+
+
+Some small cleanups to the Fetch unit.
+
+Michael P.

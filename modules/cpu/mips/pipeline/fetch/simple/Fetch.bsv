@@ -104,18 +104,13 @@ module [HASIM_MODULE] mkPipe_Fetch#(File debug_file, Bit#(32) curTick)
   outports[0] = port_to_dec.ctrl;
   LocalController local_ctrl <- mkLocalController(inports, outports);
 
-  rule fetchWait(state == FET_Rewind);
-    rewind.deq();
-    state <= FET_Ready2;
-  endrule
-
   rule beginFetch (state == FET_Ready);
   
     local_ctrl.startModelCC();
     
     counter <= counter + 1;
     
-     $fdisplay(debug_file, "[%d]:Fetch Counter: %0d", curTick, counter);
+    $fdisplay(debug_file, "[%d]:FET: ****** Begin Model Cycle: %0d ******", curTick, counter);
 
     let mtup <- port_from_exe.receive();
     stat_cycles.incr();
@@ -248,5 +243,12 @@ module [HASIM_MODULE] mkPipe_Fetch#(File debug_file, Bit#(32) curTick)
      state       <= FET_Ready;
      
    endrule
+
+  rule fetchFinishRewind(state == FET_Rewind);
+
+      rewind.deq();
+      state <= FET_Ready2;
+ 
+  endrule
 
 endmodule
