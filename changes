@@ -4759,3 +4759,13 @@ Directory modules/cpu/mips/pipeline/fetch/simple
 Some small cleanups to the Fetch unit.
 
 Michael P.
+
+----------
+mcadler     Date: Sat Jun 28 11:13:58 EDT 2008  CSN: CSN-hasim-mips-215
+                  Sat Jun 28 15:13:58 UTC 2008
+
+
+Directory config/pm/hasim-mips/submodels/funcp
+ smips_funcp_v3.apm        Locally Modified          214 
+
+Use direct mapped functional cache.  Used to use the null one.

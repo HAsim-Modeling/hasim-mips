@@ -78,9 +78,6 @@ Packagehint=hasim
 File=modules/hasim/functional-partition/memory-state/manager/macro-ops/memstate_manager_macro_ops.awb
 Packagehint=hasim
 
-[Null Cache for Functional Partition]
-File=modules/hasim/functional-partition/memory-state/cache/null/memstate_cache_null.awb
-Packagehint=hasim
 
 [Register State for Functional Partition/Requires]
 funcp_regstate_manager=Register State Manager using Macro Ops
@@ -91,7 +88,7 @@ Packagehint=hasim
 
 [Manager using Macro Ops for Mem State/Requires]
 funcp_memstate_storebuffer=Store Buffer using Bucket Hash
-funcp_memstate_cache=Null Cache for Functional Partition
+funcp_memstate_cache=Direct-Mapped Write-Through Cache
 
 [Register State Manager using Macro Ops]
 File=modules/hasim/functional-partition/register-state/manager/macro-ops/regstate_manager_macro_ops.awb
@@ -114,4 +111,8 @@ RNAME_RVAL_TUPLE_BITS=37
 
 [Snapshot in BRAM]
 File=modules/hasim/functional-partition/register-state/snapshot/bram/funcp_snapshot_bram.awb
+Packagehint=hasim
+
+[Direct-Mapped Write-Through Cache]
+File=modules/hasim/functional-partition/memory-state/cache/direct-mapped/write-through/memstate_cache_direct_writethrough.awb
 Packagehint=hasim
