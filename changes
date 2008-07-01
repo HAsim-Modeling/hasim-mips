@@ -4769,3 +4769,14 @@ Directory config/pm/hasim-mips/submodels/funcp
  smips_funcp_v3.apm        Locally Modified          214 
 
 Use direct mapped functional cache.  Used to use the null one.
+
+----------
+jsemer      Date: Tue Jul  1 05:38:44 EDT 2008  CSN: CSN-hasim-mips-216
+                  Tue Jul  1 09:38:44 UTC 2008
+
+
+Directory experiments/hasim-mips/regression
+ regression.models         Locally Modified          215 
+ regression.benchmarks     Locally Modified          215 
+
+Added regression of inorder model.
