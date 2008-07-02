@@ -4780,3 +4780,13 @@ Directory experiments/hasim-mips/regression
  regression.benchmarks     Locally Modified          215 
 
 Added regression of inorder model.
+
+----------
+jsemer      Date: Wed Jul  2 09:10:59 EDT 2008  CSN: CSN-hasim-mips-217
+                  Wed Jul  2 13:10:59 UTC 2008
+
+
+Directory experiments/hasim-mips/regression
+ regression.models         Locally Modified          216 
+
+Put explict limit on simulation run time.
