@@ -4809,3 +4809,19 @@ Directory modules/hasim-mips/isa/definition/template
  isa_memory_conversions.bsv Locally Modified          217 
 
 MIPS uses the NULL TLB (va == pa)
+
+----------
+mcadler     Date: Thu Jul  3 16:19:29 EDT 2008  CSN: CSN-hasim-mips-219
+                  Thu Jul  3 20:19:29 UTC 2008
+
+
+Directory modules/cpu/mips/pipeline/writeback/superscalar
+ Commit.bsv                Locally Modified          218 
+
+Directory modules/cpu/mips/pipeline/writeback/simple
+ Writeback.bsv             Locally Modified          218 
+
+Directory modules/cpu/mips
+ UnpipelinedCPU.bsv        Locally Modified          218 
+
+Add a commit message to the controller so heartbeat can calculate IPC.

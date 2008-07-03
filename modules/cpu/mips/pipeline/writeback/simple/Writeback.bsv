@@ -7,6 +7,7 @@ import hasim_modellib::*;
 import hasim_isa::*;
 
 import module_local_controller::*;
+`include "asim/provides/hasim_controller.bsh"
 
 `include "asim/dict/EVENTS_WRITEBACK.bsh"
 `include "asim/dict/STATS_WRITEBACK.bsh"
@@ -45,6 +46,9 @@ module [HASIM_MODULE] mkPipe_Writeback#(File debug_file, Bit#(32) curTick)
   inports[0] = port_from_mem.ctrl;
   LocalController local_ctrl <- mkLocalController(inports, outports);
 
+  // Number of commits (to go along with heartbeat)
+  Connection_Send#(MODEL_NUM_COMMITS) linkModelCommit <- mkConnection_Send("model_commits");
+
   rule lcoReq (state == WB_Ready);
   
     let mtok <- port_from_mem.receive();
@@ -75,6 +79,7 @@ module [HASIM_MODULE] mkPipe_Writeback#(File debug_file, Bit#(32) curTick)
     
     event_wb.recordEvent(tagged Valid zeroExtend(tok.index));
     stat_wb.incr();
+    linkModelCommit.send(1);
     
     $fdisplay(debug_file, "[%d]:LCO:RSP: %0d", curTick, tok.index);
 
@@ -106,6 +111,7 @@ module [HASIM_MODULE] mkPipe_Writeback#(File debug_file, Bit#(32) curTick)
     
     event_wb.recordEvent(tagged Valid zeroExtend(tok.index));
     stat_wb.incr();
+    linkModelCommit.send(1);
     
     state <= WB_Ready;
 
