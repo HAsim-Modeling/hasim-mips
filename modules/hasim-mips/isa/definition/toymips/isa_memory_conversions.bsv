@@ -4,12 +4,13 @@
 // Note: Nothing changed in this file.
 
 
-// isaAddressToMemAddress
+// isaAlignAddress
 
-// This function takes an isa-specific address and turns it into
-// an address the memory virtual device understands.
+// This function takes an arbitrary address and aligns it to the standard
+// memory reference size for the ISA.  The result will typically be passed
+// to the TLB.
 
-function MEM_ADDRESS isaAddressToMemAddress(ISA_ADDRESS a);
+function ISA_ADDRESS isaAlignAddress(ISA_ADDRESS a);
 
     return unpack(a); // If you need more than this write it here.
 

@@ -22,6 +22,7 @@ Packagehint=hasim
 
 [Hybrid Memory for Functional Partition/Requires]
 funcp_simulated_memory=VMH hybrid memory
+funcp_memory_tlb=Null TLB
 
 [Hybrid ISA Semantics]
 File=modules/hasim/functional-partition/hybrid_isa_semantics.awb
@@ -78,7 +79,6 @@ Packagehint=hasim
 File=modules/hasim/functional-partition/memory-state/manager/macro-ops/memstate_manager_macro_ops.awb
 Packagehint=hasim
 
-
 [Register State for Functional Partition/Requires]
 funcp_regstate_manager=Register State Manager using Macro Ops
 
@@ -115,4 +115,8 @@ Packagehint=hasim
 
 [Direct-Mapped Write-Through Cache]
 File=modules/hasim/functional-partition/memory-state/cache/direct-mapped/write-through/memstate_cache_direct_writethrough.awb
+Packagehint=hasim
+
+[Null TLB]
+File=modules/hasim/functional-partition/memory-state/tlb/hybrid/null/funcp-tlb-null.awb
 Packagehint=hasim

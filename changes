@@ -4790,3 +4790,22 @@ Directory experiments/hasim-mips/regression
  regression.models         Locally Modified          216 
 
 Put explict limit on simulation run time.
+
+----------
+mcadler     Date: Wed Jul  2 22:09:55 EDT 2008  CSN: CSN-hasim-mips-218
+                  Thu Jul  3 02:09:55 UTC 2008
+
+
+Directory config/pm/hasim-mips/submodels/funcp
+ smips_funcp_v3.apm        Locally Modified          217 
+
+Directory modules/hasim-mips/isa/definition/toymips
+ isa_memory_conversions.bsv Locally Modified          217 
+
+Directory modules/hasim-mips/isa/definition/smips
+ isa_memory_conversions.bsv Locally Modified          217 
+
+Directory modules/hasim-mips/isa/definition/template
+ isa_memory_conversions.bsv Locally Modified          217 
+
+MIPS uses the NULL TLB (va == pa)
