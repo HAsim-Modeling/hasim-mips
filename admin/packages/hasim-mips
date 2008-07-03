@@ -3,8 +3,8 @@
 Buildorder=1000
 Description=Description of hasim-mips
 Lock=asim-hasim-mips
-CSN=CSN-hasim-mips-219
+CSN=CSN-hasim-mips-220
 Version=1
 Tag=HEAD
 Name=hasim-mips
-Dependencies=hasim/HEAD platforms/HEAD
+Dependencies=platforms/HEAD hasim-models/HEAD

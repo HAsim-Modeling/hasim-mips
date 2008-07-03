@@ -4825,3 +4825,13 @@ Directory modules/cpu/mips
  UnpipelinedCPU.bsv        Locally Modified          218 
 
 Add a commit message to the controller so heartbeat can calculate IPC.
+
+----------
+mcadler     Date: Thu Jul  3 16:34:15 EDT 2008  CSN: CSN-hasim-mips-220
+                  Thu Jul  3 20:34:15 UTC 2008
+
+
+Directory admin/packages
+ hasim-mips                Locally Modified          219 
+
+Depend on hasim-models
