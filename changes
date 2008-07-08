@@ -4849,3 +4849,13 @@ Directory config/pm/hasim-mips/smips-inorder
  inorder_smips_htg.apm     Locally Added               0 
 
 moved apms for inorder from hasim-models repository to the hasim-{alpha,smips} repos.
+
+----------
+napatil     Date: Tue Jul  8 17:40:00 EDT 2008  CSN: CSN-hasim-mips-222
+                  Tue Jul  8 21:40:00 UTC 2008
+
+
+Directory experiments/hasim-mips/regression
+ regression.models         Locally Modified          221 
+
+changed path to inorder_smips_exe.apm in the regression suite.
