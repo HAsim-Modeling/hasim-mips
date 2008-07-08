@@ -4835,3 +4835,17 @@ Directory admin/packages
  hasim-mips                Locally Modified          219 
 
 Depend on hasim-models
+
+----------
+nikhil      Date: Tue Jul  8 14:42:46 CDT 2008  CSN: CSN-hasim-mips-221
+                  Tue Jul  8 19:42:46 UTC 2008
+
+
+Directory config/pm/hasim-mips
+ smips-inorder/            Locally Added               0 
+
+Directory config/pm/hasim-mips/smips-inorder
+ inorder_smips_exe.apm     Locally Added               0 
+ inorder_smips_htg.apm     Locally Added               0 
+
+moved apms for inorder from hasim-models repository to the hasim-{alpha,smips} repos.
