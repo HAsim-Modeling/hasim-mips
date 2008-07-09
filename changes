@@ -4859,3 +4859,14 @@ Directory experiments/hasim-mips/regression
  regression.models         Locally Modified          221 
 
 changed path to inorder_smips_exe.apm in the regression suite.
+
+----------
+abhattac    Date: Wed Jul  9 16:04:17 EDT 2008  CSN: CSN-hasim-mips-223
+                  Wed Jul  9 20:04:17 UTC 2008
+
+
+Directory config/pm/hasim-mips/smips-inorder
+ inorder_smips_exe.apm     Locally Modified          222 
+ inorder_smips_htg.apm     Locally Modified          222 
+
+Modified APM files to access new path for ICache AWB files.
