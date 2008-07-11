@@ -1,0 +1,2 @@
+mips_5stage_exe        config/pm/hasim-mips/smips-5stage/smips_5stage_hybrid_exe.apm      --bluesim="-m 10000000"
+mips_inorder_exe       config/pm/hasim-mips/smips-inorder/inorder_smips_exe.apm           --bluesim="-m 10000000"

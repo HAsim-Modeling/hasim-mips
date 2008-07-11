@@ -4886,3 +4886,18 @@ Directory modules/cpu/mips/pipeline/fetch/simple
 - Drop mips_5state_exe from regressions.  (5 stage is tested by hasim-alpha)
 - Make I-cache hit chance/penalty dynamic params
 - Increase default chance of I-cache hit to 125 in 128.
+
+----------
+jsemer      Date: Fri Jul 11 14:34:42 EDT 2008  CSN: CSN-hasim-mips-225
+                  Fri Jul 11 18:34:42 UTC 2008
+
+
+Directory experiments/hasim-mips
+ nightly/                  Locally Added               0 
+
+Directory experiments/hasim-mips/nightly
+ nightly.models            Locally Added               0 
+ nightly.benchmarks        Locally Added               0 
+
+Added nightly regressions with the 'nightly' experiment name. Checkin 
+regressions still exist under the 'regression' experiment name. 
