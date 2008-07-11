@@ -13,15 +13,15 @@ import hasim_branch_pred::*;
 
 `include "asim/dict/EVENTS_FETCH.bsh"
 `include "asim/dict/STATS_FETCH.bsh"
+`include "asim/dict/PARAMS_HASIM_PIPE_FETCH.bsh"
 
 `include "asim/provides/funcp_simulated_memory.bsh"
 
 //AWB Parameters            default:
-//FET_ICACHE_HIT_CHANCE       50
-//FET_ICACHE_MISS_PENALTY     10
+//FET_ICACHE_HIT_CHANCE       125   (dynamic)
+//FET_ICACHE_MISS_PENALTY     10    (dynamic)
 //FET_BTB_HASH_BITS           8
 
-Integer fet_hit_chance = (`FET_ICACHE_HIT_CHANCE * 127)/ 100;
 
 typedef enum 
 {
@@ -61,6 +61,8 @@ module [HASIM_MODULE] mkPipe_Fetch#(File debug_file, Bit#(32) curTick)
 
   //For branch prediction
   
+  Param#(7)  icacheHitChance   <- mkDynamicParameter(`PARAMS_HASIM_PIPE_FETCH_FET_ICACHE_HIT_CHANCE);
+  Param#(16) icacheMissPenalty <- mkDynamicParameter(`PARAMS_HASIM_PIPE_FETCH_FET_ICACHE_MISS_PENALTY);
   BranchPred branch_pred <- mkBranchPred();
   RegFile#(TokIndex, ISA_ADDRESS)         addrs <- mkRegFileFull();
   RegFile#(ISA_ADDRESS_HASH, Maybe#(ISA_ADDRESS))   btb <- mkRegFileFull();
@@ -217,7 +219,7 @@ module [HASIM_MODULE] mkPipe_Fetch#(File debug_file, Bit#(32) curTick)
      let pred_addr = pred_taken && isValid(btb_resp) ? validValue(btb_resp) : pc + 4;
      pc <= pred_addr;
 
-     let isHit = lfsr.value < fromInteger(fet_hit_chance);
+     let isHit = lfsr.value <= icacheHitChance;
      lfsr.next();
 
      if (isHit)
@@ -233,7 +235,7 @@ module [HASIM_MODULE] mkPipe_Fetch#(File debug_file, Bit#(32) curTick)
        port_to_dec.send(tagged Invalid);
        event_fet.recordEvent(tagged Invalid);
        stat_imisses.incr();
-       stall_count <= `FET_ICACHE_MISS_PENALTY;
+       stall_count <= icacheMissPenalty;
        stall_tok   <= tok;
        stall_addr  <= pred_addr;
        stall_inst  <= inst;

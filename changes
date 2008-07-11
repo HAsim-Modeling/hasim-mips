@@ -4870,3 +4870,19 @@ Directory config/pm/hasim-mips/smips-inorder
  inorder_smips_htg.apm     Locally Modified          222 
 
 Modified APM files to access new path for ICache AWB files.
+----------
+mcadler     Date: Fri Jul 11 09:19:40 EDT 2008  CSN: CSN-hasim-mips-224
+                  Fri Jul 11 13:19:40 UTC 2008
+
+
+Directory experiments/hasim-mips/regression
+ regression.models         Locally Modified          223 
+ regression.benchmarks     Locally Modified          223 
+
+Directory modules/cpu/mips/pipeline/fetch/simple
+ Fetch.bsv                 Locally Modified          223 
+ fetch-simple.awb          Locally Modified          223 
+
+- Drop mips_5state_exe from regressions.  (5 stage is tested by hasim-alpha)
+- Make I-cache hit chance/penalty dynamic params
+- Increase default chance of I-cache hit to 125 in 128.
