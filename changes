@@ -4901,3 +4901,14 @@ Directory experiments/hasim-mips/nightly
 
 Added nightly regressions with the 'nightly' experiment name. Checkin 
 regressions still exist under the 'regression' experiment name. 
+
+----------
+abhattac    Date: Sat Jul 12 01:43:52 EDT 2008  CSN: CSN-hasim-mips-226
+                  Sat Jul 12 05:43:52 UTC 2008
+
+
+Directory config/pm/hasim-mips/smips-inorder
+ inorder_smips_exe.apm     Locally Modified          225 
+ inorder_smips_htg.apm     Locally Modified          225 
+
+Modified apm files to access ICacheTypes.bsv

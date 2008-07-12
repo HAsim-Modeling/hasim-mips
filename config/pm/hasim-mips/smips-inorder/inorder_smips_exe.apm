@@ -67,11 +67,9 @@ Packagehint=hasim-mips
 File=modules/hasim/timing-models/inorder/inorder.awb
 Packagehint=hasim-models
 
-
 [Cache hierarchy]
 File=modules/hasim/timing-models/memory/memory.awb
 Packagehint=hasim-models
-
 
 [Inorder CPU/Requires]
 hasim_icache=Direct mapped instruction cache
@@ -82,3 +80,8 @@ Packagehint=hasim-models
 
 [Direct mapped instruction cache/Requires]
 hasim_cache_memory=Cache hierarchy
+hasim_icache_types=ICache Types
+
+[ICache Types]
+File=modules/hasim/timing-models/caches/cache-types/icache_types.awb
+Packagehint=hasim-models
