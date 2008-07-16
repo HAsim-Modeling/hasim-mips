@@ -27,6 +27,7 @@ import Vector::*;
 `include "asim/dict/EVENTS_CPU.bsh"
 `include "asim/dict/STATS_CPU.bsh"
 
+`include "asim/provides/funcp_interface.bsh"
 `include "asim/provides/funcp_simulated_memory.bsh"
 
 //************************* Simple Timing Partition ***********************//
@@ -101,7 +102,7 @@ module [HASim_Module] mkCPU
   link_to_dec <- mkConnection_Client("funcp_getDependencies");
   
   Connection_Client#(TOKEN,
-                     Tuple2#(TOKEN, ISA_EXECUTION_RESULT))
+                     FUNCP_GET_RESULTS_MSG)
   //...
   link_to_exe <- mkConnection_Client("funcp_getResults");
   
@@ -281,8 +282,11 @@ module [HASim_Module] mkCPU
 	    debug_else("!madeReq");
 	    
  	    //Get the response
-            match {.tok, .res} = link_to_exe.getResp();
+            let exe_resp = link_to_exe.getResp();
 	    link_to_exe.deq();
+
+            let tok = exe_resp.token;
+            let res = exe_resp.result;
 
 	    debug(2, $fdisplay(debug_log, "[%d] EXE Responded with TOKEN %0d.", hostCC, tok.index));
 	    

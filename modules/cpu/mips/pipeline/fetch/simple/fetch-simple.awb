@@ -12,7 +12,8 @@
 
 %param --dynamic FET_ICACHE_HIT_CHANCE   125 "Chance to hit in our simple ICache (0-127)"
 %param --dynamic FET_ICACHE_MISS_PENALTY  10 "Number of cycles to stall on a miss (0-65535)"
+%param --dynamic FET_PRED_ONLY_BRANCHES    0 "Don't use branch predictor for non-branch instructions if 1."
 
-%param FET_BTB_HASH_BITS 8 "Number of bits to use in BTB hash (0-32)"
+%param FET_BTB_HASH_BITS      11  "Number of bits to use in BTB hash (0-32)"
 
 %AWB_END

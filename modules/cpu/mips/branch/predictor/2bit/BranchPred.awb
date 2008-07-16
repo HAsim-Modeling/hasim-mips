@@ -13,7 +13,7 @@
 #
 # %attributes mips hasim
 #
-# %param BRANCH_TABLE_SIZE 5 "Branch table (log) size"
+# %param BRANCH_TABLE_SIZE 11 "Branch table (log) size"
 #
 # %public BranchPred.bsv
 #

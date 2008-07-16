@@ -33,6 +33,7 @@ funcp_memstate=Memory State for Functional Partition
 funcp_regstate=Register State for Functional Partition
 hasim_isa_semantics=Hybrid ISA Semantics
 funcp_base_types=Functional Partition Base Types
+funcp_interface=Functional Partition Interface
 
 [Memory State for Functional Partition/Requires]
 funcp_memstate_manager=Manager using Macro Ops for Mem State
@@ -119,4 +120,8 @@ Packagehint=hasim
 
 [Null TLB]
 File=modules/hasim/functional-partition/memory-state/tlb/hybrid/null/funcp-tlb-null.awb
+Packagehint=hasim
+
+[Functional Partition Interface]
+File=modules/hasim/functional-partition/interface/funcp-interface.awb
 Packagehint=hasim

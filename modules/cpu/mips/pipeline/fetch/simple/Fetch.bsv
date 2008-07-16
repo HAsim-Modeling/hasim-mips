@@ -3,13 +3,15 @@ import LFSR::*;
 import RegFile::*;
 import Vector::*;
  
-import hasim_common::*;
-import soft_connections::*;
-import hasim_modellib::*;
-import hasim_isa::*;
+`include "asim/provides/hasim_common.bsh"
+`include "asim/provides/soft_connections.bsh"
+`include "asim/provides/fpga_components.bsh"
+`include "asim/provides/hasim_modellib.bsh"
 
-import module_local_controller::*;
-import hasim_branch_pred::*;
+`include "asim/provides/hasim_isa.bsh"
+
+`include "asim/provides/module_local_controller.bsh"
+`include "asim/provides/hasim_branch_pred.bsh"
 
 `include "asim/dict/EVENTS_FETCH.bsh"
 `include "asim/dict/STATS_FETCH.bsh"
@@ -25,6 +27,7 @@ import hasim_branch_pred::*;
 
 typedef enum 
 {
+  FET_Init,
   FET_Rewind,
   FET_Ready,
   FET_Ready2,
@@ -34,17 +37,32 @@ typedef enum
   FET_STATE
     deriving (Eq, Bits);
 
+
+typedef struct
+{
+  TOKEN token;
+  Bool updatePredictor;        // True when branch predictor tables should be updated
+  Bool correctPrediction;      // True when prediction was correct
+  ISA_ADDRESS instrPC;         // PC of the current instruction
+  ISA_ADDRESS newPC;           // PC of next instruction to fetch
+}
+  EXE_TO_FET_MSG
+    deriving (Eq, Bits);
+
+
 typedef Bit#(`FET_BTB_HASH_BITS) ISA_ADDRESS_HASH;
 
 function ISA_ADDRESS_HASH btbHash(ISA_ADDRESS a);
 
-  return truncate(a);
+    return truncate(hashTo32(a[31:2]));
 
 endfunction
 
 module [HASIM_MODULE] mkPipe_Fetch#(File debug_file, Bit#(32) curTick)
     //interface:
-                ();
+                ()
+    provisos
+            (Bits#(TOKEN_INDEX, idx_SZ));
 
   //Local State
 
@@ -55,17 +73,17 @@ module [HASIM_MODULE] mkPipe_Fetch#(File debug_file, Bit#(32) curTick)
   Reg#(ISA_INSTRUCTION)    stall_inst <- mkRegU;
   Reg#(Bit#(16))     stall_count <- mkReg(0);
   Reg#(Bool)                 stalling <- mkReg(False);
-  Reg#(FET_STATE)               state <- mkReg(FET_Ready);
+  Reg#(FET_STATE)               state <- mkReg(FET_Init);
   
   Reg#(Bit#(64)) counter <- mkReg(0);
 
   //For branch prediction
   
+  Param#(1)  predOnlyBranches  <- mkDynamicParameter(`PARAMS_HASIM_PIPE_FETCH_FET_PRED_ONLY_BRANCHES);
   Param#(7)  icacheHitChance   <- mkDynamicParameter(`PARAMS_HASIM_PIPE_FETCH_FET_ICACHE_HIT_CHANCE);
   Param#(16) icacheMissPenalty <- mkDynamicParameter(`PARAMS_HASIM_PIPE_FETCH_FET_ICACHE_MISS_PENALTY);
   BranchPred branch_pred <- mkBranchPred();
-  RegFile#(TokIndex, ISA_ADDRESS)         addrs <- mkRegFileFull();
-  RegFile#(ISA_ADDRESS_HASH, Maybe#(ISA_ADDRESS))   btb <- mkRegFileFull();
+  BRAM#(`FET_BTB_HASH_BITS, Maybe#(ISA_ADDRESS)) btb <- mkBramInitialized(tagged Invalid);
   
   //Pseudo-randomness
   LFSR#(Bit#(7)) lfsr <- mkFeedLFSR(7'b1001110);
@@ -92,7 +110,7 @@ module [HASIM_MODULE] mkPipe_Fetch#(File debug_file, Bit#(32) curTick)
 
     
   //Incoming Ports
-  Port_Receive#(Tuple2#(TOKEN, Maybe#(ISA_ADDRESS))) port_from_exe <- mkPort_Receive("fet_branchResolve", 1);
+  Port_Receive#(EXE_TO_FET_MSG) port_from_exe <- mkPort_Receive("fet_branchResolve", 1);
 
   Connection_Receive#(Bit#(1)) rewind <- mkConnection_Receive("funcp_rewindToToken_resp");
 
@@ -106,55 +124,78 @@ module [HASIM_MODULE] mkPipe_Fetch#(File debug_file, Bit#(32) curTick)
   outports[0] = port_to_dec.ctrl;
   LocalController local_ctrl <- mkLocalController(inports, outports);
 
-  rule beginFetch (state == FET_Ready);
-  
-    local_ctrl.startModelCC();
-    
-    counter <= counter + 1;
-    
-    $fdisplay(debug_file, "[%d]:FET: ****** Begin Model Cycle: %0d ******", curTick, counter);
-
-    let mtup <- port_from_exe.receive();
-    stat_cycles.incr();
-    
-    //Note new model cycle
-    link_model_cycle.send(?);
-
-    //First let's take care of incoming resteers
-    
-    case (mtup) matches
-      tagged Invalid: //No Re-steer
-            state <= FET_Ready2;
-      tagged Valid {.ktok, .mpc}: //Re-steer
-      begin
-        //Look up this token
-        Bool pred_taken = ktok.timep_info.scratchpad[0] == 1; //The prediction is stored in the scratchpad
-        let iaddr = addrs.sub(ktok.index); //Get the address
-        let hash = btbHash(iaddr);    //Hash the address
-        let pred_pc = btb.sub(hash);  //Get the predpc 
+    rule initialize (state == FET_Init);
         
-        case (mpc) matches
-          tagged Invalid:  //Branch predicted correctly
-          begin 
-            branch_pred.upd(ktok, iaddr, pred_taken, pred_taken);
-            state <= FET_Ready2;
-          end
-          tagged Valid .new_pc: //Branch mispredicted. Start the new epoch
-          begin
-            branch_pred.upd(ktok, iaddr, pred_taken, !pred_taken);
-            btb.upd(hash, tagged Valid new_pc);
-            epoch <= epoch + 1;
-            state <= FET_Rewind;
-            rewindToToken.send(ktok);
-            $fdisplay(debug_file, "[%d]:Fetch Counter when rewinding: %0d", curTick, counter);
+        lfsr.seed(1);
+        state <= FET_Ready;
 
-            pc <= new_pc;
-          end
+    endrule
+
+    rule beginFetch (state == FET_Ready);
+  
+        local_ctrl.startModelCC();
+
+        counter <= counter + 1;
+
+        $fdisplay(debug_file, "[%d]:FET: ****** Begin Model Cycle: %0d ******", curTick, counter);
+
+        let exe_resp <- port_from_exe.receive();
+        stat_cycles.incr();
+
+        //Note new model cycle
+        link_model_cycle.send(?);
+
+        case (exe_resp) matches
+            tagged Invalid: //No Re-steer
+                state <= FET_Ready2;
+
+            tagged Valid .pinfo: //Re-steer
+            begin
+                // Look up this token
+                Bool pred_taken = pinfo.token.timep_info.scratchpad[0] == 1; //The prediction is stored in the scratchpad
+                let cur_pc = pinfo.instrPC;    // Address of the current instr
+                let new_pc = pinfo.newPC;      // Correct next PC
+
+                let hash = btbHash(cur_pc);    // Hash the address
+        
+                if (pinfo.correctPrediction)
+                begin 
+                    //
+                    // Correct prediction.  Just keep going...
+                    //
+                    if (pinfo.updatePredictor)
+                        branch_pred.upd(pinfo.token, cur_pc, pred_taken, pred_taken);
+                    state <= FET_Ready2;
+                end
+                else
+                begin
+                    //
+                    // Incorrect prediction.  Resteer to new PC.
+                    //
+                    if (pinfo.updatePredictor)
+                    begin
+                        branch_pred.upd(pinfo.token, cur_pc, pred_taken, !pred_taken);
+
+                        // Update BTB if branch is taken.  (Mispredicted here, so
+                        // test !pred_taken
+                        if (! pred_taken)
+                        begin
+                            btb.write(hash, tagged Valid new_pc);
+                        end
+                    end
+
+                    epoch <= epoch + 1;
+                    state <= FET_Rewind;
+                    rewindToToken.send(pinfo.token);
+                    $fdisplay(debug_file, "[%d]:Fetch Counter when rewinding: %0d", curTick, counter);
+                    $fdisplay(debug_file, "[%d]:Fetch resuming from PC 0x%0x", curTick, new_pc);
+
+                    pc <= new_pc;
+                end
+            end
         endcase
 
-      end
-    endcase
-  endrule
+    endrule
   
   rule beginFetch2 (state == FET_Ready2);
     if (!stalling)
@@ -197,8 +238,8 @@ module [HASIM_MODULE] mkPipe_Fetch#(File debug_file, Bit#(32) curTick)
      $fdisplay(debug_file, "[%d]:FET:REQ: %0d:0x%h", curTick, tok.index, pc);
      fp_fet_req.send(tuple2(tok, pc));
      branch_pred.getPredReq(tok, pc);
-     addrs.upd(tok.index, pc);
-     
+     btb.readReq(btbHash(pc));
+
      state <= FET_Finish;
      
    endrule
@@ -212,11 +253,25 @@ module [HASIM_MODULE] mkPipe_Fetch#(File debug_file, Bit#(32) curTick)
      $fdisplay(debug_file, "[%d]:FET:RSP: %0d:0x%h", curTick, tok.index, inst);
      
      let pred_taken <- branch_pred.getPredResp();
-     let btb_resp = btb.sub(btbHash(pc));
+     let btb_resp <- btb.readResp();
      
+     // Only use branch predictor if instruction is a branch
+     if ((predOnlyBranches == 1) && ! isaIsBranch(inst))
+     begin
+         pred_taken = False;
+     end
+
+     if (! isValid(btb_resp))
+     begin
+         pred_taken = False;
+     end
+
      tok.timep_info.scratchpad[0] = pack(pred_taken);
 
-     let pred_addr = pred_taken && isValid(btb_resp) ? validValue(btb_resp) : pc + 4;
+     let pred_addr = pred_taken ? validValue(btb_resp) : pc + 4;
+       
+     $fdisplay(debug_file, "[%d]:FET:BR: Taken=%d BTB=0x%0x", curTick, pred_taken, isValid(btb_resp) ? validValue(btb_resp) : -1);
+
      pc <= pred_addr;
 
      let isHit = lfsr.value <= icacheHitChance;

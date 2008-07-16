@@ -4912,3 +4912,38 @@ Directory config/pm/hasim-mips/smips-inorder
  inorder_smips_htg.apm     Locally Modified          225 
 
 Modified apm files to access ICacheTypes.bsv
+----------
+mcadler     Date: Wed Jul 16 18:34:52 EDT 2008  CSN: CSN-hasim-mips-227
+                  Wed Jul 16 22:34:52 UTC 2008
+
+
+Directory config/pm/hasim-mips/submodels/timing-models
+ 5stage-pipeline.apm       Locally Modified          226 
+
+Directory config/pm/hasim-mips/submodels/funcp
+ smips_funcp_v3.apm        Locally Modified          226 
+
+Directory modules/cpu/mips/pipeline/execute/simple
+ Execute.bsv               Locally Modified          226 
+
+Directory modules/cpu/mips/pipeline/fetch/simple
+ Fetch.bsv                 Locally Modified          226 
+ fetch-simple.awb          Locally Modified          226 
+
+Directory modules/cpu/mips/branch/predictor/2bit
+ BranchPred.awb            Locally Modified          226 
+ BranchPred.bsv            Locally Modified          226 
+
+Directory modules/cpu/mips
+ UnpipelinedCPU.bsv        Locally Modified          226 
+
+- funcp_getResults now returns a struct with enough information to deal with
+  redirecting of taken and not-taken branches.  In addition to taken branch
+  targets it also includes the address and size of the current instruction.
+- 5-stage model changes:
+  - make branch predictor and BTB much bigger.
+  - Switch to 2-bit branch predictor
+  - Add dynamic param for predicting only for branch instructions instead
+    of all instructions.  Predicts for all instructions by default.
+  - No more RegFiles used.  All large storage is in BRAM.  Big RegFiles seem
+    to synthesize with errors on the FPGA.

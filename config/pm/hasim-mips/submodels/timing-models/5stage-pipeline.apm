@@ -44,8 +44,9 @@ File=modules/cpu/mips/pipeline/execute/simple/execute-simple.awb
 Packagehint=hasim-mips
 
 [5-stage pipeline Fetch V3/Requires]
-hasim_branch_pred=Always not taken Branch Predictor
+hasim_branch_pred=2 bit Branch Predictor
 
-[Always not taken Branch Predictor]
-File=modules/cpu/mips/branch/predictor/notTaken/BranchPred.awb
+
+[2 bit Branch Predictor]
+File=modules/cpu/mips/branch/predictor/2bit/BranchPred.awb
 Packagehint=hasim-mips

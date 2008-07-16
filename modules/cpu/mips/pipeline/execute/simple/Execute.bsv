@@ -6,10 +6,25 @@ import soft_connections::*;
 import hasim_modellib::*;
 import hasim_isa::*;
 
+`include "asim/provides/hasim_pipe_fetch.bsh"
+`include "asim/provides/funcp_interface.bsh"
+
 import module_local_controller::*;
 
 `include "asim/dict/EVENTS_EXECUTE.bsh"
 `include "asim/dict/STATS_EXECUTE.bsh"
+
+
+typedef enum
+{
+    PRED_CORRECT,                  // Branch prediction is right
+    PRED_WRONG_BRANCH,             // Branch is wrong
+    PRED_NONBRANCH,                // Nobranch predicted as branch
+    PRED_DRAIN                     // Drain resteer after emulation
+ }
+    PRED_TYPE
+        deriving (Eq, Bits);
+
 
 module [HASIM_MODULE] mkPipe_Execute#(File debug_file, Bit#(32) curTick)
     //interface:
@@ -18,12 +33,11 @@ module [HASIM_MODULE] mkPipe_Execute#(File debug_file, Bit#(32) curTick)
   //Local State
   Reg#(TOKEN_TIMEP_EPOCH)  epoch     <- mkReg(0);
   Reg#(Bool)   in_flight <- mkReg(False);
-  FIFO#(Tuple4#(ISA_ADDRESS, Bool, Bool, Bool)) addrQ   <- mkFIFO();
+  FIFO#(Tuple4#(ISA_ADDRESS, Bool, Bool, Bool)) addrQ <- mkFIFO();
 
   //Connections to FP
   
-  Connection_Send#(Token)           fp_exe_req  <- mkConnection_Send("funcp_getResults_req");
-  Connection_Receive#(Tuple2#(TOKEN, ISA_EXECUTION_RESULT))  fp_exe_resp <- mkConnection_Receive("funcp_getResults_resp");
+  Connection_Client#(TOKEN, FUNCP_GET_RESULTS_MSG) fp_exe <- mkConnection_Client("funcp_getResults");
 
   //Events
   EventRecorder event_exe <- mkEventRecorder(`EVENTS_EXECUTE_INSTRUCTION_EXECUTE);
@@ -36,7 +50,7 @@ module [HASIM_MODULE] mkPipe_Execute#(File debug_file, Bit#(32) curTick)
 
   //Outgoing Ports
   Port_Send#(Tuple3#(TOKEN, Bool, Bool))                        port_to_mem <- mkPort_Send("exe_to_mem");
-  Port_Send#(Tuple2#(TOKEN, Maybe#(ISA_ADDRESS))) port_to_fet <- mkPort_Send("fet_branchResolve");
+  Port_Send#(EXE_TO_FET_MSG) port_to_fet <- mkPort_Send("fet_branchResolve");
 
     Reg#(Bit#(64)) counter <- mkReg(0);
 
@@ -47,6 +61,82 @@ module [HASIM_MODULE] mkPipe_Execute#(File debug_file, Bit#(32) curTick)
   outports[0] = port_to_mem.ctrl;
   outports[1] = port_to_fet.ctrl;
   LocalController local_ctrl <- mkLocalController(inports, outports);
+
+    //
+    // msgToFetch converts internal state to a resteer request in the front end.
+    //
+    function EXE_TO_FET_MSG msgToFetch(TOKEN tok, PRED_TYPE pType, ISA_ADDRESS newPC, ISA_ADDRESS curPC);
+    
+        if (pType == PRED_DRAIN)
+        begin
+            //
+            // Drain following non-branch emulation.
+            //
+            return EXE_TO_FET_MSG {token: tok,
+                                   updatePredictor: False,
+                                   correctPrediction: False,
+                                   instrPC: curPC,
+                                   newPC: newPC};
+        end
+        else if (pType == PRED_NONBRANCH)
+        begin
+            //
+            // Not a branch instruction, but front end predicted it was
+            //
+            return EXE_TO_FET_MSG {token: tok,
+                                   updatePredictor: True,
+                                   correctPrediction: False,
+                                   instrPC: curPC,
+                                   newPC: newPC};
+        end
+        else if (pType == PRED_WRONG_BRANCH)
+        begin
+            //
+            // Normal mispredicted branch instruction
+            //
+            return EXE_TO_FET_MSG {token: tok,
+                                   updatePredictor: True,
+                                   correctPrediction: False,
+                                   instrPC: curPC,
+                                   newPC: newPC};
+        end
+        else
+        begin
+            //
+            // Normal correct prediction
+            //
+            return EXE_TO_FET_MSG {token: tok,
+                                   updatePredictor: True,
+                                   correctPrediction: True,
+                                   instrPC: curPC,
+                                   newPC: newPC};
+        end
+
+    endfunction
+    
+
+    function Action nonBranchInstr(TOKEN tok, Bool drainAfter, Bool pred_taken, ISA_ADDRESS nextSeqPC, ISA_ADDRESS curPC);
+    action
+        if (drainAfter)
+        begin
+            $fdisplay(debug_file, "[%d]:EXE: Emulation nonBranch resteer to 0x%h!", curTick, nextSeqPC);
+            port_to_fet.send(tagged Valid msgToFetch(tok, PRED_DRAIN, nextSeqPC, curPC));
+            epoch <= epoch + 1;
+        end
+        else if (pred_taken)
+        begin
+            $fdisplay(debug_file, "[%d]:EXE: Predicted taken on non-branch!  Resteer to 0x%h", curTick, nextSeqPC);
+            stat_mpred.incr();
+            port_to_fet.send(tagged Valid msgToFetch(tok, PRED_NONBRANCH, nextSeqPC, curPC));
+            epoch <= epoch + 1;
+        end
+        else
+        begin
+            port_to_fet.send(tagged Invalid);
+        end
+    endaction
+    endfunction
+
 
   rule executeReq (!in_flight);
   
@@ -65,7 +155,7 @@ module [HASIM_MODULE] mkPipe_Execute#(File debug_file, Bit#(32) curTick)
             event_exe.recordEvent(tagged Invalid);
             port_to_fet.send(tagged Invalid);
       end
-      tagged Valid {.tok, .addr, .isLoad, .isStore, .drainAfter}:
+      tagged Valid {.tok, .branchPredAddr, .isLoad, .isStore, .drainAfter}:
       begin
             if (tok.timep_info.epoch != epoch) //kill it
             begin
@@ -76,8 +166,8 @@ module [HASIM_MODULE] mkPipe_Execute#(File debug_file, Bit#(32) curTick)
             else //continue to execute it
             begin
               $fdisplay(debug_file, "[%d]:EXE:REQ: %0d", curTick, tok.index);
-              fp_exe_req.send(tok);
-              addrQ.enq(tuple4(addr, isLoad, isStore, drainAfter));
+              fp_exe.makeReq(tok);
+              addrQ.enq(tuple4(branchPredAddr, isLoad, isStore, drainAfter));
               in_flight <= True;
         end
       end
@@ -87,12 +177,16 @@ module [HASIM_MODULE] mkPipe_Execute#(File debug_file, Bit#(32) curTick)
 
   rule executeResp (in_flight);
   
-    match {.tok, .res} = fp_exe_resp.receive();
-    fp_exe_resp.deq();
+    let exe_resp = fp_exe.getResp();
+    fp_exe.deq();
     
+    let tok = exe_resp.token;
+    let cur_pc = exe_resp.instrAddr;
+    let next_seq_pc =  cur_pc + zeroExtend(exe_resp.instrSize);
+
     $fdisplay(debug_file, "[%d]:EXE:RSP: %0d", curTick, tok.index);
     
-    let pred_taken = tok.timep_info.scratchpad[0];
+    Bool pred_taken = unpack(tok.timep_info.scratchpad[0]);
 
     match {.predAddr, .isLoad, .isStore, .drainAfter} = addrQ.first();
     addrQ.deq();
@@ -101,81 +195,64 @@ module [HASIM_MODULE] mkPipe_Execute#(File debug_file, Bit#(32) curTick)
     
     Bool mispredict = False;
     
-    case (res) matches
+    case (exe_resp.result) matches
       tagged RBranchTaken .addr:
           begin
             $fdisplay(debug_file, "[%d]:EXE: Branch taken", curTick);
-        if (predAddr != addr)
+            if (predAddr != addr)
             begin
               $fdisplay(debug_file, "[%d]:EXE: Branch mispredicted!", curTick);
               stat_mpred.incr();
               epoch <= epoch + 1;
-              port_to_fet.send(tagged Valid tuple2(tok, tagged Valid addr));  
+              port_to_fet.send(tagged Valid msgToFetch(tok, PRED_WRONG_BRANCH, addr, cur_pc));
             end
             else if (drainAfter)
             begin
               $fdisplay(debug_file, "[%d]:EXE: Emulation resteer to 0x%h!", curTick, predAddr);
-              port_to_fet.send(tagged Valid tuple2(tok, tagged Valid predAddr));
+              port_to_fet.send(tagged Valid msgToFetch(tok, PRED_DRAIN, next_seq_pc, cur_pc));
               epoch <= epoch + 1;
             end
             else
             begin
-              port_to_fet.send(tagged Valid tuple2(tok, tagged Invalid));
+              port_to_fet.send(tagged Valid msgToFetch(tok, PRED_CORRECT, addr, cur_pc));
             end
           end
       tagged RBranchNotTaken .addr:
           begin
           
             $fdisplay(debug_file, "[%d]:EXE: Branch not taken", curTick);
-            if (pred_taken == 1)
+            if (pred_taken)
             begin
               $fdisplay(debug_file, "[%d]:EXE: Branch mispredicted!", curTick);
               stat_mpred.incr();
               epoch <= epoch + 1;
-              port_to_fet.send(tagged Valid tuple2(tok, tagged Valid addr));
+              port_to_fet.send(tagged Valid msgToFetch(tok, PRED_WRONG_BRANCH, addr, cur_pc));
             end
             else if (drainAfter)
             begin
               $fdisplay(debug_file, "[%d]:EXE: Emulation resteer to 0x%h!", curTick, predAddr);
               epoch <= epoch + 1;
-              port_to_fet.send(tagged Valid tuple2(tok, tagged Valid predAddr));
+              port_to_fet.send(tagged Valid msgToFetch(tok, PRED_DRAIN, next_seq_pc, cur_pc));
             end
             else
             begin
-              port_to_fet.send(tagged Valid tuple2(tok, tagged Invalid));
+              port_to_fet.send(tagged Valid msgToFetch(tok, PRED_CORRECT, addr, cur_pc));
             end
           end
       tagged RNop:
       begin
-            if (drainAfter)
-            begin
-                $fdisplay(debug_file, "[%d]:EXE: Emulation resteer to 0x%h!", curTick, predAddr);
-                port_to_fet.send(tagged Valid tuple2(tok, tagged Valid predAddr));
-                epoch <= epoch + 1;
-            end
-            else
-            begin
-                port_to_fet.send(tagged Invalid);
-            end
+          nonBranchInstr(tok, drainAfter, pred_taken, next_seq_pc, predAddr);
       end
       tagged REffectiveAddr .ea:
       begin
-            if (drainAfter)
-            begin
-                $fdisplay(debug_file, "[%d]:EXE: Emulation resteer to 0x%h!", curTick, predAddr);
-                port_to_fet.send(tagged Valid tuple2(tok, tagged Valid predAddr));
-            end
-            else
-            begin
-                port_to_fet.send(tagged Invalid);
-            end
+          nonBranchInstr(tok, drainAfter, pred_taken, next_seq_pc, predAddr);
       end
       tagged RTerminate .pf:
       begin
             if (drainAfter)
             begin
                 $fdisplay(debug_file, "[%d]:EXE: Emulation resteer to 0x%h!", curTick, predAddr);
-                port_to_fet.send(tagged Valid tuple2(tok, tagged Valid predAddr));
+                port_to_fet.send(tagged Valid msgToFetch(tok, PRED_DRAIN, next_seq_pc, cur_pc));
                 epoch <= epoch + 1;
             end
             else
