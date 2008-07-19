@@ -4947,3 +4947,15 @@ Directory modules/cpu/mips
     of all instructions.  Predicts for all instructions by default.
   - No more RegFiles used.  All large storage is in BRAM.  Big RegFiles seem
     to synthesize with errors on the FPGA.
+
+----------
+abhattac    Date: Sat Jul 19 16:44:50 EDT 2008  CSN: CSN-hasim-mips-228
+                  Sat Jul 19 20:44:50 UTC 2008
+
+
+Directory config/pm/hasim-mips/smips-inorder
+ inorder_smips_exe.apm     Locally Modified          227 
+ inorder_smips_htg.apm     Locally Modified          227 
+
+Modified APM file for in-order to handle separate dummy memory modules
+for ICache and DCache due to AWB naming conflict.

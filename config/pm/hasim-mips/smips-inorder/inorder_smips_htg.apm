@@ -73,18 +73,19 @@ MAKE_ALL_TARGET=bit
 [Inorder CPU/Requires]
 hasim_icache=Direct mapped instruction cache
 
-[Cache hierarchy]
-File=modules/hasim/timing-models/memory/memory.awb
-Packagehint=hasim-models
 
 [Direct mapped instruction cache]
 File=modules/hasim/timing-models/caches/direct-mapped-icache/direct_mapped_icache.awb
 Packagehint=hasim-models
 
 [Direct mapped instruction cache/Requires]
-hasim_cache_memory=Cache hierarchy
 hasim_icache_types=ICache Types
+hasim_icache_memory=Dummy ICache Memory
 
 [ICache Types]
 File=modules/hasim/timing-models/caches/cache-types/icache_types.awb
+Packagehint=hasim-models
+
+[Dummy ICache Memory]
+File=modules/hasim/timing-models/memory/icachememory.awb
 Packagehint=hasim-models
