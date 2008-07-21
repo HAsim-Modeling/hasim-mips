@@ -4959,3 +4959,145 @@ Directory config/pm/hasim-mips/smips-inorder
 
 Modified APM file for in-order to handle separate dummy memory modules
 for ICache and DCache due to AWB naming conflict.
+----------
+mcadler     Date: Mon Jul 21 16:43:13 EDT 2008  CSN: CSN-hasim-mips-229
+                  Mon Jul 21 20:43:13 UTC 2008
+
+
+Directory experiments/hasim-mips/regression
+ regression.models         Locally Modified          228 
+
+Directory experiments/hasim-mips/nightly
+ nightly.models            Locally Modified          228 
+
+Directory config/pm/hasim-mips/smips-5stage
+ smips_5stage_hybrid_exe.apm Locally Modified          228 
+ smips_5stage_hybrid_htg.apm Locally Modified          228 
+
+Directory config/pm/hasim-mips/smips-inorder
+ inorder_smips_exe.apm     Locally Removed           228 
+ smips_inorder_exe.apm     Locally Added               - 
+ inorder_smips_htg.apm     Locally Removed           228 
+ smips_inorder_htg.apm     Locally Added               - 
+
+Directory modules/cpu/mips
+ CPU.bsv                   Locally Removed           228 
+
+Directory modules/cpu/mips/pipeline/execute
+ simple/                   Locally Removed           228 
+
+Directory modules/cpu/mips/pipeline/execute/simple
+ execute.dic               Locally Removed           228 
+ execute-simple.awb        Locally Removed           228 
+ Execute.bsv               Locally Removed           228 
+
+Directory modules/cpu/mips/pipeline/decode
+ simple/                   Locally Removed           228 
+
+Directory modules/cpu/mips/pipeline/decode/simple
+ decode.dic                Locally Removed           228 
+ decode-simple.awb         Locally Removed           228 
+ Decode.bsv                Locally Removed           228 
+
+Directory modules/cpu/mips/pipeline/fetch
+ simple/                   Locally Removed           228 
+
+Directory modules/cpu/mips/pipeline/fetch/simple
+ Fetch.bsv                 Locally Removed           228 
+ fetch.dic                 Locally Removed           228 
+ fetch-simple.awb          Locally Removed           228 
+
+Directory modules/cpu/mips/pipeline/writeback
+ simple/                   Locally Removed           228 
+
+Directory modules/cpu/mips/pipeline/writeback/simple
+ Writeback.bsv             Locally Removed           228 
+ writeback.dic             Locally Removed           228 
+ writeback-simple.awb      Locally Removed           228 
+
+Directory modules/cpu/mips/pipeline/mem
+ simple/                   Locally Removed           228 
+
+Directory modules/cpu/mips/pipeline/mem/simple
+ Mem.bsv                   Locally Removed           228 
+ mem.dic                   Locally Removed           228 
+ mem-simple.awb            Locally Removed           228 
+
+Directory modules/cpu/mips
+ 5stage_cpu.awb            Locally Removed           228 
+ branch/                   Locally Removed           228 
+
+Directory modules/cpu/mips/branch
+ target_buffer/            Locally Removed           228 
+
+Directory modules/cpu/mips/branch/target_buffer
+ oneEntry/                 Locally Removed           228 
+
+Directory modules/cpu/mips/branch/target_buffer/oneEntry
+ TargetBuffer.awb          Locally Removed           228 
+ TargetBuffer.bsv          Locally Removed           228 
+
+Directory modules/cpu/mips/branch/target_buffer
+ multiEntry/               Locally Removed           228 
+
+Directory modules/cpu/mips/branch/target_buffer/multiEntry
+ TargetBuffer.awb          Locally Removed           228 
+ TargetBuffer.bsv          Locally Removed           228 
+
+Directory modules/cpu/mips/branch
+ stack/                    Locally Removed           228 
+
+Directory modules/cpu/mips/branch/stack
+ 1entry/                   Locally Removed           228 
+
+Directory modules/cpu/mips/branch/stack/1entry
+ BranchStack.awb           Locally Removed           228 
+ BranchStack.bsv           Locally Removed           228 
+
+Directory modules/cpu/mips/branch/stack
+ infinite/                 Locally Removed           228 
+
+Directory modules/cpu/mips/branch/stack/infinite
+ BranchStack.awb           Locally Removed           228 
+ BranchStack.bsv           Locally Removed           228 
+
+Directory modules/cpu/mips/branch
+ predictor/                Locally Removed           228 
+
+Directory modules/cpu/mips/branch/predictor
+ 2bit/                     Locally Removed           228 
+
+Directory modules/cpu/mips/branch/predictor/2bit
+ BranchPred.awb            Locally Removed           228 
+ BranchPred.bsv            Locally Removed           228 
+
+Directory modules/cpu/mips/branch/predictor
+ taken/                    Locally Removed           228 
+
+Directory modules/cpu/mips/branch/predictor/taken
+ BranchPred.awb            Locally Removed           228 
+ BranchPred.bsv            Locally Removed           228 
+
+Directory modules/cpu/mips/branch/predictor
+ notTaken/                 Locally Removed           228 
+
+Directory modules/cpu/mips/branch/predictor/notTaken
+ BranchPred.awb            Locally Removed           228 
+ BranchPred.bsv            Locally Removed           228 
+
+Directory modules/cpu/mips/branch/predictor
+ globHistory/              Locally Removed           228 
+
+Directory modules/cpu/mips/branch/predictor/globHistory
+ BranchPred.awb            Locally Removed           228 
+ BranchPred.bsv            Locally Removed           228 
+
+Directory modules/cpu/mips/branch/predictor
+ simple/                   Locally Removed           228 
+
+Directory modules/cpu/mips/branch/predictor/simple
+ BranchPred.awb            Locally Removed           228 
+ BranchPred.bsv            Locally Removed           228 
+
+- Move 5 stage model and other common structures to hasim-models
+- Rename inorder model to be like other models.

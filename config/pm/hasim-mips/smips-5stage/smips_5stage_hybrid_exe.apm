@@ -26,8 +26,8 @@ hasim_cpu=5-stage pipeline CPU
 hasim_memory=magic memory
 
 [5-stage pipeline CPU]
-File=config/pm/hasim-mips/submodels/timing-models/5stage-pipeline.apm
-Packagehint=hasim-mips
+File=config/pm/hasim-models/5stage/5stage-simple.apm
+Packagehint=hasim-models
 
 [Uniprocessor chip]
 File=modules/chip/mips/uniprocessor/uniprocessor.awb
@@ -46,7 +46,7 @@ File=config/pm/hasim/submodels/controller/hybrid_standard_controller.apm
 Packagehint=hasim
 
 [HAsim Hybrid Model Foundation/Requires]
-hasim_common=New Hasim Common Library
+hasim_common=Hasim Common Library
 hasim_system=Hasim - Hardware (fpga) based system
 hasim_controller=Hasim Standard Controller
 fpgaenv=FPGA Environment
@@ -59,11 +59,12 @@ Packagehint=hasim
 File=config/pm/hasim-mips/submodels/funcp/smips_funcp_v3.apm
 Packagehint=hasim-mips
 
-[New Hasim Common Library]
-File=config/pm/hasim/submodels/common/hasim_common.apm
-Packagehint=hasim
 
 [Hasim - SMIPS ISA Definition]
 File=modules/hasim-mips/isa/definition/smips/isa_definition_template.awb
 Packagehint=hasim-mips
 
+
+[Hasim Common Library]
+File=config/pm/hasim/submodels/common/hasim_common.apm
+Packagehint=hasim
