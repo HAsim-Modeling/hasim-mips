@@ -380,7 +380,7 @@ function Maybe#(ISA_REG_INDEX) mipsGetDst1(ISA_INSTRUCTION i);
         
         end
         // The rest of SMIPS instructions keep their dest in rt.
-        default: return tagged Valid i[20:16];
+        default: return isaEmulateInstruction(i)? tagged Invalid: tagged Valid i[20:16];
     endcase
 
 
@@ -431,7 +431,7 @@ function Integer isaGetNumDsts(ISA_INSTRUCTION i);
         
         end
         // The rest of SMIPS instructions have one destination.
-        default: return 1;
+        default: return (isaEmulateInstruction(i)? 0: 1);
 
     endcase
 

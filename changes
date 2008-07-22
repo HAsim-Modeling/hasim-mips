@@ -5101,3 +5101,22 @@ Directory modules/cpu/mips/branch/predictor/simple
 
 - Move 5 stage model and other common structures to hasim-models
 - Rename inorder model to be like other models.
+
+----------
+mvijayar    Date: Tue Jul 22 15:12:50 EDT 2008  CSN: CSN-hasim-mips-230
+                  Tue Jul 22 19:12:50 UTC 2008
+
+
+Directory config/pm/hasim-mips
+ smips-superscalar-ooo/    Locally Added               0 
+
+Directory config/pm/hasim-mips/smips-superscalar-ooo
+ smips-superscalar-ooo.apm Locally Added               0 
+
+Directory modules/hasim-mips/isa/definition/smips
+ isa_decode_functions.bsv  Locally Modified          229 
+
+Added the superscalar-ooo.apm file
+Changed isa_decode_functions to not have destination registers when the instruction is emulated ( otherwise it causes an assertion failure) 
+
+
