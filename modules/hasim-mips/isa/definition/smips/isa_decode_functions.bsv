@@ -546,32 +546,6 @@ endfunction
 
 // isaEmulateInstruction
 
-// Returns true if the major opcode is unrecognized.
-
 function Bool isaEmulateInstruction(ISA_INSTRUCTION i);
-
-    MIPS_OPCODE op = i[31:26];
-
-    case (op)
-        mipsLW, 
-        mipsSW,
-        mipsADDIU,
-        mipsSLTI,
-        mipsSLTIU,
-        mipsANDI,
-        mipsORI,
-        mipsXORI,
-        mipsLUI,
-        mipsJ,
-        mipsJAL,
-        mipsBEQ,
-        mipsBNE,
-        mipsBLEZ,
-        mipsBGTZ,
-        mipsSPECIAL,
-        mipsREGIMM,
-        mipsCOP: return False;
-        default: return True;
-    endcase
-
+    return False;
 endfunction

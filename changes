@@ -5120,3 +5120,14 @@ Added the superscalar-ooo.apm file
 Changed isa_decode_functions to not have destination registers when the instruction is emulated ( otherwise it causes an assertion failure) 
 
 
+
+----------
+mvijayar    Date: Mon Jul 28 17:02:00 EDT 2008  CSN: CSN-hasim-mips-231
+                  Mon Jul 28 21:02:00 UTC 2008
+
+
+Directory modules/hasim-mips/isa/definition/smips
+ isa_decode_functions.bsv  Locally Modified          230 
+
+isaEmulatedInstruction always returns false for smips
+Checking this in for convenience
