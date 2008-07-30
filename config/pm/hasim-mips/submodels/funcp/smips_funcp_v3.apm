@@ -47,9 +47,6 @@ Packagehint=hasim
 File=modules/hasim/functional-partition/register-state/regstate_default.awb
 Packagehint=hasim
 
-[Store Buffer using Bucket Hash]
-File=modules/hasim/functional-partition/memory-state/store-buffer/bucket-hash/memstate_storebuffer_bucket_hash.awb
-Packagehint=hasim
 
 [Hybrid ISA Emulator]
 File=modules/hasim/functional-partition/isa-emulator/isa-emulator.awb
@@ -88,7 +85,7 @@ File=modules/hasim/functional-partition/functional_partition_default.awb
 Packagehint=hasim
 
 [Manager using Macro Ops for Mem State/Requires]
-funcp_memstate_storebuffer=Store Buffer using Bucket Hash
+funcp_memstate_storebuffer=Store Buffer with sequential lookup
 funcp_memstate_cache=Direct-Mapped Write-Through Cache
 
 [Register State Manager using Macro Ops]
@@ -124,4 +121,8 @@ Packagehint=hasim
 
 [Functional Partition Interface]
 File=modules/hasim/functional-partition/interface/funcp-interface.awb
+Packagehint=hasim
+
+[Store Buffer with sequential lookup]
+File=modules/hasim/functional-partition/memory-state/store-buffer/sequential/memstate_storebuffer_sequential.awb
 Packagehint=hasim

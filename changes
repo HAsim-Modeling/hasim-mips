@@ -5131,3 +5131,16 @@ Directory modules/hasim-mips/isa/definition/smips
 
 isaEmulatedInstruction always returns false for smips
 Checking this in for convenience
+
+----------
+mvijayar    Date: Wed Jul 30 00:29:34 EDT 2008  CSN: CSN-hasim-mips-233
+                  Wed Jul 30 04:29:34 UTC 2008
+
+
+Directory config/pm/hasim-mips/smips-superscalar-ooo
+ smips-superscalar-ooo.apm Locally Modified          231 
+
+Directory config/pm/hasim-mips/submodels/funcp
+ smips_funcp_v3.apm        Locally Modified          231 
+
+changed smips funcp to use new store buffer
