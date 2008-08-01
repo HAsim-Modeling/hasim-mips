@@ -54,6 +54,52 @@ typedef union tagged
             (Eq, Bits);
 
 
+// ISA_DATAPATH_REQ
+
+typedef struct
+{
+    ISA_INSTRUCTION   instruction;
+    ISA_ADDRESS       instAddress;
+    ISA_SOURCE_VALUES srcValues;
+}
+    ISA_DATAPATH_REQ
+        deriving (Eq, Bits);
+
+function ISA_DATAPATH_REQ initISADatapathReq(ISA_INSTRUCTION i, ISA_ADDRESS pc, ISA_SOURCE_VALUES sr);
+
+    return ISA_DATAPATH_REQ
+            {
+                instruction: i,
+                instAddress: pc,
+                srcValues:   sr
+            };
+
+endfunction
+
+// ISA_DATAPATH_RSP
+
+typedef struct
+{
+    ISA_EXECUTION_RESULT  timepResult;  // Result to give to the timing partition.
+    ISA_ADDRESS           memAddress;   // Address for Loads/Stores
+    Bool                  isStore;      // If it's a store, writebacks[0] should be the store value.
+    ISA_RESULT_VALUES     writebacks;   // Values to write back to the registers.
+}
+    ISA_DATAPATH_RSP
+        deriving (Eq, Bits);
+
+function ISA_DATAPATH_RSP initISADatapathRsp(ISA_EXECUTION_RESULT r, ISA_ADDRESS a, Bool isSt, ISA_RESULT_VALUES wr);
+
+    return ISA_DATAPATH_RSP
+            {
+                timepResult: r,
+                memAddress:  a,
+                isStore:     isSt,
+                writebacks:  wr
+            };
+
+endfunction
+
 // ISA_SOURCE_VALUES
 
 // A Vector of source values. Passed to the isa-datapath for execution.

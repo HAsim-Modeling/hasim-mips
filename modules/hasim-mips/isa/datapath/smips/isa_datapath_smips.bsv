@@ -27,8 +27,8 @@ module [HASim_Module] mkISA_Datapath
 
     // Connection to the functional partition.
     
-    Connection_Server#(Tuple3#(ISA_INSTRUCTION, ISA_ADDRESS, ISA_SOURCE_VALUES), 
-                       Tuple3#(ISA_EXECUTION_RESULT, ISA_ADDRESS, ISA_RESULT_VALUES)) link_fp <- mkConnection_Server("isa_datapath");
+    Connection_Server#(ISA_DATAPATH_REQ, 
+                       ISA_DATAPATH_RSP) link_fp <- mkConnection_Server("isa_datapath");
 
     // ***** Debugging Log *****
     
@@ -75,13 +75,17 @@ module [HASim_Module] mkISA_Datapath
     rule datapathExec (True);
 
         // Get the request from the functional partition.
-        match {.inst, .addr, .srcs} = link_fp.getReq();
+        let req = link_fp.getReq();
         link_fp.deq();
+        let inst = req.instruction;
+        let addr = req.instAddress;
+        let srcs = req.srcValues;
 
         // Some convenient variables to return.
 
         ISA_EXECUTION_RESULT timep_result = RNop;
         ISA_ADDRESS effective_addr = 0;
+        Bool isStore = False;
         ISA_RESULT_VALUES writebacks = Vector::replicate(Invalid);
         
         // Calculate a sign-extended immediate used by many operations.
@@ -129,6 +133,7 @@ module [HASim_Module] mkISA_Datapath
 
                 // Calculate the Effective Address.
                 effective_addr = srcs[0] + sign_ext_offset;
+                isStore = True;
                 // Log it.
                 $fdisplay(debug_log, "SW EADDR 0x%h = 0x%h + 0x%h <= 0x%h", effective_addr, srcs[0], sign_ext_offset, srcs[1]);
                 // Return the effective address to the timing partition.
@@ -721,7 +726,7 @@ module [HASim_Module] mkISA_Datapath
         endcase
 
         // Return the result to the functional partition.
-        link_fp.makeResp(tuple3(timep_result, effective_addr, writebacks));
+        link_fp.makeResp(initISADatapathRsp(timep_result, effective_addr, isStore, writebacks));
 
     endrule
 

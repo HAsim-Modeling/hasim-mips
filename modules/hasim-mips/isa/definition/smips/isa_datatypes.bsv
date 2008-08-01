@@ -44,7 +44,8 @@ typedef 1 ISA_MAX_DSTS;
 
 typedef enum
 {
-  MEMOP_Word
+  MEMOP_Word,
+  MEMOP_Dummy
 }
   ISA_MEMOP_TYPE
      deriving (Eq, Bits);
