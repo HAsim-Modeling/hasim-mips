@@ -5165,3 +5165,17 @@ Directory modules/hasim-mips/isa/definition/smips
 * Updated SMIPS ISA to deal with unaligned accesses.
 
 Michael P.
+
+----------
+mpellaue    Date: Mon Aug  4 11:45:24 EDT 2008  CSN: CSN-hasim-mips-235
+                  Mon Aug  4 15:45:24 UTC 2008
+
+
+Directory modules/hasim-mips/isa/definition/smips
+ isa_memory_conversions.bsv Locally Modified          234 
+
+
+ * Fixed the bug in SMIPS that was causing regression to go infinite. Hopefully this fixes the BXP bug as well.
+ 
+ Michael P.
+ 

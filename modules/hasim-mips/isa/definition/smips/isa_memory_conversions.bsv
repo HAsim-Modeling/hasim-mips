@@ -12,7 +12,7 @@
 
 function Tuple2#(ISA_ADDRESS, MEM_OFFSET) isaAlignAddress(ISA_ADDRESS a);
 
-    return tuple2({a[31:3], 3'b0}, a[2:0]);
+    return tuple2({a[31:2], 2'b0}, {1'b0, a[1:0]});
 
 endfunction
 
