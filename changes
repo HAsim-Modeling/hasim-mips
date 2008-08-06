@@ -5179,3 +5179,14 @@ Directory modules/hasim-mips/isa/definition/smips
  
  Michael P.
  
+
+----------
+abhattac    Date: Wed Aug  6 11:25:18 EDT 2008  CSN: CSN-hasim-mips-236
+                  Wed Aug  6 15:25:18 UTC 2008
+
+
+Directory config/pm/hasim-mips/smips-inorder
+ smips_inorder_exe.apm     Locally Modified          235 
+ smips_inorder_htg.apm     Locally Modified          235 
+
+Fixed model files to include a timing data cache component.
