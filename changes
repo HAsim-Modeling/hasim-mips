@@ -5190,3 +5190,15 @@ Directory config/pm/hasim-mips/smips-inorder
  smips_inorder_htg.apm     Locally Modified          235 
 
 Fixed model files to include a timing data cache component.
+----------
+mvijayar    Date: Wed Aug  6 21:56:27 EDT 2008  CSN: CSN-hasim-mips-237
+                  Thu Aug  7 01:56:27 UTC 2008
+
+
+Directory config/pm/hasim-mips/smips-superscalar-ooo
+ smips-superscalar-ooo.apm Locally Modified          236 
+
+Directory config/pm/hasim-mips/submodels/funcp
+ smips_funcp_v3.apm        Locally Modified          236 
+
+Uses the new store buffer

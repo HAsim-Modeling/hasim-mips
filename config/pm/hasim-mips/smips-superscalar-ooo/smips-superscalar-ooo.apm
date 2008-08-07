@@ -63,11 +63,6 @@ Packagehint=hasim-models
 File=config/pm/hasim/submodels/common/hasim_common.apm
 Packagehint=hasim
 
-
-
-
-
-
 [magic memory]
 File=modules/memory/magic_memory.awb
 Packagehint=hasim-mips

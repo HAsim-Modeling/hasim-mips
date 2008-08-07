@@ -47,7 +47,6 @@ Packagehint=hasim
 File=modules/hasim/functional-partition/register-state/regstate_default.awb
 Packagehint=hasim
 
-
 [Hybrid ISA Emulator]
 File=modules/hasim/functional-partition/isa-emulator/isa-emulator.awb
 Packagehint=hasim
@@ -85,7 +84,7 @@ File=modules/hasim/functional-partition/functional_partition_default.awb
 Packagehint=hasim
 
 [Manager using Macro Ops for Mem State/Requires]
-funcp_memstate_storebuffer=Store Buffer with sequential lookup
+funcp_memstate_storebuffer=Fast Hashed Store Buffer
 funcp_memstate_cache=Direct-Mapped Write-Through Cache
 
 [Register State Manager using Macro Ops]
@@ -123,6 +122,9 @@ Packagehint=hasim
 File=modules/hasim/functional-partition/interface/funcp-interface.awb
 Packagehint=hasim
 
-[Store Buffer with sequential lookup]
-File=modules/hasim/functional-partition/memory-state/store-buffer/sequential/memstate_storebuffer_sequential.awb
+[Fast Hashed Store Buffer]
+File=modules/hasim/functional-partition/memory-state/store-buffer/fast-hashed/memstate_storebuffer_fast_hashed.awb
 Packagehint=hasim
+
+[Snapshot in BRAM/Params]
+REGSTATE_NUM_SNAPSHOTS=32
