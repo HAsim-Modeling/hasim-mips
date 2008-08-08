@@ -1,7 +1,7 @@
 
 import hasim_common::*;
 
-module [HASim_Module] mkMemory
+module [HASIM_MODULE] mkMemory
     //interface:
                 (Empty);
 

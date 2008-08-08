@@ -56,7 +56,7 @@ File=modules/hasim-mips/isa/definition/smips/isa_definition_template.awb
 Packagehint=hasim-mips
 
 [Hasim superscalar out-of-order CPU]
-File=modules/hasim/timing-models/out-of-order/out-of-order.awb
+File=config/pm/hasim-models/pipeline/superscalar-out-of-order/superscalar-out-of-order.apm
 Packagehint=hasim-models
 
 [Hasim Common Library]

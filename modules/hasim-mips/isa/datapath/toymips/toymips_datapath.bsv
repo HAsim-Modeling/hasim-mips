@@ -19,7 +19,7 @@ import hasim_isa::*;
 
 // The toymips datapath itself.
 
-module [HASim_Module] mkISA_Datapath 
+module [HASIM_MODULE] mkISA_Datapath 
   //interface:
               ();
 
