@@ -19,7 +19,7 @@ import hasim_isa::*;
 
 // The datapath module itself.
 
-module [HASIM_MODULE] mkISA_Datapath 
+module [HASim_Module] mkISA_Datapath 
   //interface:
               ();
 

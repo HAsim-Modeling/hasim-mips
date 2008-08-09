@@ -26,7 +26,7 @@ hasim_cpu=5-stage pipeline CPU
 hasim_memory=magic memory
 
 [5-stage pipeline CPU]
-File=config/pm/hasim-models/pipeline/5stage/5stage.apm
+File=config/pm/hasim-models/5stage/5stage-simple.apm
 Packagehint=hasim-models
 
 [Uniprocessor chip]
@@ -59,9 +59,11 @@ Packagehint=hasim
 File=config/pm/hasim-mips/submodels/funcp/smips_funcp_v3.apm
 Packagehint=hasim-mips
 
+
 [Hasim - SMIPS ISA Definition]
 File=modules/hasim-mips/isa/definition/smips/isa_definition_template.awb
 Packagehint=hasim-mips
+
 
 [Hasim Common Library]
 File=config/pm/hasim/submodels/common/hasim_common.apm
