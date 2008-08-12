@@ -4,6 +4,6 @@
 #
 # ***************
 
-experiments = mips_5stage_exe mips_inorder_exe
+experiments = smips_5stage_exe smips_inorder_exe smips_superscalar_ooo_exe
 #
 config/bm/smips/6_375.cfx/benchmarks/qsort.cfg

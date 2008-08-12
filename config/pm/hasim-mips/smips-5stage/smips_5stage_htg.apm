@@ -1,10 +1,10 @@
 
 [Global]
 SaveParameters=0
-Description=Inorder SMIPS Simulation
-File=smips_inorder_exe
+Description=5-Stage HASim SMIPS Model Hybrid HiTech Global v5 PCI-Express Board
+File=smips_5stage_hybrid_htg
 Version=2.1
-Name=Inorder SMIPS Simulation
+Name=5-Stage HASim SMIPS Model Hybrid HTG-v5-PCIe
 Type=HAsim
 Class=Asim::Model
 
@@ -15,7 +15,7 @@ hasim_isa=Hasim - SMIPS ISA Definition
 hasim_memory=Memory
 
 [Model]
-DefaultAttributes=hasim inorder smips simulation
+DefaultAttributes=hasim smips 5-stage hybrid htg
 model=HAsim Hybrid Model Foundation
 
 [Hasim - Hardware (fpga) based system]
@@ -23,7 +23,7 @@ Packagehint=hasim
 File=modules/system/cpu_system/hasim_system.awb
 
 [FPGA Environment]
-File=config/pm/hasim/submodels/fpgaenv/hasim-fpgaenv-hybrid-sim.apm
+File=config/pm/hasim/submodels/fpgaenv/hasim-fpgaenv-htg-v5-pcie.apm
 Packagehint=platforms
 
 [Hasim Standard Controller]
@@ -35,6 +35,9 @@ hasim_common=Hasim Common Library
 hasim_system=Hasim - Hardware (fpga) based system
 hasim_controller=Hasim Standard Controller
 fpgaenv=FPGA Environment
+
+[HAsim Hybrid Model Foundation/Params]
+MAKE_ALL_TARGET=bit
 
 [HAsim Hybrid Model Foundation]
 File=modules/model/hasim_model.awb
@@ -52,34 +55,29 @@ Packagehint=hasim-mips
 File=config/pm/hasim/submodels/common/hasim_common.apm
 Packagehint=hasim
 
-[Inorder pipeline]
-File=modules/hasim/timing-models/pipeline/inorder/inorder.awb
-Packagehint=hasim-models
-
 [Single core chip/Requires]
 hasim_shared_cache=Shared cache
-hasim_core=Core
+hasim_core=Cacheless Core
 
 [Shared cache]
 File=modules/hasim/timing-models/caches/l2-cache/hasim_shared_cache.awb
 Packagehint=hasim-models
 
-[Core/Requires]
-hasim_pipeline=Inorder pipeline
-hasim_l1_caches=L1 caches
+[Cacheless Core]
+File=modules/hasim/timing-models/core/cacheless-core/hasim_core.awb
+Packagehint=hasim-models
+
+[5-stage pipeline]
+File=config/pm/hasim-models/pipeline/5stage/5stage.apm
+Packagehint=hasim-models
+
+[Cacheless Core/Requires]
+hasim_pipeline=5-stage pipeline
 
 [Single core chip]
 File=modules/hasim/timing-models/chip/hasim_chip.awb
 Packagehint=hasim-models
 
-[L1 caches]
-File=config/pm/hasim-models/l1-caches/l1_caches.apm
-Packagehint=hasim-models
-
 [Memory]
 File=modules/hasim/timing-models/memory/memory.awb
-Packagehint=hasim-models
-
-[Core]
-File=modules/hasim/timing-models/core/hasim_core.awb
 Packagehint=hasim-models

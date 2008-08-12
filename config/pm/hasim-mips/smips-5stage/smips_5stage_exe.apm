@@ -1,21 +1,21 @@
 
 [Global]
 SaveParameters=0
-Description=Inorder SMIPS Simulation
-File=smips_inorder_exe
+Description=5-Stage HASim SMIPS Model Hybrid Simulation
+File=smips_5stage_hybrid_exe
 Version=2.1
-Name=Inorder SMIPS Simulation
+Name=5-Stage HASim SMIPS Model Hybrid Simulation
 Type=HAsim
 Class=Asim::Model
 
 [Hasim - Hardware (fpga) based system/Requires]
-hasim_funcp=Functional Partition Version 3
 hasim_chip=Single core chip
 hasim_isa=Hasim - SMIPS ISA Definition
+hasim_funcp=Functional Partition Version 3
 hasim_memory=Memory
 
 [Model]
-DefaultAttributes=hasim inorder smips simulation
+DefaultAttributes=hasim smips 5-stage hybrid simulation
 model=HAsim Hybrid Model Foundation
 
 [Hasim - Hardware (fpga) based system]
@@ -40,46 +40,45 @@ fpgaenv=FPGA Environment
 File=modules/model/hasim_model.awb
 Packagehint=hasim
 
-[Functional Partition Version 3]
-File=config/pm/hasim-mips/submodels/funcp/smips_funcp_v3.apm
-Packagehint=hasim-mips
-
-[Hasim - SMIPS ISA Definition]
-File=modules/hasim-mips/isa/definition/smips/isa_definition_template.awb
-Packagehint=hasim-mips
-
 [Hasim Common Library]
 File=config/pm/hasim/submodels/common/hasim_common.apm
 Packagehint=hasim
 
-[Inorder pipeline]
-File=modules/hasim/timing-models/pipeline/inorder/inorder.awb
-Packagehint=hasim-models
-
 [Single core chip/Requires]
+hasim_core=Cacheless Core
 hasim_shared_cache=Shared cache
-hasim_core=Core
 
-[Shared cache]
-File=modules/hasim/timing-models/caches/l2-cache/hasim_shared_cache.awb
+[5-stage pipeline]
+File=config/pm/hasim-models/pipeline/5stage/5stage.apm
 Packagehint=hasim-models
-
-[Core/Requires]
-hasim_pipeline=Inorder pipeline
-hasim_l1_caches=L1 caches
 
 [Single core chip]
 File=modules/hasim/timing-models/chip/hasim_chip.awb
 Packagehint=hasim-models
 
-[L1 caches]
-File=config/pm/hasim-models/l1-caches/l1_caches.apm
+[Shared cache]
+File=modules/hasim/timing-models/caches/l2-cache/hasim_shared_cache.awb
 Packagehint=hasim-models
+
+[Functional Partition Version 3]
+File=config/pm/hasim-mips/submodels/funcp/smips_funcp_v3.apm
+Packagehint=hasim-mips
+
+
+[Cacheless Core]
+File=modules/hasim/timing-models/core/cacheless-core/hasim_core.awb
+Packagehint=hasim-models
+
+[Cacheless Core/Requires]
+hasim_pipeline=5-stage pipeline
 
 [Memory]
 File=modules/hasim/timing-models/memory/memory.awb
 Packagehint=hasim-models
 
-[Core]
-File=modules/hasim/timing-models/core/hasim_core.awb
-Packagehint=hasim-models
+[Hasim - SMIPS ISA Definition]
+File=modules/hasim-mips/isa/definition/smips/isa_definition_template.awb
+Packagehint=hasim-mips
+
+[Hasim - SMIPS ISA Definition/Params]
+SIMULATED_ISA="ALPHA"

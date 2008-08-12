@@ -1,10 +1,10 @@
 
 [Global]
 SaveParameters=0
-Description=Inorder SMIPS Simulation
-File=smips_inorder_exe
+Description=Unpipelined SMIPS  Model
+File=smips_unpipelined_with_cache_exe
 Version=2.1
-Name=Inorder SMIPS Simulation
+Name=Unpipelined SMIPS Model
 Type=HAsim
 Class=Asim::Model
 
@@ -15,12 +15,16 @@ hasim_isa=Hasim - SMIPS ISA Definition
 hasim_memory=Memory
 
 [Model]
-DefaultAttributes=hasim inorder smips simulation
+DefaultAttributes=hasim smips unpipelined hybrid sim
 model=HAsim Hybrid Model Foundation
 
 [Hasim - Hardware (fpga) based system]
 Packagehint=hasim
 File=modules/system/cpu_system/hasim_system.awb
+
+[Hasim Unpipelined CPU]
+File=config/pm/hasim-models/pipeline/unpipelined/no-cache/unpipelined.apm
+Packagehint=hasim-models
 
 [FPGA Environment]
 File=config/pm/hasim/submodels/fpgaenv/hasim-fpgaenv-hybrid-sim.apm
@@ -52,10 +56,6 @@ Packagehint=hasim-mips
 File=config/pm/hasim/submodels/common/hasim_common.apm
 Packagehint=hasim
 
-[Inorder pipeline]
-File=modules/hasim/timing-models/pipeline/inorder/inorder.awb
-Packagehint=hasim-models
-
 [Single core chip/Requires]
 hasim_shared_cache=Shared cache
 hasim_core=Core
@@ -64,20 +64,22 @@ hasim_core=Core
 File=modules/hasim/timing-models/caches/l2-cache/hasim_shared_cache.awb
 Packagehint=hasim-models
 
-[Core/Requires]
-hasim_pipeline=Inorder pipeline
-hasim_l1_caches=L1 caches
+
 
 [Single core chip]
 File=modules/hasim/timing-models/chip/hasim_chip.awb
 Packagehint=hasim-models
 
-[L1 caches]
-File=config/pm/hasim-models/l1-caches/l1_caches.apm
-Packagehint=hasim-models
-
 [Memory]
 File=modules/hasim/timing-models/memory/memory.awb
+Packagehint=hasim-models
+
+[Core/Requires]
+hasim_pipeline=Hasim Unpipelined CPU
+hasim_l1_caches=L1 caches
+
+[L1 caches]
+File=config/pm/hasim-models/l1-caches/l1_caches.apm
 Packagehint=hasim-models
 
 [Core]

@@ -5202,3 +5202,55 @@ Directory config/pm/hasim-mips/submodels/funcp
  smips_funcp_v3.apm        Locally Modified          236 
 
 Uses the new store buffer
+
+----------
+mvijayar    Date: Tue Aug 12 18:56:16 EDT 2008  CSN: CSN-hasim-mips-240
+                  Tue Aug 12 22:56:16 UTC 2008
+
+
+Directory experiments/hasim-mips/regression
+ regression.models         Locally Modified          239 
+ regression.benchmarks     Locally Modified          239 
+
+Directory experiments/hasim-mips/nightly
+ nightly.models            Locally Modified          239 
+ nightly.benchmarks        Locally Modified          239 
+
+Directory config/pm/hasim-mips/smips-5stage
+ smips_5stage_exe.apm      Locally Added               0 
+ smips_5stage_hybrid_exe.apm Locally Removed           239 
+ smips_5stage_htg.apm      Locally Added               0 
+
+Directory config/pm/hasim-mips/smips-unpipelined
+ with-cache/               Locally Added               0 
+
+Directory config/pm/hasim-mips/smips-unpipelined/with-cache
+ smips_unpipelined_with_cache_exe.apm Locally Added               0 
+
+Directory config/pm/hasim-mips/smips-unpipelined
+ no-cache/                 Locally Added               0 
+
+Directory config/pm/hasim-mips/smips-unpipelined/no-cache
+ smips_unpipelined_no_cache_exe.apm Locally Added               0 
+
+Directory config/pm/hasim-mips/smips-superscalar-ooo
+ smips_superscalar_ooo_exe.apm Locally Added               0 
+ smips_superscalar_ooo_htg.apm Locally Added               0 
+
+Directory config/pm/hasim-mips/smips-inorder
+ smips_inorder_exe.apm     Locally Modified          239 
+ smips_inorder_htg.apm     Locally Modified          239 
+
+Directory config/pm/hasim-mips/submodels/funcp
+ smips_funcp_v3.apm        Locally Modified          239 
+
+Directory modules/hasim-mips/isa/datapath/toymips
+ toymips_datapath.bsv      Locally Modified          239 
+
+Directory modules/hasim-mips/isa/datapath/smips
+ isa_datapath_smips.bsv    Locally Modified          239 
+
+Directory modules/hasim-mips/isa/datapath/template
+ isa_datapath_template.bsv Locally Modified          239 
+
+added superscalar smips files
