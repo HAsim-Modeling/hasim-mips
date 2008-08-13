@@ -64,8 +64,6 @@ hasim_core=Core
 File=modules/hasim/timing-models/caches/l2-cache/hasim_shared_cache.awb
 Packagehint=hasim-models
 
-
-
 [Single core chip]
 File=modules/hasim/timing-models/chip/hasim_chip.awb
 Packagehint=hasim-models

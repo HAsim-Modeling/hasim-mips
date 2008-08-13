@@ -5254,3 +5254,19 @@ Directory modules/hasim-mips/isa/datapath/template
  isa_datapath_template.bsv Locally Modified          239 
 
 added superscalar smips files
+
+----------
+mvijayar    Date: Wed Aug 13 14:55:42 EDT 2008  CSN: CSN-hasim-mips-242
+                  Wed Aug 13 18:55:42 UTC 2008
+
+
+Directory config/pm/hasim-mips/smips-unpipelined/with-cache
+ smips_unpipelined_with_cache_exe.apm Locally Modified          240 
+
+Directory config/pm/hasim-mips/smips-superscalar-ooo
+ smips-superscalar-ooo.apm Locally Removed           239 
+
+Directory config/pm/hasim-mips/smips-inorder
+ smips_inorder_htg.apm     Locally Modified          240 
+
+Added the l1_cache model, which was missing in last checkin

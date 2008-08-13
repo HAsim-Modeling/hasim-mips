@@ -22,9 +22,6 @@ model=HAsim Hybrid Model Foundation
 Packagehint=hasim
 File=modules/system/cpu_system/hasim_system.awb
 
-
-
-
 [FPGA Environment]
 File=config/pm/hasim/submodels/fpgaenv/hasim-fpgaenv-htg-v5-pcie.apm
 Packagehint=platforms
@@ -50,7 +47,6 @@ Packagehint=hasim-mips
 [Hasim - SMIPS ISA Definition]
 File=modules/hasim-mips/isa/definition/smips/isa_definition_template.awb
 Packagehint=hasim-mips
-
 
 [HAsim Hybrid Model Foundation/Params]
 MAKE_ALL_TARGET=bit
