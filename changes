@@ -5270,3 +5270,16 @@ Directory config/pm/hasim-mips/smips-inorder
  smips_inorder_htg.apm     Locally Modified          240 
 
 Added the l1_cache model, which was missing in last checkin
+
+----------
+mvijayar    Date: Thu Aug 14 14:36:53 EDT 2008  CSN: CSN-hasim-mips-243
+                  Thu Aug 14 18:36:53 UTC 2008
+
+
+Directory config/pm/hasim-mips/smips-5stage
+ smips_5stage_hybrid_htg.apm Locally Removed           242 
+
+Directory config/pm/hasim-mips/smips-superscalar-ooo
+ smips_superscalar_ooo_htg.apm Locally Modified          242 
+
+Removed hybrid apm file, and made superscalar model param as "bit"
