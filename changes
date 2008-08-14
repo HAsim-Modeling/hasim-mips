@@ -5283,3 +5283,14 @@ Directory config/pm/hasim-mips/smips-superscalar-ooo
  smips_superscalar_ooo_htg.apm Locally Modified          242 
 
 Removed hybrid apm file, and made superscalar model param as "bit"
+
+----------
+aparasha    Date: Thu Aug 14 15:56:01 EDT 2008  CSN: CSN-hasim-mips-244
+                  Thu Aug 14 19:56:01 UTC 2008
+
+
+Directory config/pm/hasim-mips/submodels/funcp
+ smips_funcp_v3.apm        Locally Modified          243 
+
+updated simps funcp submodel to use set associative writeback cache
+instead of direct-mapped write-through cache.
