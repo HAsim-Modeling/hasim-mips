@@ -19,7 +19,9 @@ import Vector::*;
 // This isn't really an ISA-specific thing, but still lives here for now since
 // both the timing partition and functional partition need to know about it.
 
-typedef Bit#(7) FUNCP_PHYSICAL_REG_INDEX;
+typedef 7 FUNCP_PHYSICAL_REG_INDEX_SIZE;
+typedef Bit#(FUNCP_PHYSICAL_REG_INDEX_SIZE) FUNCP_PHYSICAL_REG_INDEX;
+typedef TExp#(7) FUNCP_NUM_PHYSICAL_REGS;
 
 
 // FUNCP_PHYSICAL_REGS

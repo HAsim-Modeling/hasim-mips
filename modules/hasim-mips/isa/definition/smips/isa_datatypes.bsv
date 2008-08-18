@@ -55,4 +55,7 @@ typedef enum
 
 // SMIPS has no special registers, so we use a Bit#(5) here.
 
-typedef Bit#(5) ISA_REG_INDEX;
+typedef 5 ISA_REG_INDEX_SIZE;
+typedef Bit#(ISA_REG_INDEX_SIZE) ISA_REG_INDEX;
+typedef 32 ISA_NUM_REGS;
+

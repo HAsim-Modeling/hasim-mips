@@ -5294,3 +5294,17 @@ Directory config/pm/hasim-mips/submodels/funcp
 
 updated simps funcp submodel to use set associative writeback cache
 instead of direct-mapped write-through cache.
+
+----------
+mpellaue    Date: Mon Aug 18 19:42:56 EDT 2008  CSN: CSN-hasim-mips-246
+                  Mon Aug 18 23:42:56 UTC 2008
+
+
+Directory modules/hasim-mips/isa/definition/smips
+ isa_datatypes.bsv         Locally Modified          245 
+ isa_derived_types.bsv     Locally Modified          245 
+
+
+* Added new typedefs to SMIPS.
+
+Michael P.
