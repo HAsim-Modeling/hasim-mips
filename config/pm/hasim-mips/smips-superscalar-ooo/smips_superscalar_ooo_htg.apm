@@ -64,12 +64,9 @@ Packagehint=hasim-models
 File=modules/hasim/timing-models/core/cacheless-core/hasim_core.awb
 Packagehint=hasim-models
 
-[5-stage pipeline]
-File=config/pm/hasim-models/pipeline/5stage/5stage.apm
-Packagehint=hasim-models
 
 [Cacheless Core/Requires]
-hasim_pipeline=5-stage pipeline
+hasim_pipeline=Hasim superscalar out-of-order CPU
 
 [Single core chip]
 File=modules/hasim/timing-models/chip/hasim_chip.awb
@@ -81,3 +78,7 @@ Packagehint=hasim-models
 
 [HAsim Hybrid Model Foundation/Params]
 MAKE_ALL_TARGET=bit
+
+[Hasim superscalar out-of-order CPU]
+File=config/pm/hasim-models/pipeline/superscalar-out-of-order/superscalar-out-of-order.apm
+Packagehint=hasim-models
