@@ -53,7 +53,7 @@ File=config/pm/hasim/submodels/common/hasim_common.apm
 Packagehint=hasim
 
 [Inorder pipeline]
-File=modules/hasim/timing-models/pipeline/inorder/inorder.awb
+File=config/pm/hasim-models/pipeline/inorder/inorder.apm
 Packagehint=hasim-models
 
 [Single core chip/Requires]
