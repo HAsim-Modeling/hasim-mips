@@ -78,3 +78,6 @@ Packagehint=hasim-models
 [Hasim superscalar out-of-order CPU]
 File=config/pm/hasim-models/pipeline/superscalar-out-of-order/superscalar-out-of-order.apm
 Packagehint=hasim-models
+
+[HAsim Hybrid Model Foundation/Params]
+MAKE_ALL_TARGET=bit
