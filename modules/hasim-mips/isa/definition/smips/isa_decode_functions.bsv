@@ -549,3 +549,27 @@ endfunction
 function Bool isaEmulateInstruction(ISA_INSTRUCTION i);
     return False;
 endfunction
+
+function Bool isBranchImm(ISA_INSTRUCTION inst);
+    MIPS_OPCODE op = inst[31:26];
+    MIPS_REGIMM_OPCODE rimm = inst[20:16];
+    if(op == mipsBEQ || op == mipsBNE || op == mipsBLEZ || op == mipsBGTZ)
+        return True;
+    else if(op == mipsREGIMM && (rimm == mipsRegimmBLTZ || rimm == mipsRegimmBGEZ))
+        return True;
+    else
+        return False;
+endfunction
+
+function Bool isJumpImm(ISA_INSTRUCTION inst);
+    MIPS_OPCODE op = inst[31:26];
+    return (op == mipsJ || op == mipsJAL);
+endfunction
+
+function ISA_ADDRESS predPcBranchImm(ISA_ADDRESS addr, ISA_INSTRUCTION inst);
+    return addr + 4 + (signExtend(inst[15:0]) << 2);
+endfunction
+
+function ISA_ADDRESS predPcJumpImm(ISA_ADDRESS addr, ISA_INSTRUCTION inst);
+    return {(addr + 4)[31:28], inst[25:0], 2'b00};
+endfunction
