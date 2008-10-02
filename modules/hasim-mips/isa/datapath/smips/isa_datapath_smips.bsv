@@ -8,10 +8,11 @@
 
 import Vector::*;
 
-import hasim_common::*;
-import soft_connections::*;
+`include "asim/provides/hasim_common.bsh"
+`include "asim/provides/soft_connections.bsh"
 
-import hasim_isa::*;
+`include "asim/provides/hasim_isa.bsh"
+`include "asim/provides/funcp_interface.bsh"
 
 // ***** Modules *****
 
@@ -27,8 +28,8 @@ module [HASIM_MODULE] mkISA_Datapath
 
     // Connection to the functional partition.
     
-    Connection_Server#(ISA_DATAPATH_REQ, 
-                       ISA_DATAPATH_RSP) link_fp <- mkConnection_Server("isa_datapath");
+    Connection_Server#(FUNCP_ISA_DATAPATH_REQ, 
+                       FUNCP_ISA_DATAPATH_RSP) link_fp <- mkConnection_Server("isa_datapath");
 
     // ***** Debugging Log *****
     
@@ -83,7 +84,7 @@ module [HASIM_MODULE] mkISA_Datapath
 
         // Some convenient variables to return.
 
-        ISA_EXECUTION_RESULT timep_result = RNop;
+        FUNCP_ISA_EXECUTION_RESULT timep_result = RNop;
         ISA_ADDRESS effective_addr = 0;
         Bool isStore = False;
         ISA_RESULT_VALUES writebacks = Vector::replicate(Invalid);
@@ -726,7 +727,11 @@ module [HASIM_MODULE] mkISA_Datapath
         endcase
 
         // Return the result to the functional partition.
-        link_fp.makeResp(initISADatapathRsp(timep_result, effective_addr, isStore, writebacks));
+        link_fp.makeResp(initISADatapathRsp(FUNCP_ISA_EXCEPT_NONE,
+                                            timep_result,
+                                            effective_addr,
+                                            isStore,
+                                            writebacks));
 
     endrule
 

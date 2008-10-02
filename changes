@@ -5308,3 +5308,16 @@ Directory modules/hasim-mips/isa/definition/smips
 * Added new typedefs to SMIPS.
 
 Michael P.
+
+----------
+mcadler     Date: Thu Oct  2 17:16:17 EDT 2008  CSN: CSN-hasim-mips-251
+                  Thu Oct  2 21:16:17 UTC 2008
+
+
+Directory modules/hasim-mips/isa/datapath/smips
+ isa_datapath_smips.bsv    Locally Modified          250 
+
+Directory modules/hasim-mips/isa/definition/smips
+ isa_derived_types.bsv     Locally Modified          250 
+
+Data structure definitions moved to hasim so they are in one place.
