@@ -65,7 +65,7 @@ File=modules/hasim/timing-models/core/cacheless-core/hasim_core.awb
 Packagehint=hasim-models
 
 [Cacheless Core/Requires]
-hasim_pipeline=Hasim superscalar out-of-order CPU
+hasim_pipeline=Hasim 6-stage CPU
 
 [Single core chip]
 File=modules/hasim/timing-models/chip/hasim_chip.awb
@@ -75,9 +75,13 @@ Packagehint=hasim-models
 File=modules/hasim/timing-models/memory/memory.awb
 Packagehint=hasim-models
 
-[Hasim superscalar out-of-order CPU]
-File=config/pm/hasim-models/pipeline/superscalar-out-of-order/superscalar-out-of-order.apm
-Packagehint=hasim-models
 
 [HAsim Hybrid Model Foundation/Params]
 MAKE_ALL_TARGET=bit
+
+[Functional Partition Version 3/Params]
+MEMSTATE_SBUFFER_OOO_MEM=1
+
+[Hasim 6-stage CPU]
+File=config/pm/hasim-models/pipeline/superscalar-out-of-order/superscalar-out-of-order.apm
+Packagehint=hasim-models

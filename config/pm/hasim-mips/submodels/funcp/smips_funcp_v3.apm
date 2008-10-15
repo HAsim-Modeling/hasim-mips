@@ -84,7 +84,7 @@ File=modules/hasim/functional-partition/functional_partition_default.awb
 Packagehint=hasim
 
 [Manager using Macro Ops for Mem State/Requires]
-funcp_memstate_storebuffer=Fast Hashed Store Buffer
+funcp_memstate_storebuffer=Hashed Store Buffer
 funcp_memstate_cache=Set-Associative Writeback Cache
 
 [Register State Manager using Macro Ops]
@@ -110,7 +110,6 @@ RNAME_RVAL_TUPLE_BITS=37
 File=modules/hasim/functional-partition/register-state/snapshot/bram/funcp_snapshot_bram.awb
 Packagehint=hasim
 
-
 [Null TLB]
 File=modules/hasim/functional-partition/memory-state/tlb/hybrid/null/funcp-tlb-null.awb
 Packagehint=hasim
@@ -119,14 +118,12 @@ Packagehint=hasim
 File=modules/hasim/functional-partition/interface/funcp-interface.awb
 Packagehint=hasim
 
-[Fast Hashed Store Buffer]
-File=modules/hasim/functional-partition/memory-state/store-buffer/fast-hashed/memstate_storebuffer_fast_hashed.awb
-Packagehint=hasim
-
 
 [Set-Associative Writeback Cache]
 File=modules/hasim/functional-partition/memory-state/cache/set-associative/memstate-cache-set-assoc.awb
 Packagehint=hasim
 
-[Set-Associative Writeback Cache/Params]
-FUNCP_CACHE_IDX_BITS=11
+
+[Hashed Store Buffer]
+File=modules/hasim/functional-partition/memory-state/store-buffer/fast-hashed/memstate-hashed-store-buffer.awb
+Packagehint=hasim

@@ -5321,3 +5321,22 @@ Directory modules/hasim-mips/isa/definition/smips
  isa_derived_types.bsv     Locally Modified          250 
 
 Data structure definitions moved to hasim so they are in one place.
+
+----------
+mcadler     Date: Wed Oct 15 19:58:05 EDT 2008  CSN: CSN-hasim-mips-252
+                  Wed Oct 15 23:58:05 UTC 2008
+
+
+Directory config/pm/hasim-mips/smips-superscalar-ooo
+ smips_superscalar_ooo_exe.apm Locally Modified          251 
+ smips_superscalar_ooo_htg.apm Locally Modified          251 
+
+Directory config/pm/hasim-mips/submodels/funcp
+ smips_funcp_v3.apm        Locally Modified          251 
+
+Directory modules/hasim-mips/isa/definition/smips
+ isa_memory_conversions.bsv Locally Modified          251 
+
+- Clean up order of formatl parameters so they are consistent.
+- Use new store buffer.
+- Set OOO store buffer mode for OOO models.

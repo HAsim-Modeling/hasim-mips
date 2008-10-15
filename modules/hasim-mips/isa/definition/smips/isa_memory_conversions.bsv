@@ -81,7 +81,7 @@ function MEM_VALUE isaStoreValueToMemValueRMW(MEM_VALUE e, ISA_VALUE v, MEM_OFFS
 
 endfunction
 
-function Tuple2#(MEM_VALUE, MEM_VALUE) isaStoreValueToSpanningMemValues(MEM_VALUE existing_val1, MEM_VALUE existing_val2, MEM_OFFSET offset, ISA_VALUE store_val, ISA_MEMOP_TYPE st_type);
+function Tuple2#(MEM_VALUE, MEM_VALUE) isaStoreValueToSpanningMemValues(MEM_VALUE existing_val1, MEM_VALUE existing_val2, ISA_VALUE store_val, MEM_OFFSET offset, ISA_MEMOP_TYPE st_type);
 
     case (offset)
         3'b101:  return tuple2({store_val[31:8],  existing_val1[7:0]},  {existing_val2[31:8],  store_val[7:0]});
@@ -92,7 +92,7 @@ function Tuple2#(MEM_VALUE, MEM_VALUE) isaStoreValueToSpanningMemValues(MEM_VALU
 
 endfunction
 
-function ISA_VALUE isaLoadValueFromMemValue(MEM_VALUE val, ISA_MEMOP_TYPE memtype, MEM_OFFSET offset);
+function ISA_VALUE isaLoadValueFromMemValue(MEM_VALUE val, MEM_OFFSET offset, ISA_MEMOP_TYPE memtype);
 
     return zeroExtend(val);
 endfunction
@@ -104,7 +104,7 @@ function ISA_VALUE isaLoadValueFromSpanningMemValues(MEM_VALUE v1, MEM_VALUE v2,
         3'b101:  return {v2[7:0],  v1[31:8]};
         3'b110:  return {v2[15:0], v1[31:16]};
         3'b111:  return {v2[23:0], v1[31:24]};
-        default: return isaLoadValueFromMemValue(v1, memtype, offset);
+        default: return isaLoadValueFromMemValue(v1, offset, memtype);
     endcase
 
 endfunction
