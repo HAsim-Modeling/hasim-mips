@@ -5340,3 +5340,14 @@ Directory modules/hasim-mips/isa/definition/smips
 - Clean up order of formatl parameters so they are consistent.
 - Use new store buffer.
 - Set OOO store buffer mode for OOO models.
+
+----------
+mcadler     Date: Wed Nov  5 11:18:17 EST 2008  CSN: CSN-hasim-mips-253
+                  Wed Nov  5 16:18:17 UTC 2008
+
+
+Directory experiments/hasim-mips/nightly
+ nightly.models            Locally Modified          252 
+ nightly.benchmarks        Locally Modified          252 
+
+Remove dead 5-stage model from regressions.
