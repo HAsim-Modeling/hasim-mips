@@ -88,7 +88,7 @@ funcp_memstate_storebuffer=Hashed Store Buffer
 funcp_memstate_cache=Set-Associative Writeback Cache
 
 [Register State Manager using Macro Ops]
-File=modules/hasim/functional-partition/register-state/manager/macro-ops/regstate_manager_macro_ops.awb
+File=modules/hasim/functional-partition/register-state/manager/macro-ops/regmgr-macro.awb
 Packagehint=hasim
 
 [Functional Partition Base Types]
@@ -118,11 +118,9 @@ Packagehint=hasim
 File=modules/hasim/functional-partition/interface/funcp-interface.awb
 Packagehint=hasim
 
-
 [Set-Associative Writeback Cache]
 File=modules/hasim/functional-partition/memory-state/cache/set-associative/memstate-cache-set-assoc.awb
 Packagehint=hasim
-
 
 [Hashed Store Buffer]
 File=modules/hasim/functional-partition/memory-state/store-buffer/fast-hashed/memstate-hashed-store-buffer.awb

@@ -5351,3 +5351,13 @@ Directory experiments/hasim-mips/nightly
  nightly.benchmarks        Locally Modified          252 
 
 Remove dead 5-stage model from regressions.
+
+----------
+mcadler     Date: Mon Nov 17 12:30:08 EST 2008  CSN: CSN-hasim-mips-254
+                  Mon Nov 17 17:30:08 UTC 2008
+
+
+Directory config/pm/hasim-mips/submodels/funcp
+ smips_funcp_v3.apm        Locally Modified          253 
+
+New path to functional register state manager.
