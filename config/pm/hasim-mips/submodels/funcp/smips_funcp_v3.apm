@@ -63,6 +63,8 @@ hasim_isa_datapath=SMIPS ISA Datapath V3
 funcp_regstate_freelist=Freelist in BRAM
 funcp_regstate_scoreboard=Scoreboard with One-Hot Encoding
 funcp_regstate_snapshot=Snapshot in BRAM
+funcp_regstate_connections=Connections from register state to other functional components
+funcp_regstate_data=Register State Data
 
 [SMIPS ISA Datapath V3]
 File=modules/hasim-mips/isa/datapath/smips/isa_datapath_smips.awb
@@ -124,4 +126,12 @@ Packagehint=hasim
 
 [Hashed Store Buffer]
 File=modules/hasim/functional-partition/memory-state/store-buffer/fast-hashed/memstate-hashed-store-buffer.awb
+Packagehint=hasim
+
+[Connections from register state to other functional components]
+File=modules/hasim/functional-partition/register-state/connections/regstate-connect.awb
+Packagehint=hasim
+
+[Register State Data]
+File=modules/hasim/functional-partition/register-state/data/regstate-data.awb
 Packagehint=hasim

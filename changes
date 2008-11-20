@@ -5361,3 +5361,13 @@ Directory config/pm/hasim-mips/submodels/funcp
  smips_funcp_v3.apm        Locally Modified          253 
 
 New path to functional register state manager.
+
+----------
+mcadler     Date: Thu Nov 20 15:46:30 EST 2008  CSN: CSN-hasim-mips-255
+                  Thu Nov 20 20:46:30 UTC 2008
+
+
+Directory config/pm/hasim-mips/submodels/funcp
+ smips_funcp_v3.apm        Locally Modified          254 
+
+New functional register state packages.
