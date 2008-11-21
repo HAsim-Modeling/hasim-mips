@@ -31,6 +31,9 @@ module [HASIM_MODULE] mkISA_Datapath
     Connection_Server#(FUNCP_ISA_DATAPATH_REQ, 
                        FUNCP_ISA_DATAPATH_RSP) link_fp <- mkConnection_Server("isa_datapath");
 
+    Connection_Receive#(FUNCP_ISA_DATAPATH_SRCVALS) link_fp_srcvals <- mkConnection_Receive("isa_datapath_srcvals");
+
+
     // ***** Debugging Log *****
     
     // This logfile is available for debugging during Bluesim simulation.
@@ -76,11 +79,15 @@ module [HASIM_MODULE] mkISA_Datapath
     rule datapathExec (True);
 
         // Get the request from the functional partition.
-        let req = link_fp.getReq();
+        let req  = link_fp.getReq();
         link_fp.deq();
         let inst = req.instruction;
         let addr = req.instAddress;
-        let srcs = req.srcValues;
+        
+        // Register input values come directory from the physial register file
+        let reqSrcs = link_fp_srcvals.receive();
+        link_fp_srcvals.deq();
+        let srcs = reqSrcs.srcValues;
 
         // Some convenient variables to return.
 

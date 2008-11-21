@@ -5371,3 +5371,13 @@ Directory config/pm/hasim-mips/submodels/funcp
  smips_funcp_v3.apm        Locally Modified          254 
 
 New functional register state packages.
+
+----------
+mcadler     Date: Fri Nov 21 15:24:57 EST 2008  CSN: CSN-hasim-mips-256
+                  Fri Nov 21 20:24:57 UTC 2008
+
+
+Directory modules/hasim-mips/isa/datapath/smips
+ isa_datapath_smips.bsv    Locally Modified          254 
+
+New soft connection from physical register file directly to ISA datapath.
