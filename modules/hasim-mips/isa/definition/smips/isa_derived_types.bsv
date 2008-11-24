@@ -73,11 +73,25 @@ typedef Vector#(ISA_MAX_DSTS, Maybe#(FUNCP_PHYSICAL_REG_INDEX)) ISA_INST_DSTS;
 typedef Bit#(TLog#(ISA_MAX_SRCS)) ISA_SRC_INDEX;
 
 
+// ISA_SRC_COUNTER
+
+// A counter of sources.  (One bit larger than ISA_SRC_INDEX).
+
+typedef Bit#(TLog#(TAdd#(1, ISA_MAX_SRCS))) ISA_SRC_COUNTER;
+
+
 // ISA_DST_INDEX
 
 // A reference to an instruction dest. (IE 5 dsts => bit 3)
 
 typedef Bit#(TLog#(ISA_MAX_DSTS)) ISA_DST_INDEX;
+
+
+// ISA_DST_COUNTER
+
+// A counter of destinations.  (One bit larger than ISA_DST_INDEX).
+
+typedef Bit#(TLog#(TAdd#(1, ISA_MAX_DSTS))) ISA_DST_COUNTER;
 
 
 // ISA_SRC_MAPPING

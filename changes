@@ -5381,3 +5381,14 @@ Directory modules/hasim-mips/isa/datapath/smips
  isa_datapath_smips.bsv    Locally Modified          254 
 
 New soft connection from physical register file directly to ISA datapath.
+
+----------
+mcadler     Date: Mon Nov 24 16:05:57 EST 2008  CSN: CSN-hasim-mips-257
+                  Mon Nov 24 21:05:57 UTC 2008
+
+
+Directory modules/hasim-mips/isa/definition/smips
+ isa_derived_types.bsv     Locally Modified          255 
+
+Add ISA_SRC/DST_COUNTER type that is one bit bigger than ISA_SRC/DST_INDEX.
+Useful for counting registers.
