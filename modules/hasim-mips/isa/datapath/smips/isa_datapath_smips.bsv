@@ -93,7 +93,6 @@ module [HASIM_MODULE] mkISA_Datapath
 
         FUNCP_ISA_EXECUTION_RESULT timep_result = RNop;
         ISA_ADDRESS effective_addr = 0;
-        Bool isStore = False;
         ISA_RESULT_VALUES writebacks = Vector::replicate(Invalid);
         
         // Calculate a sign-extended immediate used by many operations.
@@ -141,7 +140,6 @@ module [HASIM_MODULE] mkISA_Datapath
 
                 // Calculate the Effective Address.
                 effective_addr = srcs[0] + sign_ext_offset;
-                isStore = True;
                 // Log it.
                 $fdisplay(debug_log, "SW EADDR 0x%h = 0x%h + 0x%h <= 0x%h", effective_addr, srcs[0], sign_ext_offset, srcs[1]);
                 // Return the effective address to the timing partition.
@@ -736,8 +734,6 @@ module [HASIM_MODULE] mkISA_Datapath
         // Return the result to the functional partition.
         link_fp.makeResp(initISADatapathRsp(FUNCP_ISA_EXCEPT_NONE,
                                             timep_result,
-                                            effective_addr,
-                                            isStore,
                                             writebacks));
 
     endrule

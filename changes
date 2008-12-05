@@ -5392,3 +5392,14 @@ Directory modules/hasim-mips/isa/definition/smips
 
 Add ISA_SRC/DST_COUNTER type that is one bit bigger than ISA_SRC/DST_INDEX.
 Useful for counting registers.
+
+----------
+mcadler     Date: Fri Dec  5 07:31:49 EST 2008  CSN: CSN-hasim-mips-258
+                  Fri Dec  5 12:31:49 UTC 2008
+
+
+Directory modules/hasim-mips/isa/datapath/smips
+ isa_datapath_smips.bsv    Locally Modified          257 
+
+Effective address and isStore no longer passed back to getResults pipeline.
+They can be computed from other sources.
