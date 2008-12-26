@@ -39,9 +39,6 @@ funcp_interface=Functional Partition Interface
 funcp_memstate_manager=Manager using Macro Ops for Mem State
 funcp_memory=Hybrid Memory for Functional Partition
 
-[Scoreboard with One-Hot Encoding]
-File=modules/hasim/functional-partition/register-state/scoreboard/onehot/regstate_scoreboard_onehot.awb
-Packagehint=hasim
 
 [Register State for Functional Partition]
 File=modules/hasim/functional-partition/register-state/regstate_default.awb
@@ -60,9 +57,6 @@ isa_emulator=Hybrid ISA Emulator
 hasim_isa_datapath=SMIPS ISA Datapath V3
 
 [Register State Manager using Macro Ops/Requires]
-funcp_regstate_freelist=Freelist in BRAM
-funcp_regstate_scoreboard=Scoreboard with One-Hot Encoding
-funcp_regstate_snapshot=Snapshot in BRAM
 funcp_regstate_connections=Connections from register state to other functional components
 funcp_regstate_data=Register State Data
 
@@ -70,9 +64,6 @@ funcp_regstate_data=Register State Data
 File=modules/hasim-mips/isa/datapath/smips/isa_datapath_smips.awb
 Packagehint=hasim-mips
 
-[Freelist in BRAM]
-File=modules/hasim/functional-partition/register-state/freelist/bram/funcp_freelist_bram.awb
-Packagehint=hasim
 
 [Manager using Macro Ops for Mem State]
 File=modules/hasim/functional-partition/memory-state/manager/macro-ops/memstate_manager_macro_ops.awb
@@ -108,9 +99,6 @@ isa_emulator_impl=Null ISA Emulator Implementation
 INST_ISA_ADDR_TUPLE_BITS=64
 RNAME_RVAL_TUPLE_BITS=37
 
-[Snapshot in BRAM]
-File=modules/hasim/functional-partition/register-state/snapshot/bram/funcp_snapshot_bram.awb
-Packagehint=hasim
 
 [Null TLB]
 File=modules/hasim/functional-partition/memory-state/tlb/hybrid/null/funcp-tlb-null.awb

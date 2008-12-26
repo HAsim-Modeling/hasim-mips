@@ -5403,3 +5403,13 @@ Directory modules/hasim-mips/isa/datapath/smips
 
 Effective address and isStore no longer passed back to getResults pipeline.
 They can be computed from other sources.
+
+----------
+mcadler     Date: Fri Dec 26 11:57:32 EST 2008  CSN: CSN-hasim-mips-259
+                  Fri Dec 26 16:57:32 UTC 2008
+
+
+Directory config/pm/hasim-mips/submodels/funcp
+ smips_funcp_v3.apm        Locally Modified          258 
+
+Update for moved functional components.
