@@ -5413,3 +5413,13 @@ Directory config/pm/hasim-mips/submodels/funcp
  smips_funcp_v3.apm        Locally Modified          258 
 
 Update for moved functional components.
+
+----------
+mcadler     Date: Tue Jan  6 11:54:07 EST 2009  CSN: CSN-hasim-mips-260
+                  Tue Jan  6 16:54:07 UTC 2009
+
+
+Directory config/pm/hasim-mips/submodels/funcp
+ smips_funcp_v3.apm        Locally Modified          259 
+
+Sizes for emulation RRR methods no longer required.
