@@ -5423,3 +5423,14 @@ Directory config/pm/hasim-mips/submodels/funcp
  smips_funcp_v3.apm        Locally Modified          259 
 
 Sizes for emulation RRR methods no longer required.
+
+----------
+mcadler     Date: Mon Jan 12 09:23:25 EST 2009  CSN: CSN-hasim-mips-261
+                  Mon Jan 12 14:23:25 UTC 2009
+
+
+Directory modules/hasim-mips/isa/definition/smips
+ isa_derived_types.bsv     Locally Modified          260 
+
+Make number of physical registers a parameter in the base hasim functional
+model.  It used to be a source constant.

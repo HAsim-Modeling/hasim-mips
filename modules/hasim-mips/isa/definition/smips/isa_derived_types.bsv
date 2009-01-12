@@ -1,6 +1,8 @@
 
 import Vector::*;
 
+`include "asim/provides/funcp_base_types.bsh"
+
 // isa_derived_types
 
 // NOTE: Unchanged from template.
@@ -19,16 +21,15 @@ import Vector::*;
 // This isn't really an ISA-specific thing, but still lives here for now since
 // both the timing partition and functional partition need to know about it.
 
-typedef 7 FUNCP_PHYSICAL_REG_INDEX_SIZE;
-typedef Bit#(FUNCP_PHYSICAL_REG_INDEX_SIZE) FUNCP_PHYSICAL_REG_INDEX;
-typedef TExp#(7) FUNCP_NUM_PHYSICAL_REGS;
+typedef Bit#(`FUNCP_PHYSICAL_REG_INDEX_BITS) FUNCP_PHYSICAL_REG_INDEX;
+typedef TExp#(`FUNCP_PHYSICAL_REG_INDEX_BITS) FUNCP_NUM_PHYSICAL_REGS;
 
 
 // FUNCP_PHYSICAL_REGS
 
 // The total number of physical regs available.
 
-typedef TExp#(7) FUNCP_PHYSICAL_REGS;
+typedef TExp#(`FUNCP_PHYSICAL_REG_INDEX_BITS) FUNCP_PHYSICAL_REGS;
 
 
 // ISA_REG_MAPPING
