@@ -5434,3 +5434,16 @@ Directory modules/hasim-mips/isa/definition/smips
 
 Make number of physical registers a parameter in the base hasim functional
 model.  It used to be a source constant.
+
+----------
+mcadler     Date: Tue Jan 13 16:09:47 EST 2009  CSN: CSN-hasim-mips-262
+                  Tue Jan 13 21:09:47 UTC 2009
+
+
+Directory config/pm/hasim-mips/submodels/funcp
+ smips_funcp_v3.apm        Locally Modified          261 
+
+Directory modules/hasim-mips/isa/definition/smips
+ isa_memory_conversions.bsv Locally Modified          261 
+
+Functional memory state interface changed slightly.

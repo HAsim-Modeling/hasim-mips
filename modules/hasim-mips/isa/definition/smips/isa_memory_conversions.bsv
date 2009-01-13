@@ -1,5 +1,5 @@
 
-`include "funcp_memory.bsh"
+`include "asim/provides/funcp_memstate_base_types.bsh"
 
 // Note: Nothing changed in this file.
 
