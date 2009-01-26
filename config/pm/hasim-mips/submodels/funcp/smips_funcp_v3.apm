@@ -70,6 +70,7 @@ Packagehint=hasim
 
 [Register State for Functional Partition/Requires]
 funcp_regstate_manager=Register State Manager using Macro Ops
+funcp_regstate_base_types=Functional Partition Register State Base Types
 
 [Functional Partition Version 3]
 File=modules/hasim/functional-partition/functional_partition_default.awb
@@ -120,4 +121,8 @@ Packagehint=hasim
 
 [Functional Partition Memory State Base Types]
 File=modules/hasim/functional-partition/memory-state/base-types/memstate-base-types.awb
+Packagehint=hasim
+
+[Functional Partition Register State Base Types]
+File=modules/hasim/functional-partition/register-state/base-types/regstate-base-types.awb
 Packagehint=hasim

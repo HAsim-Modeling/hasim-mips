@@ -5447,3 +5447,13 @@ Directory modules/hasim-mips/isa/definition/smips
  isa_memory_conversions.bsv Locally Modified          261 
 
 Functional memory state interface changed slightly.
+
+----------
+mcadler     Date: Mon Jan 26 10:27:47 EST 2009  CSN: CSN-hasim-mips-263
+                  Mon Jan 26 15:27:47 UTC 2009
+
+
+Directory config/pm/hasim-mips/submodels/funcp
+ smips_funcp_v3.apm        Locally Modified          262 
+
+Add register state base types.
