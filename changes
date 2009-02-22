@@ -5457,3 +5457,28 @@ Directory config/pm/hasim-mips/submodels/funcp
  smips_funcp_v3.apm        Locally Modified          262 
 
 Add register state base types.
+
+----------
+mcadler     Date: Sat Feb 21 22:57:17 EST 2009  CSN: CSN-hasim-mips-264
+                  Sun Feb 22 03:57:17 UTC 2009
+
+
+Directory config/pm/hasim-mips/smips-5stage
+ smips_5stage_exe.apm      Locally Removed           263 
+ smips_5stage_htg.apm      Locally Removed           263 
+
+Directory config/pm/hasim-mips/smips-unpipelined/with-cache
+ smips_unpipelined_with_cache_exe.apm Locally Modified          263 
+
+Directory config/pm/hasim-mips/smips-unpipelined/no-cache
+ smips_unpipelined_no_cache_exe.apm Locally Modified          263 
+
+Directory config/pm/hasim-mips/smips-superscalar-ooo
+ smips_superscalar_ooo_exe.apm Locally Modified          263 
+ smips_superscalar_ooo_htg.apm Locally Modified          263 
+
+Directory config/pm/hasim-mips/smips-inorder
+ smips_inorder_exe.apm     Locally Modified          263 
+ smips_inorder_htg.apm     Locally Modified          263 
+
+Update to new top level model configuration requirements.

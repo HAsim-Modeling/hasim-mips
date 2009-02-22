@@ -2,7 +2,7 @@
 [Global]
 SaveParameters=0
 Description=Unpipelined SMIPS  Model
-File=smips_unpipelined_exe
+File=smips_unpipelined_no_cache_exe
 Version=2.1
 Name=Unpipelined SMIPS Model
 Type=HAsim
@@ -10,9 +10,9 @@ Class=Asim::Model
 
 [Hasim - Hardware (fpga) based system/Requires]
 hasim_funcp=Functional Partition Version 3
-hasim_chip=Single core chip
+hasim_chip=Single Core Chip
 hasim_isa=Hasim - SMIPS ISA Definition
-hasim_memory=Memory
+hasim_memory=Null Memory
 
 [Model]
 DefaultAttributes=hasim smips unpipelined hybrid sim
@@ -21,12 +21,6 @@ model=HAsim Hybrid Model Foundation
 [Hasim - Hardware (fpga) based system]
 Packagehint=hasim
 File=modules/system/cpu_system/hasim_system.awb
-
-
-[Hasim Unpipelined CPU]
-File=config/pm/hasim-models/pipeline/unpipelined/no-cache/unpipelined.apm
-Packagehint=hasim-models
-
 
 
 [FPGA Environment]
@@ -59,25 +53,28 @@ Packagehint=hasim-mips
 File=config/pm/hasim/submodels/common/hasim_common.apm
 Packagehint=hasim
 
-[Single core chip/Requires]
-hasim_shared_cache=Shared cache
-hasim_core=Cacheless Core
 
-[Shared cache]
-File=modules/hasim/timing-models/caches/l2-cache/hasim_shared_cache.awb
-Packagehint=hasim-models
 
 [Cacheless Core]
-File=modules/hasim/timing-models/core/cacheless-core/hasim_core.awb
+File=modules/hasim/timing-models/core/cacheless-core/core-no-cache.awb
 Packagehint=hasim-models
 
 [Cacheless Core/Requires]
-hasim_pipeline=Hasim Unpipelined CPU
+hasim_pipeline=Hasim Unpipelined Pipeline
 
-[Single core chip]
-File=modules/hasim/timing-models/chip/hasim_chip.awb
+
+
+[Hasim Unpipelined Pipeline]
+File=modules/hasim/timing-models/pipeline/unpipelined/no-cache/unpipelined-pipeline.awb
 Packagehint=hasim-models
 
-[Memory]
-File=modules/hasim/timing-models/memory/memory.awb
+[Single Core Chip/Requires]
+hasim_core=Cacheless Core
+
+[Single Core Chip]
+File=modules/hasim/timing-models/chip/single-core-chip.awb
+Packagehint=hasim-models
+
+[Null Memory]
+File=modules/hasim/timing-models/memory/memory-magic.awb
 Packagehint=hasim-models
