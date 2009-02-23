@@ -5482,3 +5482,16 @@ Directory config/pm/hasim-mips/smips-inorder
  smips_inorder_htg.apm     Locally Modified          263 
 
 Update to new top level model configuration requirements.
+
+----------
+pellauer    Date: Mon Feb 23 13:06:22 EST 2009  CSN: CSN-hasim-mips-265
+                  Mon Feb 23 18:06:22 UTC 2009
+
+
+Directory config/pm/hasim-mips
+ smips-5stage/             Locally Removed           264 
+
+
+* Removed 5stage from MIPS.
+
+Michael P.
