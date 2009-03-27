@@ -5495,3 +5495,24 @@ Directory config/pm/hasim-mips
 * Removed 5stage from MIPS.
 
 Michael P.
+
+----------
+aparasha    Date: Fri Mar 27 02:41:24 EDT 2009  CSN: CSN-hasim-mips-266
+                  Fri Mar 27 06:41:24 UTC 2009
+
+
+Directory config/pm/hasim-mips/smips-unpipelined/with-cache
+ smips_unpipelined_with_cache_exe.apm Locally Modified          265 
+
+Directory config/pm/hasim-mips/smips-unpipelined/no-cache
+ smips_unpipelined_no_cache_exe.apm Locally Modified          265 
+
+Directory config/pm/hasim-mips/smips-superscalar-ooo
+ smips_superscalar_ooo_exe.apm Locally Modified          265 
+ smips_superscalar_ooo_htg.apm Locally Modified          265 
+
+Directory config/pm/hasim-mips/smips-inorder
+ smips_inorder_exe.apm     Locally Modified          265 
+ smips_inorder_htg.apm     Locally Modified          265 
+
+Fixed broken SMIPS APMs.

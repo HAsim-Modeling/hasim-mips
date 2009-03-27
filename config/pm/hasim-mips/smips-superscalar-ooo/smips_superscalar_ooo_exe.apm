@@ -52,16 +52,12 @@ Packagehint=hasim-mips
 File=config/pm/hasim/submodels/common/hasim_common.apm
 Packagehint=hasim
 
-
-
 [Cacheless Core]
 File=modules/hasim/timing-models/core/cacheless-core/core-no-cache.awb
 Packagehint=hasim-models
 
 [Cacheless Core/Requires]
 hasim_pipeline=Hasim 6-stage CPU
-
-
 
 [Functional Partition Version 3/Params]
 MEMSTATE_SBUFFER_OOO_MEM=1
@@ -72,6 +68,7 @@ Packagehint=hasim-models
 
 [Single Core Chip/Requires]
 hasim_core=Cacheless Core
+chip_base_types=Chip Base Types
 
 [Single Core Chip]
 File=modules/hasim/timing-models/chip/single-core-chip.awb
@@ -79,4 +76,8 @@ Packagehint=hasim-models
 
 [Null Memory]
 File=modules/hasim/timing-models/memory/memory-magic.awb
+Packagehint=hasim-models
+
+[Chip Base Types]
+File=modules/hasim/timing-models/chip/base-types/chip-base-types.awb
 Packagehint=hasim-models
