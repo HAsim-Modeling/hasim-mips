@@ -5516,3 +5516,14 @@ Directory config/pm/hasim-mips/smips-inorder
  smips_inorder_htg.apm     Locally Modified          265 
 
 Fixed broken SMIPS APMs.
+
+----------
+mcadler     Date: Sat May  2 08:30:55 EDT 2009  CSN: CSN-hasim-mips-267
+                  Sat May  2 12:30:55 UTC 2009
+
+
+Directory config/pm/hasim-mips/submodels/funcp
+ smips_funcp_v3.apm        Locally Modified          266 
+
+Memory requests now go directly to the functional memory module instead of
+through a special cache module.
