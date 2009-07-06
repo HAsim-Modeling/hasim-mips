@@ -5527,3 +5527,24 @@ Directory config/pm/hasim-mips/submodels/funcp
 
 Memory requests now go directly to the functional memory module instead of
 through a special cache module.
+
+----------
+aparasha    Date: Mon Jul  6 11:32:56 EDT 2009  CSN: CSN-hasim-mips-268
+                  Mon Jul  6 15:32:56 UTC 2009
+
+
+Directory config/pm/hasim-mips/smips-unpipelined/with-cache
+ smips_unpipelined_with_cache_exe.apm Locally Modified          267 
+
+Directory config/pm/hasim-mips/smips-unpipelined/no-cache
+ smips_unpipelined_no_cache_exe.apm Locally Modified          267 
+
+Directory config/pm/hasim-mips/smips-superscalar-ooo
+ smips_superscalar_ooo_exe.apm Locally Modified          267 
+ smips_superscalar_ooo_htg.apm Locally Modified          267 
+
+Directory config/pm/hasim-mips/smips-inorder
+ smips_inorder_exe.apm     Locally Modified          267 
+ smips_inorder_htg.apm     Locally Modified          267 
+
+Corrected Connection Terminus termination parameters

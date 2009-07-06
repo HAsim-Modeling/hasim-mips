@@ -67,7 +67,6 @@ Packagehint=hasim-models
 hasim_pipeline=Inorder Pipeline
 hasim_l1_caches=Split (Instruction and Data)
 
-
 [Single Core Chip/Requires]
 hasim_core=Pipeline and Caches
 chip_base_types=Chip Base Types
@@ -87,3 +86,9 @@ Packagehint=hasim-models
 [Chip Base Types]
 File=modules/hasim/timing-models/chip/base-types/chip-base-types.awb
 Packagehint=hasim-models
+
+[Hasim Common Library/Params]
+TERM_FPGA_SWITCHES=0
+TERM_VDEV_STREAMS=0
+TERM_FPGA_BUTTONS=0
+TERM_FPGA_LEDS=0
