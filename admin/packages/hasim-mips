@@ -3,7 +3,7 @@
 Buildorder=1000
 Description=Description of hasim-mips
 Lock=asim-hasim-mips
-CSN=CSN-hasim-mips-268
+CSN=CSN-hasim-mips-269
 Version=1
 Tag=HEAD
 Name=hasim-mips

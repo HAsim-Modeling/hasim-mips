@@ -32,7 +32,7 @@ Packagehint=hasim
 
 [HAsim Hybrid Model Foundation/Requires]
 hasim_common=Hasim Common Library
-hasim_system=Hasim - Hardware (fpga) based system
+system=Hybrid System foundation
 hasim_controller=Hasim Standard Controller
 fpgaenv=FPGA Environment
 
@@ -92,3 +92,17 @@ TERM_FPGA_SWITCHES=0
 TERM_VDEV_STREAMS=0
 TERM_FPGA_BUTTONS=0
 TERM_FPGA_LEDS=0
+
+
+[Default Software System]
+File=modules/model/default_software_system.awb
+Packagehint=hasim
+
+[Hybrid System foundation/Requires]
+software_system=Default Software System
+hardware_system=Hasim - Hardware (fpga) based system
+
+[Hybrid System foundation]
+File=modules/model/hybrid_system.awb
+Packagehint=hasim
+

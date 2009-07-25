@@ -5548,3 +5548,26 @@ Directory config/pm/hasim-mips/smips-inorder
  smips_inorder_htg.apm     Locally Modified          267 
 
 Corrected Connection Terminus termination parameters
+
+----------
+keflemin    Date: Sat Jul 25 16:15:51 EDT 2009  CSN: CSN-hasim-mips-269
+                  Sat Jul 25 20:15:51 UTC 2009
+
+
+Directory config/pm/hasim-mips/smips-unpipelined/with-cache
+ smips_unpipelined_with_cache_exe.apm Locally Modified          268 
+
+Directory config/pm/hasim-mips/smips-unpipelined/no-cache
+ smips_unpipelined_no_cache_exe.apm Locally Modified          268 
+
+Directory config/pm/hasim-mips/smips-superscalar-ooo
+ smips_superscalar_ooo_exe.apm Locally Modified          268 
+ smips_superscalar_ooo_htg.apm Locally Modified          268 
+
+Directory config/pm/hasim-mips/smips-inorder
+ smips_inorder_exe.apm     Locally Modified          268 
+ smips_inorder_htg.apm     Locally Modified          268 
+
+
+
+Changed to new hw/sw system
