@@ -5571,3 +5571,17 @@ Directory config/pm/hasim-mips/smips-inorder
 
 
 Changed to new hw/sw system
+
+----------
+mcadler     Date: Mon Aug  3 20:41:57 EDT 2009  CSN: CSN-hasim-mips-270
+                  Tue Aug  4 00:41:57 UTC 2009
+
+
+Directory modules/hasim-mips/isa/datapath/smips
+ isa_datapath_smips.bsv    Locally Modified          269 
+
+Directory modules/hasim-mips/isa/definition/smips
+ isa_derived_types.bsv     Locally Modified          269 
+
+Pass register writebacks on a soft connection separate from the ISA datapath
+service.

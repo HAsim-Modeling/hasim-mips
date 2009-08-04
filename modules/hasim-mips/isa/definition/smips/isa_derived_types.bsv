@@ -46,13 +46,6 @@ typedef Tuple2#(ISA_REG_INDEX, FUNCP_PHYSICAL_REG_INDEX) ISA_REG_MAPPING;
 typedef Vector#(ISA_MAX_SRCS, ISA_VALUE) ISA_SOURCE_VALUES;
 
 
-// ISA_RESULT_VALUES
-
-// A Vector of (possible) result values. Returned from the isa-datapath for writeback.
-
-typedef Vector#(ISA_MAX_DSTS, Maybe#(ISA_VALUE)) ISA_RESULT_VALUES;
-
-
 // ISA_INST_SRCS
 
 // A Vector of source registers that the functional partiton reads for a given instruction.

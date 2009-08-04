@@ -32,6 +32,7 @@ module [HASIM_MODULE] mkISA_Datapath
                        FUNCP_ISA_DATAPATH_RSP) link_fp <- mkConnection_Server("isa_datapath");
 
     Connection_Receive#(FUNCP_ISA_DATAPATH_SRCVALS) link_fp_srcvals <- mkConnection_Receive("isa_datapath_srcvals");
+    Connection_Send#(FUNCP_ISA_WRITEBACK) link_fp_writeback <- mkConnection_Send("isa_datapath_writeback");
 
 
     // ***** Debugging Log *****
@@ -93,7 +94,7 @@ module [HASIM_MODULE] mkISA_Datapath
 
         FUNCP_ISA_EXECUTION_RESULT timep_result = RNop;
         ISA_ADDRESS effective_addr = 0;
-        ISA_RESULT_VALUES writebacks = Vector::replicate(Invalid);
+        Maybe#(ISA_VALUE) writeback = tagged Invalid;
         
         // Calculate a sign-extended immediate used by many operations.
         ISA_VALUE sign_ext_imm = signExtend(inst[15:0]);
@@ -147,7 +148,7 @@ module [HASIM_MODULE] mkISA_Datapath
                 // Write src2 into our destination.
                 // No one can observe this but it allows the doStores operation to 
                 // avoid reading the maptable.
-                writebacks[0] = tagged Valid srcs[1];
+                writeback = tagged Valid srcs[1];
 
             end
 
@@ -159,7 +160,7 @@ module [HASIM_MODULE] mkISA_Datapath
 
                 // Do the addition and write it back to our dest.
                 ISA_VALUE result = srcs[0] + sign_ext_imm;
-                writebacks[0] = tagged Valid result;
+                writeback = tagged Valid result;
                 // Log it.
                 $fdisplay(debug_log, "ADDIU 0x%h = 0x%h + 0x%h]", result, srcs[0], sign_ext_imm);
                 // No information needs to be returned to the timing partition.
@@ -174,7 +175,7 @@ module [HASIM_MODULE] mkISA_Datapath
             begin
                 // Do the calculation.
                 ISA_VALUE result = zeroExtend(pack(signedLT(srcs[0], sign_ext_imm)));
-                writebacks[0] = tagged Valid result;
+                writeback = tagged Valid result;
                 // Log it.
                 $fdisplay(debug_log, "SLTI 0x%h = slt(0x%h, 0x%h)", result, srcs[0], sign_ext_imm);
                 // No information needs to be returned to the timing partition.
@@ -191,7 +192,7 @@ module [HASIM_MODULE] mkISA_Datapath
                 
                 // Do the calculation.
                 ISA_VALUE result = zeroExtend(pack(srcs[0] < sign_ext_imm));
-                writebacks[0] = tagged Valid result;
+                writeback = tagged Valid result;
                 // Log it.
                 $fdisplay(debug_log, "SLTIU 0x%h = sltu(0x%h, 0x%h)", result, srcs[0], sign_ext_imm);
                 // No information needs to be returned to the timing partition.
@@ -207,7 +208,7 @@ module [HASIM_MODULE] mkISA_Datapath
 
                 // Do the AND and write it back to our destination.
                 ISA_VALUE result = srcs[0] & zero_ext_imm;
-                writebacks[0] = tagged Valid result;
+                writeback = tagged Valid result;
                 // Log it.
                 $fdisplay(debug_log, "ANDI 0x%h = 0x%h & 0x%h", result, srcs[0], zero_ext_imm);
                 // No information needs to be returned to the timing partition.
@@ -223,7 +224,7 @@ module [HASIM_MODULE] mkISA_Datapath
 
                 // Do the OR and write it back to our destination.
                 ISA_VALUE result = srcs[0] | zero_ext_imm;
-                writebacks[0] = tagged Valid result;
+                writeback = tagged Valid result;
                 // Log it.
                 $fdisplay(debug_log, "ORI 0x%h = 0x%h | 0x%h", result, srcs[0], zero_ext_imm);
                 // No information needs to be returned to the timing partition.
@@ -239,7 +240,7 @@ module [HASIM_MODULE] mkISA_Datapath
 
                 // Do the XOR and write it back to our destination.
                 ISA_VALUE result = srcs[0] ^ zero_ext_imm;
-                writebacks[0] = tagged Valid result;
+                writeback = tagged Valid result;
                 // Log it.
                 $fdisplay(debug_log, "XORI 0x%h = 0x%h ^ 0x%h", result, srcs[0], zero_ext_imm);
                 timep_result = tagged RNop;
@@ -254,7 +255,7 @@ module [HASIM_MODULE] mkISA_Datapath
                 
                 // Shift the value into the upper bits of the word.
                 ISA_VALUE result = zero_ext_imm << 16;
-                writebacks[0] = tagged Valid result;
+                writeback = tagged Valid result;
                 // Log it.
                 $fdisplay(debug_log, "LUI 0x%h = 0x%h << 16", result, zero_ext_imm);
                 // No information needs to be returned to the timing partition.
@@ -286,7 +287,7 @@ module [HASIM_MODULE] mkISA_Datapath
                 // Do the address calculation.
                 ISA_ADDRESS dest  = {branch_not_taken_dest[31:28], inst[25:0], 2'b00};
                 // Write the old PC into our destination.
-                writebacks[0] = tagged Valid branch_not_taken_dest;
+                writeback = tagged Valid branch_not_taken_dest;
                 // Log it.
                 $fdisplay(debug_log, "JAL PC <= 0x%h = {%0h, %0h, 00}, (Old PC: 0x%h)", dest, branch_not_taken_dest[31:28], inst[25:0], branch_not_taken_dest);
                 // Return the branch result to the timing partition.
@@ -373,7 +374,7 @@ module [HASIM_MODULE] mkISA_Datapath
                         Bit#(5) shift_amount = inst[10:6];
                         // Do the calculation and write it back.
                         ISA_VALUE result = srcs[0] << shift_amount;
-                        writebacks[0] = tagged Valid result;
+                        writeback = tagged Valid result;
                         // Log it.
                         $fdisplay(debug_log, "SLL 0x%h = 0x%h << 0x%h", result, srcs[0], shift_amount);
                         // The timing partition does not need any information.
@@ -391,7 +392,7 @@ module [HASIM_MODULE] mkISA_Datapath
                         Bit#(5) shift_amount = inst[10:6];
                         // Do the calculation and write it back.
                         ISA_VALUE result = srcs[0] >> shift_amount;
-                        writebacks[0] = tagged Valid result;
+                        writeback = tagged Valid result;
                         // Log it.
                         $fdisplay(debug_log, "SRL 0x%h = 0x%h >> 0x%h", result, srcs[0], shift_amount);
                         // The timing partition does not need any information.
@@ -409,7 +410,7 @@ module [HASIM_MODULE] mkISA_Datapath
                         Bit#(5) shift_amount = inst[10:6];
                         // Do the calculation and write it back.
                         ISA_VALUE result = signedShiftRight(srcs[0], shift_amount);
-                        writebacks[0] = tagged Valid result;
+                        writeback = tagged Valid result;
                         // Log it.
                         $fdisplay(debug_log, "SRA 0x%h = 0x%h >>a 0x%h", result, srcs[0], shift_amount);
                         // The timing partition does not need any information.
@@ -427,7 +428,7 @@ module [HASIM_MODULE] mkISA_Datapath
                         Bit#(5) shift_amount = srcs[0][4:0];
                         // Do the calculation and write it back.
                         ISA_VALUE result = srcs[1] << shift_amount;
-                        writebacks[0] = tagged Valid result;
+                        writeback = tagged Valid result;
                         // Log it.
                         $fdisplay(debug_log, "SLLV 0x%h = 0x%h << 0x%h", result, srcs[0], shift_amount);
                         // The timing partition does not need any information.
@@ -445,7 +446,7 @@ module [HASIM_MODULE] mkISA_Datapath
                         Bit#(5) shift_amount = srcs[0][4:0];
                         // Do the calculation and write it back.
                         ISA_VALUE result = srcs[1] >> shift_amount;
-                        writebacks[0] = tagged Valid result;
+                        writeback = tagged Valid result;
                         // Log it.
                         $fdisplay(debug_log, "SLLV 0x%h = 0x%h >> 0x%h", result, srcs[0], shift_amount);
                         // The timing partition does not need any information.
@@ -463,7 +464,7 @@ module [HASIM_MODULE] mkISA_Datapath
                         Bit#(5) shift_amount = srcs[0][4:0];
                         // Do the calculation and write it back.
                         ISA_VALUE result = signedShiftRight(srcs[1], shift_amount);
-                        writebacks[0] = tagged Valid result;
+                        writeback = tagged Valid result;
                         // Log it.
                         $fdisplay(debug_log, "SRAV 0x%h = 0x%h >>a 0x%h", result, srcs[0], shift_amount);
                         // The timing partition does not need any information.
@@ -479,7 +480,7 @@ module [HASIM_MODULE] mkISA_Datapath
 
                         // Do the addition.
                         ISA_VALUE result = srcs[0] + srcs[1];
-                        writebacks[0] = tagged Valid result;
+                        writeback = tagged Valid result;
                         // Log it.
                         $fdisplay(debug_log, "ADDU %0h = %0h + %0h", result, srcs[0], srcs[1]);
                         // The timing partition does not need any information.
@@ -495,7 +496,7 @@ module [HASIM_MODULE] mkISA_Datapath
 
                         // Do the subtraction.
                         ISA_VALUE result = srcs[0] - srcs[1];
-                        writebacks[0] = tagged Valid result;
+                        writeback = tagged Valid result;
                         // Log it.
                         $fdisplay(debug_log, "SUBU %0h = %0h - %0h", result, srcs[0], srcs[1]);
                         // The timing partition does not need any information.
@@ -511,7 +512,7 @@ module [HASIM_MODULE] mkISA_Datapath
 
                         // Do the AND.
                         ISA_VALUE result = srcs[0] & srcs[1];
-                        writebacks[0] = tagged Valid result;
+                        writeback = tagged Valid result;
                         // Log it.
                         $fdisplay(debug_log, "AND %0h = %0h & %0h", result, srcs[0], srcs[1]);
                         // The timing partition does not need any information.
@@ -527,7 +528,7 @@ module [HASIM_MODULE] mkISA_Datapath
 
                         // Do the OR.
                         ISA_VALUE result = srcs[0] | srcs[1];
-                        writebacks[0] = tagged Valid result;
+                        writeback = tagged Valid result;
                         // Log it.
                         $fdisplay(debug_log, "OR %0h = %0h | %0h", result, srcs[0], srcs[1]);
                         // The timing partition does not need any information.
@@ -543,7 +544,7 @@ module [HASIM_MODULE] mkISA_Datapath
 
                         // Do the XOR.
                         ISA_VALUE result = srcs[0] ^ srcs[1];
-                        writebacks[0] = tagged Valid result;
+                        writeback = tagged Valid result;
                         // Log it.
                         $fdisplay(debug_log, "XOR %0h = %0h ^ %0h", result, srcs[0], srcs[1]);
                         // The timing partition does not need any information.
@@ -559,7 +560,7 @@ module [HASIM_MODULE] mkISA_Datapath
 
                         // Do the NOR.
                         ISA_VALUE result = ~(srcs[0] | srcs[1]);
-                        writebacks[0] = tagged Valid result;
+                        writeback = tagged Valid result;
                         // Log it.
                         $fdisplay(debug_log, "NOR %0h = %0h nor %0h", result, srcs[0], srcs[1]);
                         // The timing partition does not need any information.
@@ -575,7 +576,7 @@ module [HASIM_MODULE] mkISA_Datapath
 
                         // Set if src1 < src2 (signed).
                         ISA_VALUE result = zeroExtend(pack(signedLT(srcs[0], srcs[1])));
-                        writebacks[0] = tagged Valid result;
+                        writeback = tagged Valid result;
                         // Log it.
                         $fdisplay(debug_log, "SLT %0h = slt(%0h, %0h)", result, srcs[0], srcs[1]);
                         // The timing partition does not need any information.
@@ -591,7 +592,7 @@ module [HASIM_MODULE] mkISA_Datapath
 
                         // Set if src1 < src2.
                         ISA_VALUE result = zeroExtend(pack(srcs[0] < srcs[1]));
-                        writebacks[0] = tagged Valid result;
+                        writeback = tagged Valid result;
                         // Log it.
                         $fdisplay(debug_log, "SLTU %0h = sltu(%0h, %0h)", result, srcs[0], srcs[1]);
                         // The timing partition does not need any information.
@@ -623,7 +624,7 @@ module [HASIM_MODULE] mkISA_Datapath
                         // The destination is in src1.
                         ISA_ADDRESS dest = unpack(srcs[0]);
                         // Write the old PC back to our destination.
-                        writebacks[0] = tagged Valid (branch_not_taken_dest);
+                        writeback = tagged Valid (branch_not_taken_dest);
                         // Log it.
                         $fdisplay(debug_log, "JALR PC <= 0x%h, (Old PC: 0x%h)", dest, branch_not_taken_dest);
                         // Tell the timing partition the branch was taken.
@@ -695,7 +696,7 @@ module [HASIM_MODULE] mkISA_Datapath
                     begin
                         //This instruction is pretty useless because cop0src doesn't exist.
                         //So what we do instead is set rd to 1 (because this is what most of our testcases use this for).
-                        writebacks[0] = tagged Valid (1);
+                        writeback = tagged Valid (1);
                         // Log it.
                         $fdisplay(debug_log, "MFC0 COP0 R%0d (Hardwired to 1)", inst[15:11]);
                         // No information back to the timing partition.
@@ -733,9 +734,23 @@ module [HASIM_MODULE] mkISA_Datapath
 
         // Return the result to the functional partition.
         link_fp.makeResp(initISADatapathRsp(FUNCP_ISA_EXCEPT_NONE,
-                                            timep_result,
-                                            writebacks));
+                                            timep_result));
 
+        // Send the writeback.  For MIPS there is at most one register written,
+        // so the operation is simple.
+        FUNCP_ISA_WRITEBACK wb_msg;
+        if (writeback matches tagged Valid .val)
+        begin
+            // Valid writeback value.
+            wb_msg = initISAWriteback(req.token, req.instDstPhysRegs[0], val, True);
+        end
+        else
+        begin
+            // Nothing to say.  Still need a "done" message.
+            wb_msg = initISAWriteback(req.token, tagged Invalid, ?, True);
+        end
+
+        link_fp_writeback.send(wb_msg);
     endrule
 
 endmodule
