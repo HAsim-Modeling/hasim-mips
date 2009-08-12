@@ -5585,3 +5585,25 @@ Directory modules/hasim-mips/isa/definition/smips
 
 Pass register writebacks on a soft connection separate from the ISA datapath
 service.
+
+----------
+mpellaue    Date: Wed Aug 12 16:29:13 EDT 2009  CSN: CSN-hasim-mips-271
+                  Wed Aug 12 20:29:13 UTC 2009
+
+
+Directory config/pm/hasim-mips/smips-unpipelined/with-cache
+ smips_unpipelined_with_cache_exe.apm Locally Modified          270 
+
+Directory config/pm/hasim-mips/smips-unpipelined/no-cache
+ smips_unpipelined_no_cache_exe.apm Locally Modified          270 
+
+Directory config/pm/hasim-mips/smips-superscalar-ooo
+ smips_superscalar_ooo_exe.apm Locally Modified          270 
+ smips_superscalar_ooo_htg.apm Locally Modified          270 
+
+Directory config/pm/hasim-mips/smips-inorder
+ smips_inorder_exe.apm     Locally Modified          270 
+ smips_inorder_htg.apm     Locally Modified          270 
+
+
+* Added TERM_VDEV_STARTER variable for new virtual device.
