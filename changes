@@ -5607,3 +5607,14 @@ Directory config/pm/hasim-mips/smips-inorder
 
 
 * Added TERM_VDEV_STARTER variable for new virtual device.
+
+----------
+mcadler     Date: Thu Aug 13 08:56:42 EDT 2009  CSN: CSN-hasim-mips-272
+                  Thu Aug 13 12:56:42 UTC 2009
+
+
+Directory modules/hasim-mips/isa/definition/smips
+ isa_datatypes.h           Locally Modified          271 
+
+ISA datatypes interfaces requires FP register methods.  No FP registers on
+smips, so the methods do nothing.

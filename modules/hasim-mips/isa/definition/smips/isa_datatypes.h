@@ -40,6 +40,7 @@ class ISA_REG_INDEX_CLASS
 
     // Assignments by type
     void SetArchReg(UINT32 r) { SetMasked(r); }
+    void SetFPReg(UINT32 r) { }
     void SetControlReg() { }
     void SetLockreg() { }
     void SetLockAddrReg() { }
@@ -48,13 +49,16 @@ class ISA_REG_INDEX_CLASS
     bool IsArchReg() const { return true; }
     UINT32 ArchRegNum() const { return regIdx; }
 
+    bool IsFPReg() const { return false; }
+    UINT32 FPRegNum() const { return 0; }
+
     bool IsControlReg() const { return false; }
     bool IsLockReg() const { return false; }
     bool IsLockAddrReg() const { return false; }
 
     bool IsIllegalReg() const
     {
-        return ! (IsArchReg() || IsControlReg() || IsLockReg() || IsLockAddrReg());
+        return ! (IsArchReg() || IsFPReg() || IsControlReg() || IsLockReg() || IsLockAddrReg());
     }
 
   private:
