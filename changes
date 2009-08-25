@@ -5618,3 +5618,13 @@ Directory modules/hasim-mips/isa/definition/smips
 
 ISA datatypes interfaces requires FP register methods.  No FP registers on
 smips, so the methods do nothing.
+
+----------
+mcadler     Date: Tue Aug 25 10:50:39 EDT 2009  CSN: CSN-hasim-mips-273
+                  Tue Aug 25 14:50:39 UTC 2009
+
+
+Directory modules/hasim-mips/isa/datapath/smips
+ isa_datapath_smips.bsv    Locally Modified          272 
+
+Add required client of register-only emulation.  Not actually used for MIPS.

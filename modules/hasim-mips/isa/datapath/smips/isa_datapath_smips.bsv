@@ -13,6 +13,9 @@ import Vector::*;
 
 `include "asim/provides/hasim_isa.bsh"
 `include "asim/provides/funcp_interface.bsh"
+`include "asim/provides/isa_emulator.bsh"
+
+`include "asim/rrr/remote_client_stub_ISA_REGOP_EMULATOR.bsh"
 
 // ***** Modules *****
 
@@ -34,6 +37,8 @@ module [HASIM_MODULE] mkISA_Datapath
     Connection_Receive#(FUNCP_ISA_DATAPATH_SRCVALS) link_fp_srcvals <- mkConnection_Receive("isa_datapath_srcvals");
     Connection_Send#(FUNCP_ISA_WRITEBACK) link_fp_writeback <- mkConnection_Send("isa_datapath_writeback");
 
+    // Emulation RRR Stubs (not used for MIPS)
+    ClientStub_ISA_REGOP_EMULATOR emulClient <- mkClientStub_ISA_REGOP_EMULATOR();
 
     // ***** Debugging Log *****
     
