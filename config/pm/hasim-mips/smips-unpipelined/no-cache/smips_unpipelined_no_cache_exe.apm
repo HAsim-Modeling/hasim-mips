@@ -7,61 +7,26 @@ Version=2.1
 Name=Unpipelined SMIPS Model
 Type=HAsim
 Class=Asim::Model
-
-[Hasim - Hardware (fpga) based system/Requires]
-hasim_funcp=Functional Partition Version 3
-hasim_chip=Single Core Chip
-hasim_isa=Hasim - SMIPS ISA Definition
-hasim_memory=Null Memory
+DefaultBenchmark=0
 
 [Model]
 DefaultAttributes=hasim smips unpipelined hybrid sim
-model=HAsim Hybrid Model Foundation
-
-[Hasim - Hardware (fpga) based system]
-Packagehint=hasim
-File=modules/system/cpu_system/hasim_system.awb
+model=HW/SW Hybrid Project Foundation
 
 [FPGA Environment]
-File=config/pm/hasim/submodels/fpgaenv/hasim-fpgaenv-hybrid-sim.apm
+File=config/pm/hasim/submodels/fpgaenv/fpgaenv-hybrid-exe.apm
 Packagehint=platforms
 
-[Hasim Standard Controller]
-File=config/pm/hasim/submodels/controller/hybrid_standard_controller.apm
-Packagehint=hasim
-
-[HAsim Hybrid Model Foundation/Requires]
-hasim_common=Hasim Common Library
-system=Hybrid System foundation
-hasim_controller=Hasim Standard Controller
-fpgaenv=FPGA Environment
-
-[HAsim Hybrid Model Foundation]
-File=modules/model/hasim_model.awb
-Packagehint=hasim
-
 [Functional Partition Version 3]
-File=config/pm/hasim-mips/submodels/funcp/smips_funcp_v3.apm
-Packagehint=hasim-mips
-
-[Hasim - SMIPS ISA Definition]
-File=modules/hasim-mips/isa/definition/smips/isa_definition_template.awb
-Packagehint=hasim-mips
-
-[Hasim Common Library]
-File=config/pm/hasim/submodels/common/hasim_common.apm
-Packagehint=hasim
+File=config/pm/hasim-alpha/submodels/funcp/alpha_funcp_v3.apm
+Packagehint=hasim-alpha
 
 [Cacheless Core]
 File=modules/hasim/timing-models/core/cacheless-core/core-no-cache.awb
 Packagehint=hasim-models
 
 [Cacheless Core/Requires]
-hasim_pipeline=Hasim Unpipelined Pipeline
-
-[Hasim Unpipelined Pipeline]
-File=modules/hasim/timing-models/pipeline/unpipelined/no-cache/unpipelined-pipeline.awb
-Packagehint=hasim-models
+hasim_pipeline=Hasim Unpipelined Pipeline With Caches
 
 [Single Core Chip/Requires]
 hasim_core=Cacheless Core
@@ -71,31 +36,90 @@ chip_base_types=Chip Base Types
 File=modules/hasim/timing-models/chip/single-core-chip.awb
 Packagehint=hasim-models
 
-[Null Memory]
-File=modules/hasim/timing-models/memory/memory-magic.awb
-Packagehint=hasim-models
-
 [Chip Base Types]
 File=modules/hasim/timing-models/chip/base-types/chip-base-types.awb
 Packagehint=hasim-models
 
-[Hasim Common Library/Params]
-TERM_FPGA_SWITCHES=0
-TERM_VDEV_STREAMS=0
-TERM_FPGA_BUTTONS=0
-TERM_FPGA_LEDS=0
-TERM_VDEV_STARTER=0
-
-
-[Default Software System]
-File=modules/model/default_software_system.awb
+[Soft Connections Library]
+File=config/pm/hasim/submodels/common/soft-connections-lib.apm
 Packagehint=hasim
 
-[Hybrid System foundation/Requires]
-software_system=Default Software System
-hardware_system=Hasim - Hardware (fpga) based system
+[HAsim Modeling Library/Requires]
+hasim_cache_algorithms=Cache Modeling Algorithms
 
-[Hybrid System foundation]
-File=modules/model/hybrid_system.awb
+[HW/SW Hybrid Project Foundation]
+File=modules/project/project-hybrid.awb
+Packagehint=platforms
+
+[Cache Modeling Algorithms]
+File=modules/hasim/timing-models/caches/cache-algorithms/cache-algorithms.awb
+Packagehint=hasim-models
+
+[Soft Connections Library/Params]
+CON_CWIDTH=350
+
+[Alpha ISA Definition]
+File=modules/hasim/functional-partition/isa/definition/isa_definition_alpha.awb
+Packagehint=hasim-alpha
+
+[HAsim Modeling Library]
+File=modules/hasim/util/modellib/hasim-modellib.awb
 Packagehint=hasim
 
+[Soft Connections Hybrid Application Environment]
+File=modules/application-env/hybrid/soft-connections/application-env-hybrid-soft-conn.awb
+Packagehint=platforms
+
+[Magic Memory]
+File=modules/hasim/timing-models/memory/memory-magic.awb
+Packagehint=hasim-models
+
+[Model Services]
+File=config/pm/hasim/submodels/common/hasim-model-services.apm
+Packagehint=hasim
+
+[HW/SW Hybrid Project Foundation/Requires]
+project_common=Hybrid Project Common Utilities
+fpgaenv=FPGA Environment
+application_env=Soft Connections Hybrid Application Environment
+
+[Soft Connections Hybrid Application Environment/Requires]
+platform_services=Platform Services
+soft_connections_lib=Soft Connections Library
+connected_application=HAsim Performance Model
+
+[Hybrid Project Common Utilities]
+File=config/pm/hasim/submodels/common/project-common-default.apm
+Packagehint=hasim
+
+[Single Chip Timing Partition/Requires]
+hasim_memory=Magic Memory
+hasim_modellib=HAsim Modeling Library
+hasim_chip=Single Core Chip
+
+[Platform Services]
+File=config/pm/hasim/submodels/platform-services/standard-platform-services.apm
+Packagehint=hasim
+
+[Single Chip Timing Partition]
+File=modules/hasim/timing-partition/single-chip/single-chip-timing-partition.awb
+Packagehint=hasim
+
+[Hasim Unpipelined Pipeline With Caches]
+File=modules/hasim/timing-models/pipeline/unpipelined/with-cache/unpipelined-pipeline-with-cache.awb
+Packagehint=hasim-models
+
+[HAsim Performance Model/Requires]
+hasim_common=Default HAsim Common Library
+hasim_timep=Single Chip Timing Partition
+hasim_isa=Alpha ISA Definition
+hasim_funcp=Functional Partition Version 3
+hasim_model_services=Model Services
+
+[HAsim Performance Model]
+File=modules/hasim/model/hasim-model.awb
+Packagehint=hasim
+
+[Default HAsim Common Library]
+File=config/pm/hasim/submodels/common/hasim_common.apm
+Packagehint=hasim
