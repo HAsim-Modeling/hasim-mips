@@ -62,7 +62,7 @@ foreach my $test (@tests) {
                tree => [ "tests" ],
                setup => "tools/scripts/bmark/setup-bmark --group instruction-tests --isa smips $test",
                feeder => "vcs",
-               feedflags => "program/${test}.smips.vmh",
+               feedflags => "program.0/${test}.smips.vmh",
               );
 }
      
@@ -71,7 +71,7 @@ foreach my $bmark (@bmarks) {
                tree => [ "benchmarks" ],
                setup => "tools/scripts/bmark/setup-bmark --isa smips $bmark",
                feeder => "vcs",
-               feedflags => "program/${bmark}.smips.vmh",
+               feedflags => "program.0/${bmark}.smips.vmh",
               );
 }
 

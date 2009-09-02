@@ -5652,3 +5652,26 @@ Directory config/pm/hasim-mips/smips-inorder
 * Update MIPS APMs to the new organization.
 
 Michael P.
+
+----------
+mcadler     Date: Tue Sep  1 20:31:42 EDT 2009  CSN: CSN-hasim-mips-275
+                  Wed Sep  2 00:31:42 UTC 2009
+
+
+Directory config/pm/hasim-mips/smips-unpipelined/no-cache
+ smips_unpipelined_no_cache_exe.apm Locally Modified          274 
+
+Directory config/pm/hasim-mips/smips-superscalar-ooo
+ smips_superscalar_ooo_exe.apm Locally Modified          274 
+ smips_superscalar_ooo_htg.apm Locally Modified          274 
+
+Directory config/pm/hasim-mips/smips-inorder
+ smips_inorder_exe.apm     Locally Modified          274 
+ smips_inorder_htg.apm     Locally Modified          274 
+
+Directory config/bm/smips
+ 6_375.cfx                 Locally Modified          274 
+
+- Fix MIPS models (they were accidentally changed to specify Alpha ISA)
+- Update cfx script.  The run script expects the program image to be in a
+  different directory than before.
