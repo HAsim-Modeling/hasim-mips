@@ -7,6 +7,7 @@ Version=2.1
 Name=SMIPS Functional Partition v3
 Type=HAsim
 Class=Asim::Model
+DefaultBenchmark=0
 
 [Model]
 DefaultAttributes=smips hasim
@@ -45,7 +46,7 @@ File=modules/hasim/functional-partition/register-state/regstate_default.awb
 Packagehint=hasim
 
 [Hybrid ISA Emulator]
-File=modules/hasim/functional-partition/isa-emulator/isa-emulator.awb
+File=modules/hasim/functional-partition/isa/isa-emulator/isa-emulator.awb
 Packagehint=hasim
 
 [Memory State for Functional Partition]
@@ -73,7 +74,7 @@ funcp_regstate_manager=Register State Manager using Macro Ops
 funcp_regstate_base_types=Functional Partition Register State Base Types
 
 [Functional Partition Version 3]
-File=modules/hasim/functional-partition/functional_partition_default.awb
+File=modules/hasim/functional-partition/functional-partition-default.awb
 Packagehint=hasim
 
 [Manager using Macro Ops for Mem State/Requires]
@@ -88,7 +89,7 @@ File=modules/hasim/functional-partition/base-types/funcp-base-types.awb
 Packagehint=hasim
 
 [Null ISA Emulator Implementation]
-File=modules/hasim/functional-partition/isa-emulator/null/null-isa-emulator-impl.awb
+File=modules/hasim/functional-partition/isa/isa-emulator/null/null-isa-emulator-impl.awb
 Packagehint=hasim
 
 [Hybrid ISA Emulator/Requires]

@@ -5675,3 +5675,13 @@ Directory config/bm/smips
 - Fix MIPS models (they were accidentally changed to specify Alpha ISA)
 - Update cfx script.  The run script expects the program image to be in a
   different directory than before.
+
+----------
+mcadler     Date: Thu Sep 24 17:24:26 EDT 2009  CSN: CSN-hasim-mips-276
+                  Thu Sep 24 21:24:26 UTC 2009
+
+
+Directory config/pm/hasim-mips/submodels/funcp
+ smips_funcp_v3.apm        Locally Modified          275 
+
+A few modules in hasim moved.
