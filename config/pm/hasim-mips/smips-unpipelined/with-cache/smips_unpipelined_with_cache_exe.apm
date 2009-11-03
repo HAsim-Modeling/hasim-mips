@@ -7,13 +7,14 @@ Version=2.1
 Name=Unpipelined SMIPS Model With Caches
 Type=HAsim
 Class=Asim::Model
-DefaultBenchmark=0
+DefaultBenchmark=
+DefaultRunOpts=
 
 [Hasim - Hardware (fpga) based system/Requires]
 hasim_funcp=Functional Partition Version 3
 hasim_chip=Single Core Chip
 hasim_isa=Hasim - SMIPS ISA Definition
-hasim_memory=Magic Memory
+hasim_memory=Null Memory
 
 [Model]
 DefaultAttributes=hasim smips unpipelined hybrid sim
@@ -49,7 +50,6 @@ Packagehint=hasim-mips
 File=modules/hasim-mips/isa/definition/smips/isa_definition_template.awb
 Packagehint=hasim-mips
 
-
 [Pipeline and Caches]
 File=modules/hasim/timing-models/core/core-with-cache/core-with-cache.awb
 Packagehint=hasim-models
@@ -74,11 +74,9 @@ chip_base_types=Chip Base Types
 File=modules/hasim/timing-models/chip/single-core-chip.awb
 Packagehint=hasim-models
 
-
 [Chip Base Types]
 File=modules/hasim/timing-models/chip/base-types/chip-base-types.awb
 Packagehint=hasim-models
-
 
 [Default Software System]
 File=modules/model/default_software_system.awb
@@ -92,11 +90,18 @@ hardware_system=Hasim - Hardware (fpga) based system
 File=modules/model/hybrid_system.awb
 Packagehint=hasim
 
-
 [Default HAsim Common Library]
 File=config/pm/hasim/submodels/common/hasim_common.apm
 Packagehint=hasim
 
-[Magic Memory]
-File=modules/hasim/timing-models/memory/memory-magic.awb
+
+[Null Memory/Requires]
+memory_base_types=Memory Base Types
+
+[Null Memory]
+File=modules/hasim/timing-models/memory/memory-null.awb
+Packagehint=hasim-models
+
+[Memory Base Types]
+File=modules/hasim/timing-models/memory/base-types/memory-base-types.awb
 Packagehint=hasim-models

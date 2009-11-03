@@ -7,7 +7,8 @@ Version=2.1
 Name=Superscalar Alpha Simulation
 Type=HAsim
 Class=Asim::Model
-DefaultBenchmark=0
+DefaultBenchmark=
+DefaultRunOpts=
 
 [Model]
 DefaultAttributes=hasim superscalar smips simulation
@@ -62,7 +63,6 @@ Packagehint=hasim-models
 [Soft Connections Library/Params]
 CON_CWIDTH=350
 
-
 [HAsim Modeling Library]
 File=modules/hasim/util/modellib/hasim-modellib.awb
 Packagehint=hasim
@@ -71,9 +71,6 @@ Packagehint=hasim
 File=modules/application-env/hybrid/soft-connections/application-env-hybrid-soft-conn.awb
 Packagehint=platforms
 
-[Magic Memory]
-File=modules/hasim/timing-models/memory/memory-magic.awb
-Packagehint=hasim-models
 
 [Model Services]
 File=config/pm/hasim/submodels/common/hasim-model-services.apm
@@ -94,7 +91,7 @@ File=config/pm/hasim/submodels/common/project-common-default.apm
 Packagehint=hasim
 
 [Single Chip Timing Partition/Requires]
-hasim_memory=Magic Memory
+hasim_memory=Null Memory
 hasim_modellib=HAsim Modeling Library
 hasim_chip=Single Core Chip
 
@@ -124,3 +121,14 @@ Packagehint=hasim
 [Hasim - SMIPS ISA Definition]
 File=modules/hasim-mips/isa/definition/smips/isa_definition_template.awb
 Packagehint=hasim-mips
+
+[Null Memory/Requires]
+memory_base_types=Memory Base Types
+
+[Null Memory]
+File=modules/hasim/timing-models/memory/memory-null.awb
+Packagehint=hasim-models
+
+[Memory Base Types]
+File=modules/hasim/timing-models/memory/base-types/memory-base-types.awb
+Packagehint=hasim-models
