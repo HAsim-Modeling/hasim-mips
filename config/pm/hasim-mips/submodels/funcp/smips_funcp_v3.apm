@@ -3,11 +3,14 @@
 SaveParameters=0
 Description=SMIPS Functional Partition v3
 File=smips_funcp_v3
-Version=2.1
+Version=2.2
 Name=SMIPS Functional Partition v3
 Type=HAsim
 Class=Asim::Model
-DefaultBenchmark=0
+DefaultBenchmark=
+RootName=Functional Partition Version 3
+RootProvides=hasim_funcp
+DefaultRunOpts=
 
 [Model]
 DefaultAttributes=smips hasim

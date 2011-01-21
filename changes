@@ -5709,3 +5709,29 @@ Directory config/pm/hasim-mips/smips-inorder
 * Update MIPS models to use the new simulated memory arrangement.
 
 Michael P.
+
+----------
+mpellaue    Date: Fri Jan 21 12:48:58 EST 2011  CSN: CSN-hasim-mips-278
+                  Fri Jan 21 17:48:58 UTC 2011
+
+
+Directory config/pm/hasim-mips/smips-unpipelined/with-cache
+ smips_unpipelined_with_cache_exe.apm Locally Modified          277 
+
+Directory config/pm/hasim-mips/smips-unpipelined/no-cache
+ smips_unpipelined_no_cache_exe.apm Locally Modified          277 
+
+Directory config/pm/hasim-mips/smips-superscalar-ooo
+ smips_superscalar_ooo_exe.apm Locally Modified          277 
+ smips_superscalar_ooo_htg.apm Locally Modified          277 
+
+Directory config/pm/hasim-mips/smips-inorder
+ smips_inorder_exe.apm     Locally Modified          277 
+ smips_inorder_htg.apm     Locally Modified          277 
+
+Directory config/pm/hasim-mips/submodels/funcp
+ smips_funcp_v3.apm        Locally Modified          277 
+
+
+* Update .apm files to v2.2 using "awb-shell update model"
+* Fix unpipelined w/cache model to match version in hasim-alpha.
