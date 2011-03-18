@@ -5735,3 +5735,13 @@ Directory config/pm/hasim-mips/submodels/funcp
 
 * Update .apm files to v2.2 using "awb-shell update model"
 * Fix unpipelined w/cache model to match version in hasim-alpha.
+
+----------
+mcadler     Date: Thu Mar 17 20:36:50 EDT 2011  CSN: CSN-hasim-mips-279
+                  Fri Mar 18 00:36:50 UTC 2011
+
+
+Directory modules/hasim-mips/isa/definition/smips
+ isa_datatypes.h           Locally Modified          278 
+
+Define FP control register stubs.

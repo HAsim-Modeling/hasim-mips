@@ -53,12 +53,13 @@ class ISA_REG_INDEX_CLASS
     UINT32 FPRegNum() const { return 0; }
 
     bool IsControlReg() const { return false; }
+    bool IsFPControlReg() const { return false; }
     bool IsLockReg() const { return false; }
     bool IsLockAddrReg() const { return false; }
 
     bool IsIllegalReg() const
     {
-        return ! (IsArchReg() || IsFPReg() || IsControlReg() || IsLockReg() || IsLockAddrReg());
+        return ! (IsArchReg() || IsFPReg() || IsControlReg() || IsFPControlReg() || IsLockReg() || IsLockAddrReg());
     }
 
   private:
