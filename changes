@@ -5745,3 +5745,29 @@ Directory modules/hasim-mips/isa/definition/smips
  isa_datatypes.h           Locally Modified          278 
 
 Define FP control register stubs.
+
+----------
+mcadler     Date: Mon Mar 21 10:42:10 EDT 2011  CSN: CSN-hasim-mips-280
+                  Mon Mar 21 14:42:10 UTC 2011
+
+
+Directory config/pm/hasim-mips/smips-unpipelined/with-cache
+ smips_unpipelined_with_cache_exe.apm Locally Modified          279 
+
+Directory config/pm/hasim-mips/smips-unpipelined/no-cache
+ smips_unpipelined_no_cache_exe.apm Locally Modified          279 
+
+Directory config/pm/hasim-mips/smips-superscalar-ooo
+ smips_superscalar_ooo_exe.apm Locally Modified          279 
+ smips_superscalar_ooo_htg.apm Locally Modified          279 
+
+Directory config/pm/hasim-mips/smips-inorder
+ smips_inorder_exe.apm     Locally Modified          279 
+ smips_inorder_htg.apm     Locally Modified          279 
+
+Directory config/bm/smips
+ 6_375.cfx                 Locally Modified          279 
+
+- SMIPS benchmarks need setup-hasim-bmark from HAsim package
+  (not setup-bmark from leap package).
+- Update model configurations following reorganization.

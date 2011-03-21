@@ -12,22 +12,11 @@ DefaultRunOpts=
 RootName=HW/SW Hybrid Project Foundation
 RootProvides=model
 
-
 [Model]
 DefaultAttributes=hasim smips unpipelined hybrid sim
 model=HW/SW Hybrid Project Foundation
 
 
-[FPGA Environment]
-File=config/pm/hasim/submodels/fpgaenv/hasim-fpgaenv-hybrid-sim.apm
-Packagehint=leap
-
-
-
-
-[Functional Partition Version 3]
-File=config/pm/hasim-mips/submodels/funcp/smips_funcp_v3.apm
-Packagehint=hasim-mips
 
 [Hasim - SMIPS ISA Definition]
 File=modules/hasim-mips/isa/definition/smips/isa_definition_template.awb
@@ -37,27 +26,18 @@ Packagehint=hasim-mips
 File=modules/hasim/timing-models/core/core-with-cache/core-with-cache.awb
 Packagehint=hasim-models
 
-
 [Hasim Unpipelined Pipeline With Caches]
 File=modules/hasim/timing-models/pipeline/unpipelined/with-cache/unpipelined-pipeline-with-cache.awb
 Packagehint=hasim-models
 
 [Pipeline and Caches/Requires]
 hasim_pipeline=Hasim Unpipelined Pipeline With Caches
-hasim_l1_caches=Split (Instruction and Data) No TLBs
-
-
+hasim_l1_caches=Direct Mapped, Writethrough, No TLBs
 
 [Chip Base Types]
 File=modules/hasim/timing-models/chip/base-types/chip-base-types.awb
 Packagehint=hasim-models
 
-
-
-
-[Default HAsim Common Library]
-File=config/pm/hasim/submodels/common/hasim_common.apm
-Packagehint=hasim
 
 [Null Memory/Requires]
 memory_base_types=Memory Base Types
@@ -70,12 +50,7 @@ Packagehint=hasim-models
 File=modules/hasim/timing-models/memory/base-types/memory-base-types.awb
 Packagehint=hasim-models
 
-[Soft Connections Library]
-File=config/pm/hasim/submodels/common/soft-connections-lib.apm
-Packagehint=leap
 
-[Functional Partition Version 3/Params]
-FUNCP_PHYSICAL_REG_INDEX_BITS=11
 
 [HAsim Modeling Library/Requires]
 hasim_cache_algorithms=Cache Modeling Algorithms
@@ -84,9 +59,6 @@ hasim_cache_algorithms=Cache Modeling Algorithms
 File=modules/hasim/timing-models/uncore/uncore-with-interconnect.awb
 Packagehint=hasim-models
 
-[Split (Instruction and Data) No TLBs]
-File=config/pm/hasim-models/l1-caches/l1_caches_no_tlbs.apm
-Packagehint=hasim-models
 
 [Uncore with Interconnect/Requires]
 hasim_last_level_cache=Writeback No Coherence Last Level Cache
@@ -94,7 +66,7 @@ hasim_interconnect=Crossbar Interconnect
 hasim_memory_controller=Latency-Delay Controller
 
 [HW/SW Hybrid Project Foundation]
-File=modules/project/project-hybrid.awb
+File=modules/leap/build-support/project/project-hybrid.awb
 Packagehint=leap
 
 [Cache Modeling Algorithms]
@@ -118,30 +90,24 @@ File=modules/hasim/util/modellib/hasim-modellib.awb
 Packagehint=hasim
 
 [Soft Connections Hybrid Application Environment]
-File=modules/application-env/hybrid/soft-connections/application-env-hybrid-soft-conn.awb
+File=modules/leap/build-support/project/application-env/hybrid/soft-connections/application-env-hybrid-soft-conn.awb
 Packagehint=leap
 
-[Model Services]
-File=config/pm/hasim/submodels/common/hasim-model-services.apm
-Packagehint=hasim
 
 [HW/SW Hybrid Project Foundation/Requires]
-project_common=Hybrid Project Common Utilities
-fpgaenv=FPGA Environment
+project_common=Default Hybrid Project Common Utilities
+fpgaenv=Hybrid Simulation Environment
 application_env=Soft Connections Hybrid Application Environment
 
 [Soft Connections Hybrid Application Environment/Requires]
-platform_services=Platform Services
-soft_connections_lib=Soft Connections Library
+platform_services=Standard Platform Services
+soft_connections_lib=Standard Soft Connections Lib
 connected_application=HAsim Performance Model
 
 [Writeback No Coherence Last Level Cache]
 File=modules/hasim/timing-models/caches/last-level-caches/set-associative/last-level-cache-no-coherence.awb
 Packagehint=hasim-models
 
-[Hybrid Project Common Utilities]
-File=config/pm/hasim/submodels/common/project-common-default.apm
-Packagehint=leap
 
 [Single Chip Timing Partition/Requires]
 hasim_memory=Null Memory
@@ -152,12 +118,7 @@ hasim_chip=Multi-Core Chip
 File=modules/hasim/timing-models/uncore/memory-controller/latency-delay/memory-controller-latency-delay.awb
 Packagehint=hasim-models
 
-[Platform Services]
-File=config/pm/hasim/submodels/platform-services/standard-platform-services.apm
-Packagehint=leap
 
-[Default HAsim Common Library/Params]
-CONTEXT_ID_BITS=4
 
 [Single Chip Timing Partition]
 File=modules/hasim/timing-partition/single-chip/single-chip-timing-partition.awb
@@ -168,11 +129,11 @@ File=modules/hasim/timing-models/chip/multi-core/multi-core-chip.awb
 Packagehint=hasim-models
 
 [HAsim Performance Model/Requires]
-hasim_common=Default HAsim Common Library
+hasim_common=HAsim Common Default Configuration
 hasim_timep=Single Chip Timing Partition
 hasim_isa=Hasim - SMIPS ISA Definition
-hasim_funcp=Functional Partition Version 3
-hasim_model_services=Model Services
+hasim_funcp=SMIPS Functional Partition v3
+hasim_model_services=Default HAsim Model Services
 
 [Set Associative Last Level Cache Alg]
 File=modules/hasim/timing-models/caches/last-level-caches/alg/llc-set-associative.awb
@@ -184,3 +145,41 @@ hasim_last_level_cache_alg=Set Associative Last Level Cache Alg
 [HAsim Performance Model]
 File=modules/hasim/model/hasim-model.awb
 Packagehint=hasim
+
+[SMIPS Functional Partition v3/Params]
+FUNCP_PHYSICAL_REG_INDEX_BITS=11
+
+[Standard Platform Services]
+File=config/pm/hasim/submodels/platform-services/standard-platform-services.apm
+Packagehint=leap
+
+[HAsim Common Default Configuration/Params]
+CONTEXT_ID_BITS=4
+
+[HAsim Common Default Configuration]
+File=config/pm/hasim/submodels/common/hasim_common.apm
+Packagehint=hasim
+
+[Default HAsim Model Services]
+File=config/pm/hasim/submodels/common/hasim-model-services.apm
+Packagehint=hasim
+
+[Direct Mapped, Writethrough, No TLBs]
+File=config/pm/hasim-models/l1-caches/l1_caches_no_tlbs.apm
+Packagehint=hasim-models
+
+[Standard Soft Connections Lib]
+File=config/pm/hasim/submodels/common/soft-connections-lib.apm
+Packagehint=leap
+
+[Default Hybrid Project Common Utilities]
+File=config/pm/hasim/submodels/common/project-common-default.apm
+Packagehint=leap
+
+[SMIPS Functional Partition v3]
+File=config/pm/hasim-mips/submodels/funcp/smips_funcp_v3.apm
+Packagehint=hasim-mips
+
+[Hybrid Simulation Environment]
+File=config/pm/hasim/submodels/fpgaenv/hasim-fpgaenv-hybrid-sim.apm
+Packagehint=leap

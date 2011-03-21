@@ -16,24 +16,15 @@ RootProvides=model
 DefaultAttributes=hasim superscalar smips simulation
 model=HW/SW Hybrid Project Foundation
 
-[FPGA Environment]
-File=config/pm/hasim/submodels/fpgaenv/fpgaenv-hybrid-exe.apm
-Packagehint=leap
 
-[Functional Partition Version 3]
-File=config/pm/hasim-mips/submodels/funcp/smips_funcp_v3.apm
-Packagehint=hasim-mips
 
 [Cacheless Core]
 File=modules/hasim/timing-models/core/cacheless-core/core-no-cache.awb
 Packagehint=hasim-models
 
 [Cacheless Core/Requires]
-hasim_pipeline=Hasim 6-stage CPU
+hasim_pipeline=Superscalar out-of-order pipeline
 
-[Hasim 6-stage CPU]
-File=config/pm/hasim-models/pipeline/superscalar-out-of-order/superscalar-out-of-order.apm
-Packagehint=hasim-models
 
 [Single Core Chip/Requires]
 hasim_core=Cacheless Core
@@ -47,77 +38,60 @@ Packagehint=hasim-models
 File=modules/hasim/timing-models/chip/base-types/chip-base-types.awb
 Packagehint=hasim-models
 
-[Soft Connections Library]
-File=config/pm/hasim/submodels/common/soft-connections-lib.apm
-Packagehint=leap
 
 [HAsim Modeling Library/Requires]
 hasim_cache_algorithms=Cache Modeling Algorithms
 
 [HW/SW Hybrid Project Foundation]
-File=modules/project/project-hybrid.awb
+File=modules/leap/build-support/project/project-hybrid.awb
 Packagehint=leap
 
 [Cache Modeling Algorithms]
 File=modules/hasim/timing-models/caches/cache-algorithms/cache-algorithms.awb
 Packagehint=hasim-models
 
-[Soft Connections Library/Params]
-CON_CWIDTH=350
 
 [HAsim Modeling Library]
 File=modules/hasim/util/modellib/hasim-modellib.awb
 Packagehint=hasim
 
 [Soft Connections Hybrid Application Environment]
-File=modules/application-env/hybrid/soft-connections/application-env-hybrid-soft-conn.awb
+File=modules/leap/build-support/project/application-env/hybrid/soft-connections/application-env-hybrid-soft-conn.awb
 Packagehint=leap
 
-[Model Services]
-File=config/pm/hasim/submodels/common/hasim-model-services.apm
-Packagehint=hasim
 
 [HW/SW Hybrid Project Foundation/Requires]
-project_common=Hybrid Project Common Utilities
-fpgaenv=FPGA Environment
+project_common=Default Hybrid Project Common Utilities
+fpgaenv=Hybrid Simulation FPGA Environment
 application_env=Soft Connections Hybrid Application Environment
 
 [Soft Connections Hybrid Application Environment/Requires]
-platform_services=Platform Services
-soft_connections_lib=Soft Connections Library
+platform_services=Standard Platform Services
+soft_connections_lib=Standard Soft Connections Lib
 connected_application=HAsim Performance Model
 
-[Hybrid Project Common Utilities]
-File=config/pm/hasim/submodels/common/project-common-default.apm
-Packagehint=leap
 
 [Single Chip Timing Partition/Requires]
 hasim_memory=Null Memory
 hasim_modellib=HAsim Modeling Library
 hasim_chip=Single Core Chip
 
-[Platform Services]
-File=config/pm/hasim/submodels/platform-services/standard-platform-services.apm
-Packagehint=leap
 
 [Single Chip Timing Partition]
 File=modules/hasim/timing-partition/single-chip/single-chip-timing-partition.awb
 Packagehint=hasim
 
 [HAsim Performance Model/Requires]
-hasim_common=Default HAsim Common Library
+hasim_common=HAsim Common Default Configuration
 hasim_timep=Single Chip Timing Partition
 hasim_isa=Hasim - SMIPS ISA Definition
-hasim_funcp=Functional Partition Version 3
-hasim_model_services=Model Services
+hasim_funcp=SMIPS Functional Partition v3
+hasim_model_services=Default HAsim Model Services
 
 [HAsim Performance Model]
 File=modules/hasim/model/hasim-model.awb
 Packagehint=hasim
 
-[Default HAsim Common Library]
-File=config/pm/hasim/submodels/common/hasim_common.apm
-Packagehint=hasim
 
 [Hasim - SMIPS ISA Definition]
 File=modules/hasim-mips/isa/definition/smips/isa_definition_template.awb
@@ -133,3 +107,38 @@ Packagehint=hasim-models
 [Memory Base Types]
 File=modules/hasim/timing-models/memory/base-types/memory-base-types.awb
 Packagehint=hasim-models
+
+[Superscalar out-of-order pipeline]
+File=config/pm/hasim-models/pipeline/superscalar-out-of-order/superscalar-out-of-order.apm
+Packagehint=hasim-models
+
+[Standard Platform Services]
+File=config/pm/hasim/submodels/platform-services/standard-platform-services.apm
+Packagehint=leap
+
+[HAsim Common Default Configuration]
+File=config/pm/hasim/submodels/common/hasim_common.apm
+Packagehint=hasim
+
+[Hybrid Simulation FPGA Environment]
+File=config/pm/hasim/submodels/fpgaenv/fpgaenv-hybrid-exe.apm
+Packagehint=leap
+
+[Standard Soft Connections Lib/Params]
+CON_CWIDTH=350
+
+[Default HAsim Model Services]
+File=config/pm/hasim/submodels/common/hasim-model-services.apm
+Packagehint=hasim
+
+[Standard Soft Connections Lib]
+File=config/pm/hasim/submodels/common/soft-connections-lib.apm
+Packagehint=leap
+
+[Default Hybrid Project Common Utilities]
+File=config/pm/hasim/submodels/common/project-common-default.apm
+Packagehint=leap
+
+[SMIPS Functional Partition v3]
+File=config/pm/hasim-mips/submodels/funcp/smips_funcp_v3.apm
+Packagehint=hasim-mips
