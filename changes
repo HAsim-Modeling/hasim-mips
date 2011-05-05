@@ -5771,3 +5771,14 @@ Directory config/bm/smips
 - SMIPS benchmarks need setup-hasim-bmark from HAsim package
   (not setup-bmark from leap package).
 - Update model configurations following reorganization.
+
+----------
+pellauer    Date: Thu May  5 17:07:16 EDT 2011  CSN: CSN-hasim-mips-281
+                  Thu May  5 21:07:16 UTC 2011
+
+
+Directory config/pm/hasim-mips/smips-unpipelined/no-cache
+ smips_unpipelined_no_cache_exe.apm Locally Modified          280 
+
+
+* Unpipelined no-cache model was accidentaly using "with-cache" pipeline.

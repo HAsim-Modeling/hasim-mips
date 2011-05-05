@@ -16,14 +16,12 @@ RootProvides=model
 DefaultAttributes=hasim smips unpipelined hybrid sim
 model=HW/SW Hybrid Project Foundation
 
-
-
 [Cacheless Core]
 File=modules/hasim/timing-models/core/cacheless-core/core-no-cache.awb
 Packagehint=hasim-models
 
 [Cacheless Core/Requires]
-hasim_pipeline=Hasim Unpipelined Pipeline With Caches
+hasim_pipeline=Hasim Unpipelined Pipeline
 
 [Single Core Chip/Requires]
 hasim_core=Cacheless Core
@@ -36,7 +34,6 @@ Packagehint=hasim-models
 [Chip Base Types]
 File=modules/hasim/timing-models/chip/base-types/chip-base-types.awb
 Packagehint=hasim-models
-
 
 [HAsim Modeling Library/Requires]
 hasim_cache_algorithms=Cache Modeling Algorithms
@@ -57,7 +54,6 @@ Packagehint=hasim
 File=modules/leap/build-support/project/application-env/hybrid/soft-connections/application-env-hybrid-soft-conn.awb
 Packagehint=leap
 
-
 [HW/SW Hybrid Project Foundation/Requires]
 project_common=Default Hybrid Project Common Utilities
 fpgaenv=Hybrid Simulation FPGA Environment
@@ -68,20 +64,15 @@ platform_services=Standard Platform Services
 soft_connections_lib=Standard Soft Connections Lib
 connected_application=HAsim Performance Model
 
-
 [Single Chip Timing Partition/Requires]
 hasim_memory=Null Memory
 hasim_modellib=HAsim Modeling Library
 hasim_chip=Single Core Chip
 
-
 [Single Chip Timing Partition]
 File=modules/hasim/timing-partition/single-chip/single-chip-timing-partition.awb
 Packagehint=hasim
 
-[Hasim Unpipelined Pipeline With Caches]
-File=modules/hasim/timing-models/pipeline/unpipelined/with-cache/unpipelined-pipeline-with-cache.awb
-Packagehint=hasim-models
 
 [HAsim Performance Model/Requires]
 hasim_common=HAsim Common Default Configuration
@@ -93,7 +84,6 @@ hasim_model_services=Default HAsim Model Services
 [HAsim Performance Model]
 File=modules/hasim/model/hasim-model.awb
 Packagehint=hasim
-
 
 [Hasim - SMIPS ISA Definition]
 File=modules/hasim-mips/isa/definition/smips/isa_definition_template.awb
@@ -137,3 +127,7 @@ Packagehint=leap
 [SMIPS Functional Partition v3]
 File=config/pm/hasim-mips/submodels/funcp/smips_funcp_v3.apm
 Packagehint=hasim-mips
+
+[Hasim Unpipelined Pipeline]
+File=modules/hasim/timing-models/pipeline/unpipelined/no-cache/unpipelined-pipeline.awb
+Packagehint=hasim-models
