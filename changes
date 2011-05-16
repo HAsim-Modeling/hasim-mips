@@ -5782,3 +5782,22 @@ Directory config/pm/hasim-mips/smips-unpipelined/no-cache
 
 
 * Unpipelined no-cache model was accidentaly using "with-cache" pipeline.
+
+----------
+mcadler     Date: Mon May 16 15:39:26 EDT 2011  CSN: CSN-hasim-mips-282
+                  Mon May 16 19:39:26 UTC 2011
+
+
+Directory config/pm/hasim-mips/smips-unpipelined/with-cache
+ smips_unpipelined_with_cache_exe.apm Locally Modified          281 
+
+Directory modules/hasim-mips/isa/datapath/smips
+ isa_datapath_smips.awb    Locally Modified          281 
+ isa_datapath_smips.bsv    Locally Modified          281 
+
+Optionally send a stream of executed instructions addresses and inputs to the
+host for debugging.  The code is always enabled and the data stream is turned
+on using the dynamic parameter DEBUG_ISA_DP.
+
+This is primarily useful for debugging problems on FPGAs, where debug files
+aren't available.

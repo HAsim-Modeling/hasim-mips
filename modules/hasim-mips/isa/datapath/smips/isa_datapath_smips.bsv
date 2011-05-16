@@ -9,13 +9,17 @@
 import Vector::*;
 
 `include "asim/provides/hasim_common.bsh"
+`include "asim/provides/fpga_components.bsh"
 `include "asim/provides/soft_connections.bsh"
+`include "asim/provides/common_services.bsh"
 
 `include "asim/provides/hasim_isa.bsh"
 `include "asim/provides/funcp_interface.bsh"
 `include "asim/provides/isa_emulator.bsh"
 
 `include "asim/rrr/remote_client_stub_ISA_REGOP_EMULATOR.bsh"
+`include "asim/rrr/remote_client_stub_ISA_DP_DEBUG.bsh"
+`include "asim/dict/PARAMS_HASIM_ISA_DATAPATH.bsh"
 
 // ***** Modules *****
 
@@ -26,6 +30,14 @@ import Vector::*;
 module [HASIM_MODULE] mkISA_Datapath 
   //interface:
               ();
+
+    // ***** Dynamic parameters *****
+    PARAMETER_NODE paramNode <- mkDynamicParameterNode();
+    Param#(1) debugISADP <- mkDynamicParameter(`PARAMS_HASIM_ISA_DATAPATH_DEBUG_ISA_DP, paramNode);
+    function Bool enableISADebug = (debugISADP != 0);
+
+    // Debug RRR client
+    ClientStub_ISA_DP_DEBUG debugClient <- mkClientStub_ISA_DP_DEBUG();
 
     // ***** Soft Connections *****
 
@@ -120,6 +132,16 @@ module [HASIM_MODULE] mkISA_Datapath
         ISA_ADDRESS branch_taken_dest = branch_not_taken_dest + shifted_ext_offset;
 
         MIPS_OPCODE op = inst[31:26];
+
+        if (enableISADebug())
+        begin
+            debugClient.makeRequest_noteInstr(
+               contextIdToRRR(tokContextId(req.token)),
+               inst,
+               addr,
+               srcs[0],
+               srcs[1]);
+        end
 
         case (op)
 

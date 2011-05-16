@@ -1,22 +1,12 @@
-#/********************************************************************
-# *
-# * Awb module specification
-# *
-# *******************************************************************/
+%name SMIPS ISA Datapath V3
+%desc SMIPS ISA Datapath V3
+%provides hasim_isa_datapath
 
-#/*
-# %AWB_START
-#
-# %name SMIPS ISA Datapath V3
-# %desc SMIPS ISA Datapath V3
-# %provides hasim_isa_datapath
-#
-# %attributes isa template
-#
-# %public isa_datapath_smips.bsv
-#
-# %param SYNTH_BOUNDARY mkISA_Datapath "Name of synthesis boundary"
-# %param HASIM_ISA_DP_LOGFILE "hasim_isa_dp.out" "Name of ISA Datapath logfile"
-#
-# %AWB_END
-# */
+%attributes isa template
+
+%public isa_datapath_smips.bsv
+
+%param SYNTH_BOUNDARY mkISA_Datapath "Name of synthesis boundary"
+%param HASIM_ISA_DP_LOGFILE "hasim_isa_dp.out" "Name of ISA Datapath logfile"
+
+%param --dynamic DEBUG_ISA_DP    0 "Emit ISA datapath debug log? (Bool)"

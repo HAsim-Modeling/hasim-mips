@@ -16,8 +16,6 @@ RootProvides=model
 DefaultAttributes=hasim smips unpipelined hybrid sim
 model=HW/SW Hybrid Project Foundation
 
-
-
 [Hasim - SMIPS ISA Definition]
 File=modules/hasim-mips/isa/definition/smips/isa_definition_template.awb
 Packagehint=hasim-mips
@@ -38,7 +36,6 @@ hasim_l1_caches=Direct Mapped, Writethrough, No TLBs
 File=modules/hasim/timing-models/chip/base-types/chip-base-types.awb
 Packagehint=hasim-models
 
-
 [Null Memory/Requires]
 memory_base_types=Memory Base Types
 
@@ -50,15 +47,12 @@ Packagehint=hasim-models
 File=modules/hasim/timing-models/memory/base-types/memory-base-types.awb
 Packagehint=hasim-models
 
-
-
 [HAsim Modeling Library/Requires]
 hasim_cache_algorithms=Cache Modeling Algorithms
 
 [Uncore with Interconnect]
 File=modules/hasim/timing-models/uncore/uncore-with-interconnect.awb
 Packagehint=hasim-models
-
 
 [Uncore with Interconnect/Requires]
 hasim_last_level_cache=Writeback No Coherence Last Level Cache
@@ -93,10 +87,9 @@ Packagehint=hasim
 File=modules/leap/build-support/project/application-env/hybrid/soft-connections/application-env-hybrid-soft-conn.awb
 Packagehint=leap
 
-
 [HW/SW Hybrid Project Foundation/Requires]
 project_common=Default Hybrid Project Common Utilities
-fpgaenv=Hybrid Simulation Environment
+fpgaenv=Hybrid Simulation FPGA Environment
 application_env=Soft Connections Hybrid Application Environment
 
 [Soft Connections Hybrid Application Environment/Requires]
@@ -108,7 +101,6 @@ connected_application=HAsim Performance Model
 File=modules/hasim/timing-models/caches/last-level-caches/set-associative/last-level-cache-no-coherence.awb
 Packagehint=hasim-models
 
-
 [Single Chip Timing Partition/Requires]
 hasim_memory=Null Memory
 hasim_modellib=HAsim Modeling Library
@@ -117,8 +109,6 @@ hasim_chip=Multi-Core Chip
 [Latency-Delay Controller]
 File=modules/hasim/timing-models/uncore/memory-controller/latency-delay/memory-controller-latency-delay.awb
 Packagehint=hasim-models
-
-
 
 [Single Chip Timing Partition]
 File=modules/hasim/timing-partition/single-chip/single-chip-timing-partition.awb
@@ -180,6 +170,7 @@ Packagehint=leap
 File=config/pm/hasim-mips/submodels/funcp/smips_funcp_v3.apm
 Packagehint=hasim-mips
 
-[Hybrid Simulation Environment]
-File=config/pm/hasim/submodels/fpgaenv/hasim-fpgaenv-hybrid-sim.apm
+
+[Hybrid Simulation FPGA Environment]
+File=config/pm/hasim/submodels/fpgaenv/fpgaenv-hybrid-exe.apm
 Packagehint=leap
