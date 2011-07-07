@@ -9,12 +9,12 @@ Type=HAsim
 Class=Asim::Model
 DefaultBenchmark=
 DefaultRunOpts=
-RootName=HW/SW Hybrid Project Foundation
+RootName=HW/SW Hybrid Pipeline Build
 RootProvides=model
 
 [Model]
 DefaultAttributes=hasim smips unpipelined hybrid sim
-model=HW/SW Hybrid Project Foundation
+model=HW/SW Hybrid Pipeline Build
 
 [Hasim - SMIPS ISA Definition]
 File=modules/hasim-mips/isa/definition/smips/isa_definition_template.awb
@@ -59,9 +59,6 @@ hasim_last_level_cache=Writeback No Coherence Last Level Cache
 hasim_interconnect=Crossbar Interconnect
 hasim_memory_controller=Latency-Delay Controller
 
-[HW/SW Hybrid Project Foundation]
-File=modules/leap/build-support/project/project-hybrid.awb
-Packagehint=leap
 
 [Cache Modeling Algorithms]
 File=modules/hasim/timing-models/caches/cache-algorithms/cache-algorithms.awb
@@ -83,19 +80,8 @@ Packagehint=hasim-models
 File=modules/hasim/util/modellib/hasim-modellib.awb
 Packagehint=hasim
 
-[Soft Connections Hybrid Application Environment]
-File=modules/leap/build-support/project/application-env/hybrid/soft-connections/application-env-hybrid-soft-conn.awb
-Packagehint=leap
 
-[HW/SW Hybrid Project Foundation/Requires]
-project_common=Default Hybrid Project Common Utilities
-fpgaenv=Hybrid Simulation FPGA Environment
-application_env=Soft Connections Hybrid Application Environment
 
-[Soft Connections Hybrid Application Environment/Requires]
-platform_services=Standard Platform Services
-soft_connections_lib=Standard Soft Connections Lib
-connected_application=HAsim Performance Model
 
 [Writeback No Coherence Last Level Cache]
 File=modules/hasim/timing-models/caches/last-level-caches/set-associative/last-level-cache-no-coherence.awb
@@ -158,9 +144,6 @@ Packagehint=hasim
 File=config/pm/hasim-models/l1-caches/l1_caches_no_tlbs.apm
 Packagehint=hasim-models
 
-[Standard Soft Connections Lib]
-File=config/pm/hasim/submodels/common/soft-connections-lib.apm
-Packagehint=leap
 
 [Default Hybrid Project Common Utilities]
 File=config/pm/hasim/submodels/common/project-common-default.apm
@@ -170,7 +153,28 @@ Packagehint=leap
 File=config/pm/hasim-mips/submodels/funcp/smips_funcp_v3.apm
 Packagehint=hasim-mips
 
-
 [Hybrid Simulation FPGA Environment]
 File=config/pm/hasim/submodels/fpgaenv/fpgaenv-hybrid-exe.apm
 Packagehint=leap
+
+[HW/SW Hybrid Pipeline Build]
+File=modules/leap/build-support/project/project-pipeline.awb
+Packagehint=leap
+
+[HW/SW Hybrid Pipeline Build/Requires]
+project_common=Default Hybrid Project Common Utilities
+fpgaenv=Hybrid Simulation FPGA Environment
+application_env=Soft Services Hybrid Application Environment
+
+[Soft Services Submodel]
+File=config/pm/hasim/submodels/common/soft-services.apm
+Packagehint=leap
+
+[Soft Services Hybrid Application Environment]
+File=modules/leap/build-support/project/application-env/hybrid/soft-services/application-env-hybrid-soft-service.awb
+Packagehint=leap
+
+[Soft Services Hybrid Application Environment/Requires]
+platform_services=Standard Platform Services
+soft_services=Soft Services Submodel
+connected_application=HAsim Performance Model

@@ -5801,3 +5801,24 @@ on using the dynamic parameter DEBUG_ISA_DP.
 
 This is primarily useful for debugging problems on FPGAs, where debug files
 aren't available.
+
+----------
+mcadler     Date: Thu Jul  7 16:56:08 EDT 2011  CSN: CSN-hasim-mips-283
+                  Thu Jul  7 20:56:08 UTC 2011
+
+
+Directory config/pm/hasim-mips/smips-unpipelined/with-cache
+ smips_unpipelined_with_cache_exe.apm Locally Modified          282 
+
+Directory config/pm/hasim-mips/smips-unpipelined/no-cache
+ smips_unpipelined_no_cache_exe.apm Locally Modified          282 
+
+Directory config/pm/hasim-mips/smips-superscalar-ooo
+ smips_superscalar_ooo_exe.apm Locally Modified          282 
+ smips_superscalar_ooo_htg.apm Locally Modified          282 
+
+Directory config/pm/hasim-mips/smips-inorder
+ smips_inorder_exe.apm     Locally Modified          282 
+ smips_inorder_htg.apm     Locally Modified          282 
+
+Switch to build pipeline.
