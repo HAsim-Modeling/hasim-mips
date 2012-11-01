@@ -5837,3 +5837,16 @@ Directory config/pm/hasim-mips/smips-inorder
  smips_inorder_htg.apm     Locally Modified          283 
 
 Update submodel paths.
+
+----------
+mcadler     Date: Thu Nov  1 07:57:34 EDT 2012  CSN: CSN-hasim-mips-285
+                  Thu Nov  1 11:57:34 UTC 2012
+
+
+Directory config/pm/hasim-mips/smips-superscalar-ooo
+ smips_superscalar_ooo_exe.apm Locally Modified          284 
+
+Directory config/pm/hasim-mips/smips-inorder
+ smips_inorder_exe.apm     Locally Modified          284 
+
+Update config (packages moved).

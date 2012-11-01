@@ -82,9 +82,6 @@ Packagehint=hasim-models
 File=modules/hasim/timing-models/memory/base-types/memory-base-types.awb
 Packagehint=hasim-models
 
-[Standard Platform Services]
-File=config/pm/leap/submodels/platform-services/standard-platform-services.apm
-Packagehint=leap
 
 [HAsim Common Default Configuration]
 File=config/pm/hasim/submodels/common/hasim_common.apm
@@ -123,15 +120,10 @@ project_common=Default Hybrid Project Common Utilities
 fpgaenv=Hybrid Simulation FPGA Environment
 application_env=Soft Services Hybrid Application Environment
 
-[Soft Services Submodel]
-File=config/pm/leap/submodels/common/soft-services.apm
-Packagehint=leap
 
 [Soft Services Hybrid Application Environment]
 File=modules/leap/build-support/project/application-env/soft-services/application-env-hybrid-soft-service.awb
 Packagehint=leap
 
 [Soft Services Hybrid Application Environment/Requires]
-platform_services=Standard Platform Services
-soft_services=Soft Services Submodel
 connected_application=HAsim Performance Model
