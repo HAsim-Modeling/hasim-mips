@@ -60,6 +60,13 @@ typedef Vector#(ISA_MAX_SRCS, Maybe#(FUNCP_PHYSICAL_REG_INDEX)) ISA_INST_SRCS;
 typedef Vector#(ISA_MAX_DSTS, Maybe#(FUNCP_PHYSICAL_REG_INDEX)) ISA_INST_DSTS;
 
 
+// ISA_INST_DSTS_MASK
+
+// A mask of destination slots
+
+typedef Vector#(ISA_MAX_DSTS, Bool) ISA_INST_DSTS_MASK;
+
+
 // ISA_SRC_INDEX
 
 // A reference to an instruction source. (IE 3 srcs => bit 2)

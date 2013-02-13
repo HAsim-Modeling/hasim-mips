@@ -5850,3 +5850,14 @@ Directory config/pm/hasim-mips/smips-inorder
  smips_inorder_exe.apm     Locally Modified          284 
 
 Update config (packages moved).
+
+----------
+mcadler     Date: Wed Feb 13 09:43:54 EST 2013  CSN: CSN-hasim-mips-286
+                  Wed Feb 13 14:43:54 UTC 2013
+
+
+Directory modules/hasim-mips/isa/definition/smips
+ isa_decode_functions.bsv  Locally Modified          285 
+ isa_derived_types.bsv     Locally Modified          285 
+
+New functions corresponding to Alpha changes.

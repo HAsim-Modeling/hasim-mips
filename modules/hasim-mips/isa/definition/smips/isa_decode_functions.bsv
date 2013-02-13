@@ -450,6 +450,13 @@ function Bool isaIsLoad(ISA_INSTRUCTION i);
 endfunction
 
 
+// isaIsLoadLocked
+
+// Returns true if the given instruction is a load locked.
+
+function Bool isaIsLoadLocked(ISA_INSTRUCTION i) = False;
+
+
 // isaIsStore
 
 // Only SW is a store.
@@ -461,6 +468,13 @@ function Bool isaIsStore(ISA_INSTRUCTION i);
     return op == mipsSW;
 
 endfunction
+
+
+// isaIsStoreCond
+
+// Returns destination register if the given instruction is a store conditional.
+
+function Maybe#(Integer) isaIsStoreCond(ISA_INSTRUCTION i) = tagged Invalid;
 
 
 // isIsBranch
@@ -572,4 +586,43 @@ endfunction
 
 function ISA_ADDRESS predPcJumpImm(ISA_ADDRESS addr, ISA_INSTRUCTION inst);
     return {(addr + 4)[31:28], inst[25:0], 2'b00};
+endfunction
+    
+
+//
+// Generate masks of destinations written at different pipeline stages
+//
+
+//
+// Load's first destination is written at load.
+//
+function ISA_INST_DSTS_MASK isaWrittenAtLD(ISA_INSTRUCTION i);
+    ISA_INST_DSTS_MASK mask = replicate(False);
+
+    if (isaIsLoad(i))
+    begin
+        mask[0] = True;
+    end
+
+    return mask;
+endfunction
+
+//
+// MIPS writes nothing no registers at store.
+//
+function ISA_INST_DSTS_MASK isaWrittenAtST(ISA_INSTRUCTION i) = replicate(False);
+
+//
+// Everything else is written at execute.  The mask here doesn't bother to decode the
+// instruction.  It must be used in combination with the valid bits returned during
+// a full decode.
+//
+function ISA_INST_DSTS_MASK isaWrittenAtEXE(ISA_INSTRUCTION i);
+    ISA_INST_DSTS_MASK all_valid = replicate(True);
+
+    let mask_ld = isaWrittenAtLD(i);
+    let mask_st = isaWrittenAtST(i);
+
+    // Return everything not written at load or store.
+    return unpack(pack(all_valid) ^ (pack(mask_ld) | pack(mask_st)));
 endfunction
