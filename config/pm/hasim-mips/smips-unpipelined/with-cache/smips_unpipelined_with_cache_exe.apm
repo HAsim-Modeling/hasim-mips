@@ -65,7 +65,7 @@ File=modules/hasim/timing-models/caches/cache-algorithms/cache-algorithms.awb
 Packagehint=hasim-models
 
 [Chip Base Types/Params]
-NUM_CPUS=16
+MAX_NUM_CPUS=16
 
 [Multi-Core Chip/Requires]
 chip_base_types=Chip Base Types
