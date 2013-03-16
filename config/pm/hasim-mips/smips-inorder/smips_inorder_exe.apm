@@ -27,6 +27,7 @@ hasim_l1_caches=Null L1 caches
 [Single Core Chip/Requires]
 hasim_core=Pipeline and Caches
 chip_base_types=Chip Base Types
+hasim_chip_topology=Standard Topology Manager
 
 [Single Core Chip]
 File=modules/hasim/timing-models/chip/single-core-chip.awb
@@ -82,7 +83,6 @@ Packagehint=hasim-models
 File=modules/hasim/timing-models/memory/base-types/memory-base-types.awb
 Packagehint=hasim-models
 
-
 [HAsim Common Default Configuration]
 File=config/pm/hasim/submodels/common/hasim_common.apm
 Packagehint=hasim
@@ -120,10 +120,13 @@ project_common=Default Hybrid Project Common Utilities
 fpgaenv=Hybrid Simulation FPGA Environment
 application_env=Soft Services Hybrid Application Environment
 
-
 [Soft Services Hybrid Application Environment]
 File=modules/leap/build-support/project/application-env/soft-services/application-env-hybrid-soft-service.awb
 Packagehint=leap
 
 [Soft Services Hybrid Application Environment/Requires]
 connected_application=HAsim Performance Model
+
+[Standard Topology Manager]
+File=modules/hasim/timing-models/chip/topology/std/topology-std.awb
+Packagehint=hasim-models

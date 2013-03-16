@@ -5871,3 +5871,24 @@ Directory config/pm/hasim-mips/smips-unpipelined/with-cache
  smips_unpipelined_with_cache_exe.apm Locally Modified          286 
 
 Changed AWB parameter NUM_CPUS to MAX_NUM_CPUS.
+
+----------
+mcadler     Date: Sat Mar 16 11:32:17 EDT 2013  CSN: CSN-hasim-mips-288
+                  Sat Mar 16 15:32:17 UTC 2013
+
+
+Directory config/pm/hasim-mips/smips-unpipelined/with-cache
+ smips_unpipelined_with_cache_exe.apm Locally Modified          287 
+
+Directory config/pm/hasim-mips/smips-unpipelined/no-cache
+ smips_unpipelined_no_cache_exe.apm Locally Modified          287 
+
+Directory config/pm/hasim-mips/smips-superscalar-ooo
+ smips_superscalar_ooo_exe.apm Locally Modified          287 
+ smips_superscalar_ooo_htg.apm Locally Modified          287 
+
+Directory config/pm/hasim-mips/smips-inorder
+ smips_inorder_exe.apm     Locally Modified          287 
+ smips_inorder_htg.apm     Locally Modified          287 
+
+Add topology manager to timing models.

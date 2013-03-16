@@ -59,7 +59,6 @@ hasim_last_level_cache=Writeback No Coherence Last Level Cache
 hasim_interconnect=Crossbar Interconnect
 hasim_memory_controller=Latency-Delay Controller
 
-
 [Cache Modeling Algorithms]
 File=modules/hasim/timing-models/caches/cache-algorithms/cache-algorithms.awb
 Packagehint=hasim-models
@@ -71,6 +70,7 @@ MAX_NUM_CPUS=16
 chip_base_types=Chip Base Types
 hasim_core=Pipeline and Caches
 hasim_uncore=Uncore with Interconnect
+hasim_chip_topology=Standard Topology Manager
 
 [Crossbar Interconnect]
 File=modules/hasim/timing-models/uncore/interconnects/crossbar/icn-crossbar.awb
@@ -79,9 +79,6 @@ Packagehint=hasim-models
 [HAsim Modeling Library]
 File=modules/hasim/util/modellib/hasim-modellib.awb
 Packagehint=hasim
-
-
-
 
 [Writeback No Coherence Last Level Cache]
 File=modules/hasim/timing-models/caches/last-level-caches/set-associative/last-level-cache-no-coherence.awb
@@ -125,10 +122,6 @@ Packagehint=hasim
 [SMIPS Functional Partition v3/Params]
 FUNCP_PHYSICAL_REG_INDEX_BITS=11
 
-[Standard Platform Services]
-File=config/pm/hasim/submodels/platform-services/standard-platform-services.apm
-Packagehint=leap
-
 [HAsim Common Default Configuration/Params]
 CONTEXT_ID_BITS=4
 
@@ -144,9 +137,8 @@ Packagehint=hasim
 File=config/pm/hasim-models/l1-caches/l1_caches_no_tlbs.apm
 Packagehint=hasim-models
 
-
 [Default Hybrid Project Common Utilities]
-File=config/pm/hasim/submodels/common/project-common-default.apm
+File=config/pm/leap/submodels/common/project-common-default.apm
 Packagehint=leap
 
 [SMIPS Functional Partition v3]
@@ -154,7 +146,7 @@ File=config/pm/hasim-mips/submodels/funcp/smips_funcp_v3.apm
 Packagehint=hasim-mips
 
 [Hybrid Simulation FPGA Environment]
-File=config/pm/hasim/submodels/fpgaenv/fpgaenv-hybrid-exe.apm
+File=config/pm/leap/submodels/fpgaenv/fpgaenv-hybrid-exe.apm
 Packagehint=leap
 
 [HW/SW Hybrid Pipeline Build]
@@ -166,15 +158,13 @@ project_common=Default Hybrid Project Common Utilities
 fpgaenv=Hybrid Simulation FPGA Environment
 application_env=Soft Services Hybrid Application Environment
 
-[Soft Services Submodel]
-File=config/pm/hasim/submodels/common/soft-services.apm
-Packagehint=leap
-
 [Soft Services Hybrid Application Environment]
-File=modules/leap/build-support/project/application-env/hybrid/soft-services/application-env-hybrid-soft-service.awb
+File=modules/leap/build-support/project/application-env/soft-services/application-env-hybrid-soft-service.awb
 Packagehint=leap
 
 [Soft Services Hybrid Application Environment/Requires]
-platform_services=Standard Platform Services
-soft_services=Soft Services Submodel
 connected_application=HAsim Performance Model
+
+[Standard Topology Manager]
+File=modules/hasim/timing-models/chip/topology/std/topology-std.awb
+Packagehint=hasim-models
