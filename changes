@@ -5892,3 +5892,20 @@ Directory config/pm/hasim-mips/smips-inorder
  smips_inorder_htg.apm     Locally Modified          287 
 
 Add topology manager to timing models.
+
+----------
+mcadler     Date: Sat Apr 20 08:53:52 EDT 2013  CSN: CSN-hasim-mips-289
+                  Sat Apr 20 12:53:52 UTC 2013
+
+
+Directory config/pm/hasim-mips/smips-unpipelined/with-cache
+ smips_unpipelined_with_cache_exe.apm Locally Modified          288 
+
+Directory config/pm/hasim-mips/smips-inorder
+ smips_inorder_exe.apm     Locally Modified          288 
+ smips_inorder_htg.apm     Locally Modified          288 
+
+Change awb type name from hasim_l1_caches to hasim_private_caches in preparation
+for adding an L2 cache.  The private caches will hold all CPU-private caches
+and, as a group, will have connections up to the CPU and down to the
+uncore.

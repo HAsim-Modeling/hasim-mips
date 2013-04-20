@@ -22,7 +22,7 @@ Packagehint=hasim-models
 
 [Pipeline and Caches/Requires]
 hasim_pipeline=Inorder Pipeline, 2-bit branch predictor
-hasim_l1_caches=Null L1 caches
+hasim_private_caches=Null Private caches
 
 [Single Core Chip/Requires]
 hasim_core=Pipeline and Caches
@@ -99,9 +99,6 @@ Packagehint=hasim-models
 File=config/pm/hasim/submodels/common/hasim-model-services.apm
 Packagehint=hasim
 
-[Null L1 caches]
-File=config/pm/hasim-models/l1-caches/null_l1_caches.apm
-Packagehint=hasim-models
 
 [Default Hybrid Project Common Utilities]
 File=config/pm/leap/submodels/common/project-common-default.apm
@@ -129,4 +126,8 @@ connected_application=HAsim Performance Model
 
 [Standard Topology Manager]
 File=modules/hasim/timing-models/chip/topology/std/topology-std.awb
+Packagehint=hasim-models
+
+[Null Private caches]
+File=config/pm/hasim-models/private-caches/null-private-caches.apm
 Packagehint=hasim-models
