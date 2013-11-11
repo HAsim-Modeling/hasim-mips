@@ -5909,3 +5909,13 @@ Change awb type name from hasim_l1_caches to hasim_private_caches in preparation
 for adding an L2 cache.  The private caches will hold all CPU-private caches
 and, as a group, will have connections up to the CPU and down to the
 uncore.
+
+----------
+mcadler     Date: Mon Nov 11 18:23:54 EST 2013  CSN: CSN-hasim-mips-290
+                  Mon Nov 11 23:23:54 UTC 2013
+
+
+Directory modules/hasim-mips/isa/definition/smips
+ isa_datatypes.h           Locally Modified          289 
+
+Update RRR interface.

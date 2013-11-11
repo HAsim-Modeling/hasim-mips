@@ -23,6 +23,14 @@ typedef UINT32 ISA_ADDRESS;
 typedef UINT32 ISA_VALUE;
 typedef UINT32 ISA_INSTRUCTION;
 
+#define AppendISA_ADDRESS AppendUINT64
+#define AppendISA_VALUE AppendUINT64
+#define AppendISA_INSTRUCTION AppendUINT32
+
+#define ExtractISA_ADDRESS ExtractUINT64
+#define ExtractISA_VALUE ExtractUINT64
+#define ExtractISA_INSTRUCTION ExtractUINT32
+
 typedef class ISA_REG_INDEX_CLASS *ISA_REG_INDEX;
 
 class ISA_REG_INDEX_CLASS
