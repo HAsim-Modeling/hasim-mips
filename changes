@@ -5919,3 +5919,16 @@ Directory modules/hasim-mips/isa/definition/smips
  isa_datatypes.h           Locally Modified          289 
 
 Update RRR interface.
+
+----------
+keflemin    Date: Wed Feb 19 12:29:54 EST 2014  CSN: CSN-hasim-mips-291
+                  Wed Feb 19 17:29:54 UTC 2014
+
+
+Directory experiments/hasim-mips/nightly
+ nightly.models            Locally Modified          290 
+
+
+Increased run length for nightly regression runs. It appears that the
+default runtime is now insufficient.
+
