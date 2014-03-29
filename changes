@@ -5932,16 +5932,3 @@ Directory experiments/hasim-mips/nightly
 Increased run length for nightly regression runs. It appears that the
 default runtime is now insufficient.
 
-
-----------
-keflemin    Date: Sat Mar 29 16:30:03 EDT 2014  CSN: CSN-hasim-mips-292
-                  Sat Mar 29 20:30:03 UTC 2014
-
-
-Directory experiments/hasim-mips/regression
- regression.models         Locally Modified          291 
-
-
-
-Increased cycle run time for regression.models.  Nightly had already
-been updated.
