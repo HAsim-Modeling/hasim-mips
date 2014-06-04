@@ -81,7 +81,7 @@ File=modules/hasim/util/modellib/hasim-modellib.awb
 Packagehint=hasim
 
 [Writeback No Coherence Last Level Cache]
-File=modules/hasim/timing-models/caches/last-level-caches/set-associative/last-level-cache-no-coherence.awb
+File=modules/hasim/timing-models/caches/protocol/no-coherence/last-level-cache/set-associative/last-level-cache-no-coherence.awb
 Packagehint=hasim-models
 
 [Single Chip Timing Partition/Requires]
@@ -109,7 +109,7 @@ hasim_funcp=SMIPS Functional Partition v3
 hasim_model_services=Default HAsim Model Services
 
 [Set Associative Last Level Cache Alg]
-File=modules/hasim/timing-models/caches/last-level-caches/alg/llc-set-associative.awb
+File=modules/hasim/timing-models/caches/cache-algorithms/wrappers/last-level-cache/llc-set-associative.awb
 Packagehint=hasim-models
 
 [Writeback No Coherence Last Level Cache/Requires]
@@ -132,7 +132,6 @@ Packagehint=hasim
 [Default HAsim Model Services]
 File=config/pm/hasim/submodels/common/hasim-model-services.apm
 Packagehint=hasim
-
 
 [Default Hybrid Project Common Utilities]
 File=config/pm/leap/submodels/common/project-common-default.apm

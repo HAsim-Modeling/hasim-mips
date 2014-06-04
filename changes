@@ -5932,3 +5932,13 @@ Directory experiments/hasim-mips/nightly
 Increased run length for nightly regression runs. It appears that the
 default runtime is now insufficient.
 
+
+----------
+mcadler     Date: Thu May 15 17:37:51 EDT 2014  CSN: CSN-hasim-mips-294
+                  Thu May 15 21:37:51 UTC 2014
+
+
+Directory config/pm/hasim-mips/smips-unpipelined/with-cache
+ smips_unpipelined_with_cache_exe.apm Locally Modified          293 
+
+Update for reorganized cache model components.
